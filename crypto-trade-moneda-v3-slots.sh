@@ -705,12 +705,32 @@ check_slot_tp_sl() {
             local sell_qty=$(awk -v q="$quantity" 'BEGIN {printf "%.8f", q * 0.35}')
             local sell_value=$(awk -v q="$sell_qty" -v p="$current_price" 'BEGIN {printf "%.2f", q * p}')
             
-            # Si 35% es menor a $5, vender hasta 85% máximo (5% se acumula)
-            if (( $(awk -v v="$sell_value" -v m="5" 'BEGIN {print (v < m) ? 1 : 0}') )); then
-                log "  ⚠️ 35% = \$${sell_value} < \$5 mínimo"
-                log "  🎯 Vendiendo 95% máximo (5% se acumula)"
-                sell_qty=$(awk -v q="$quantity" 'BEGIN {printf "%.8f", q * 0.95}')
+            # BUG-FIX: Si 35% es menor a $10, calcular cantidad para vender mínimo $10
+            # Binance requiere mínimo ~$5-10 USDT por orden (NOTIONAL filter)
+            local MIN_SELL_VALUE=10
+            if (( $(awk -v v="$sell_value" -v m="$MIN_SELL_VALUE" 'BEGIN {print (v < m) ? 1 : 0}') )); then
+                log "  ⚠️ 35% = \$${sell_value} < \$${MIN_SELL_VALUE} mínimo de Binance"
+                
+                # Calcular cantidad necesaria para vender $10 USDT
+                sell_qty=$(awk -v min="$MIN_SELL_VALUE" -v p="$current_price" 'BEGIN {printf "%.8f", min / p}')
                 sell_value=$(awk -v q="$sell_qty" -v p="$current_price" 'BEGIN {printf "%.2f", q * p}')
+                log "  🎯 Ajustado para vender mínimo \$${MIN_SELL_VALUE}: $sell_qty ($SYMBOL)"
+                
+                # Verificar si la cantidad ajustada excede lo disponible en el slot
+                local max_sellable=$(awk -v q="$quantity" 'BEGIN {printf "%.8f", q * 0.95}')  # Máximo 95% (5% se acumula)
+                if (( $(awk -v adj="$sell_qty" -v max="$max_sellable" 'BEGIN {print (adj > max) ? 1 : 0}') )); then
+                    log "  ⚠️ Cantidad ajustada ($sell_qty) > 95% del slot ($max_sellable)"
+                    log "  💡 Vendiendo 95% máximo del slot (5% se acumula)"
+                    sell_qty="$max_sellable"
+                    sell_value=$(awk -v q="$sell_qty" -v p="$current_price" 'BEGIN {printf "%.2f", q * p}')
+                fi
+                
+                # Si aún es < $5, notificar pero intentar vender de todos modos
+                if (( $(awk -v v="$sell_value" -v m="5" 'BEGIN {print (v < m) ? 1 : 0}') )); then
+                    log "  ⚠️ WARNING: \$${sell_value} sigue < \$5 mínimo - Binance podría rechazar"
+                else
+                    log "  ✅ \$${sell_value} >= \$5 - Debería ejecutar"
+                fi
             fi
             
             log "  Cantidad para vender: $sell_qty (valor: \$${sell_value})"
@@ -758,19 +778,32 @@ Quedan 65% para TP2/TP3 🎯"
             local sell_qty=$(awk -v q="$quantity" 'BEGIN {printf "%.8f", q * 0.30}')
             local sell_value=$(awk -v q="$sell_qty" -v p="$current_price" 'BEGIN {printf "%.2f", q * p}')
             
-            # Si 30% es menor a $5, calcular restante del slot (65% después de TP1 35%)
-            # NO usar get_balance() para evitar mezclar HODL con trading (BUG-034)
-            if (( $(awk -v v="$sell_value" -v m="5" 'BEGIN {print (v < m) ? 1 : 0}') )); then
-                log "  ⚠️ 30% = \$${sell_value} < \$5 mínimo de Binance"
-                log "  🎯 Usando restante del slot (65% después de TP1)"
-                # Calcular 65% restante (100% - 35% TP1 = 65%)
-                sell_qty=$(awk -v q="$quantity" 'BEGIN {printf "%.8f", q * 0.65}')
-                sell_value=$(awk -v q="$sell_qty" -v p="$current_price" 'BEGIN {printf "%.2f", q * p}')
-                log "  💰 Restante slot: $sell_qty ($SYMBOL) = \$${sell_value}"
+            # BUG-FIX: Si 30% es menor a $10, calcular cantidad para vender mínimo $10
+            local MIN_SELL_VALUE=10
+            if (( $(awk -v v="$sell_value" -v m="$MIN_SELL_VALUE" 'BEGIN {print (v < m) ? 1 : 0}') )); then
+                log "  ⚠️ 30% = \$${sell_value} < \$${MIN_SELL_VALUE} mínimo de Binance"
                 
-                # Si aún es < $5, vender TODO el slot pero NO el HODL
-                if (( $(awk -v v="$sell_value" -v m="5" 'BEGIN {print (v < m) ? 1 : 0}') )); then
-                    log "  ⚠️ Restante \$${sell_value} < \$5 - Vendiendo TODO el slot (NO HODL)"
+                # Calcular restante del slot (65% después de TP1 35%)
+                local remaining_qty=$(awk -v q="$quantity" 'BEGIN {printf "%.8f", q * 0.65}')
+                local remaining_value=$(awk -v q="$remaining_qty" -v p="$current_price" 'BEGIN {printf "%.2f", q * p}')
+                
+                # Si el restante alcanza para $10, vender el restante completo
+                if (( $(awk -v r="$remaining_value" -v m="$MIN_SELL_VALUE" 'BEGIN {print (r >= m) ? 1 : 0}') )); then
+                    log "  💰 Restante del slot: $remaining_qty = \$${remaining_value} (>= \$${MIN_SELL_VALUE})"
+                    sell_qty="$remaining_qty"
+                    sell_value="$remaining_value"
+                else
+                    # Calcular cantidad para $10 (aunque exceda el slot)
+                    sell_qty=$(awk -v min="$MIN_SELL_VALUE" -v p="$current_price" 'BEGIN {printf "%.8f", min / p}')
+                    sell_value=$(awk -v q="$sell_qty" -v p="$current_price" 'BEGIN {printf "%.2f", q * p}')
+                    log "  🎯 Ajustado para vender \$${MIN_SELL_VALUE}: $sell_qty"
+                    
+                    # Si excede lo disponible, vender todo el restante
+                    if (( $(awk -v adj="$sell_qty" -v rem="$remaining_qty" 'BEGIN {print (adj > rem) ? 1 : 0}') )); then
+                        log "  ⚠️ Cantidad > restante - Vendiendo TODO el slot"
+                        sell_qty="$remaining_qty"
+                        sell_value=$(awk -v q="$sell_qty" -v p="$current_price" 'BEGIN {printf "%.2f", q * p}')
+                    fi
                 fi
             fi
             
