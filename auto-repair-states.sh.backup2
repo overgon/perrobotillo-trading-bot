@@ -1,0 +1,177 @@
+#!/bin/bash
+# 🛡️ Auto-Repair de Estados V2 - Slot-Level Detection
+# Revisa CADA SLOT individualmente para detectar CLOSED_*
+# Ejecutar cada 5 minutos vía cron
+
+WORKSPACE="/home/overgon/.openclaw/workspace"
+LOGS="/home/overgon/.openclaw/logs"
+SECRETS="/home/overgon/.openclaw/secrets"
+BINANCE="https://api.binance.com"
+
+source "$SECRETS/binance.env"
+
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOGS/auto-repair.log"
+}
+
+get_signature() {
+    echo -n "$1" | openssl dgst -sha256 -hmac "$BINANCE_API_SECRET" | awk '{print $2}'
+}
+
+get_balance() {
+    local symbol="$1"
+    local timestamp=$(date -u +%s%3N)
+    local query_string="timestamp=${timestamp}&recvWindow=5000"
+    local signature=$(get_signature "$query_string")
+    local result=$(curl -s -X GET "${BINANCE}/api/v3/account?${query_string}&signature=${signature}" -H "X-MBX-APIKEY: ${BINANCE_API_KEY}")
+    echo "$result" | jq -r ".balances[] | select(.asset == \"$symbol\") | {free: .free, locked: .locked}"
+}
+
+send_telegram() {
+    local message="$1"
+    local config_file="$HOME/.openclaw/openclaw.json"
+    local chat_id="7543955537"
+    local bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)
+    [ -z "$bot_token" ] && bot_token="${TELEGRAM_BOT_TOKEN:-}"
+    
+    if [ -n "$bot_token" ] && [ "$bot_token" != "null" ]; then
+        curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
+            -H "Content-Type: application/json" \
+            -d "{\"chat_id\":\"${chat_id}\",\"text\":\"$message\",\"parse_mode\":\"Markdown\"}" > /dev/null
+    fi
+}
+
+# ============================================
+# 🆕 NUEVA FUNCIÓN: Revisa CADA SLOT individualmente
+# ============================================
+check_slots_for_coin() {
+    local symbol="$1"
+    local state_file="$WORKSPACE/crypto-bots/${symbol}-trade-state.json"
+    
+    [ ! -f "$state_file" ] && return 0
+    
+    log "🔍 $symbol: Revisando slots individuales..."
+    
+    local current_epoch=$(date +%s)
+    local modified=false
+    local ready_count=0
+    local active_count=0
+    
+    # Revisar cada slot (0, 1, 2)
+    for slot_idx in 0 1 2; do
+        local slot_status=$(jq -r ".slots[$slot_idx].status" "$state_file")
+        local slot_timestamp=$(jq -r ".slots[$slot_idx].timestamp // empty" "$state_file")
+        
+        # Contar slots activos y ready
+        [ "$slot_status" = "READY" ] && ready_count=$((ready_count + 1))
+        [ "$slot_status" = "ACTIVE" ] && active_count=$((active_count + 1))
+        
+        # Solo revisar estados CLOSED_* técnicos que necesitan auto-reset
+        # EXCLUYE: CLOSED_EMERGENCY y CLOSED_MANUAL (requieren intervención humana)
+        if [[ "$slot_status" == "CLOSED_TP2" || "$slot_status" == "CLOSED_TRAILING" || "$slot_status" == "CLOSED_SL" || "$slot_status" == "CLOSED_TP" ]]; then
+            log "🔧 $symbol Slot $((slot_idx+1)): Estado $slot_status elegible para auto-repair"
+            if [ -n "$slot_timestamp" ]; then
+                # Limpiar timestamp de comillas
+                slot_timestamp=$(echo "$slot_timestamp" | tr -d '"')
+                local slot_epoch=$(date -d "$slot_timestamp" +%s 2>/dev/null || echo "0")
+                local minutes_closed=$(( (current_epoch - slot_epoch) / 60 ))
+                
+                if [ "$minutes_closed" -ge 10 ]; then
+                    log "🕐 $symbol Slot $((slot_idx+1)): $slot_status por ${minutes_closed}min → RESET A READY"
+                    
+                    # 🚨 ALERTA TEMPRANA - Notificar antes de resetear
+                    send_telegram "🚨 *ALERTA - SLOT ATASCADO*
+
+💰 Coin: $symbol
+🔢 Slot: $((slot_idx+1))
+📊 Estado: $slot_status
+⏰ Tiempo: ${minutes_closed} minutos
+
+🔧 *Acción: Reset automático a READY*
+
+El slot será reseteado automáticamente."
+                    
+                    # Resetear slot individual (sintaxis simplificada)
+                    local now_ts=$(date -Iseconds)
+                    jq ".slots[$slot_idx].status = \"READY\" | \
+                        .slots[$slot_idx].type = null | \
+                        .slots[$slot_idx].orderId = null | \
+                        .slots[$slot_idx].entryPrice = null | \
+                        .slots[$slot_idx].quantity = null | \
+                        .slots[$slot_idx].usdtSpent = null | \
+                        .slots[$slot_idx].feeBuy = null | \
+                        .slots[$slot_idx].totalCost = null | \
+                        .slots[$slot_idx].stopLoss = null | \
+                        .slots[$slot_idx].tp1 = null | \
+                        .slots[$slot_idx].tp2 = null | \
+                        .slots[$slot_idx].tp3 = null | \
+                        .slots[$slot_idx].tp1Done = false | \
+                        .slots[$slot_idx].tp2Done = false | \
+                        .slots[$slot_idx].tp3Done = false | \
+                        .slots[$slot_idx].highestPrice = null | \
+                        .slots[$slot_idx].trailingStop = null | \
+                        .slots[$slot_idx].trailingPercent = null | \
+                        .slots[$slot_idx].timestamp = null | \
+                        .slots[$slot_idx].autoRepaired = true | \
+                        .slots[$slot_idx].autoRepairedAt = \"$now_ts\" | \
+                        .slots[$slot_idx].autoRepairReason = \"${slot_status}_timeout_10min\"" \
+                        "$state_file" > /tmp/state_${symbol}.json && mv /tmp/state_${symbol}.json "$state_file"
+                    
+                    modified=true
+                    ready_count=$((ready_count + 1))
+                    [ "$slot_status" = "ACTIVE" ] && active_count=$((active_count - 1))
+                    
+                    send_telegram "🔧 *AUTO-REPAIR - $symbol Slot $((slot_idx+1))*
+
+Estado: $slot_status → READY
+
+Tiempo cerrado: ${minutes_closed} minutos
+Threshold: 20 minutos
+
+✅ Auto-reset completado - Listo para operar"
+                else
+                    # ⚠️ ALERTA TEMPRANA - 7 minutos (antes del threshold de 10)
+                    if [ "$minutes_closed" -ge 7 ]; then
+                        log "⚠️ $symbol Slot $((slot_idx+1)): $slot_status por ${minutes_closed}min (ALERTA 7min)"
+                        send_telegram "⚠️ *PRE-ALERTA - SLOT ATASCADO*
+
+💰 Coin: $symbol
+🔢 Slot: $((slot_idx+1))
+📊 Estado: $slot_status
+⏰ Tiempo: ${minutes_closed} minutos
+
+🔧 *Acción: Se reseteará en $((10 - minutes_closed)) min*
+
+Threshold: 10 minutos"
+                    else
+                        log "⏳ $symbol Slot $((slot_idx+1)): $slot_status por ${minutes_closed}min (< 10min, esperando)"
+                    fi
+                fi
+            else
+                log "⚠️ $symbol Slot $((slot_idx+1)): $slot_status sin timestamp"
+            fi
+        fi
+    done
+    
+    # Actualizar status global basado en slots
+    if [ "$modified" = true ]; then
+        if [ "$active_count" -eq 0 ]; then
+            jq '.status = "READY"' "$state_file" > /tmp/state_${symbol}.json && mv /tmp/state_${symbol}.json "$state_file"
+        fi
+        log "✅ $symbol: $ready_count READY, $active_count ACTIVE (global: $(jq -r '.status' "$state_file"))"
+    fi
+}
+
+# ============================================
+# 📋 MAIN - Revisar todas las coins
+# ============================================
+log "╔═══════════════════════════════════════════════════════╗"
+log "║  🛡️ AUTO-REPAIR V2 - SLOT-LEVEL DETECTION            ║"
+log "╚═══════════════════════════════════════════════════════╝"
+
+for coin in BTC ETH BNB SOL LINK XRP AVAX; do
+    check_slots_for_coin "$coin"
+    sleep 1  # Evitar rate limiting de Binance
+done
+
+log "🛡️ === AUTO-REPAIR V2 COMPLETE ==="
