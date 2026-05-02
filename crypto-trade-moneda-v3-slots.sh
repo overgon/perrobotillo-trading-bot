@@ -20,63 +20,84 @@ BINANCE="https://api.binance.com"
 
 source "$SECRETS/binance.env"
 
-# ============================================
-# 🎯 CONFIGURACIÓN OPTIMIZADA - FASE 1 v2.1
-# ============================================
-# Actualizado: 2026-04-18 18:20 CST (Perrobotillo)
-# Objetivo: Minimizar pérdidas durante validación
-# Strategy: Position size reducido + TPs más altos
-# Status: OPERATIVO CON MONITOREO ESTRECHO
+# ════════════════════════════════════════════════════════
+# 🎯 CONFIGURACIÓN OPTIMIZADA - FASE 1 v2.1 + 20/80
+# ════════════════════════════════════════════════════════
+# Actualizado: 2026-04-22 12:55 CST (Perrobotillo)
+# Estrategia: 20% HOLDING + 80% TRADING
+# Objetivo: Máximo capital trabajando sin NOTIONAL filter
+# Status: LISTO PARA OPERAR
+
+# Source config 20/80
+CONFIG_FILE="$WORKSPACE/config/capital-config.sh"
+if [ -f "$CONFIG_FILE" ]; then
+    source "$CONFIG_FILE"
+    log "✅ Estrategia 20/80 cargada"
+else
+    log "⚠️ Config 20/80 no encontrada, usando defaults"
+    HOLD_PERCENT=20
+    TRADE_PERCENT=80
+    TRADE_POSITION_PERCENT=40
+    MIN_TRADE_SIZE=10
+fi
 
 TRADING_HOURS_OPTIMAL="00,01,13,14,15,16,21,22"
 AGGRESSIVE_MODE=true
 
-# TRADE PERCENT OPTIMIZADO (30% → 20% - 2026-04-18)
-# Reducido para minimizar pérdidas durante validación
-# Posiciones más conservadoras: $25-35 USDT (vs $40-60 antes)
-NORMAL_TRADE_PERCENT=20
-AGGRESSIVE_TRADE_PERCENT=25
+# TRADE PERCENT - CONFIGURADO POR 20/80
+# El tamaño real se calcula dinámicamente basado en USDT disponible
+NORMAL_TRADE_PERCENT=$TRADE_POSITION_PERCENT  # 40% del capital de trading
+AGGRESSIVE_TRADE_PERCENT=45  # Un poco más agresivo
 
 # ACUMULACIÓN REDUCIDA (15% → 5%)
 # Más ganancias realizadas, menos acumulación
 ACCUMULATION_PERCENT=5  # (antes: 15)
 
 # STOP LOSS POR COIN (basado en volatilidad diaria promedio)
-# AUDIT-REPORT-2026-04-12: 78/85 losses fueron por SL muy apretado
+# ACTUALIZADO 2026-05-02: Ajustado para mercado lateral (5-6% vs 3-4%)
+# Razón: Evitar ruido del mercado y reducir falsos positivos
 declare -A STOP_LOSS_BY_COIN=(
-    ["BTC"]="3.5"   # Volatilidad 2-4%
-    ["ETH"]="4.5"   # Volatilidad 3-5%
-    ["SOL"]="7.0"   # Volatilidad 5-8%
-    ["LINK"]="5.5"  # Volatilidad 4-6%
-    ["XRP"]="4.5"   # Volatilidad 3-5%
-    ["BNB"]="3.5"   # Volatilidad 2-4%
-    ["AVAX"]="6.0"  # Volatilidad 4-7%
+    ["BTC"]="5.5"   # Antes: 3.5% (Volatilidad 2-4%)
+    ["ETH"]="6.0"   # Antes: 4.5% (Volatilidad 3-5%)
+    ["SOL"]="8.0"   # Antes: 7.0% (Volatilidad 5-8%)
+    ["LINK"]="7.0"  # Antes: 5.5% (Volatilidad 4-6%)
+    ["XRP"]="6.0"   # Antes: 4.5% (Volatilidad 3-5%)
+    ["BNB"]="5.5"   # Antes: 3.5% (Volatilidad 2-4%)
+    ["AVAX"]="7.5"  # Antes: 6.0% (Volatilidad 4-7%)
 )
 
-# TAKE PROFIT OPTIMIZADOS v2 (2026-04-14)
-# TP3: 5.0% → 3.5% (más realista, más frecuencia)
-# Win rate esperado: 4.4% → 30-35%
-# ACTUALIZADO 2026-04-18: TP1/2/3 aumentados para mejorar avg/trade
-NORMAL_TP1=2.5   # Aumentado de 1.5%
-NORMAL_TP2=5.0   # Aumentado de 3.0%
-NORMAL_TP3=8.0   # Aumentado de 3.5%
+# TAKE PROFIT OPTIMIZADOS v3 (2026-05-02) - MERCADO LATERAL
+# Ajustado para mercado en consolidación (rangos estrechos)
+# TP1: 2.5% → 1.8% (tomar profits más rápido)
+# TP2: 5.0% → 3.5% (más realista en rango)
+# TP3: 8.0% → 5.0% (objetivo alcanzable)
+# Win rate esperado: 16% → 45-50%
+NORMAL_TP1=1.8   # Reducido de 2.5% (mercado lateral)
+NORMAL_TP2=3.5   # Reducido de 5.0% (mercado lateral)
+NORMAL_TP3=5.0   # Reducido de 8.0% (mercado lateral)
 
-AGGRESSIVE_TP1=3.0
-AGGRESSIVE_TP2=6.0
-AGGRESSIVE_TP3=10.0
+AGGRESSIVE_TP1=2.0
+AGGRESSIVE_TP2=4.0
+AGGRESSIVE_TP3=6.0
 
-# Zero Trust
-MIN_TRADE_USDT=5  # Binance minimum notional
+# Zero Trust + NOTIONAL Filter Fix (BUG-052)
+MIN_TRADE_USDT=10  # Mínimo Binance con margen (era $5)
 MAX_TRADE_USDT=100
 MIN_BALANCE_CHECK=true
 CHECK_DAILY_LOSS=true
 MAX_DAILY_LOSS_PERCENT=3
 BINANCE_FEE_PERCENT=0.015
 
-# FASE 1: Trailing Stop activado después de TP1
-TRAILING_STOP_ENABLED=true
-TRAILING_AFTER_TP1_PERCENT="0.5"  # Aumentado de 0.2% a 0.5% (breakeven más conservador)
-TRAILING_AFTER_TP2_PERCENT="3.0"  # Aumentado de 2.0% a 3.0% (más margen para trends)
+# Validaciones pre-trade (BUG-052)
+MIN_PORTFOLIO_FOR_TRADE=50  # No operar si portfolio < $50
+SNAPSHOT_REQUIRED=true      # Requiere snapshot válido
+
+# FASE 1: Trailing Stop DESACTIVADO para mercado lateral
+# ACTUALIZADO 2026-05-02: Trailing muy sensible causaba cierres prematuros
+# Se reactivará cuando BTC rompa rango ($77,750 o $78,600)
+TRAILING_STOP_ENABLED=false
+TRAILING_AFTER_TP1_PERCENT="2.0"  # Aumentado de 0.5% a 2.0% (menos sensible)
+TRAILING_AFTER_TP2_PERCENT="4.0"  # Aumentado de 3.0% a 4.0% (más margen)
 
 # Multi-Slot
 MAX_SLOTS=3
@@ -99,6 +120,115 @@ log() {
 
 log_debug() {
     [ "${DEBUG:-false}" = "true" ] && echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$SYMBOL-DEBUG] $1" | tee -a "$LOGS/trade-${SYMBOL}-debug.log" || true
+}
+
+# ============================================
+# 📜 HISTORICAL TRADE LOGGING
+# ============================================
+
+HISTORY_FILE="$WORKSPACE/crypto-bots/trade-history.json"
+
+init_trade_history() {
+    if [ ! -f "$HISTORY_FILE" ]; then
+        cat > "$HISTORY_FILE" << EOF
+{
+  "version": "1.0",
+  "created": "$(date -Iseconds)",
+  "totalTrades": 0,
+  "totalWins": 0,
+  "totalLosses": 0,
+  "totalProfitUSDT": 0,
+  "totalLossUSDT": 0,
+  "netPnLUSDT": 0,
+  "winRate": 0,
+  "trades": []
+}
+EOF
+    fi
+}
+
+log_trade_to_history() {
+    local slot_id="$1"
+    local close_type="$2"  # TP1, TP2, TP3, SL, TRAILING
+    local entry_price="$3"
+    local exit_price="$4"
+    local quantity="$5"
+    local pnl="$6"
+    
+    init_trade_history
+    
+    # Leer contadores actuales
+    local current_trades=$(jq -r '.totalTrades // 0' "$HISTORY_FILE")
+    local current_wins=$(jq -r '.totalWins // 0' "$HISTORY_FILE")
+    local current_losses=$(jq -r '.totalLosses // 0' "$HISTORY_FILE")
+    local current_profit=$(jq -r '.totalProfitUSDT // 0' "$HISTORY_FILE")
+    local current_loss=$(jq -r '.totalLossUSDT // 0' "$HISTORY_FILE")
+    local current_net=$(jq -r '.netPnLUSDT // 0' "$HISTORY_FILE")
+    
+    # Actualizar contadores
+    local new_trades=$((current_trades + 1))
+    local new_wins=$current_wins
+    local new_losses=$current_losses
+    local new_profit=$current_profit
+    local new_loss=$current_loss
+    local new_net=$(awk -v c="$current_net" -v p="$pnl" 'BEGIN {printf "%.8f", c + p}')
+    
+    # Determinar si fue win o loss
+    local is_win=$(awk -v p="$pnl" 'BEGIN {print (p > 0) ? 1 : 0}')
+    if [ "$is_win" = "1" ]; then
+        new_wins=$((current_wins + 1))
+        new_profit=$(awk -v c="$current_profit" -v p="$pnl" 'BEGIN {printf "%.8f", c + p}')
+    else
+        new_losses=$((current_losses + 1))
+        new_loss=$(awk -v c="$current_loss" -v p="$pnl" 'BEGIN {printf "%.8f", c + p}')
+    fi
+    
+    # Calcular win rate
+    local win_rate=$(awk -v w="$new_wins" -v t="$new_trades" 'BEGIN {if (t > 0) printf "%.2f", (w/t)*100; else print "0"}')
+    
+    # Crear nuevo trade entry
+    local trade_id=$new_trades
+    local timestamp=$(date -Iseconds)
+    
+    local new_trade=$(jq -n \
+        --argjson id "$trade_id" \
+        --arg symbol "$SYMBOL" \
+        --argjson slot "$slot_id" \
+        --arg type "LONG" \
+        --argjson entry "$entry_price" \
+        --argjson exit "$exit_price" \
+        --argjson qty "$quantity" \
+        --arg closeType "$close_type" \
+        --argjson pnl "$pnl" \
+        --arg ts "$timestamp" \
+        '{
+            id: $id,
+            symbol: $symbol,
+            slotId: $slot,
+            type: $type,
+            entryPrice: $entry,
+            exitPrice: $exit,
+            quantity: $qty,
+            closeType: $closeType,
+            pnlUSDT: $pnl,
+            timestamp: $ts,
+            seeded: false
+        }')
+    
+    # Actualizar archivo con jq
+    local temp_file="/tmp/history_$$.json"
+    jq --argjson trades "$new_trade" \
+       --argjson totalTrades "$new_trades" \
+       --argjson totalWins "$new_wins" \
+       --argjson totalLosses "$new_losses" \
+       --argjson totalProfit "$new_profit" \
+       --argjson totalLoss "$new_loss" \
+       --argjson netPnL "$new_net" \
+       --arg winRate "$win_rate" \
+       '.trades += [$trades] | .totalTrades = $totalTrades | .totalWins = $totalWins | .totalLosses = $totalLosses | .totalProfitUSDT = $totalProfit | .totalLossUSDT = $totalLoss | .netPnLUSDT = $netPnL | .winRate = ($winRate | tonumber)' \
+       "$HISTORY_FILE" > "$temp_file" && mv "$temp_file" "$HISTORY_FILE"
+    
+    log "  📜 Trade logged to history: #${trade_id} ${SYMBOL} ${close_type} PnL=\$${pnl}"
 }
 
 # ============================================
@@ -334,6 +464,9 @@ update_pnl_after_close() {
                 print "0"
             }
         }')
+    
+    # LOG TO HISTORY (NEW)
+    log_trade_to_history "$slot_id" "$close_type" "$entry_price" "$exit_price" "$quantity" "$pnl"
     
     # Leer P&L actual
     local current_pnl=$(jq -r '.netProfitUSDT // 0' "$DAILY_PNL_FILE")
@@ -1286,8 +1419,62 @@ auto_reset_slots() {
 }
 
 # ============================================
+# 📊 SHOW TRADE HISTORY
+# ============================================
+
+show_trade_history() {
+    if [ ! -f "$HISTORY_FILE" ]; then
+        echo "❌ No hay histórico de trades registrado"
+        return 1
+    fi
+    
+    local total_trades=$(jq -r '.totalTrades' "$HISTORY_FILE")
+    local total_wins=$(jq -r '.totalWins' "$HISTORY_FILE")
+    local total_losses=$(jq -r '.totalLosses' "$HISTORY_FILE")
+    local win_rate=$(jq -r '.winRate' "$HISTORY_FILE")
+    local total_profit=$(jq -r '.totalProfitUSDT' "$HISTORY_FILE")
+    local total_loss=$(jq -r '.totalLossUSDT' "$HISTORY_FILE")
+    local net_pnl=$(jq -r '.netPnLUSDT' "$HISTORY_FILE")
+    
+    echo "╔═══════════════════════════════════════════════════════╗"
+    echo "║  📊 HISTÓRICO DE TRADING - TODAS LAS MONEDAS          ║"
+    echo "╚═══════════════════════════════════════════════════════╝"
+    echo ""
+    echo "📈 ESTADÍSTICAS GLOBALES"
+    echo "  Total Trades: $total_trades"
+    echo "  Wins: $total_wins | Losses: $total_losses"
+    echo "  Win Rate: ${win_rate}%"
+    echo "  Profit Total: +\$${total_profit}"
+    echo "  Loss Total: \$${total_loss}"
+    echo "  Net P&L: \$${net_pnl}"
+    echo ""
+    echo "📜 ÚLTIMOS 10 TRADES"
+    echo "─────────────────────────────────────────────────────────"
+    printf "%-4s %-6s %-6s %-8s %-10s %-10s\n" "ID" "Coin" "Tipo" "P&L" "Cierre" "Fecha"
+    echo "─────────────────────────────────────────────────────────"
+    
+    jq -r '.trades | sort_by(-.id) | .[0:10] | .[] | "\(.id)\t\(.symbol)\t\(.type)\t\(.pnlUSDT)\t\(.closeType)\t\(.timestamp | split("T")[0])"' "$HISTORY_FILE" | \
+    while IFS=$'\t' read -r id symbol type pnl closeType timestamp; do
+        local pnl_num=$(echo "$pnl" | tr -d '+')
+        local pnl_icon="🔴"
+        if awk -v p="$pnl_num" 'BEGIN {exit !(p > 0)}'; then
+            pnl_icon="🟢"
+        fi
+        printf "%-4s %-6s %-6s ${pnl_icon} %-10s %-10s %-10s\n" "$id" "$symbol" "$type" "$pnl" "$closeType" "$timestamp"
+    done
+    
+    echo "─────────────────────────────────────────────────────────"
+}
+
+# ============================================
 # 🎯 MAIN EXECUTION
 # ============================================
+
+# Check for history command
+if [ "$1" = "--history" ] || [ "$1" = "-h" ]; then
+    show_trade_history
+    exit 0
+fi
 
 execute_cycle() {
     log "╔═══════════════════════════════════════════════════════╗"

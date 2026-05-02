@@ -1,0 +1,71 @@
+# ╔═══════════════════════════════════════════════════════╗
+# ║  🛡️ .gitignore - Perrobotillo Trading Bot             ║
+# ║  NUNCA subir secrets, API keys o datos sensibles      ║
+# ╚═══════════════════════════════════════════════════════╝
+
+# ════════════════════════════════════════════════════════
+# 🔐 SECRETS Y CREDENCIALES (CRÍTICO)
+# ════════════════════════════════════════════════════════
+secrets/
+*.env
+.env
+.env.local
+.env.*.local
+binance.env
+telegram.env
+openclaw.json
+*.key
+*.pem
+*.crt
+
+# ════════════════════════════════════════════════════════
+# 📊 DATOS DE TRADING EN TIEMPO REAL
+# ════════════════════════════════════════════════════════
+# Estados actuales de trades (contienen balances reales)
+crypto-bots/*-trade-state.json
+crypto-bots/*-daily-pnl.json
+crypto-bots/portfolio-snapshot*.json
+portfolio-snapshot*.json
+
+# Logs con información sensible
+logs/
+*.log
+!logs/.gitkeep
+
+# ════════════════════════════════════════════════════════
+# 🤖 OPENCLAW - CONFIGURACIÓN LOCAL
+# ════════════════════════════════════════════════════════
+.openclaw/
+openclaw.json
+workspace-state.json
+*.bak
+*.backup
+
+# ════════════════════════════════════════════════════════
+# 💾 ARCHIVOS DE ESTADO Y CACHE
+# ════════════════════════════════════════════════════════
+state/
+.cache/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ════════════════════════════════════════════════════════
+# 📝 MEMORIAS Y SESSIONES (datos personales)
+# ════════════════════════════════════════════════════════
+memory/
+sessions/
+*.md.tmp
+
+# ════════════════════════════════════════════════════════
+# ✅ LO QUE SÍ SE SUBE (explícitamente)
+# ════════════════════════════════════════════════════════
+# !.gitignore
+# !README.md
+# !SECURITY.md
+# !INSTALL.md
+# !config/*.sh (sin secrets)
+# !crypto-bots/*.sh (scripts del bot)
+# !*.md (documentación)

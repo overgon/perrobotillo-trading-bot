@@ -1,541 +1,345 @@
 # 🐕 Perrobotillo Trading Bot
 
-**Bot de Trading Cripto Automatizado para Binance**  
-**Versión:** FASE 1 v2 (2026.4.16)  
-**Plataforma:** Raspberry Pi 5 + OpenClaw + Ollama + Qwen 3.5
+**Bot de Trading Automatizado para Binance**  
+*Versión: FASE 1 v2.1 Optimizada*
 
-[![Status](https://img.shields.io/badge/status-active-success)](https://github.com/overgon/perrobotillo-trading-bot)
-[![Version](https://img.shields.io/badge/version-FASE%201%20v2-blue)](https://github.com/overgon/perrobotillo-trading-bot)
-[![Win Rate](https://img.shields.io/badge/win%20rate-30--35%25-green)](https://github.com/overgon/perrobotillo-trading-bot)
+> ⚠️ **ADVERTENCIA:** Este bot opera con criptomonedas reales. El trading de criptoactivos conlleva riesgos significativos. Úsalo bajo tu propia responsabilidad.
 
 ---
 
-## 📋 **ÍNDICE**
+## 🚨 RIESGOS Y ADVERTENCIAS
 
-- [Descripción](#-descripción)
-- [Características](#-características)
-- [Requisitos](#-requisitos)
-- [Instalación](#-instalación)
-- [Configuración](#-configuración)
-- [Uso](#-uso)
-- [Estructura](#-estructura)
-- [FASE 1 v2 Config](#-fase-1-v2-configuración)
-- [Comandos Útiles](#-comandos-útiles)
-- [Troubleshooting](#-troubleshooting)
-- [Seguridad](#-seguridad)
+### ⚠️ ANTES DE USAR, ENTIENDE ESTO:
 
----
+1. **PUEDES PERDER DINERO** - El trading de criptomonedas es volátil. Este bot no garantiza ganancias.
 
-## 🎯 **DESCRIPCIÓN**
+2. **NUNCA uses dinero que no puedas permitirte perder** - Solo capital que estés dispuesto a perder completamente.
 
-Perrobotillo es un bot de trading cripto automatizado que opera en Binance con **7 activos** (BTC, ETH, BNB, SOL, LINK, XRP, AVAX) usando un sistema de **21 slots** (3 por coin).
+3. **API Keys = Acceso Total** - Quien tenga tus API keys puede operar en tu cuenta. Guárdalas como secreto de estado.
 
-**Objetivos:**
-- Win Rate: 30-35% (TP3 3.5%)
-- P&L Mensual: $180-240 USDT
-- Operación 24/7 con auto-reparación
-- Notificaciones Telegram en tiempo real
+4. **Este no es consejo financiero** - El bot ejecuta una estrategia técnica. Investiga y entiende lo que hace.
+
+5. **Monitoreo constante** - Aunque es automático, debes supervisar regularmente.
+
+### 🛡️ MEJORES PRÁCTICAS DE SEGURIDAD
+
+- ✅ **IP Whitelist en Binance** - Restringe tus API keys solo a tu IP pública
+- ✅ **Sin retiros** - Las API keys NO deben tener permiso de withdrawal
+- ✅ **Ambiente aislado** - Usa una máquina dedicada (Raspberry Pi, VPS)
+- ✅ **Secrets en archivos separados** - Nunca commits de `.env` o `secrets/`
+- ✅ **Monitoreo de IP** - Alertas si tu IP pública cambia
+- ✅ **Backups** - Respalda tu configuración regularmente
 
 ---
 
-## ✨ **CARACTERÍSTICAS**
+## 📋 REQUERIMIENTOS
 
-### **Trading:**
-- ✅ 7 coins: BTC, ETH, BNB, SOL, LINK, XRP, AVAX
-- ✅ 21 slots (3 por coin)
-- ✅ Take Profit escalonado: TP1 1.5%, TP2 3.0%, TP3 3.5%
-- ✅ Stop Loss por volatilidad (3.5%-7.0%)
-- ✅ Trailing Stop (breakeven + 2%)
-- ✅ Acumulación 5% (reinvertir ganancias)
-
-### **Auto-Repair V2:**
-- ✅ Detección a nivel de slot (no global)
-- ✅ Auto-reset después de 10 minutos
-- ✅ Pre-alerta a los 7 minutos
-- ✅ Excluye CLOSED_EMERGENCY y CLOSED_MANUAL
-
-### **Emergency Close:**
-- ✅ Cierre de emergencia por caídas del mercado
-- ✅ Validación `&& daily_loss > 0` (anti-falsos positivos)
-- ✅ Actualización correcta de state files
-
-### **Notificaciones:**
-- ✅ Telegram bot (@PerrobotilloBot)
-- ✅ Alertas de compra, TP, SL
-- ✅ Daily Report automático (9 AM)
-- ✅ Health checks periódicos
-
-### **IA:**
-- ✅ Ollama como runtime
-- ✅ Qwen 3.5 (qwen3.5:cloud) para decisiones
-
----
-
-## 📦 **REQUISITOS**
-
-### **Hardware:**
-- Raspberry Pi 5 (4GB+ RAM) o Linux x86_64
+### Hardware
+- Raspberry Pi 5 (recomendado) o cualquier Linux
+- 4GB RAM mínimo (8GB recomendado)
 - Conexión a internet estable
-- Almacenamiento: 10GB mínimo
 
-### **Software:**
-```yaml
-OS: Raspberry Pi OS (Linux 6.12+) o Ubuntu 22.04+
-Node.js: v22.x
-OpenClaw: 2026.4.15+
-Ollama: Latest (para qwen3.5:cloud)
-Git: Latest
-Binance API: Key + Secret (read + trade permissions)
-Telegram Bot: Creado vía @BotFather
-SSH Key: Para GitHub (opcional)
-```
+### Software
+- Node.js 20+ 
+- OpenClaw 2026.4.15+
+- Cuenta en Binance con API keys
+- (Opcional) Telegram para notificaciones
 
 ---
 
-## 🚀 **INSTALACIÓN**
+## 🚀 INSTALACIÓN
 
-### **Paso 1: Clonar el Repositorio**
+### 1. Clonar el repositorio
 
 ```bash
-# Clonar el repo
 git clone git@github.com:overgon/perrobotillo-trading-bot.git
 cd perrobotillo-trading-bot
 ```
 
-### **Paso 2: Instalar OpenClaw**
+### 2. Instalar OpenClaw
 
 ```bash
-# Instalar OpenClaw globalmente
+# Instalar OpenClaw (si no lo tienes)
 npm install -g openclaw
 
-# Verificar instalación
-openclaw --version  # Debe mostrar 2026.4.15+
+# Inicializar OpenClaw
+openclaw onboard
 ```
 
-### **Paso 3: Instalar Ollama**
+### 3. Configurar API Keys de Binance
 
-```bash
-# Instalar Ollama (Linux)
-curl -fsSL https://ollama.com/install.sh | sh
+**⚠️ CRÍTICO: Sigue estos pasos de seguridad**
 
-# Pull del modelo Qwen 3.5
-ollama pull qwen3.5:cloud
+1. Ve a [Binance API Management](https://www.binance.com/en/my/settings/api-management)
 
-# Verificar
-ollama list
-```
+2. Crea una NUEVA API key con:
+   - ✅ **Enable Reading:** SÍ
+   - ✅ **Enable Spot & Margin Trading:** SÍ
+   - ❌ **Enable Withdrawals:** NO (NUNCA)
 
-### **Paso 4: Configurar Credenciales**
+3. **IP Whitelist:**
+   - Agrega tu IP pública actual
+   - Marca "Restrict access to trusted IPs only"
+   - ⚠️ Si tu IP es dinámica, usa un script de monitoreo (incluido)
+
+4. Guarda la API Key y Secret Key
+
+### 4. Crear archivo de secrets
 
 ```bash
 # Crear directorio de secrets
-mkdir -p ~/.openclaw/secrets
+mkdir -p secrets
 
-# Configurar Binance API
-cat > ~/.openclaw/secrets/binance.env << EOF
-export BINANCE_API_KEY="tu_api_key_aqui"
-export BINANCE_API_SECRET="tu_api_secret_aqui"
+# Crear archivo binance.env
+cat > secrets/binance.env << 'EOF'
+# ════════════════════════════════════════════════════════
+# 🔐 BINANCE API CREDENTIALS
+# ════════════════════════════════════════════════════════
+# ⚠️ NUNCA compartas este archivo o lo subas a GitHub
+# ⚠️ Este archivo debe estar en .gitignore
+
+BINANCE_API_KEY="tu_api_key_aqui"
+BINANCE_SECRET_KEY="tu_secret_key_aqui"
+
+# ════════════════════════════════════════════════════════
+# 🌐 IP WHITELIST
+# ════════════════════════════════════════════════════════
+# Tu IP pública actual (búscala en: https://api.ipify.org)
+# Actualiza esto si tu IP cambia
+PUBLIC_IP="123.456.789.012"
+
+# ════════════════════════════════════════════════════════
+# 📊 CONFIGURACIÓN DE TRADING
+# ════════════════════════════════════════════════════════
+# Capital inicial para trading (USDT)
+TRADING_CAPITAL=1100
+
+# Porcentaje de riesgo por trade
+RISK_PER_TRADE=1.0
+
+# Stop Loss máximo diario (porcentaje del portfolio)
+MAX_DAILY_LOSS=3.0
 EOF
 
-chmod 600 ~/.openclaw/secrets/binance.env
-
-# Configurar GitHub (opcional, para push automático)
-cat > ~/.openclaw/secrets/github.env << EOF
-export GITHUB_TOKEN="ghp_tu_token_aqui"
-EOF
-
-chmod 600 ~/.openclaw/secrets/github.env
+# ⚠️ Verifica que el archivo NO sea legible por otros
+chmod 600 secrets/binance.env
 ```
 
-### **Paso 5: Configurar OpenClaw**
+### 5. Configurar Telegram (Opcional pero recomendado)
+
+1. Crea un bot con [@BotFather](https://t.me/botfather)
+2. Obtén el token del bot
+3. Obtén tu Chat ID con [@userinfobot](https://t.me/userinfobot)
 
 ```bash
-# Crear config de OpenClaw
-mkdir -p ~/.openclaw
-
-cat > ~/.openclaw/openclaw.json << EOF
-{
-  "models": {
-    "default": "ollama/qwen3.5:cloud",
-    "qwen": "ollama/qwen3.5:cloud"
-  },
-  "channels": {
-    "telegram": {
-      "botToken": "tu_bot_token",
-      "chatId": "tu_chat_id",
-      "streaming": {
-        "mode": "partial"
-      }
-    }
-  }
-}
+# Agrega a secrets/telegram.env
+cat > secrets/telegram.env << 'EOF'
+TELEGRAM_BOT_TOKEN="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
+TELEGRAM_CHAT_ID="123456789"
 EOF
+
+chmod 600 secrets/telegram.env
 ```
 
-### **Paso 6: Configurar Cron Jobs**
+### 6. Verificar configuración
 
 ```bash
-# Abrir crontab
+# Ejecutar script de verificación
+./check-public-ip.sh
+
+# Deberías ver:
+# ✅ API Binance: Conectada
+# ✅ IP Whitelist: Verificada
+# ✅ Secrets: Configurados
+```
+
+---
+
+## 🎯 CONFIGURACIÓN DE TRADING
+
+### Estrategia Actual (2026-05-02)
+
+**Mercado:** Lateral (consolidación)
+
+| Parámetro | Valor | Notas |
+|-----------|-------|-------|
+| **Stop Loss** | 5.5-8.0% | Por coin, basado en volatilidad |
+| **Take Profit 1** | 1.8% | 35% de la posición |
+| **Take Profit 2** | 3.5% | 35% de la posición |
+| **Take Profit 3** | 5.0% | 30% de la posición |
+| **Trailing Stop** | DESACTIVADO | Solo en mercado con trend |
+| **Slots Máximos** | 14/21 | 67% exposición (mercado lateral) |
+
+### Coins Soportadas
+
+- BTC (Bitcoin)
+- ETH (Ethereum)
+- BNB (Binance Coin)
+- SOL (Solana)
+- LINK (Chainlink)
+- XRP (Ripple)
+- AVAX (Avalanche)
+
+---
+
+## 📊 USO
+
+### Iniciar el bot
+
+```bash
+# Para una moneda específica
+./crypto-trade-moneda-v3-slots.sh BTC
+
+# Para todas las monedas (recomendado)
+for coin in BTC ETH BNB SOL LINK XRP AVAX; do
+    ./crypto-trade-moneda-v3-slots.sh $coin &
+done
+```
+
+### Ver status
+
+```bash
+# Ver trades activos
+cat crypto-bots/*-trade-state.json | jq '.slots[] | select(.status == "ACTIVE")'
+
+# Ver P&L del día
+cat crypto-bots/*-daily-pnl.json | jq '.'
+
+# Ver histórico de trades
+cat crypto-bots/trade-history.json | jq '.'
+```
+
+### Reportes
+
+```bash
+# Generar reporte diario manualmente
+./daily-report-9am.sh
+
+# Ver último reporte
+cat crypto-bots/daily-report-$(date +%Y-%m-%d).md
+```
+
+---
+
+## 🛠️ MANTENIMIENTO
+
+### Monitoreo de IP (si es dinámica)
+
+```bash
+# Agregar al crontab (cada hora)
 crontab -e
 
-# Agregar jobs (ajustar ruta del workspace)
-*/5 * * * * /home/overgon/.openclaw/workspace/auto-repair-states.sh
-*/10 * * * * /home/overgon/.openclaw/workspace/auto-heal-monitor.sh
-0 9 * * * /home/overgon/.openclaw/workspace/crypto-daily-report-v3.sh
+# Agrega esta línea:
+0 * * * * /home/overgon/.openclaw/workspace/check-public-ip.sh
 ```
 
-### **Paso 7: Iniciar OpenClaw Gateway**
+### Alertas de Drawdown
 
 ```bash
-# Iniciar el gateway
-openclaw gateway start
+# Agregar al crontab (cada 30 min)
+*/30 * * * * /home/overgon/.openclaw/workspace/check-drawdown-alert.sh
+```
 
-# Verificar status
-openclaw gateway status
+### Reporte Diario Automático
+
+```bash
+# Agregar al crontab (9 AM diario)
+0 9 * * * /home/overgon/.openclaw/workspace/daily-report-9am.sh
 ```
 
 ---
 
-## ⚙️ **CONFIGURACIÓN**
-
-### **Binance API**
-
-1. Ir a https://www.binance.com/en/my/settings/api-management
-2. Crear nueva API Key
-3. **Permisos necesarios:**
-   - ✅ Enable Reading
-   - ✅ Enable Spot & Margin Trading
-   - ❌ NO Enable Withdrawals (seguridad)
-4. Guardar Key y Secret en `~/.openclaw/secrets/binance.env`
-
-### **Telegram Bot**
-
-1. Abrir Telegram y buscar `@BotFather`
-2. Enviar `/newbot`
-3. Seguir instrucciones para crear el bot
-4. Obtener el token (ej: `123456789:ABCdefGHIjklMNOpqrsTUVwxyz`)
-5. Buscar `@userinfobot` para obtener tu Chat ID
-6. Configurar en `~/.openclaw/openclaw.json`
-
-### **Ollama + Qwen**
-
-```bash
-# Verificar Ollama corriendo
-ollama list
-
-# Si no está qwen3.5:cloud
-ollama pull qwen3.5:cloud
-
-# Testear
-ollama run qwen3.5:cloud "Hola, cómo estás?"
-```
-
----
-
-## 📖 **USO**
-
-### **Iniciar el Bot**
-
-```bash
-# Desde el workspace
-cd /home/overgon/.openclaw/workspace
-
-# El bot opera automáticamente vía OpenClaw
-# Los scripts se ejecutan vía cron jobs
-```
-
-### **Ver Status**
-
-```bash
-# Status completo del sistema
-./status-bot-full.sh
-
-# Ver balances en Binance
-./check-balances.sh
-
-# Ver estado de slots
-cat crypto-bots/*-trade-state.json | jq '.slots[] | {coin, status}'
-```
-
-### **Daily Report**
-
-El reporte diario se envía automáticamente a las 9 AM vía Telegram.
-
-Para generar manualmente:
-```bash
-./crypto-daily-report-v3.sh
-```
-
----
-
-## 📁 **ESTRUCTURA**
+## 📁 ESTRUCTURA DEL PROYECTO
 
 ```
 perrobotillo-trading-bot/
-├── crypto-bots/
-│   ├── BTC-bot.json              # Config BTC
-│   ├── BTC-trade-state.json      # Estado slots BTC
-│   ├── BTC-daily-pnl.json        # P&L diario BTC
-│   └── [ETH, BNB, SOL, LINK, XRP, AVAX] (mismo patrón)
-├── auto-repair-states.sh         # Auto-reset de slots
-├── auto-heal-monitor.sh          # Health monitoring
-├── emergency-close-all.sh        # Cierre de emergencia
-├── crypto-trade-moneda-v3-slots.sh  # Bot principal
-├── crypto-daily-report-v3.sh     # Reporte diario
-├── check-balances.sh             # Verificación saldos
-├── calculate-real-pnl.sh         # Cálculo P&L
-├── PERROBOTILLO-CLONE-PROMPT.md  # Prompt para clonar
-├── FASE1-V2-OPTIMIZADA.md        # Configuración
-├── BUG-*.md                      # Bugs documentados
-├── README.md                     # Este archivo
-└── .gitignore                    # Git ignore
+├── README.md                 # Este archivo
+├── SECURITY.md               # Políticas de seguridad
+├── CHANGELOG-2026-05-02.md   # Historial de cambios
+├── .gitignore               # Archivos ignorados por git
+│
+├── secrets/                  # 🔐 CREDENCIALES (NO SUBIR)
+│   ├── binance.env          # API keys de Binance
+│   └── telegram.env         # Token de Telegram
+│
+├── config/                   # Configuración
+│   └── capital-config.sh    # Estrategia 20/80
+│
+├── crypto-bots/             # Scripts del bot
+│   ├── crypto-trade-moneda-v3-slots.sh  # Bot principal
+│   ├── daily-report-9am.sh              # Reporte diario
+│   ├── check-public-ip.sh               # Monitor de IP
+│   ├── check-drawdown-alert.sh          # Alertas drawdown
+│   ├── emergency-close-all.sh           # Cierre emergencia
+│   └── STRATEGY-UPDATE-2026-05-02.md    # Documentación estrategia
+│
+├── state/                   # Estados temporales (no subir)
+├── logs/                    # Logs de operación
+└── crypto-bots/             # Datos de trading (no subir)
+    ├── *-trade-state.json   # Estado actual por coin
+    ├── *-daily-pnl.json     # P&L diario
+    └── trade-history.json   # Histórico de trades
 ```
 
 ---
 
-## 📊 **FASE 1 v2 CONFIGURACIÓN**
+## 🆘 SOPORTE Y RECURSOS
 
-### **Parámetros Globales:**
-```yaml
-Trade Percent: 30% del balance por coin
-TP3: 3.5% (optimizado para mayor win rate)
-Acumulación: 5% (reinvertir ganancias)
-Daily Loss Limit: 3% por coin
-90/10 Rule: Máximo 10% USDT disponible
-```
+### Documentación
+- [OpenClaw Docs](https://docs.openclaw.ai)
+- [Binance API Docs](https://binance-docs.github.io/apidocs/)
 
-### **Take Profit Escalonado:**
-```yaml
-TP1: 1.5% → Vender 30% de la posición
-TP2: 3.0% → Vender 30% de la posición
-TP3: 3.5% → Vender 40% restante + acumular 5%
-```
+### Comunidad
+- [Discord OpenClaw](https://discord.com/invite/clawd)
+- [GitHub Issues](https://github.com/overgon/perrobotillo-trading-bot/issues)
 
-### **Stop Loss por Volatilidad:**
-| Coin | Stop Loss | Razón |
-|------|-----------|-------|
-| BTC | 3.5% | Baja volatilidad |
-| ETH | 4.5% | Volatilidad media |
-| BNB | 3.5% | Baja volatilidad |
-| SOL | 7.0% | Alta volatilidad |
-| LINK | 5.5% | Volatilidad media-alta |
-| XRP | 4.5% | Volatilidad media |
-| AVAX | 6.0% | Alta volatilidad |
-
-### **Trailing Stop:**
-```yaml
-Activación: Después de TP1
-Breakeven: Inmediato después de TP1 hit
-Trailing: 2% después de TP2 hit
-```
-
----
-
-## 🛠️ **COMANDOS ÚTILES**
-
-### **Gestión del Bot:**
+### Emergencias
 ```bash
-# Ver status completo
-./status-bot-full.sh
+# Cerrar TODOS los trades inmediatamente
+./emergency-close-all.sh
 
-# Ver balances
-./check-balances.sh
-
-# Calcular P&L realizado
-./calculate-real-pnl.sh
-
-# Resetear slot manual
-./reset-trade-state.sh
-```
-
-### **Git:**
-```bash
-# Ver status del repo
-git status
-
-# Commit y push
-git add .
-git commit -m "Descripción del cambio"
-git push origin master
-
-# Ver historial
-git log --oneline
-```
-
-### **OpenClaw:**
-```bash
-# Status del gateway
-openclaw gateway status
-
-# Reiniciar gateway
-openclaw gateway restart
-
-# Ver logs
-openclaw gateway logs
-```
-
-### **Ollama:**
-```bash
-# Ver modelos instalados
-ollama list
-
-# Ver logs de Ollama
-journalctl -u ollama -f
+# Ver estado del sistema
+openclaw status
 ```
 
 ---
 
-## 🔧 **TROUBLESHOOTING**
+## 📈 PERFORMANCE HISTÓRICA
 
-### **El bot no opera:**
-```bash
-# 1. Verificar OpenClaw
-openclaw gateway status
+**Desde:** 2026-04-26  
+**Hasta:** 2026-05-02
 
-# 2. Verificar API Binance
-source ~/.openclaw/secrets/binance.env
-curl -s "https://api.binance.com/api/v3/account" \
-  -H "X-MBX-APIKEY: $BINANCE_API_KEY"
+| Métrica | Valor |
+|---------|-------|
+| Total Trades | 6 |
+| Win Rate | 16.67% ⚠️ |
+| Net P&L | -$18.40 USDT |
+| Mayor Win | +$6.64 (SOL) |
+| Mayor Loss | -$11.86 (BTC) |
 
-# 3. Verificar cron jobs
-crontab -l
-
-# 4. Verificar logs
-tail -f /home/overgon/.openclaw/workspace/*.log
-```
-
-### **Auto-Repair no funciona:**
-```bash
-# Ejecutar manualmente
-./auto-repair-states.sh
-
-# Verificar cron
-systemctl status cron
-```
-
-### **Telegram no envía notificaciones:**
-```bash
-# Verificar token y chat ID en openclaw.json
-cat ~/.openclaw/openclaw.json | jq '.channels.telegram'
-
-# Testear envío manual
-curl -s "https://api.telegram.org/bot<TOKEN>/sendMessage" \
-  -d "chat_id=<CHAT_ID>&text=Test"
-```
-
-### **Ollama no responde:**
-```bash
-# Reiniciar Ollama
-sudo systemctl restart ollama
-
-# Verificar modelo
-ollama list
-
-# Re-instalar modelo
-ollama pull qwen3.5:cloud
-```
+> ⚠️ **Nota:** El win rate actual es bajo (16.67%). Se actualizó la estrategia el 2026-05-02 para mejorar a 45-50% esperado.
 
 ---
 
-## 🛡️ **SEGURIDAD**
+## 📝 LICENCIA
 
-### **NUNCA hacer:**
-```bash
-❌ Commitear archivos .env o secrets
-❌ Compartir API keys en texto plano
-❌ Dar permisos de withdrawal a la API
-❌ Usar el bot en redes públicas sin VPN
-```
-
-### **SIEMPRE hacer:**
-```bash
-✅ Guardar secrets en ~/.openclaw/secrets/
-✅ Usar chmod 600 para archivos sensibles
-✅ Rotar API keys periódicamente
-✅ Usar 2FA en Binance
-✅ Mantener el sistema actualizado
-✅ Backup periódico del workspace
-```
-
-### .gitignore:**
-El repo incluye `.gitignore` que excluye:
-- `*.env`
-- `secrets/`
-- `*.log`
-- `*.backup`
-- `.openclaw/`
+MIT License - Ver archivo LICENSE
 
 ---
 
-## 📈 **MÉTRICAS Y KPIs**
+## 🐕 SOBRE PERROBOTILLO
 
-### **Objetivos FASE 1 v2:**
-```yaml
-Win Rate TP3: 30-35% (vs 4.4% FASE 1 v1)
-Ganancia/trade: $1.50-1.70 USDT
-P&L mensual: $180-240 USDT
-Mejora: +800% vs FASE 1 v1
-```
+**Perrobotillo** es un perro cyborg trader creado para operar en el mercado de criptomonedas de forma automatizada, siguiendo estrategias técnicas y gestionando el riesgo de forma disciplinada.
 
-### **Monitoreo Diario:**
-- Win rate del día
-- P&L realizado (USDT + MXN)
-- Total de trades
-- Slots activos vs disponibles
-- Alertas de auto-repair
+*"Nunca confiar, siempre verificar"* 🐕
 
 ---
 
-## 🤝 **CONTRIBUCIÓN**
+<div align="center">
 
-1. Fork el repo
-2. Crear branch (`git checkout -b feature/AmazingFeature`)
-3. Commit (`git commit -m 'Add AmazingFeature'`)
-4. Push (`git push origin feature/AmazingFeature`)
-5. Pull Request
+**⚠️ TRADING CONLLEVA RIESGOS - OPERA RESPONSABLEMENTE**
 
----
+[![GitHub](https://img.shields.io/github/stars/overgon/perrobotillo-trading-bot)](https://github.com/overgon/perrobotillo-trading-bot)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 📄 **LICENCIA**
-
-Uso personal. No comercial.
-
----
-
-## 🙏 **AGRADECIMIENTOS**
-
-- **OpenClaw:** https://github.com/openclaw/openclaw
-- **Ollama:** https://ollama.com
-- **Qwen:** https://github.com/QwenLM/Qwen
-- **Binance API:** https://binance.com
-- **Telegram Bot API:** https://core.telegram.org/bots/api
-
----
-
-## 📞 **SOPORTE**
-
-- **Issues:** https://github.com/overgon/perrobotillo-trading-bot/issues
-- **Discussions:** https://github.com/overgon/perrobotillo-trading-bot/discussions
-- **Email:** perrobotillo@users.noreply.github.com
-
----
-
-## 🎯 **ROADMAP**
-
-### **FASE 2 (En desarrollo):**
-- [ ] Filtros de entrada (RSI, volumen, tendencia)
-- [ ] Machine Learning para predicción
-- [ ] Backtesting automático
-- [ ] Dashboard web
-
-### **FASE 3 (Futuro):**
-- [ ] Soporte para más exchanges
-- [ ] Trading de futuros
-- [ ] Estrategias personalizadas
-- [ ] API pública
-
----
-
-**🐕 Hecho con ❤️ por Perrobotillo Trading Bot**
-
-*Última actualización: 2026-04-16 22:45 CST*
+</div>
