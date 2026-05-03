@@ -108,9 +108,9 @@ def get_daily_pnl():
 def get_system_status():
     """Obtener estado del sistema"""
     status = {
-        'api_binance': 'unknown',
-        'ip_whitelist': 'unknown',
-        'gateway': 'unknown',
+        'api_binance': 'checking',
+        'ip_whitelist': 'checking',
+        'gateway': 'checking',
         'last_update': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     }
     
@@ -120,19 +120,25 @@ def get_system_status():
             f"curl -s -o /dev/null -w '%{{http_code}}' 'https://api.binance.com/api/v3/ping'",
             shell=True, capture_output=True, text=True, timeout=5
         )
-        status['api_binance'] = '✅ Online' if result.stdout.strip() == '200' else '❌ Error'
+        if result.stdout.strip() == '200':
+            status['api_binance'] = 'ok'  # ✅
+        else:
+            status['api_binance'] = 'error'  # ❌
     except:
-        status['api_binance'] = '❌ Error'
+        status['api_binance'] = 'error'  # ❌
     
     # Verificar Gateway OpenClaw
     try:
         result = subprocess.run(
-            "openclaw status 2>&1 | grep -q 'Gateway.*reachable' && echo 'OK' || echo 'Error'",
+            "openclaw status 2>&1 | grep -q 'Gateway.*reachable' && echo 'ok' || echo 'error'",
             shell=True, capture_output=True, text=True, timeout=10
         )
-        status['gateway'] = '✅ Online' if 'OK' in result.stdout else '❌ Offline'
+        if 'ok' in result.stdout:
+            status['gateway'] = 'ok'  # ✅
+        else:
+            status['gateway'] = 'error'  # ❌
     except:
-        status['gateway'] = '❌ Error'
+        status['gateway'] = 'error'  # ❌
     
     # Verificar IP whitelist
     ip_file = f"{CRYPTO_BOTS}/.public_ip"
@@ -141,11 +147,13 @@ def get_system_status():
             with open(ip_file, 'r') as f:
                 ip = f.read().strip()
                 if ip and len(ip) > 7:
-                    status['ip_whitelist'] = f'✅ {ip}'
+                    status['ip_whitelist'] = ip  # ✅ IP
                 else:
-                    status['ip_whitelist'] = '⚠️ No configurada'
+                    status['ip_whitelist'] = 'warning'  # ⚠️
         except:
-            status['ip_whitelist'] = '⚠️ Error'
+            status['ip_whitelist'] = 'error'  # ❌
+    else:
+        status['ip_whitelist'] = 'error'  # ❌
     
     return status
 

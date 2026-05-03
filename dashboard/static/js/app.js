@@ -199,9 +199,45 @@ function updatePrices(prices) {
 function updateSystemStatus(data) {
     const system = data.system;
     
-    document.getElementById('apiStatus').textContent = system.api_binance || 'Unknown';
-    document.getElementById('ipStatus').textContent = system.ip_whitelist || 'Unknown';
-    document.getElementById('gatewayStatus').textContent = system.gateway || 'Unknown';
+    // API Binance - Show checkmark if online
+    const apiStatus = document.getElementById('apiStatus');
+    if (system.api_binance && system.api_binance.includes('✅')) {
+        apiStatus.textContent = '✅';
+        apiStatus.title = 'Binance API Online';
+    } else if (system.api_binance && system.api_binance.includes('❌')) {
+        apiStatus.textContent = '❌';
+        apiStatus.title = 'Binance API Offline';
+    } else {
+        apiStatus.textContent = '⏳';
+        apiStatus.title = 'Checking...';
+    }
+    
+    // IP Whitelist - Show checkmark + IP
+    const ipStatus = document.getElementById('ipStatus');
+    if (system.ip_whitelist && system.ip_whitelist.includes('✅')) {
+        const ip = system.ip_whitelist.replace('✅ ', '');
+        ipStatus.textContent = `✅ ${ip}`;
+        ipStatus.title = 'IP Whitelist Configured';
+    } else if (system.ip_whitelist && system.ip_whitelist.includes('⚠️')) {
+        ipStatus.textContent = '⚠️';
+        ipStatus.title = 'IP Whitelist Warning';
+    } else {
+        ipStatus.textContent = '❌';
+        ipStatus.title = 'IP Whitelist Not Configured';
+    }
+    
+    // Gateway - Show checkmark if online
+    const gatewayStatus = document.getElementById('gatewayStatus');
+    if (system.gateway && system.gateway.includes('✅')) {
+        gatewayStatus.textContent = '✅';
+        gatewayStatus.title = 'Gateway Online';
+    } else if (system.gateway && system.gateway.includes('❌')) {
+        gatewayStatus.textContent = '❌';
+        gatewayStatus.title = 'Gateway Offline';
+    } else {
+        gatewayStatus.textContent = '⏳';
+        gatewayStatus.title = 'Checking...';
+    }
 }
 
 function updateTradesTable(data) {
