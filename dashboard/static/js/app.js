@@ -192,8 +192,42 @@ function updateSlots(data) {
 }
 
 function updatePrices(prices) {
-    // Prices are updated within slots
-    console.log('Prices updated:', prices);
+    // Prices are updated within slots, but also show in charts section
+    const chartsGrid = document.getElementById('chartsGrid');
+    
+    if (!prices || Object.keys(prices).length === 0) {
+        chartsGrid.innerHTML = '<div class="loading-slots">⏳ Loading prices...</div>';
+        return;
+    }
+    
+    const coins = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX'];
+    let html = '';
+    
+    coins.forEach(coin => {
+        const symbol = `${coin}USDT`;
+        const priceData = prices[symbol];
+        if (priceData) {
+            const price = parseFloat(priceData);
+            // Get 24h change from coin data if available
+            const change = 0; // Would need to fetch from Binance separately
+            const changeClass = change >= 0 ? 'positive' : 'negative';
+            const changeColor = change >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
+            
+            html += `
+                <div class="price-card">
+                    <div class="price-header">
+                        <div class="price-coin">${coin}</div>
+                        <div class="price-change ${changeClass}" style="color: ${changeColor}">
+                            ${change >= 0 ? '+' : ''}${change.toFixed(2)}%
+                        </div>
+                    </div>
+                    <div class="price-value">$${price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                </div>
+            `;
+        }
+    });
+    
+    chartsGrid.innerHTML = html;
 }
 
 function updateSystemStatus(data) {
@@ -201,10 +235,10 @@ function updateSystemStatus(data) {
     
     // API Binance - Show checkmark if online
     const apiStatus = document.getElementById('apiStatus');
-    if (system.api_binance && system.api_binance.includes('✅')) {
+    if (system.api_binance === 'ok') {
         apiStatus.textContent = '✅';
         apiStatus.title = 'Binance API Online';
-    } else if (system.api_binance && system.api_binance.includes('❌')) {
+    } else if (system.api_binance === 'error') {
         apiStatus.textContent = '❌';
         apiStatus.title = 'Binance API Offline';
     } else {
@@ -214,11 +248,11 @@ function updateSystemStatus(data) {
     
     // IP Whitelist - Show checkmark + IP
     const ipStatus = document.getElementById('ipStatus');
-    if (system.ip_whitelist && system.ip_whitelist.includes('✅')) {
-        const ip = system.ip_whitelist.replace('✅ ', '');
-        ipStatus.textContent = `✅ ${ip}`;
+    if (system.ip_whitelist && system.ip_whitelist !== 'error' && system.ip_whitelist !== 'warning') {
+        // It's an IP address
+        ipStatus.textContent = `✅ ${system.ip_whitelist}`;
         ipStatus.title = 'IP Whitelist Configured';
-    } else if (system.ip_whitelist && system.ip_whitelist.includes('⚠️')) {
+    } else if (system.ip_whitelist === 'warning') {
         ipStatus.textContent = '⚠️';
         ipStatus.title = 'IP Whitelist Warning';
     } else {
@@ -228,10 +262,10 @@ function updateSystemStatus(data) {
     
     // Gateway - Show checkmark if online
     const gatewayStatus = document.getElementById('gatewayStatus');
-    if (system.gateway && system.gateway.includes('✅')) {
+    if (system.gateway === 'ok') {
         gatewayStatus.textContent = '✅';
         gatewayStatus.title = 'Gateway Online';
-    } else if (system.gateway && system.gateway.includes('❌')) {
+    } else if (system.gateway === 'error') {
         gatewayStatus.textContent = '❌';
         gatewayStatus.title = 'Gateway Offline';
     } else {
