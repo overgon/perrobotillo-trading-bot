@@ -114,31 +114,38 @@ def get_system_status():
         'last_update': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     }
     
-    # Verificar API Binance
+    # Verificar API Binance con reintentos
+    try:
+        http_code = '000'
+        for attempt in range(3):  # 3 intentos
+            result = subprocess.run(
+                ['curl', '-s', '-o', '/dev/null', '-w', '%{http_code}', '--connect-timeout', '5', '--max-time', '10', 'https://api.binance.com/api/v3/ping'],
+                capture_output=True, text=True, timeout=15
+            )
+            http_code = result.stdout.strip()
+            print(f"Binance API check (attempt {attempt+1}): {http_code}")
+            if http_code == '200':
+                break
+        status['api_binance'] = 'ok' if http_code == '200' else 'error'
+    except Exception as e:
+        print(f"Error checking Binance API: {e}")
+        status['api_binance'] = 'error'
+    
+    # Verificar Gateway OpenClaw (verifica si el proceso está corriendo)
     try:
         result = subprocess.run(
-            f"curl -s -o /dev/null -w '%{{http_code}}' 'https://api.binance.com/api/v3/ping'",
+            "pgrep -f 'openclaw-gateway' >/dev/null && echo 'ok' || echo 'error'",
             shell=True, capture_output=True, text=True, timeout=5
         )
-        if result.stdout.strip() == '200':
-            status['api_binance'] = 'ok'  # ✅
+        output = result.stdout.strip()
+        print(f"Gateway check output: {output}")
+        if output == 'ok':
+            status['gateway'] = 'ok'
         else:
-            status['api_binance'] = 'error'  # ❌
-    except:
-        status['api_binance'] = 'error'  # ❌
-    
-    # Verificar Gateway OpenClaw
-    try:
-        result = subprocess.run(
-            "openclaw status 2>&1 | grep -q 'Gateway.*reachable' && echo 'ok' || echo 'error'",
-            shell=True, capture_output=True, text=True, timeout=10
-        )
-        if 'ok' in result.stdout:
-            status['gateway'] = 'ok'  # ✅
-        else:
-            status['gateway'] = 'error'  # ❌
-    except:
-        status['gateway'] = 'error'  # ❌
+            status['gateway'] = 'error'
+    except Exception as e:
+        print(f"Error checking Gateway: {e}")
+        status['gateway'] = 'error'
     
     # Verificar IP whitelist
     ip_file = f"{CRYPTO_BOTS}/.public_ip"
