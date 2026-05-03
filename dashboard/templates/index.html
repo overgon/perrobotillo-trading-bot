@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐕 Perrobotillo Dashboard - Cyberpunk Edition</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Background Grid Animation -->
+    <div class="cyber-grid"></div>
+    <div class="scanlines"></div>
+
+    <!-- Header -->
+    <header class="cyber-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo-icon">🐕</div>
+                <div>
+                    <h1 class="cyber-title">PERROBOTILLO</h1>
+                    <p class="cyber-subtitle">TRADING DASHBOARD <span class="cyberpunk-badge">CYBERPUNK EDITION</span></p>
+                </div>
+            </div>
+            <div class="system-status" id="systemStatus">
+                <div class="status-item">
+                    <span class="status-label">API Binance</span>
+                    <span class="status-value" id="apiStatus">⏳ Loading...</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">IP Whitelist</span>
+                    <span class="status-value" id="ipStatus">⏳ Loading...</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Gateway</span>
+                    <span class="status-value" id="gatewayStatus">⏳ Loading...</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Last Update</span>
+                    <span class="status-value" id="lastUpdate">--:--:--</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="cyber-main">
+        <!-- Portfolio Overview -->
+        <section class="cyber-card portfolio-section">
+            <h2 class="cyber-card-title">💰 PORTFOLIO OVERVIEW</h2>
+            <div class="portfolio-grid">
+                <div class="portfolio-item highlight">
+                    <div class="portfolio-label">TOTAL PORTFOLIO</div>
+                    <div class="portfolio-value" id="totalPortfolio">$0.00</div>
+                    <div class="portfolio-value-mxn" id="totalPortfolioMXN">$0.00 MXN</div>
+                </div>
+                <div class="portfolio-item">
+                    <div class="portfolio-label">24H P&L</div>
+                    <div class="portfolio-value pnl" id="pnl24h">$0.00</div>
+                    <div class="portfolio-value-percent" id="pnlPercent">0.00%</div>
+                </div>
+                <div class="portfolio-item">
+                    <div class="portfolio-label">WIN RATE</div>
+                    <div class="portfolio-value" id="winRate">0.00%</div>
+                    <div class="portfolio-subvalue" id="winLoss">0W / 0L</div>
+                </div>
+                <div class="portfolio-item">
+                    <div class="portfolio-label">TOTAL TRADES</div>
+                    <div class="portfolio-value" id="totalTrades">0</div>
+                    <div class="portfolio-subvalue" id="netPnl">$0.00</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Active Slots -->
+        <section class="cyber-card slots-section">
+            <h2 class="cyber-card-title">🎯 ACTIVE SLOTS - REAL TIME</h2>
+            <div class="slots-grid" id="slotsGrid">
+                <!-- Slots will be populated by JavaScript -->
+                <div class="loading-slots">⏳ Loading slots data...</div>
+            </div>
+        </section>
+
+        <!-- Price Charts -->
+        <section class="cyber-card charts-section">
+            <h2 class="cyber-card-title">📊 PRICE CHARTS - LIVE</h2>
+            <div class="charts-grid" id="chartsGrid">
+                <!-- Charts will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Recent Trades -->
+        <section class="cyber-card trades-section">
+            <h2 class="cyber-card-title">📈 RECENT TRADES HISTORY</h2>
+            <div class="trades-table-container">
+                <table class="cyber-table" id="tradesTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Coin</th>
+                            <th>Type</th>
+                            <th>Entry</th>
+                            <th>Exit</th>
+                            <th>P&L</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tradesTableBody">
+                        <tr><td colspan="8" class="loading-row">Loading trades...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="cyber-footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <span class="footer-text">🐕 Perrobotillo Trading Bot v2.1</span>
+                <span class="footer-text">"Nunca confiar, siempre verificar"</span>
+            </div>
+            <div class="footer-right">
+                <span class="footer-text">Auto-refresh: <span id="refreshStatus">✅ ON</span></span>
+                <span class="footer-text">Update: <span id="updateInterval">10s</span></span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Audio for alerts -->
+    <audio id="alertSound" preload="auto">
+        <source src="{{ url_for('static', filename='sounds/alert.mp3') }}" type="audio/mpeg">
+    </audio>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
