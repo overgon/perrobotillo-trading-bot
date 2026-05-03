@@ -114,10 +114,10 @@ def get_system_status():
         'last_update': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     }
     
-    # Verificar API Binance con reintentos
+    # Verificar API Binance con reintentos (éxito si al menos 1 de 3 funciona)
     try:
-        http_code = '000'
-        for attempt in range(3):  # 3 intentos
+        success_count = 0
+        for attempt in range(3):
             result = subprocess.run(
                 ['curl', '-s', '-o', '/dev/null', '-w', '%{http_code}', '--connect-timeout', '5', '--max-time', '10', 'https://api.binance.com/api/v3/ping'],
                 capture_output=True, text=True, timeout=15
@@ -125,8 +125,9 @@ def get_system_status():
             http_code = result.stdout.strip()
             print(f"Binance API check (attempt {attempt+1}): {http_code}")
             if http_code == '200':
-                break
-        status['api_binance'] = 'ok' if http_code == '200' else 'error'
+                success_count += 1
+        # Si al menos 1 intento funcionó, API está ok
+        status['api_binance'] = 'ok' if success_count >= 1 else 'error'
     except Exception as e:
         print(f"Error checking Binance API: {e}")
         status['api_binance'] = 'error'
