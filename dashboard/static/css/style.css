@@ -373,6 +373,17 @@ body::before {
     backdrop-filter: blur(10px);
 }
 
+/* Sticky top for Price Charts */
+.sticky-top {
+    position: sticky;
+    top: 1rem;
+    z-index: 100;
+    border: 2px solid var(--neon-blue);
+    box-shadow: 
+        0 0 30px rgba(0, 243, 255, 0.3),
+        0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
 .cyber-card-title {
     font-family: 'Orbitron', sans-serif;
     font-size: 1.5rem;

@@ -46,6 +46,14 @@
 
     <!-- Main Content -->
     <main class="cyber-main">
+        <!-- Price Charts - Sticky Top -->
+        <section class="cyber-card charts-section sticky-top">
+            <h2 class="cyber-card-title">📊 PRICE CHARTS - LIVE</h2>
+            <div class="charts-grid" id="chartsGrid">
+                <!-- Charts will be populated by JavaScript -->
+            </div>
+        </section>
+
         <!-- Portfolio Overview -->
         <section class="cyber-card portfolio-section">
             <h2 class="cyber-card-title">💰 PORTFOLIO OVERVIEW</h2>
@@ -61,6 +69,10 @@
                     <div class="portfolio-value-percent" id="pnlPercent">0.00%</div>
                 </div>
                 <div class="portfolio-item">
+                    <div class="portfolio-label">Total P&L (24H)</div>
+                    <div class="portfolio-value pnl" id="totalPnl24h">$0.00</div>
+                </div>
+                <div class="portfolio-item">
                     <div class="portfolio-label">WIN RATE</div>
                     <div class="portfolio-value" id="winRate">0.00%</div>
                     <div class="portfolio-subvalue" id="winLoss">0W / 0L</div>
@@ -74,21 +86,6 @@
         </section>
 
         <!-- Active Slots -->
-        <section class="cyber-card slots-section">
-            <h2 class="cyber-card-title">🎯 ACTIVE SLOTS - REAL TIME</h2>
-            <div class="slots-grid" id="slotsGrid">
-                <!-- Slots will be populated by JavaScript -->
-                <div class="loading-slots">⏳ Loading slots data...</div>
-            </div>
-        </section>
-
-        <!-- Price Charts -->
-        <section class="cyber-card charts-section">
-            <h2 class="cyber-card-title">📊 PRICE CHARTS - LIVE</h2>
-            <div class="charts-grid" id="chartsGrid">
-                <!-- Charts will be populated by JavaScript -->
-            </div>
-        </section>
 
         <!-- Recent Trades -->
         <section class="cyber-card trades-section">
