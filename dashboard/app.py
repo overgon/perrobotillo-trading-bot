@@ -6,18 +6,78 @@
 # Autor: Perrobotillo 🐕
 # ════════════════════════════════════════════════════════
 
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
+from functools import wraps
 import json
 import os
 import subprocess
 from datetime import datetime
 import glob
+import base64
 
 app = Flask(__name__)
 
 WORKSPACE = "/home/overgon/.openclaw/workspace"
 CRYPTO_BOTS = f"{WORKSPACE}/crypto-bots"
 CONFIG_FILE = f"{WORKSPACE}/config/capital-config.sh"
+
+# ════════════════════════════════════════════════════════
+# 🔐 HTTP BASIC AUTH CONFIGURATION
+# ════════════════════════════════════════════════════════
+
+AUTH_FILE = f"{WORKSPACE}/dashboard/.htpasswd"
+
+def check_auth(username, password):
+    """Verificar credenciales contra .htpasswd"""
+    try:
+        with open(AUTH_FILE, 'r') as f:
+            content = f.read().strip()
+            stored_user, stored_hash = content.split(':')[0], content.split(':')[1]
+            
+            if username != stored_user:
+                return False
+            
+            # Verificar contraseña con crypt
+            import crypt
+            return crypt.compare(password, stored_hash)
+    except Exception as e:
+        print(f"Auth error: {e}")
+        return False
+
+def authenticate():
+    """Retornar respuesta 401 con header WWW-Authenticate"""
+    return (
+        jsonify({'error': 'Authentication required'}),
+        401,
+        {'WWW-Authenticate': 'Basic realm="Perrobotillo Dashboard"'}
+    )
+
+def requires_auth(f):
+    """Decorator para proteger rutas"""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.headers.get('Authorization')
+        if not auth:
+            return authenticate()
+        
+        try:
+            # Extraer usuario y contraseña del header Authorization
+            auth_type, auth_string = auth.split(None, 1)
+            if auth_type.lower() != 'basic':
+                return authenticate()
+            
+            decoded = base64.b64decode(auth_string).decode('utf-8')
+            username, password = decoded.split(':', 1)
+            
+            if not check_auth(username, password):
+                return authenticate()
+                
+        except Exception as e:
+            print(f"Auth decode error: {e}")
+            return authenticate()
+        
+        return f(*args, **kwargs)
+    return decorated
 
 # ════════════════════════════════════════════════════════
 # FUNCIONES DE DATOS
@@ -170,11 +230,13 @@ def get_system_status():
 # ════════════════════════════════════════════════════════
 
 @app.route('/')
+@requires_auth
 def index():
     """Página principal del dashboard"""
     return render_template('index.html')
 
 @app.route('/api/data')
+@requires_auth
 def api_data():
     """API endpoint para datos en tiempo real"""
     data = {
@@ -192,13 +254,14 @@ def api_data():
     return jsonify(data)
 
 @app.route('/api/prices')
+@requires_auth
 def api_prices():
     """API endpoint solo para precios (más rápido)"""
     return jsonify(get_current_prices())
 
 @app.route('/api/health')
 def api_health():
-    """Health check endpoint"""
+    """Health check endpoint (sin auth para monitoreo)"""
     return jsonify({
         'status': 'ok',
         'timestamp': datetime.now().isoformat()
@@ -211,17 +274,13 @@ def api_health():
 if __name__ == '__main__':
     print("🐕 Perrobotillo Dashboard - Cyberpunk Edition")
     print("🚀 Iniciando servidor...")
-    print("🔒 SSL: Habilitado")
-    print("📡 Acceso: https://192.168.3.215:8080")
+    print("🔒 HTTPS: Ngrok (externo)")
+    print("📡 Acceso Local: http://192.168.3.215:8080")
     print("⚠️  Presiona Ctrl+C para detener")
     
     app.run(
         host='0.0.0.0',
         port=8080,
         debug=False,
-        threaded=True,
-        ssl_context=(
-            'ssl/perrobotillo.crt',
-            'ssl/perrobotillo.key'
-        )
+        threaded=True
     )
