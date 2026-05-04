@@ -211,12 +211,17 @@ def api_health():
 if __name__ == '__main__':
     print("🐕 Perrobotillo Dashboard - Cyberpunk Edition")
     print("🚀 Iniciando servidor...")
-    print("📡 Acceso: http://192.168.3.215:8080")
+    print("🔒 SSL: Habilitado")
+    print("📡 Acceso: https://192.168.3.215:8080")
     print("⚠️  Presiona Ctrl+C para detener")
     
     app.run(
         host='0.0.0.0',
         port=8080,
         debug=False,
-        threaded=True
+        threaded=True,
+        ssl_context=(
+            'ssl/perrobotillo.crt',
+            'ssl/perrobotillo.key'
+        )
     )
