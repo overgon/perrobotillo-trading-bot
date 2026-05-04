@@ -616,3 +616,105 @@ body {
 .cyber-button:active {
     transform: translateY(0);
 }
+
+/* ════════════════════════════════════════════════════════
+   IMPROVED TP PROGRESS BARS
+   ════════════════════════════════════════════════════════ */
+
+.tp-progress-container {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.tp-progress-item {
+    transition: all 0.3s ease;
+}
+
+.tp-progress-item.done {
+    opacity: 0.7;
+}
+
+.tp-progress-item.done .tp-label span:first-child {
+    color: var(--neon-green);
+    font-weight: 700;
+}
+
+.tp-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tp-label span:first-child {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.tp-label span:last-child {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.tp-bar {
+    height: 6px;
+    background: var(--dark-border);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.tp-bar-1 .tp-fill {
+    background: linear-gradient(90deg, var(--neon-blue), #00d4ff);
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+}
+
+.tp-bar-2 .tp-fill {
+    background: linear-gradient(90deg, var(--neon-purple), #d400ff);
+    box-shadow: 0 0 10px rgba(188, 19, 254, 0.5);
+}
+
+.tp-bar-3 .tp-fill {
+    background: linear-gradient(90deg, var(--neon-pink), #ff00aa);
+    box-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+}
+
+.tp-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+/* Animated shimmer effect on progress bars */
+.tp-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Done state */
+.tp-progress-item.done .tp-bar .tp-fill {
+    opacity: 0.5;
+    animation: none;
+}
