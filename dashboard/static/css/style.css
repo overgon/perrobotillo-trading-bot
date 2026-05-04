@@ -520,3 +520,99 @@ body {
     background-size: 1000px 100%;
     animation: shimmer 2s infinite;
 }
+
+/* ════════════════════════════════════════════════════════
+   PRICE CARDS
+   ════════════════════════════════════════════════════════ */
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.price-card {
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid var(--dark-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.price-card:hover {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.price-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.price-coin {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--neon-blue);
+}
+
+.price-change {
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.price-change.positive {
+    background: rgba(10, 255, 0, 0.2);
+    color: var(--neon-green);
+}
+
+.price-change.negative {
+    background: rgba(255, 0, 60, 0.2);
+    color: var(--neon-red);
+}
+
+.price-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* ════════════════════════════════════════════════════════
+   VIEW MORE BUTTON
+   ════════════════════════════════════════════════════════ */
+
+.cyber-button {
+    display: block;
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, rgba(0, 243, 255, 0.1), rgba(188, 19, 254, 0.1));
+    border: 2px solid var(--neon-blue);
+    border-radius: 8px;
+    color: var(--neon-blue);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.cyber-button:hover {
+    background: linear-gradient(135deg, rgba(0, 243, 255, 0.2), rgba(188, 19, 254, 0.2));
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.cyber-button:active {
+    transform: translateY(0);
+}

@@ -282,14 +282,27 @@ function updateTradesTable(data) {
     const history = data.history;
     const trades = history.trades || [];
     const tbody = document.getElementById('tradesTableBody');
+    const tableContainer = document.querySelector('.trades-table-container');
     
-    if (trades.length === 0) {
+    // Sort trades by timestamp (most recent first)
+    const sortedTrades = [...trades].sort((a, b) => {
+        return new Date(b.timestamp) - new Date(a.timestamp);
+    });
+    
+    // Show only first 10 by default
+    const initialDisplay = 10;
+    const tradesToShow = sortedTrades.slice(0, initialDisplay);
+    
+    if (tradesToShow.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" class="loading-row">No trades yet</td></tr>';
+        // Remove any existing "View More" button
+        const existingBtn = document.getElementById('viewMoreBtn');
+        if (existingBtn) existingBtn.remove();
         return;
     }
     
     let html = '';
-    trades.slice(0, CONFIG.MAX_TRADES_DISPLAY).forEach(trade => {
+    tradesToShow.forEach(trade => {
         const pnlClass = trade.pnlUSDT >= 0 ? 'profit' : 'loss';
         const pnlColor = trade.pnlUSDT >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
         const closeType = trade.closeType || 'UNKNOWN';
@@ -310,8 +323,52 @@ function updateTradesTable(data) {
     });
     
     tbody.innerHTML = html;
+    
+    // Add "View More" button if there are more trades
+    const existingBtn = document.getElementById('viewMoreBtn');
+    if (existingBtn) existingBtn.remove();
+    
+    if (sortedTrades.length > initialDisplay) {
+        const viewMoreBtn = document.createElement('button');
+        viewMoreBtn.id = 'viewMoreBtn';
+        viewMoreBtn.className = 'cyber-button';
+        viewMoreBtn.textContent = `📊 Ver más (${sortedTrades.length - initialDisplay} trades adicionales)`;
+        viewMoreBtn.onclick = () => showAllTrades(sortedTrades);
+        
+        tableContainer.appendChild(viewMoreBtn);
+    }
 }
 
+function showAllTrades(sortedTrades) {
+    const tbody = document.getElementById('tradesTableBody');
+    
+    let html = '';
+    sortedTrades.forEach(trade => {
+        const pnlClass = trade.pnlUSDT >= 0 ? 'profit' : 'loss';
+        const pnlColor = trade.pnlUSDT >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
+        const closeType = trade.closeType || 'UNKNOWN';
+        const typeClass = closeType.includes('TP') ? 'active' : closeType.includes('SL') ? 'loss' : 'ready';
+        
+        html += `
+            <tr>
+                <td>#${trade.id}</td>
+                <td><strong>${trade.symbol}</strong></td>
+                <td>${trade.type}</td>
+                <td>$${trade.entryPrice.toFixed(2)}</td>
+                <td>$${trade.exitPrice.toFixed(2)}</td>
+                <td style="color: ${pnlColor}">${trade.pnlUSDT >= 0 ? '+' : ''}$${trade.pnlUSDT.toFixed(2)}</td>
+                <td><span class="slot-status ${typeClass}">${closeType}</span></td>
+                <td>${new Date(trade.timestamp).toLocaleDateString()}</td>
+            </tr>
+        `;
+    });
+    
+    tbody.innerHTML = html;
+    
+    // Remove "View More" button
+    const viewMoreBtn = document.getElementById('viewMoreBtn');
+    if (viewMoreBtn) viewMoreBtn.remove();
+}
 function updateTimestamp(timestamp) {
     const date = new Date(timestamp);
     document.getElementById('lastUpdate').textContent = date.toLocaleTimeString();
