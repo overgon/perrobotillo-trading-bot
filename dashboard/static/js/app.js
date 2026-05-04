@@ -240,7 +240,7 @@ function updateSlots(data) {
                                 <span>Progress to TP1</span>
                                 <span>${Math.min(100, progress).toFixed(1)}%</span>
                             </div>
-                            <div class="tp-bar">
+                            <div class="tp-bar ${pnl >= 0 ? 'profit' : 'loss'}">
                                 <div class="tp-fill" style="width: ${Math.min(100, progress).toFixed(1)}%"></div>
                             </div>
                         </div>

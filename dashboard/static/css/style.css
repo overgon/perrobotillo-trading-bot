@@ -575,6 +575,22 @@ body::before {
     transition: width 0.5s ease;
 }
 
+/* Loss state - RED bar for negative P&L */
+.tp-bar.loss .tp-fill {
+    background: linear-gradient(90deg, var(--neon-red), #ff6b6b);
+    box-shadow: 0 0 10px var(--neon-red);
+    animation: pulseLoss 2s ease-in-out infinite;
+}
+
+@keyframes pulseLoss {
+    0%, 100% {
+        box-shadow: 0 0 10px var(--neon-red);
+    }
+    50% {
+        box-shadow: 0 0 20px var(--neon-red), 0 0 30px rgba(255, 69, 58, 0.3);
+    }
+}
+
 /* ════════════════════════════════════════════════════════
    TABLES
    ════════════════════════════════════════════════════════ */
