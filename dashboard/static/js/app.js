@@ -38,7 +38,14 @@ async function loadData() {
         lastData = data;
         
         updatePortfolio(data);
-        updateSlots(data);
+        // Ensure prices are available before updating slots
+if (!data.prices || Object.keys(data.prices).length === 0) {
+    console.warn('⚠️ No prices data available, fetching...');
+    loadPrices();
+} else {
+    console.log('✅ Prices available:', Object.keys(data.prices).length, 'pairs');
+}
+updateSlots(data);
         updateSystemStatus(data);
         updateTradesTable(data);
         updateTimestamp(data.timestamp);
@@ -144,11 +151,22 @@ function updateSlots(data) {
                                slot.status === 'READY' ? 'ready' : 'loss';
             const statusText = slot.status || 'UNKNOWN';
             
-            const entryPrice = slot.entryPrice || 0;
+            const entryPrice = parseFloat(slot.entryPrice) || 0;
             const currentPrice = getCurrentPrice(coin, data.prices);
-            const tp1 = slot.tp1 || 0;
-            const tp2 = slot.tp2 || 0;
-            const tp3 = slot.tp3 || 0;
+            const tp1 = parseFloat(slot.tp1) || 0;
+            const tp2 = parseFloat(slot.tp2) || 0;
+            const tp3 = parseFloat(slot.tp3) || 0;
+            
+            // Debug logging for price issues
+            if (currentPrice === 0 && slot.status === 'ACTIVE') {
+                console.warn(`⚠️ ${coin} Slot ${slot.slotId}: currentPrice is 0!`, {
+                    entryPrice,
+                    tp1,
+                    tp2,
+                    tp3,
+                    pricesAvailable: Object.keys(data.prices || {}).length
+                });
+            }
             
             // Calculate progress to NEXT target (not always TP1)
             let targetPrice = tp1;
@@ -422,9 +440,25 @@ function updateTimestamp(timestamp) {
 function getCurrentPrice(coin, prices) {
     const symbol = `${coin}USDT`;
     const priceData = prices[symbol];
+    
+    // Handle both string and number prices
     if (priceData) {
-        return parseFloat(priceData.replace('$', ''));
+        const price = typeof priceData === 'string' ? parseFloat(priceData) : priceData;
+        if (!isNaN(price) && price > 0) {
+            return price;
+        }
     }
+    
+    // Fallback: try to find in prices object
+    for (const [key, value] of Object.entries(prices)) {
+        if (key === symbol || key.startsWith(symbol)) {
+            const price = typeof value === 'string' ? parseFloat(value) : value;
+            if (!isNaN(price) && price > 0) {
+                return price;
+            }
+        }
+    }
+    
     return 0;
 }
 
