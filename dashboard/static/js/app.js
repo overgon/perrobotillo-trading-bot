@@ -70,10 +70,14 @@ function updatePortfolio(data) {
     document.getElementById('totalPortfolioMXN').textContent = 
         `$${portfolio.total_mxn.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} MXN`;
     
-    // P&L 24h - Calculate from daily_pnl
+    // P&L 24h - Calculate from daily_pnl using .pnl field
     let totalPnl = 0;
-    Object.values(data.daily_pnl || {}).forEach(coin => {
-        totalPnl += parseFloat(coin.profitUSDT || 0) + parseFloat(coin.lossUSDT || 0);
+    const dailyPnl = data.daily_pnl || {};
+    
+    // Sum all coins P&L
+    Object.values(dailyPnl).forEach(coin => {
+        const coinPnl = parseFloat(coin.pnl || 0);
+        totalPnl += coinPnl;
     });
     
     const pnlElement = document.getElementById('pnl24h');
