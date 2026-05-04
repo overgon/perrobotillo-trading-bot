@@ -122,15 +122,16 @@ function updatePortfolio(data) {
     pnlElement.textContent = `${totalPnl >= 0 ? '+' : ''}$${Math.abs(totalPnl).toFixed(2)}`;
     pnlElement.style.color = totalPnl >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
     
-    // Also update Total P&L (24H) field
-    if (totalPnlElement) {
-        totalPnlElement.textContent = `${totalPnl >= 0 ? '+' : ''}$${Math.abs(totalPnl).toFixed(2)}`;
-        totalPnlElement.style.color = totalPnl >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
-    }
-    
     const pnlPercentValue = portfolio.total_usdt > 0 ? (totalPnl / portfolio.total_usdt) * 100 : 0;
     pnlPercent.textContent = `${pnlPercentValue >= 0 ? '+' : ''}${pnlPercentValue.toFixed(2)}%`;
     pnlPercent.style.color = pnlPercentValue >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
+    
+    // Total P&L (24H) - Use HISTORICAL P&L from trade history
+    if (totalPnlElement) {
+        const historicalPnl = history.netPnLUSDT || 0;
+        totalPnlElement.textContent = `${historicalPnl >= 0 ? '+' : ''}$${Math.abs(historicalPnl).toFixed(2)}`;
+        totalPnlElement.style.color = historicalPnl >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
+    }
     
     // Win Rate & Trades
     const history = data.history;
