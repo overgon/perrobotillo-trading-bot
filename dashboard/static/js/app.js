@@ -7,7 +7,7 @@
 const CONFIG = {
     API_URL: '/api/data',
     PRICES_URL: '/api/prices',
-    REFRESH_INTERVAL: 10000, // 10 seconds for main data
+    REFRESH_INTERVAL: 30000, // 30 seconds for main data (increased from 10s)
     PRICES_INTERVAL: 60000,  // 60 seconds for prices
     MAX_TRADES_DISPLAY: 10
 };
@@ -147,20 +147,29 @@ function updateSlots(data) {
     const slotsGrid = document.getElementById('slotsGrid');
     const coins = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX'];
     
+    // Don't clear slots if data is empty/invalid - keep last known values
+    if (!data || !data.coins) {
+        console.log('⚠️ No slots data received, keeping last values');
+        return;
+    }
+    
     let html = '';
     
     coins.forEach(coin => {
         const coinData = data.coins[coin];
         if (!coinData || coinData.error) {
-            html += `
-                <div class="slot-card">
-                    <div class="slot-header">
-                        <div class="slot-coin">${coin}</div>
-                        <div class="slot-id">--</div>
+            // Keep showing data unavailable only if we have no lastData
+            if (!lastData || !lastData.coins || !lastData.coins[coin]) {
+                html += `
+                    <div class="slot-card">
+                        <div class="slot-header">
+                            <div class="slot-coin">${coin}</div>
+                            <div class="slot-id">--</div>
+                        </div>
+                        <div class="slot-status ready">DATA UNAVAILABLE</div>
                     </div>
-                    <div class="slot-status ready">DATA UNAVAILABLE</div>
-                </div>
-            `;
+                `;
+            }
             return;
         }
         
