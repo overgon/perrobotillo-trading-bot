@@ -133,10 +133,22 @@ function updateSlots(data) {
             const tp2 = slot.tp2 || 0;
             const tp3 = slot.tp3 || 0;
             
-            // Calculate progress to TP1
+            // Calculate progress to NEXT target (not always TP1)
+            let targetPrice = tp1;
+            let targetName = 'TP1';
+            
+            if (slot.tp1Done) {
+                targetPrice = tp2;
+                targetName = 'TP2';
+            }
+            if (slot.tp2Done) {
+                targetPrice = tp3;
+                targetName = 'TP3';
+            }
+            
             let progress = 0;
-            if (entryPrice > 0 && tp1 > 0 && currentPrice > 0) {
-                progress = Math.min(100, ((currentPrice - entryPrice) / (tp1 - entryPrice)) * 100);
+            if (entryPrice > 0 && targetPrice > 0 && currentPrice > 0) {
+                progress = Math.min(100, ((currentPrice - entryPrice) / (targetPrice - entryPrice)) * 100);
             }
             
             // Calculate P&L
