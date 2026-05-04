@@ -99,6 +99,7 @@ async function loadPrices() {
 
 function updatePortfolio(data) {
     const portfolio = data.portfolio;
+    const history = data.history || {};
     
     // Total Portfolio
     animateValue('totalPortfolio', portfolio.total_usdt, '$');
@@ -126,7 +127,7 @@ function updatePortfolio(data) {
     pnlPercent.textContent = `${pnlPercentValue >= 0 ? '+' : ''}${pnlPercentValue.toFixed(2)}%`;
     pnlPercent.style.color = pnlPercentValue >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
     
-    // Total P&L (24H) - Use HISTORICAL P&L from trade history
+    // Total P&L - Use HISTORICAL P&L from trade history
     if (totalPnlElement) {
         const historicalPnl = history.netPnLUSDT || 0;
         totalPnlElement.textContent = `${historicalPnl >= 0 ? '+' : ''}$${Math.abs(historicalPnl).toFixed(2)}`;
@@ -134,7 +135,6 @@ function updatePortfolio(data) {
     }
     
     // Win Rate & Trades
-    const history = data.history;
     document.getElementById('winRate').textContent = `${(history.winRate || 0).toFixed(2)}%`;
     document.getElementById('winLoss').textContent = 
         `${history.totalWins || 0}W / ${history.totalLosses || 0}L`;
