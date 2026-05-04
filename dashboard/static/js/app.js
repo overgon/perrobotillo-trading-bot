@@ -7,7 +7,8 @@
 const CONFIG = {
     API_URL: '/api/data',
     PRICES_URL: '/api/prices',
-    REFRESH_INTERVAL: 10000, // 10 seconds
+    REFRESH_INTERVAL: 10000, // 10 seconds for main data
+    PRICES_INTERVAL: 60000,  // 60 seconds for prices
     MAX_TRADES_DISPLAY: 10
 };
 
@@ -23,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('🐕 Perrobotillo Dashboard - Initializing...');
     loadData();
     setInterval(loadData, CONFIG.REFRESH_INTERVAL);
-    setInterval(loadPrices, 5000); // Prices update faster
+    setInterval(loadPrices, CONFIG.PRICES_INTERVAL); // Prices update every 60 seconds
 });
 
 // ════════════════════════════════════════════════════════
@@ -50,11 +51,27 @@ async function loadData() {
 
 async function loadPrices() {
     try {
-        const response = await fetch(CONFIG.PRICES_URL);
-        const prices = await response.json();
+        // Fetch 24h ticker data from Binance directly (includes price AND 24h change)
+        const response = await fetch('https://api.binance.com/api/v3/ticker/24hr');
+        const tickers = await response.json();
+        
+        // Convert to format expected by updatePrices
+        const prices = {};
+        const coins = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX'];
+        
+        coins.forEach(coin => {
+            const ticker = tickers.find(t => t.symbol === `${coin}USDT`);
+            if (ticker) {
+                prices[`${coin}USDT`] = ticker.lastPrice;
+                // Store 24h change percentage
+                prices[`${coin}USDT_change`] = parseFloat(ticker.priceChangePercent);
+            }
+        });
+        
         updatePrices(prices);
     } catch (error) {
         console.error('❌ Error loading prices:', error);
+        // Don't clear prices on error - keep last known values
     }
 }
 
@@ -208,11 +225,11 @@ function updateSlots(data) {
 }
 
 function updatePrices(prices) {
-    // Prices are updated within slots, but also show in charts section
     const chartsGrid = document.getElementById('chartsGrid');
     
+    // Don't clear prices if data is empty/invalid - keep last known values
     if (!prices || Object.keys(prices).length === 0) {
-        chartsGrid.innerHTML = '<div class="loading-slots">⏳ Loading prices...</div>';
+        console.log('⚠️ No price data received, keeping last values');
         return;
     }
     
@@ -222,10 +239,11 @@ function updatePrices(prices) {
     coins.forEach(coin => {
         const symbol = `${coin}USDT`;
         const priceData = prices[symbol];
+        const changeData = prices[`${symbol}_change`];
+        
         if (priceData) {
             const price = parseFloat(priceData);
-            // Get 24h change from coin data if available
-            const change = 0; // Would need to fetch from Binance separately
+            const change = changeData || 0;
             const changeClass = change >= 0 ? 'positive' : 'negative';
             const changeColor = change >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
             
@@ -238,6 +256,17 @@ function updatePrices(prices) {
                         </div>
                     </div>
                     <div class="price-value">$${price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                </div>
+            `;
+        } else {
+            // Show placeholder if price data missing
+            html += `
+                <div class="price-card">
+                    <div class="price-header">
+                        <div class="price-coin">${coin}</div>
+                        <div class="price-change" style="color: var(--text-secondary)">--</div>
+                    </div>
+                    <div class="price-value" style="color: var(--text-secondary)">$--.--</div>
                 </div>
             `;
         }
