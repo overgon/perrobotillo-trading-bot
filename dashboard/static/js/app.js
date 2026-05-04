@@ -57,7 +57,11 @@ updateSlots(data);
         updateTradesTable(data);
         updateTimestamp(data.timestamp);
         
-        console.log('✅ Data updated:', new Date(data.timestamp).toLocaleTimeString());
+        // Debug: Show available price keys
+const priceKeys = data.prices ? Object.keys(data.prices).filter(k => /^(BTC|ETH|BNB|SOL|LINK|XRP|AVAX)USDT/.test(k)) : [];
+console.log('💰 Available price keys for our coins:', priceKeys);
+
+console.log('✅ Data updated:', new Date(data.timestamp).toLocaleTimeString());
     } catch (error) {
         console.error('❌ Error loading data:', error);
     }
@@ -446,25 +450,50 @@ function updateTimestamp(timestamp) {
 
 function getCurrentPrice(coin, prices) {
     const symbol = `${coin}USDT`;
-    const priceData = prices[symbol];
     
-    // Handle both string and number prices
+    // Method 1: Direct lookup
+    let priceData = prices[symbol];
     if (priceData) {
         const price = typeof priceData === 'string' ? parseFloat(priceData) : priceData;
         if (!isNaN(price) && price > 0) {
+            console.log(`✅ ${coin} price found (direct): $${price}`);
             return price;
         }
     }
     
-    // Fallback: try to find in prices object
+    // Method 2: Case-insensitive search
     for (const [key, value] of Object.entries(prices)) {
-        if (key === symbol || key.startsWith(symbol)) {
+        if (key.toUpperCase() === symbol.toUpperCase()) {
             const price = typeof value === 'string' ? parseFloat(value) : value;
             if (!isNaN(price) && price > 0) {
+                console.log(`✅ ${coin} price found (case-insensitive): $${price}`);
                 return price;
             }
         }
     }
+    
+    // Method 3: Search for exact match with different formats
+    const variants = [
+        symbol,
+        symbol.toLowerCase(),
+        symbol.toUpperCase(),
+        `${coin.toLowerCase()}usdt`,
+        `${coin.toUpperCase()}USDT`
+    ];
+    
+    for (const variant of variants) {
+        if (prices[variant]) {
+            const price = typeof prices[variant] === 'string' ? parseFloat(prices[variant]) : prices[variant];
+            if (!isNaN(price) && price > 0) {
+                console.log(`✅ ${coin} price found (variant ${variant}): $${price}`);
+                return price;
+            }
+        }
+    }
+    
+    // If nothing found, log available keys for debugging
+    const coinKeys = Object.keys(prices).filter(k => k.includes(coin));
+    console.warn(`❌ ${coin} price NOT found. Available variants:`, coinKeys.slice(0, 5));
     
     return 0;
 }
