@@ -22,9 +22,16 @@ let alertPlayed = false;
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🐕 Perrobotillo Dashboard - Initializing...');
-    loadData();
+    
+    // Load prices FIRST so they're available for slots
+    loadPrices().then(() => {
+        console.log('✅ Prices loaded, now loading main data...');
+        loadData();
+    });
+    
+    // Then refresh on intervals
     setInterval(loadData, CONFIG.REFRESH_INTERVAL);
-    setInterval(loadPrices, CONFIG.PRICES_INTERVAL); // Prices update every 60 seconds
+    setInterval(loadPrices, CONFIG.PRICES_INTERVAL);
 });
 
 // ════════════════════════════════════════════════════════
@@ -38,12 +45,12 @@ async function loadData() {
         lastData = data;
         
         updatePortfolio(data);
-        // Ensure prices are available before updating slots
-if (!data.prices || Object.keys(data.prices).length === 0) {
-    console.warn('⚠️ No prices data available, fetching...');
-    loadPrices();
+        // Prices should be available from /api/data endpoint
+const pricesCount = data.prices ? Object.keys(data.prices).length : 0;
+if (pricesCount > 0) {
+    console.log(`✅ Prices available: ${pricesCount} pairs`);
 } else {
-    console.log('✅ Prices available:', Object.keys(data.prices).length, 'pairs');
+    console.warn('⚠️ No prices in data object, prices object:', data.prices);
 }
 updateSlots(data);
         updateSystemStatus(data);
