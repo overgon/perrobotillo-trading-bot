@@ -33,6 +33,142 @@ body {
 /* ════════════════════════════════════════════════════════
    BACKGROUND ANIMATIONS
    ════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════
+   FLOATING PARTICLES - Cyberpunk dust
+   ════════════════════════════════════════════════════════ */
+
+.cyber-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.cyber-particles::before {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(0, 243, 255, 0.6);
+    border-radius: 50%;
+    box-shadow: 
+        10vw 20vh 0 1px rgba(188, 19, 254, 0.6),
+        20vw 80vh 0 0.5px rgba(255, 0, 255, 0.6),
+        30vw 40vh 0 1.5px rgba(0, 243, 255, 0.6),
+        40vw 90vh 0 0.8px rgba(188, 19, 254, 0.6),
+        50vw 10vh 0 1.2px rgba(255, 0, 255, 0.6),
+        60vw 70vh 0 0.6px rgba(0, 243, 255, 0.6),
+        70vw 30vh 0 1px rgba(188, 19, 254, 0.6),
+        80vw 60vh 0 0.9px rgba(255, 0, 255, 0.6),
+        90vw 50vh 0 1.1px rgba(0, 243, 255, 0.6),
+        15vw 95vh 0 0.7px rgba(188, 19, 254, 0.6),
+        25vw 15vh 0 1.3px rgba(255, 0, 255, 0.6),
+        35vw 85vh 0 0.5px rgba(0, 243, 255, 0.6),
+        45vw 25vh 0 1.4px rgba(188, 19, 254, 0.6),
+        55vw 65vh 0 0.8px rgba(255, 0, 255, 0.6),
+        65vw 35vh 0 1px rgba(0, 243, 255, 0.6),
+        75vw 75vh 0 0.6px rgba(188, 19, 254, 0.6),
+        85vw 45vh 0 1.2px rgba(255, 0, 255, 0.6),
+        95vw 85vh 0 0.9px rgba(0, 243, 255, 0.6);
+    animation: particlesFloat 20s linear infinite;
+    opacity: 0.7;
+}
+
+@keyframes particlesFloat {
+    0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0.7;
+    }
+    50% {
+        transform: translateY(-50vh) translateX(20px);
+        opacity: 0.4;
+    }
+    100% {
+        transform: translateY(-100vh) translateX(-20px);
+        opacity: 0;
+    }
+}
+
+/* ════════════════════════════════════════════════════════
+   ENHANCED SCANLINES - Variable speed
+   ════════════════════════════════════════════════════════ */
+
+.scanlines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+    z-index: 2;
+    animation: scanlineMove 8s linear infinite;
+    opacity: 0.4;
+}
+
+@keyframes scanlineMove {
+    0% {
+        background-position: 0 0;
+        opacity: 0.3;
+    }
+    50% {
+        background-position: 0 100px;
+        opacity: 0.5;
+    }
+    100% {
+        background-position: 0 0;
+        opacity: 0.3;
+    }
+}
+
+/* ════════════════════════════════════════════════════════
+   PULSING GLOW - Background ambiance
+   ════════════════════════════════════════════════════════ */
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 150vw;
+    height: 150vh;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(0, 243, 255, 0.05) 0%,
+        rgba(188, 19, 254, 0.03) 50%,
+        transparent 70%
+    );
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    animation: glowPulse 10s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes glowPulse {
+    0%, 100% {
+        opacity: 0.5;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+}
+
+
+/* ════════════════════════════════════════════════════════
+   DYNAMIC CYBER GRID - Multi-color, multi-direction
+   ════════════════════════════════════════════════════════ */
 
 .cyber-grid {
     position: fixed;
@@ -40,18 +176,59 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-image: 
-        linear-gradient(rgba(0, 243, 255, 0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 243, 255, 0.1) 1px, transparent 1px);
-    background-size: 50px 50px;
-    animation: gridMove 20s linear infinite;
+    background: 
+        linear-gradient(rgba(0, 243, 255, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 243, 255, 0.08) 1px, transparent 1px),
+        linear-gradient(rgba(188, 19, 254, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(188, 19, 254, 0.06) 1px, transparent 1px);
+    background-size: 50px 50px, 50px 50px, 100px 100px, 100px 100px;
+    animation: gridMove 15s ease-in-out infinite, gridColor 8s ease-in-out infinite;
     pointer-events: none;
     z-index: 0;
+    opacity: 0.6;
 }
 
 @keyframes gridMove {
-    0% { transform: translate(0, 0); }
-    100% { transform: translate(50px, 50px); }
+    0%, 100% { 
+        transform: translate(0, 0) rotate(0deg);
+        background-position: 0 0, 0 0, 0 0, 0 0;
+    }
+    25% { 
+        transform: translate(50px, 25px) rotate(2deg);
+        background-position: 50px 25px, 50px 25px, 100px 50px, 100px 50px;
+    }
+    50% { 
+        transform: translate(25px, 50px) rotate(0deg);
+        background-position: 25px 50px, 25px 50px, 50px 100px, 50px 100px;
+    }
+    75% { 
+        transform: translate(-25px, 25px) rotate(-2deg);
+        background-position: -25px 25px, -25px 25px, -50px 50px, -50px 50px;
+    }
+}
+
+@keyframes gridColor {
+    0%, 100% {
+        background-image: 
+            linear-gradient(rgba(0, 243, 255, 0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 243, 255, 0.08) 1px, transparent 1px),
+            linear-gradient(rgba(188, 19, 254, 0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(188, 19, 254, 0.06) 1px, transparent 1px);
+    }
+    33% {
+        background-image: 
+            linear-gradient(rgba(188, 19, 254, 0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(188, 19, 254, 0.08) 1px, transparent 1px),
+            linear-gradient(rgba(255, 0, 255, 0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 0, 255, 0.06) 1px, transparent 1px);
+    }
+    66% {
+        background-image: 
+            linear-gradient(rgba(255, 0, 255, 0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 0, 255, 0.08) 1px, transparent 1px),
+            linear-gradient(rgba(0, 243, 255, 0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 243, 255, 0.06) 1px, transparent 1px);
+    }
 }
 
 .scanlines {
