@@ -157,6 +157,8 @@ function updateSlots(data) {
             const tp3 = parseFloat(slot.tp3) || 0;
             const quantity = parseFloat(slot.quantity) || 0;
             
+            console.log(`🔍 ${coin} Slot ${slot.slotId}: entry=$${entryPrice}, current=$${currentPrice}, tp1=$${tp1}, tp1Done=${slot.tp1Done}`);
+            
             // Determinar target actual basado en TPs completados
             let targetPrice = tp1;
             let targetName = 'TP1';
@@ -176,9 +178,13 @@ function updateSlots(data) {
                 targetName = 'TP1';
             }
             
+            console.log(`  Target: ${targetName}=$${targetPrice}`);
+            
             if (entryPrice > 0 && targetPrice > 0 && currentPrice > 0 && targetPrice !== entryPrice) {
                 progress = Math.min(100, ((currentPrice - entryPrice) / (targetPrice - entryPrice)) * 100);
             }
+            
+            console.log(`  Progress: ${progress.toFixed(1)}%`);
             
             let pnl = 0, pnlPercent = 0;
             if (entryPrice > 0 && currentPrice > 0) {
@@ -393,9 +399,9 @@ function updateTradesTable(data) {
                 <td>${trade.type}</td>
                 <td>$${(trade.entryPrice || 0).toFixed(2)}</td>
                 <td>$${(trade.exitPrice || 0).toFixed(2)}</td>
-                <td><span class="status-badge ${pnlClass}">${closeType}</span></td>
                 <td style="color: ${pnlColor}">${trade.pnlUSDT >= 0 ? '+' : ''}$${(trade.pnlUSDT || 0).toFixed(2)}</td>
-                <td>${new Date(trade.timestamp).toLocaleDateString()}</td>
+                <td><span class="status-badge ${pnlClass}">${closeType}</span></td>
+                <td>${new Date(trade.timestamp).toLocaleString()}</td>
             </tr>
         `;
     });
