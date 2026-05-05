@@ -348,9 +348,8 @@ def api_status():
     })
 
 @app.route('/api/prices')
-@requires_auth
 def api_prices():
-    """API endpoint para precios en tiempo real"""
+    """API endpoint para precios en tiempo real (SIN AUTH para refresh rápido)"""
     try:
         import requests
         
