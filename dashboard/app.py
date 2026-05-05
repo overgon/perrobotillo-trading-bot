@@ -286,6 +286,32 @@ def api_status():
     
     total_slots = active_slots + ready_slots
     
+    # Verificar API Binance
+    try:
+        import requests
+        test_url = 'https://api.binance.com/api/v3/ping'
+        requests.get(test_url, timeout=5)
+        api_binance = 'ok'
+    except:
+        api_binance = 'error'
+    
+    # Obtener IP pública
+    try:
+        import requests
+        ip_response = requests.get('https://ifconfig.me', timeout=5)
+        public_ip = ip_response.text.strip()
+    except:
+        public_ip = 'error'
+    
+    # Verificar Gateway (Ollama)
+    try:
+        import requests
+        gateway_url = 'http://localhost:11434/api/tags'
+        requests.get(gateway_url, timeout=5)
+        gateway = 'ok'
+    except:
+        gateway = 'error'
+    
     return jsonify({
         'portfolio': {
             'value': portfolio_value,
@@ -313,6 +339,11 @@ def api_status():
         },
         'market_mode': market_mode,
         'tradeStates': trade_states,
+        'system': {
+            'api_binance': api_binance,
+            'ip_whitelist': public_ip,
+            'gateway': gateway
+        },
         'timestamp': datetime.now().isoformat()
     })
 

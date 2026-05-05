@@ -3,7 +3,6 @@
 // JavaScript App - Real-time Updates
 // ════════════════════════════════════════════════════════
 
-// Configuration
 const CONFIG = {
     API_URL: '/api/status',
     PRICES_URL: '/api/prices',
@@ -12,27 +11,17 @@ const CONFIG = {
     MAX_TRADES_DISPLAY: 10
 };
 
-// State
 let lastData = null;
 let lastPrices = {};
-
-// ════════════════════════════════════════════════════════
-// INITIALIZATION
-// ════════════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🐕 Perrobotillo Dashboard - Initializing...');
     loadPrices().then(() => {
-        console.log('✅ Prices loaded, now loading main data...');
         loadData();
     });
     setInterval(loadData, CONFIG.REFRESH_INTERVAL);
     setInterval(loadPrices, CONFIG.PRICES_INTERVAL);
 });
-
-// ════════════════════════════════════════════════════════
-// DATA LOADING
-// ════════════════════════════════════════════════════════
 
 async function loadData() {
     try {
@@ -42,7 +31,7 @@ async function loadData() {
         
         updatePortfolio({ portfolio: data.portfolio, history: data.history, pnl: data.pnl });
         updateSlots({ tradeStates: data.tradeStates || {}, prices: lastPrices });
-        updateSystemStatus({ market_mode: data.market_mode });
+        updateSystemStatus({ market_mode: data.market_mode, system: data.system });
         updateTradesTable({ history: data.history });
         updateTimestamp(data.timestamp);
         
@@ -67,10 +56,6 @@ function getCurrentPrice(coin, prices) {
     const symbol = `${coin}USDT`;
     return prices[symbol] ? parseFloat(prices[symbol]) : 0;
 }
-
-// ════════════════════════════════════════════════════════
-// UPDATE FUNCTIONS
-// ════════════════════════════════════════════════════════
 
 function updatePortfolio(data) {
     const portfolio = data.portfolio || {};
@@ -116,25 +101,17 @@ function updateSlots(data) {
     const tradeStates = data.tradeStates || {};
     const prices = data.prices || lastPrices;
     
-    if (!tradeStates || Object.keys(tradeStates).length === 0) {
-        console.log('⚠️ No tradeStates data');
-        return;
-    }
+    if (!tradeStates || Object.keys(tradeStates).length === 0) return;
     
     let html = '';
     
     coins.forEach(coin => {
         const coinData = tradeStates[coin];
-        if (!coinData) {
-            console.log(`⚠️ No data for ${coin}`);
-            return;
-        }
+        if (!coinData) return;
         
-        // La estructura tiene: coinData.slots[] (array de slots)
         const slots = coinData.slots || [];
         
         if (slots.length === 0) {
-            // Sin slots activos = READY
             html += `
                 <div class="slot-card ready">
                     <div class="slot-header">
@@ -148,9 +125,6 @@ function updateSlots(data) {
         }
         
         slots.forEach(slot => {
-            const statusClass = 'active';
-            const statusText = slot.status || 'IN TRADE';
-            
             const entryPrice = parseFloat(slot.entryPrice) || 0;
             const currentPrice = getCurrentPrice(coin, prices) || 0;
             const tp1 = parseFloat(slot.tp1) || 0;
@@ -158,7 +132,6 @@ function updateSlots(data) {
             const tp3 = parseFloat(slot.tp3) || 0;
             const quantity = parseFloat(slot.quantity) || 0;
             
-            // Determinar target actual
             let targetPrice = tp1;
             let targetName = 'TP1';
             let progress = 0;
@@ -170,21 +143,19 @@ function updateSlots(data) {
                 progress = Math.min(100, ((currentPrice - entryPrice) / (targetPrice - entryPrice)) * 100);
             }
             
-            // Calcular P&L
-            let pnl = 0;
-            let pnlPercent = 0;
+            let pnl = 0, pnlPercent = 0;
             if (entryPrice > 0 && currentPrice > 0) {
                 pnlPercent = ((currentPrice - entryPrice) / entryPrice) * 100;
                 pnl = (currentPrice - entryPrice) * quantity;
             }
             
             html += `
-                <div class="slot-card ${statusClass}">
+                <div class="slot-card active">
                     <div class="slot-header">
                         <div class="slot-coin">${coin}</div>
                         <div class="slot-id">Slot ${slot.slotId}</div>
                     </div>
-                    <div class="slot-status ${statusText.toLowerCase()}">${statusText}</div>
+                    <div class="slot-status in-trade">IN TRADE</div>
                     
                     <div class="slot-grid-info">
                         <div class="slot-info-item">
@@ -260,6 +231,7 @@ function updatePrices(prices) {
 
 function updateSystemStatus(data) {
     const marketMode = data.market_mode || {};
+    const system = data.system || {};
     
     const modeElement = document.getElementById('marketMode');
     if (modeElement) {
@@ -273,6 +245,32 @@ function updateSystemStatus(data) {
         const tp3 = marketMode.TP3 || '7.0';
         const sl = marketMode.SL || '5.0';
         configElement.textContent = `TP1: ${tp1}% | TP2: ${tp2}% | TP3: ${tp3}% | SL: ${sl}%`;
+    }
+    
+    // API Binance Status
+    const apiStatus = document.getElementById('apiStatus');
+    if (apiStatus) {
+        apiStatus.textContent = system.api_binance === 'ok' ? '✅' : '❌';
+        apiStatus.title = system.api_binance === 'ok' ? 'Binance API Online' : 'Binance API Offline';
+    }
+    
+    // IP Whitelist Status
+    const ipStatus = document.getElementById('ipStatus');
+    if (ipStatus) {
+        if (system.ip_whitelist && system.ip_whitelist !== 'error') {
+            ipStatus.textContent = `✅ ${system.ip_whitelist}`;
+            ipStatus.title = 'IP Pública Actual';
+        } else {
+            ipStatus.textContent = '❌ No disponible';
+            ipStatus.title = 'No se pudo obtener IP';
+        }
+    }
+    
+    // Gateway Status
+    const gatewayStatus = document.getElementById('gatewayStatus');
+    if (gatewayStatus) {
+        gatewayStatus.textContent = system.gateway === 'ok' ? '✅' : '❌';
+        gatewayStatus.title = system.gateway === 'ok' ? 'Gateway Online' : 'Gateway Offline';
     }
 }
 
@@ -333,9 +331,7 @@ function animateValue(id, end, prefix = '') {
         const value = start + (end - start) * progress;
         el.textContent = `${prefix}${value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         
-        if (progress < 1) {
-            requestAnimationFrame(update);
-        }
+        if (progress < 1) requestAnimationFrame(update);
     }
     
     requestAnimationFrame(update);
