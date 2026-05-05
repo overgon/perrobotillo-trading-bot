@@ -349,30 +349,31 @@ def api_status():
 
 @app.route('/api/prices')
 def api_prices():
-    """API endpoint para precios en tiempo real (SIN AUTH para refresh rápido)"""
+    """API endpoint para precios en tiempo real (OPTIMIZADO)"""
     try:
         import requests
         
+        # UNA SOLA llamada a Binance para todas las monedas
+        url = 'https://api.binance.com/api/v3/ticker/24hr'
+        response = requests.get(url, timeout=10)
+        all_tickers = response.json()
+        
+        # Filtrar solo nuestras monedas
         coins = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX']
         prices = {}
         
-        for coin in coins:
-            try:
-                response = requests.get(
-                    f'https://api.binance.com/api/v3/ticker/24hr?symbol={coin}USDT',
-                    timeout=5
-                )
-                data = response.json()
-                prices[coin] = {
-                    'price': float(data.get('lastPrice', 0)),
-                    'change_24h': float(data.get('priceChangePercent', 0)),
-                    'volume': float(data.get('volume', 0)),
-                    'high': float(data.get('highPrice', 0)),
-                    'low': float(data.get('lowPrice', 0))
-                }
-            except Exception as e:
-                print(f"Error getting {coin} price: {e}")
-                prices[coin] = {'price': 0, 'change_24h': 0}
+        for ticker in all_tickers:
+            symbol = ticker.get('symbol', '')
+            for coin in coins:
+                if symbol == f'{coin}USDT':
+                    prices[coin] = {
+                        'price': float(ticker.get('lastPrice', 0)),
+                        'change_24h': float(ticker.get('priceChangePercent', 0)),
+                        'volume': float(ticker.get('volume', 0)),
+                        'high': float(ticker.get('highPrice', 0)),
+                        'low': float(ticker.get('lowPrice', 0))
+                    }
+                    break
         
         return jsonify(prices)
         
