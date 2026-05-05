@@ -263,7 +263,6 @@ def api_portfolio():
     })
 
 @app.route('/api/status')
-@requires_auth
 def api_status():
     """API endpoint para estado completo"""
     portfolio_value = get_portfolio_value()
