@@ -17,19 +17,16 @@ import base64
 
 app = Flask(__name__)
 
-# Hide server version in WSGI environ
-class WSGIMiddleware:
-    def __init__(self, app):
-        self.app = app
-    
-    def __call__(self, environ, start_response):
-        def custom_start_response(status, headers, exc_info=None):
-            # Remove Server header
-            headers = [(k, v) for k, v in headers if k.lower() != 'server']
-            return start_response(status, headers, exc_info)
-        return self.app(environ, custom_start_response)
+# ════════════════════════════════════════════════════════
+# 🔒 SECURITY - HIDE SERVER HEADERS
+# ════════════════════════════════════════════════════════
 
-app.wsgi_app = WSGIMiddleware(app.wsgi_app)
+@app.after_request
+def hide_server_headers(response):
+    """Ocultar headers del servidor por seguridad"""
+    response.headers.pop('Server', None)
+    response.headers.pop('X-Powered-By', None)
+    return response
 
 WORKSPACE = "/home/overgon/.openclaw/workspace"
 CRYPTO_BOTS = f"{WORKSPACE}/crypto-bots"
@@ -276,6 +273,7 @@ def get_market_mode():
 # ════════════════════════════════════════════════════════
 
 @app.route('/')
+@requires_auth
 def index():
     return render_template('index.html')
 
