@@ -41,6 +41,28 @@ else
     MIN_TRADE_SIZE=10
 fi
 
+# ════════════════════════════════════════════════════════
+# 🧠 CARGAR CONFIGURACIÓN DINÁMICA (Auto-Adjust)
+# ════════════════════════════════════════════════════════
+
+DYNAMIC_CONFIG="${SCRIPT_DIR}/dynamic-config.env"
+if [ -f "$DYNAMIC_CONFIG" ]; then
+    source "$DYNAMIC_CONFIG"
+    
+    # Aplicar parámetros dinámicos si existen
+    [ -n "$TP1" ] && NORMAL_TP1=$TP1 && AGGRESSIVE_TP1=$TP1
+    [ -n "$TP2" ] && NORMAL_TP2=$TP2 && AGGRESSIVE_TP2=$TP2
+    [ -n "$TP3" ] && NORMAL_TP3=$TP3 && AGGRESSIVE_TP3=$TP3
+    [ -n "$STOP_LOSS" ] && STOP_LOSS_PERCENT=$STOP_LOSS
+    [ -n "$POSITION_SIZE" ] && TRADE_POSITION_PERCENT=$POSITION_SIZE
+    
+    log "🧠 MODO: ${MARKET_MODE:-LATERAL}"
+    log "   TP1: ${NORMAL_TP1}% | TP2: ${NORMAL_TP2}% | TP3: ${NORMAL_TP3}%"
+    log "   SL: ${STOP_LOSS_PERCENT:-5.0}%"
+else
+    log "⚠️ Sin config dinámica (usando defaults)"
+fi
+
 TRADING_HOURS_OPTIMAL="00,01,13,14,15,16,21,22"
 AGGRESSIVE_MODE=true
 

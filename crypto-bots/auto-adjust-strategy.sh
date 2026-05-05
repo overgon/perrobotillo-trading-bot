@@ -1,0 +1,111 @@
+#!/bin/bash
+# ════════════════════════════════════════════════════════
+# 🧠 Auto-Adjust Strategy Engine
+# ════════════════════════════════════════════════════════
+# Aplica la configuración dinámica al bot de trading
+# Uso: ./auto-adjust-strategy.sh
+# ════════════════════════════════════════════════════════
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORKSPACE="${SCRIPT_DIR}/.."
+CONFIG_FILE="${SCRIPT_DIR}/market-mode.conf"
+BOT_SCRIPT="${SCRIPT_DIR}/crypto-trade-moneda-v3-slots.sh"
+
+echo "╔═══════════════════════════════════════════════════════╗"
+echo "║  🧠 AUTO-ADJUST STRATEGY ENGINE                       ║"
+echo "╚═══════════════════════════════════════════════════════╝"
+echo ""
+
+# ════════════════════════════════════════════════════════
+# PASO 1: EJECUTAR ANÁLISIS DE MERCADO
+# ════════════════════════════════════════════════════════
+
+echo "⏳ Paso 1/3: Analizando mercado..."
+"${SCRIPT_DIR}/market-sentiment.sh"
+
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "❌ Error: No se generó el archivo de configuración"
+    exit 1
+fi
+
+# Cargar configuración
+source "$CONFIG_FILE"
+
+echo ""
+echo "✅ Mercado analizado: ${MARKET_MODE}"
+echo ""
+
+# ════════════════════════════════════════════════════════
+# PASO 2: ACTUALIZAR CONFIGURACIÓN DEL BOT
+# ════════════════════════════════════════════════════════
+
+echo "⏳ Paso 2/3: Actualizando configuración del bot..."
+
+# Crear archivo de configuración dinámica
+DYNAMIC_CONFIG="${SCRIPT_DIR}/dynamic-config.env"
+
+cat > "$DYNAMIC_CONFIG" << EOF
+# Dynamic Strategy Configuration
+# Generated: $(date '+%Y-%m-%d %H:%M:%S')
+# Market Mode: ${MARKET_MODE}
+
+# Auto-Adjusted Parameters
+export TP1=${TP1}
+export TP2=${TP2}
+export TP3=${TP3}
+export STOP_LOSS=${SL}
+export POSITION_SIZE=${POSITION_SIZE}
+export TRAILING_STOP=${TRAILING_STOP}
+
+# Market Context
+export MARKET_MODE="${MARKET_MODE}"
+export MARKET_REASON="${MARKET_REASON}"
+export BTC_PRICE="${BTC_PRICE}"
+export RSI="${RSI}"
+export FG_VALUE="${FG_VALUE}"
+EOF
+
+echo "✅ Configuración dinámica guardada: ${DYNAMIC_CONFIG}"
+echo ""
+
+# ════════════════════════════════════════════════════════
+# PASO 3: NOTIFICAR CAMBIOS
+# ════════════════════════════════════════════════════════
+
+echo "⏳ Paso 3/3: Notificando cambios..."
+
+# Enviar resumen por Telegram
+if [ -f "${WORKSPACE}/lib/send-telegram.sh" ]; then
+    source "${WORKSPACE}/lib/send-telegram.sh"
+    send_telegram "🧠 AUTO-ADJUST STRATEGY UPDATE
+
+🎯 Modo: ${MARKET_MODE}
+📝 Razón: ${MARKET_REASON}
+
+📊 Nueva Configuración:
+TP1: +${TP1}%
+TP2: +${TP2}%
+TP3: +${TP3}%
+SL: -${SL}%
+Position: ${POSITION_SIZE}%
+Trailing: ${TRAILING_STOP}
+
+📈 Contexto:
+BTC: \$${BTC_PRICE}
+RSI: ${RSI}
+F&G: ${FG_VALUE} (${FG_CLASS})
+
+✅ Estrategia ajustada automáticamente"
+fi
+
+echo ""
+echo "╔═══════════════════════════════════════════════════════╗"
+echo "║  ✅ AUTO-ADJUST COMPLETED                             ║"
+echo "╚═══════════════════════════════════════════════════════╝"
+echo ""
+echo "📁 Configuración en: ${DYNAMIC_CONFIG}"
+echo ""
+echo "🔄 El bot usará esta configuración en la próxima ejecución"
+echo ""
+
+exit 0
