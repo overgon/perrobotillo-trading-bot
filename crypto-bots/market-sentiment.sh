@@ -38,16 +38,25 @@ BTC_CHANGE=$(echo "$BTC_DATA" | grep -o '"priceChangePercent":"[^"]*"' | cut -d'
 BTC_VOLUME=$(echo "$BTC_DATA" | grep -o '"volume":"[^"]*"' | cut -d'"' -f4)
 
 # Obtener Fear & Greed (API alternativa)
-FG_DATA=$(curl -s --max-time 5 "https://api.alternative.me/fng/?limit=1&format=json" 2>/dev/null)
+echo "   📊 Obteniendo Fear & Greed Index..."
+FG_DATA=$(curl -s --max-time 5 "https://api.alternative.me/fng/" 2>/dev/null)
 
 if [ -n "$FG_DATA" ]; then
-    FG_VALUE=$(echo "$FG_DATA" | grep -o '"value":"[0-9]*"' | head -1 | cut -d'"' -f4)
-    FG_CLASS=$(echo "$FG_DATA" | grep -o '"value_classification":"[^"]*"' | head -1 | cut -d'"' -f4)
+    # Usar Python para parsing confiable
+    FG_VALUE=$(echo "$FG_DATA" | python3 -c "import sys,json; print(json.load(sys.stdin)['data'][0]['value'])" 2>/dev/null)
+    FG_CLASS=$(echo "$FG_DATA" | python3 -c "import sys,json; print(json.load(sys.stdin)['data'][0]['value_classification'])" 2>/dev/null)
+    
+    # Validar que se obtuvo un valor
+    if [ -z "$FG_VALUE" ] || [ "$FG_VALUE" = "None" ]; then
+        FG_VALUE=50
+        FG_CLASS="Neutral"
+    fi
 else
     # Fallback: usar valor neutral
     FG_VALUE=50
     FG_CLASS="Neutral"
 fi
+echo "   ✅ F&G: ${FG_VALUE} (${FG_CLASS})"
 
 # Obtener EMA20 y EMA50 (calculado simple con últimos 50 días)
 echo "   Calculando EMAs..."
