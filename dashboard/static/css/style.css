@@ -25,7 +25,7 @@
 body {
     font-family: 'Rajdhani', sans-serif;
     background: var(--dark-bg);
-    color: var(--text-primary);
+    color: var(--neon-green) !important;
     overflow-x: hidden;
     min-height: 100vh;
 }
@@ -555,7 +555,7 @@ body::before {
 .slot-info-value {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--neon-green) !important;
 }
 
 /* TP Progress Bars */
@@ -878,7 +878,7 @@ body::before {
     font-family: 'Orbitron', sans-serif;
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--neon-green) !important;
 }
 
 /* ════════════════════════════════════════════════════════
