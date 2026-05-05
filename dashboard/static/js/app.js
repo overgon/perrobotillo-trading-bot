@@ -57,7 +57,7 @@ async function loadPrices() {
 }
 
 function getCurrentPrice(coin, prices) {
-    const symbol = `${coin}USDT`;
+    
     return prices[symbol] ? parseFloat(prices[symbol]) : 0;
 }
 
@@ -235,8 +235,8 @@ function updatePrices(prices) {
     let html = '';
     
     coins.forEach(coin => {
-        const symbol = `${coin}USDT`;
-        const priceData = prices[symbol];
+        
+        const priceData = prices[coin];
         
         if (priceData && priceData.price) {
             const price = parseFloat(priceData.price);
@@ -255,7 +255,7 @@ function updatePrices(prices) {
                 </div>
             `;
         } else {
-            console.warn(`⚠️ No price data for ${symbol}`);
+            console.warn(`⚠️ No price data for ${coin}`);
         }
     });
     
