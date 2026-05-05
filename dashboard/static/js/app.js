@@ -57,6 +57,7 @@ async function loadPrices() {
 }
 
 function getCurrentPrice(coin, prices) {
+    const symbol = `${coin}USDT`;
     
     return prices[symbol] ? parseFloat(prices[symbol]) : 0;
 }
