@@ -1,0 +1,73 @@
+{
+  "version": "1.0",
+  "created": "2026-05-04T12:20:00-06:00",
+  "totalCashouts": 2,
+  "totalUSDTWithdrawn": 360.04,
+  "totalMXNReceived": 6280.70,
+  "avgExchangeRate": 17.45,
+  "cashouts": [
+    {
+      "id": 1,
+      "date": "2026-04-16T20:28:00-06:00",
+      "description": "Trading Capital Restoration",
+      "coins": [
+        {"symbol": "BTC", "amount": 0.00090, "price": 74667.89, "totalUSDT": 67.20},
+        {"symbol": "ETH", "amount": 0.0287, "price": 2330.95, "totalUSDT": 66.90},
+        {"symbol": "SOL", "amount": 0.750, "price": 87.92, "totalUSDT": 65.94}
+      ],
+      "totalUSDT": 200.04,
+      "exchangeRate": 17.40,
+      "totalMXN": 3480.70,
+      "fee": {
+        "trading": 0.00,
+        "p2p": 0.00,
+        "withdrawal": 0.00,
+        "total": 0.00,
+        "note": "Binance P2P - sin fees"
+      },
+      "netMXN": 3480.70,
+      "destination": "Bank Transfer (P2P)",
+      "purpose": "Restore trading capital after emergency close"
+    },
+    {
+      "id": 2,
+      "date": "2026-05-04T12:20:00-06:00",
+      "description": "Profit Cashout - Mayo 2026 (P2P)",
+      "coins": [
+        {"symbol": "BTC", "amount": 0.000498, "price": 80338.11, "totalUSDT": 40.00},
+        {"symbol": "ETH", "amount": 0.01689, "price": 2368.88, "totalUSDT": 40.00},
+        {"symbol": "SOL", "amount": 0.4717, "price": 84.80, "totalUSDT": 40.00},
+        {"symbol": "LINK", "amount": 4.219, "price": 9.48, "totalUSDT": 40.00}
+      ],
+      "totalUSDT": 160.00,
+      "exchangeRate": 17.50,
+      "totalMXN": 2800.00,
+      "fee": {
+        "trading": 0.00,
+        "p2p": 0.00,
+        "withdrawal": 0.00,
+        "total": 0.00,
+        "note": "Binance P2P - sin fees (0% commission)"
+      },
+      "netMXN": 2800.00,
+      "destination": "Bank Transfer (P2P)",
+      "purpose": "Profit withdrawal - Mayo 2026",
+      "status": "COMPLETED",
+      "note": "Realizado manual por usuario - 12:20 CST",
+      "p2pDetails": {
+        "buyer": "TBD",
+        "bankName": "TBD",
+        "transactionId": "TBD",
+        "completedAt": "2026-05-04T12:20:00-06:00"
+      }
+    }
+  ],
+  "summary": {
+    "totalTradingProfit": 18.48,
+    "totalCashoutProfit": 160.00,
+    "remainingInBot": 0.00,
+    "winRate": 64.29,
+    "totalTrades": 14,
+    "note": "Cashout #2 realizado después de LINK TP2 (Trade ID 14)"
+  }
+}
