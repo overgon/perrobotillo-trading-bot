@@ -908,6 +908,9 @@ check_slot_tp_sl() {
                 log "  ✅ TP1 ejecutado exitosamente ($sell_qty_fmt)"
                 update_slot_field "$slot_id" "tp1Done" "true"
                 
+                # LOG TRADE TO HISTORY
+                log_trade_to_history "$slot_id" "TP1" "$entry" "$current_price" "$sell_qty" "$pnl"
+                
                 # FASE 1: TRAILING STOP - Mover SL a breakeven después de TP1
                 if [ "$TRAILING_STOP_ENABLED" = "true" ]; then
                     local breakeven_sl=$(echo "scale=8; $entry * 1.002" | bc)  # Entry + 0.2%
@@ -1051,6 +1054,9 @@ Quedan 65% para TP2/TP3 🎯"
             if [ "$sell_status" = "FILLED" ]; then
                 log "  ✅ TP2 ejecutado exitosamente ($sell_qty_fmt)"
                 update_slot_field "$slot_id" "tp2Done" "true"
+                
+                # LOG TRADE TO HISTORY
+                log_trade_to_history "$slot_id" "TP2" "$entry" "$current_price" "$sell_qty" "$pnl"
                 
                 # FASE 1: TRAILING STOP - Activar trailing stop 2% después de TP2
                 if [ "$TRAILING_STOP_ENABLED" = "true" ]; then
