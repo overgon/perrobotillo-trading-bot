@@ -57,6 +57,17 @@ status() {
         echo "   ❌ Credenciales no encontradas"
     fi
     
+    # IP Pública y Whitelist
+    echo ""
+    echo "🌐 IP PÚBLICA:"
+    local public_ip=$(curl -s --max-time 5 ifconfig.me 2>/dev/null || echo "No disponible")
+    if [ "$public_ip" != "No disponible" ] && [ -n "$public_ip" ]; then
+        echo "   📍 Tu IP: $public_ip"
+        echo "   ⚠️  Verificá que esté en el whitelist de Binance"
+    else
+        echo "   ❌ No se pudo obtener la IP"
+    fi
+    
     # Slots Status
     echo ""
     echo "🎯 SLOTS STATUS:"
