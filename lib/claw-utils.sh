@@ -51,7 +51,7 @@ status() {
     # API Binance
     echo ""
     echo "🔑 API BINANCE:"
-    if [ -f "${WORKSPACE}/secrets/binance.env" ]; then
+    if [ -f "${WORKSPACE}/secrets/binance.env" ] || [ -f "/home/overgon/.openclaw/secrets/binance.env" ]; then
         echo "   ✅ Credenciales configuradas"
     else
         echo "   ❌ Credenciales no encontradas"
