@@ -13,6 +13,7 @@ const CONFIG = {
 
 let lastData = null;
 let lastPrices = {};
+let countdownInterval = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🐕 Perrobotillo Dashboard - Initializing...');
@@ -32,6 +33,7 @@ async function loadData() {
         updatePortfolio({ portfolio: data.portfolio, history: data.history, pnl: data.pnl });
         updateSlots({ tradeStates: data.tradeStates || {}, prices: lastPrices });
         updateSystemStatus({ market_mode: data.market_mode, system: data.system });
+        updateAutoAdjust({ auto_adjust: data.auto_adjust, market_mode: data.market_mode });
         updateTradesTable({ history: data.history });
         updateTimestamp(data.timestamp);
         
@@ -303,6 +305,51 @@ function updateSystemStatus(data) {
     if (gatewayStatus) {
         gatewayStatus.textContent = system.gateway === 'ok' ? '✅' : '❌';
         gatewayStatus.title = system.gateway === 'ok' ? 'Gateway Online' : 'Gateway Offline';
+    }
+}
+
+function updateAutoAdjust(data) {
+    const autoAdjust = data.auto_adjust || {};
+    const marketMode = data.market_mode || {};
+    
+    // Actualizar nombre de estrategia
+    const strategyName = document.getElementById('strategyName');
+    if (strategyName) {
+        strategyName.textContent = marketMode.MARKET_MODE || 'LATERAL';
+    }
+    
+    // Actualizar countdown
+    const countdownEl = document.getElementById('autoAdjustCountdown');
+    if (countdownEl && autoAdjust.hours_until !== undefined && autoAdjust.minutes_until !== undefined) {
+        const hours = autoAdjust.hours_until;
+        const minutes = autoAdjust.minutes_until;
+        const seconds = Math.floor(Math.random() * 60); // Random seconds for visual effect
+        
+        countdownEl.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        
+        // Clear existing interval
+        if (countdownInterval) clearInterval(countdownInterval);
+        
+        // Start countdown timer
+        countdownInterval = setInterval(() => {
+            const now = new Date();
+            const nextAdjustment = new Date(autoAdjust.next_adjustment);
+            const diff = nextAdjustment - now;
+            
+            if (diff <= 0) {
+                countdownEl.textContent = '00:00:00';
+                clearInterval(countdownInterval);
+                // Reload data when adjustment time arrives
+                setTimeout(loadData, 2000);
+                return;
+            }
+            
+            const h = Math.floor(diff / 3600000);
+            const m = Math.floor((diff % 3600000) / 60000);
+            const s = Math.floor((diff % 60000) / 1000);
+            
+            countdownEl.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }, 1000);
     }
 }
 

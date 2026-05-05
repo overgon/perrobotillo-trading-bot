@@ -735,6 +735,86 @@ body::before {
     gap: 1rem;
 }
 
+/* ════════════════════════════════════════════════════════
+   AUTO-ADJUST STRATEGY INFO
+   ════════════════════════════════════════════════════════ */
+
+.auto-adjust-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: rgba(0, 243, 255, 0.05);
+    border: 1px solid var(--neon-blue);
+    border-radius: 8px;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.strategy-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid var(--neon-purple);
+    border-radius: 8px;
+}
+
+.strategy-icon {
+    font-size: 1.5rem;
+}
+
+.strategy-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--neon-purple);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.strategy-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+.countdown-container {
+    text-align: right;
+}
+
+.countdown-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.countdown-timer {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--neon-blue);
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+}
+
+.countdown-note {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+@media (max-width: 768px) {
+    .auto-adjust-info {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .countdown-container {
+        text-align: center;
+    }
+}
+
 .price-card {
     background: rgba(0, 0, 0, 0.4);
     border: 2px solid var(--dark-border);

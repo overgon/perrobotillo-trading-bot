@@ -312,6 +312,23 @@ def api_status():
     except:
         gateway = 'error'
     
+    # Calcular próximo auto-ajuste (cada 6 horas)
+    from datetime import datetime, timedelta
+    now = datetime.now()
+    # Próxima hora múltiplo de 6 (0, 6, 12, 18)
+    next_adjustment = ((now.hour // 6) + 1) * 6
+    if next_adjustment >= 24:
+        next_adjustment = 0
+        next_date = now.date() + timedelta(days=1)
+    else:
+        next_date = now.date()
+    
+    next_adjustment_dt = datetime.combine(next_date, datetime.min.time().replace(hour=next_adjustment))
+    time_until = next_adjustment_dt - now
+    seconds_until = int(time_until.total_seconds())
+    hours_until = seconds_until // 3600
+    minutes_until = (seconds_until % 3600) // 60
+    
     return jsonify({
         'portfolio': {
             'value': portfolio_value,
@@ -344,7 +361,13 @@ def api_status():
             'ip_whitelist': public_ip,
             'gateway': gateway
         },
-        'timestamp': datetime.now().isoformat()
+        'auto_adjust': {
+            'next_adjustment': next_adjustment_dt.isoformat(),
+            'hours_until': hours_until,
+            'minutes_until': minutes_until,
+            'interval_hours': 6
+        },
+        'timestamp': now.isoformat()
     })
 
 @app.route('/api/prices')
