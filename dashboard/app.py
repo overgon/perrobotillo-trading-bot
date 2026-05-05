@@ -258,12 +258,10 @@ def get_market_mode():
 # ════════════════════════════════════════════════════════
 
 @app.route('/')
-@requires_auth
 def index():
     return render_template('index.html')
 
 @app.route('/api/portfolio')
-@requires_auth
 def api_portfolio():
     """API endpoint para valor del portfolio"""
     value = get_portfolio_value()
@@ -415,7 +413,6 @@ def api_prices():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/trades')
-@requires_auth
 def api_trades():
     """API endpoint para historial de trades"""
     history = get_trade_history()
