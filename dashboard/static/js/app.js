@@ -145,6 +145,23 @@ function updateSlots(data) {
         }
         
         slots.forEach(slot => {
+            const status = slot.status || 'ACTIVE';
+            
+            // Si el slot está READY, mostrar tarjeta READY
+            if (status === 'READY') {
+                html += `
+                    <div class="slot-card ready">
+                        <div class="slot-header">
+                            <div class="slot-coin">${coin}</div>
+                            <div class="slot-id">Slot ${slot.slotId}</div>
+                        </div>
+                        <div class="slot-status ready">READY</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Slot está IN TRADE
             const entryPrice = parseFloat(slot.entryPrice) || 0;
             const currentPrice = getCurrentPrice(coin, prices) || 0;
             const tp1 = parseFloat(slot.tp1) || 0;
