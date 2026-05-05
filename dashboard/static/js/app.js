@@ -57,17 +57,12 @@ async function loadPrices() {
 }
 
 function getCurrentPrice(coin, prices) {
-    const symbol = `${coin}USDT`;
-    const priceData = prices[symbol];
+    // prices[coin] es un objeto: {price: 80000, change_24h: 0.5}
+    // La API devuelve prices["BTC"], NO prices["BTCUSDT"]
+    const priceData = prices[coin];
     
-    // prices[symbol] es un objeto: {price: 80000, change_24h: 0.5}
     if (priceData && priceData.price) {
         return parseFloat(priceData.price);
-    }
-    
-    // Fallback: si prices[coin] es directamente un número
-    if (typeof priceData === 'number') {
-        return priceData;
     }
     
     return 0;
