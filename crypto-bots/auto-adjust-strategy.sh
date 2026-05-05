@@ -41,6 +41,13 @@ echo ""
 
 echo "⏳ Paso 2/3: Actualizando configuración del bot..."
 
+# Obtener Fear & Greed Index de Alternative.me
+echo "   📊 Obteniendo Fear & Greed Index..."
+FG_DATA=$(curl -s "https://api.alternative.me/fng/" 2>/dev/null)
+FG_VALUE=$(echo "$FG_DATA" | python3 -c "import sys,json; print(json.load(sys.stdin)['data'][0]['value'])" 2>/dev/null || echo "N/A")
+FG_CLASS=$(echo "$FG_DATA" | python3 -c "import sys,json; print(json.load(sys.stdin)['data'][0]['value_classification'])" 2>/dev/null || echo "N/A")
+echo "   ✅ F&G: ${FG_VALUE} (${FG_CLASS})"
+
 # Crear archivo de configuración dinámica
 DYNAMIC_CONFIG="${SCRIPT_DIR}/dynamic-config.env"
 
@@ -93,6 +100,7 @@ Trailing: ${TRAILING_STOP}
 📈 Contexto:
 BTC: \$${BTC_PRICE}
 RSI: ${RSI}
+F&G: ${FG_VALUE} (${FG_CLASS})
 
 ✅ Estrategia ajustada automáticamente"
 fi
