@@ -117,6 +117,7 @@ function updateSlots(data) {
     const prices = data.prices || lastPrices;
     
     if (!tradeStates || Object.keys(tradeStates).length === 0) {
+        console.log('⚠️ No tradeStates data');
         return;
     }
     
@@ -124,51 +125,57 @@ function updateSlots(data) {
     
     coins.forEach(coin => {
         const coinData = tradeStates[coin];
-        if (!coinData) return;
+        if (!coinData) {
+            console.log(`⚠️ No data for ${coin}`);
+            return;
+        }
         
-        const status = coinData.status || 'READY';
-        const slots = [];
+        // La estructura tiene: coinData.slots[] (array de slots)
+        const slots = coinData.slots || [];
         
-        if (status === 'READY') {
-            slots.push({ slotId: 1, status: 'READY', entryPrice: 0, tp1: 0, tp2: 0, tp3: 0, tp1Done: false, tp2Done: false, quantity: 0 });
-        } else if (status === 'IN_TRADE' || status === 'TP1_HIT' || status === 'TP2_HIT') {
-            slots.push({
-                slotId: coinData.slotId || 1,
-                status: 'ACTIVE',
-                entryPrice: coinData.entryPrice || 0,
-                currentPrice: coinData.currentPrice || 0,
-                tp1: coinData.tp1 || 0,
-                tp2: coinData.tp2 || 0,
-                tp3: coinData.tp3 || 0,
-                tp1Done: status === 'TP1_HIT' || status === 'TP2_HIT',
-                tp2Done: status === 'TP2_HIT',
-                quantity: coinData.quantity || 0
-            });
+        if (slots.length === 0) {
+            // Sin slots activos = READY
+            html += `
+                <div class="slot-card ready">
+                    <div class="slot-header">
+                        <div class="slot-coin">${coin}</div>
+                        <div class="slot-id">Slot 1</div>
+                    </div>
+                    <div class="slot-status ready">READY</div>
+                </div>
+            `;
+            return;
         }
         
         slots.forEach(slot => {
-            const statusClass = slot.status === 'ACTIVE' ? 'active' : 'ready';
-            const statusText = slot.status === 'ACTIVE' ? 'IN TRADE' : 'READY';
+            const statusClass = 'active';
+            const statusText = slot.status || 'IN TRADE';
             
             const entryPrice = parseFloat(slot.entryPrice) || 0;
-            const currentPrice = getCurrentPrice(coin, prices) || slot.currentPrice || 0;
+            const currentPrice = getCurrentPrice(coin, prices) || 0;
             const tp1 = parseFloat(slot.tp1) || 0;
+            const tp2 = parseFloat(slot.tp2) || 0;
+            const tp3 = parseFloat(slot.tp3) || 0;
+            const quantity = parseFloat(slot.quantity) || 0;
             
+            // Determinar target actual
             let targetPrice = tp1;
             let targetName = 'TP1';
             let progress = 0;
             
-            if (slot.tp1Done) { targetPrice = slot.tp2; targetName = 'TP2'; }
-            if (slot.tp2Done) { targetPrice = slot.tp3; targetName = 'TP3'; }
+            if (slot.tp1Done) { targetPrice = tp2; targetName = 'TP2'; }
+            if (slot.tp2Done) { targetPrice = tp3; targetName = 'TP3'; }
             
             if (entryPrice > 0 && targetPrice > 0 && currentPrice > 0) {
                 progress = Math.min(100, ((currentPrice - entryPrice) / (targetPrice - entryPrice)) * 100);
             }
             
-            let pnl = 0, pnlPercent = 0;
+            // Calcular P&L
+            let pnl = 0;
+            let pnlPercent = 0;
             if (entryPrice > 0 && currentPrice > 0) {
                 pnlPercent = ((currentPrice - entryPrice) / entryPrice) * 100;
-                pnl = (currentPrice - entryPrice) * (slot.quantity || 0);
+                pnl = (currentPrice - entryPrice) * quantity;
             }
             
             html += `
@@ -200,17 +207,15 @@ function updateSlots(data) {
                         </div>
                     </div>
                     
-                    ${slot.status === 'ACTIVE' ? `
-                        <div class="tp-progress-container">
-                            <div class="tp-label">
-                                <span>Progress to ${targetName}</span>
-                                <span>${Math.min(100, progress).toFixed(1)}%</span>
-                            </div>
-                            <div class="tp-bar ${pnl >= 0 ? 'profit' : 'loss'}">
-                                <div class="tp-fill" style="width: ${Math.min(100, progress).toFixed(1)}%"></div>
-                            </div>
+                    <div class="tp-progress-container">
+                        <div class="tp-label">
+                            <span>Progress to ${targetName}</span>
+                            <span>${Math.min(100, progress).toFixed(1)}%</span>
                         </div>
-                    ` : ''}
+                        <div class="tp-bar ${pnl >= 0 ? 'profit' : 'loss'}">
+                            <div class="tp-fill" style="width: ${Math.min(100, progress).toFixed(1)}%"></div>
+                        </div>
+                    </div>
                 </div>
             `;
         });

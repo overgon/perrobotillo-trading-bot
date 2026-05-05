@@ -274,10 +274,16 @@ def api_status():
     market_mode = get_market_mode()
     
     # Calcular slots activos
-    active_slots = sum(1 for coin, state in trade_states.items() 
-                      if state.get('status') in ['IN_TRADE', 'TP1_HIT', 'TP2_HIT'])
-    ready_slots = sum(1 for coin, state in trade_states.items() 
-                     if state.get('status') == 'READY')
+    active_slots = 0
+    ready_slots = 0
+    
+    for coin, state in trade_states.items():
+        slots = state.get('slots', [])
+        if len(slots) == 0:
+            ready_slots += 1
+        else:
+            active_slots += len(slots)
+    
     total_slots = active_slots + ready_slots
     
     return jsonify({
@@ -298,13 +304,15 @@ def api_status():
         'history': {
             'total_trades': trade_history.get('totalTrades', 0),
             'win_rate': trade_history.get('winRate', 0),
-            'net_pnl': trade_history.get('netPnLUSDT', 0)
+            'net_pnl': trade_history.get('netPnLUSDT', 0),
+            'trades': trade_history.get('trades', [])
         },
         'cashout': {
             'total_usdt': cashout_history.get('totalUSDT', 0),
             'total_mxn': cashout_history.get('totalMXN', 0)
         },
         'market_mode': market_mode,
+        'tradeStates': trade_states,
         'timestamp': datetime.now().isoformat()
     })
 
