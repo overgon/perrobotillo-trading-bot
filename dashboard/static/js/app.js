@@ -43,9 +43,11 @@ async function loadData() {
 
 async function loadPrices() {
     try {
+        console.log('📊 Loading prices...');
         const response = await fetch(CONFIG.PRICES_URL);
         const prices = await response.json();
         lastPrices = prices;
+        console.log('✅ Prices loaded:', Object.keys(prices).length, 'coins');
         updatePrices(prices);
     } catch (error) {
         console.error('❌ Error loading prices:', error);
@@ -74,11 +76,15 @@ function updatePortfolio(data) {
     const pnlPercent = document.getElementById('pnlPercent');
     const totalPnlElement = document.getElementById('totalPnl24h');
     
-    pnlElement.textContent = `${totalPnl >= 0 ? '+' : ''}$${Math.abs(totalPnl).toFixed(2)}`;
-    pnlElement.style.color = totalPnl >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
+    if (pnlElement) {
+        pnlElement.textContent = `${totalPnl >= 0 ? '+' : ''}$${Math.abs(totalPnl).toFixed(2)}`;
+        pnlElement.style.color = totalPnl >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
+    }
     
-    pnlPercent.textContent = `${pnlPercent24h >= 0 ? '+' : ''}${pnlPercent24h.toFixed(2)}%`;
-    pnlPercent.style.color = pnlPercent24h >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
+    if (pnlPercent) {
+        pnlPercent.textContent = `${pnlPercent24h >= 0 ? '+' : ''}${pnlPercent24h.toFixed(2)}%`;
+        pnlPercent.style.color = pnlPercent24h >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
+    }
     
     if (totalPnlElement) {
         const historicalPnl = history.net_pnl || 0;
@@ -86,8 +92,11 @@ function updatePortfolio(data) {
         totalPnlElement.style.color = historicalPnl >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
     }
     
-    document.getElementById('winRate').textContent = `${(history.win_rate || 0).toFixed(2)}%`;
-    document.getElementById('totalTrades').textContent = history.total_trades || 0;
+    const winRateEl = document.getElementById('winRate');
+    if (winRateEl) winRateEl.textContent = `${(history.win_rate || 0).toFixed(2)}%`;
+    
+    const totalTradesEl = document.getElementById('totalTrades');
+    if (totalTradesEl) totalTradesEl.textContent = history.total_trades || 0;
     
     const netPnlElement = document.getElementById('netPnl');
     if (netPnlElement) {
@@ -100,6 +109,8 @@ function updateSlots(data) {
     const coins = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX'];
     const tradeStates = data.tradeStates || {};
     const prices = data.prices || lastPrices;
+    
+    console.log('🔧 Updating slots, tradeStates:', Object.keys(tradeStates).length, 'coins');
     
     if (!tradeStates || Object.keys(tradeStates).length === 0) return;
     
@@ -132,14 +143,26 @@ function updateSlots(data) {
             const tp3 = parseFloat(slot.tp3) || 0;
             const quantity = parseFloat(slot.quantity) || 0;
             
+            // Determinar target actual basado en TPs completados
             let targetPrice = tp1;
             let targetName = 'TP1';
             let progress = 0;
             
-            if (slot.tp1Done) { targetPrice = tp2; targetName = 'TP2'; }
-            if (slot.tp2Done) { targetPrice = tp3; targetName = 'TP3'; }
+            if (slot.tp1Done && slot.tp2Done) {
+                // Ya completó TP1 y TP2 → mostrar progreso a TP3
+                targetPrice = tp3;
+                targetName = 'TP3';
+            } else if (slot.tp1Done) {
+                // Ya completó TP1 → mostrar progreso a TP2
+                targetPrice = tp2;
+                targetName = 'TP2';
+            } else {
+                // No completó ninguno → mostrar progreso a TP1
+                targetPrice = tp1;
+                targetName = 'TP1';
+            }
             
-            if (entryPrice > 0 && targetPrice > 0 && currentPrice > 0) {
+            if (entryPrice > 0 && targetPrice > 0 && currentPrice > 0 && targetPrice !== entryPrice) {
                 progress = Math.min(100, ((currentPrice - entryPrice) / (targetPrice - entryPrice)) * 100);
             }
             
@@ -173,18 +196,18 @@ function updateSlots(data) {
                             </div>
                         </div>
                         <div class="slot-info-item">
-                            <div class="slot-info-label">TP1 Target</div>
-                            <div class="slot-info-value">$${tp1.toFixed(2)}</div>
+                            <div class="slot-info-label">Next Target</div>
+                            <div class="slot-info-value">$${targetPrice.toFixed(2)} (${targetName})</div>
                         </div>
                     </div>
                     
                     <div class="tp-progress-container">
                         <div class="tp-label">
                             <span>Progress to ${targetName}</span>
-                            <span>${Math.min(100, progress).toFixed(1)}%</span>
+                            <span>${Math.min(100, Math.max(0, progress)).toFixed(1)}%</span>
                         </div>
                         <div class="tp-bar ${pnl >= 0 ? 'profit' : 'loss'}">
-                            <div class="tp-fill" style="width: ${Math.min(100, progress).toFixed(1)}%"></div>
+                            <div class="tp-fill" style="width: ${Math.min(100, Math.max(0, progress)).toFixed(1)}%"></div>
                         </div>
                     </div>
                 </div>
@@ -193,13 +216,19 @@ function updateSlots(data) {
     });
     
     slotsGrid.innerHTML = html;
+    console.log('✅ Slots updated');
 }
 
 function updatePrices(prices) {
     const chartsGrid = document.getElementById('chartsGrid');
     const coins = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX'];
     
-    if (!prices || Object.keys(prices).length === 0) return;
+    console.log('📈 Updating prices, received:', Object.keys(prices).length, 'coins');
+    
+    if (!prices || Object.keys(prices).length === 0) {
+        console.warn('⚠️ No prices data');
+        return;
+    }
     
     let html = '';
     
@@ -207,9 +236,9 @@ function updatePrices(prices) {
         const symbol = `${coin}USDT`;
         const priceData = prices[symbol];
         
-        if (priceData) {
-            const price = parseFloat(priceData);
-            const change = prices[`${symbol}_change`] || 0;
+        if (priceData && priceData.price) {
+            const price = parseFloat(priceData.price);
+            const change = parseFloat(priceData.change_24h) || 0;
             const changeColor = change >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
             
             html += `
@@ -223,10 +252,13 @@ function updatePrices(prices) {
                     <div class="price-value">$${price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                 </div>
             `;
+        } else {
+            console.warn(`⚠️ No price data for ${symbol}`);
         }
     });
     
     chartsGrid.innerHTML = html;
+    console.log('✅ Price charts updated');
 }
 
 function updateSystemStatus(data) {
@@ -279,11 +311,13 @@ function updateTradesTable(data) {
     const trades = history.trades || [];
     const tbody = document.getElementById('tradesTableBody');
     
+    console.log('📜 Updating trades table, trades:', trades.length);
+    
     const sortedTrades = [...trades].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     const tradesToShow = sortedTrades.slice(0, CONFIG.MAX_TRADES_DISPLAY);
     
     if (tradesToShow.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="loading-row">No trades yet</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="loading-row">No trades yet (estrategia dinámica reseteada)</td></tr>';
         return;
     }
     

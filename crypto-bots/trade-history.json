@@ -1,20 +1,35 @@
 {
   "version": "1.0",
   "created": "2026-05-04T21:30:00-06:00",
-  "strategy": "Dinámica (Auto-Ajuste)",
-  "resetReason": "Reset para estrategia dinámica - Backtest: +2,777% en 2 años",
+  "strategy": "Din\u00e1mica (Auto-Ajuste)",
+  "resetReason": "Reset para estrategia din\u00e1mica - Backtest: +2,777% en 2 a\u00f1os",
   "previousSnapshot": "trade-history-PRE-DYNAMIC-2026-05-04.json.backup",
   "previousStats": {
     "totalTrades": 17,
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 0,
-  "totalWins": 0,
+  "totalTrades": 1,
+  "totalWins": 1,
   "totalLosses": 0,
   "totalProfitUSDT": 0,
   "totalLossUSDT": 0,
-  "netPnLUSDT": 0,
-  "winRate": 0,
-  "trades": []
+  "netPnLUSDT": 0.47601547139999917,
+  "winRate": 100.0,
+  "trades": [
+    {
+      "id": 1,
+      "symbol": "BTC",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 78163.46,
+      "exitPrice": 80899.1811,
+      "quantity": 0.000174,
+      "closeType": "TP2",
+      "pnlUSDT": 0.47601547139999917,
+      "timestamp": "2026-05-04T22:11:27.183262",
+      "seeded": false,
+      "note": "TP2 hit - 30% position closed"
+    }
+  ]
 }
