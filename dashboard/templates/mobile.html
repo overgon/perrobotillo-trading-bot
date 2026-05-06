@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a0a0a">
+    <title>Perrobotillo Dashboard Mobile 🐕</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
+</head>
+<body>
+    <!-- ════════════════════════════════════════════════════════
+         🐕 HEADER - Sticky Top
+         ════════════════════════════════════════════════════════ -->
+    <header class="mobile-header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">🐕</span>
+                <span class="logo-text">PERROBOTILLO</span>
+            </div>
+            <div class="header-status">
+                <span class="status-dot"></span>
+                <span class="status-text">ONLINE</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ════════════════════════════════════════════════════════
+         📊 PORTFOLIO OVERVIEW - Card Principal
+         ════════════════════════════════════════════════════════ -->
+    <section class="portfolio-section">
+        <div class="portfolio-card">
+            <div class="portfolio-label">Portfolio Total</div>
+            <div class="portfolio-value" id="totalPortfolio">$0.00</div>
+            <div class="portfolio-value-mx" id="totalPortfolioMXN">$0.00 MXN</div>
+            <div class="portfolio-pnl">
+                <span class="pnl-label">24H P&L:</span>
+                <span class="pnl-value" id="pnl24h">$0.00</span>
+                <span class="pnl-percent" id="pnlPercent">0.00%</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         💰 PRICE CHARTS - Horizontal Scroll
+         ════════════════════════════════════════════════════════ -->
+    <section class="prices-section">
+        <h2 class="section-title">💰 Precios</h2>
+        <div class="prices-scroll" id="chartsGrid">
+            <!-- Se llena con JS -->
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         🎯 ACTIVE SLOTS - Vertical Cards
+         ════════════════════════════════════════════════════════ -->
+    <section class="slots-section">
+        <h2 class="section-title">🎯 Slots Activos</h2>
+        <div class="slots-grid" id="slotsGrid">
+            <!-- Se llena con JS -->
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         🧠 AUTO-ADJUST INFO
+         ════════════════════════════════════════════════════════ -->
+    <section class="auto-adjust-section">
+        <div class="auto-adjust-card">
+            <div class="auto-adjust-header">
+                <span class="brain-icon">🧠</span>
+                <span class="strategy-name" id="strategyName">LATERAL</span>
+            </div>
+            <div class="auto-adjust-countdown">
+                <span class="countdown-label">Próximo ajuste:</span>
+                <span class="countdown-timer" id="autoAdjustCountdown">--:--:--</span>
+            </div>
+            <div class="auto-adjust-config" id="marketConfig">
+                TP1: 2.5% | TP2: 5.0% | TP3: 7.0% | SL: 5.0%
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         📈 TRADE HISTORY - Compact Table
+         ════════════════════════════════════════════════════════ -->
+    <section class="trades-section">
+        <h2 class="section-title">📜 Trades Recientes</h2>
+        <div class="trades-container">
+            <table class="trades-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Coin</th>
+                        <th>P&L</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tradesTableBody">
+                    <!-- Se llena con JS -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         ⚙️ SYSTEM STATUS
+         ════════════════════════════════════════════════════════ -->
+    <section class="system-section">
+        <h2 class="section-title">⚙️ Sistema</h2>
+        <div class="system-grid">
+            <div class="system-item">
+                <span class="system-label">API Binance:</span>
+                <span class="system-value" id="apiStatus">⏳</span>
+            </div>
+            <div class="system-item">
+                <span class="system-label">IP Whitelist:</span>
+                <span class="system-value" id="ipStatus">⏳</span>
+            </div>
+            <div class="system-item">
+                <span class="system-label">Gateway:</span>
+                <span class="system-value" id="gatewayStatus">⏳</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         🦴 FOOTER
+         ════════════════════════════════════════════════════════ -->
+    <footer class="mobile-footer">
+        <div class="footer-content">
+            <span class="footer-text">🐕 Perrobotillo Trading Bot</span>
+            <span class="footer-update">Actualizado: <span id="lastUpdate">--:--:--</span></span>
+        </div>
+        <div class="footer-links">
+            <a href="/" class="footer-link desktop-link">💻 Versión Escritorio</a>
+        </div>
+    </footer>
+
+    <!-- ════════════════════════════════════════════════════════
+         📱 JAVASCRIPT
+         ════════════════════════════════════════════════════════ -->
+    <script src="{{ url_for('static', filename='js/mobile.js') }}"></script>
+</body>
+</html>

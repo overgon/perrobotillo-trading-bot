@@ -1,0 +1,588 @@
+/* ════════════════════════════════════════════════════════
+   🐕 PERROBOTILLO DASHBOARD MOBILE - CYBERPUNK EDITION
+   Optimizado para iPhone 14 Pro (393x852)
+   ════════════════════════════════════════════════════════ */
+
+:root {
+    --bg-dark: #0a0a0a;
+    --bg-card: #121212;
+    --bg-card-light: #1a1a1a;
+    --neon-green: #00ff88;
+    --neon-red: #ff3366;
+    --neon-blue: #00d4ff;
+    --neon-purple: #bd00ff;
+    --text-primary: #ffffff;
+    --text-secondary: #888888;
+    --border-color: #2a2a2a;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    padding-top: 60px;
+    padding-bottom: 80px;
+}
+
+/* ════════════════════════════════════════════════════════
+   📱 MOBILE HEADER - Sticky
+   ════════════════════════════════════════════════════════ */
+.mobile-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 1000;
+    padding: env(safe-area-inset-top) 0 0 0;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    padding: 0 16px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo-icon {
+    font-size: 24px;
+}
+
+.logo-text {
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--neon-green), var(--neon-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.header-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--bg-card-light);
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--neon-green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.status-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--neon-green);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ════════════════════════════════════════════════════════
+   📊 PORTFOLIO CARD
+   ════════════════════════════════════════════════════════ */
+.portfolio-section {
+    padding: 16px;
+}
+
+.portfolio-card {
+    background: linear-gradient(135deg, var(--bg-card), var(--bg-card-light));
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px rgba(0, 255, 136, 0.1);
+}
+
+.portfolio-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.portfolio-value {
+    font-size: 32px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--neon-green), var(--neon-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 4px;
+}
+
+.portfolio-value-mx {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.portfolio-pnl {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.pnl-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.pnl-value,
+.pnl-percent {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ════════════════════════════════════════════════════════
+   💰 PRICES - Horizontal Scroll
+   ════════════════════════════════════════════════════════ */
+.prices-section {
+    padding: 16px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.prices-scroll {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 8px;
+}
+
+.prices-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.price-card {
+    flex: 0 0 auto;
+    width: 140px;
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+}
+
+.price-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.price-coin {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.price-change {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.price-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--neon-green);
+}
+
+/* ════════════════════════════════════════════════════════
+   🎯 SLOTS - Vertical Cards
+   ════════════════════════════════════════════════════════ */
+.slots-section {
+    padding: 16px;
+}
+
+.slots-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.slot-card {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+}
+
+.slot-card.ready {
+    border-color: var(--neon-green);
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), var(--bg-card));
+}
+
+.slot-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.slot-coin {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--neon-blue);
+}
+
+.slot-id {
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 4px 8px;
+    background: var(--bg-card-light);
+    border-radius: 4px;
+}
+
+.slot-status {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-bottom: 12px;
+}
+
+.slot-status.in-trade {
+    background: rgba(0, 212, 255, 0.1);
+    color: var(--neon-blue);
+    border: 1px solid var(--neon-blue);
+}
+
+.slot-status.ready {
+    background: rgba(0, 255, 136, 0.1);
+    color: var(--neon-green);
+    border: 1px solid var(--neon-green);
+}
+
+.slot-grid-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.slot-info-item {
+    background: var(--bg-card-light);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.slot-info-label {
+    font-size: 10px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.slot-info-value {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.tp-progress-container {
+    margin-top: 12px;
+}
+
+.tp-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.tp-bar {
+    height: 8px;
+    background: var(--bg-card-light);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.tp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-green));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.tp-bar.loss .tp-fill {
+    background: linear-gradient(90deg, var(--neon-red), var(--neon-purple));
+    animation: pulse-loss 2s infinite;
+}
+
+@keyframes pulse-loss {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* ════════════════════════════════════════════════════════
+   🧠 AUTO-ADJUST
+   ════════════════════════════════════════════════════════ */
+.auto-adjust-section {
+    padding: 16px;
+}
+
+.auto-adjust-card {
+    background: linear-gradient(135deg, var(--bg-card), var(--bg-card-light));
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+}
+
+.auto-adjust-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.brain-icon {
+    font-size: 20px;
+}
+
+.strategy-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--neon-purple);
+}
+
+.auto-adjust-countdown {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: var(--bg-card-light);
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.countdown-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.countdown-timer {
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Monaco', monospace;
+    color: var(--neon-green);
+}
+
+.auto-adjust-config {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 8px;
+    background: var(--bg-card-light);
+    border-radius: 6px;
+}
+
+/* ════════════════════════════════════════════════════════
+   📜 TRADES - Compact Table
+   ════════════════════════════════════════════════════════ */
+.trades-section {
+    padding: 16px;
+}
+
+.trades-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.trades-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.trades-table th {
+    text-align: left;
+    padding: 10px 8px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.trades-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-badge.profit {
+    background: rgba(0, 255, 136, 0.1);
+    color: var(--neon-green);
+}
+
+.status-badge.loss {
+    background: rgba(255, 51, 102, 0.1);
+    color: var(--neon-red);
+}
+
+/* ════════════════════════════════════════════════════════
+   ⚙️ SYSTEM STATUS
+   ════════════════════════════════════════════════════════ */
+.system-section {
+    padding: 16px;
+}
+
+.system-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+}
+
+.system-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: var(--bg-card);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.system-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.system-value {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ════════════════════════════════════════════════════════
+   🦴 FOOTER
+   ════════════════════════════════════════════════════════ */
+.mobile-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border-color);
+    padding: env(safe-area-inset-bottom) 16px 16px 16px;
+    z-index: 1000;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.footer-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.footer-update {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.footer-links {
+    text-align: center;
+}
+
+.desktop-link {
+    font-size: 12px;
+    color: var(--neon-blue);
+    text-decoration: none;
+    padding: 8px 16px;
+    background: rgba(0, 212, 255, 0.1);
+    border-radius: 6px;
+    display: inline-block;
+    border: 1px solid var(--neon-blue);
+}
+
+/* ════════════════════════════════════════════════════════
+   📱 SAFE AREAS - iPhone 14 Pro
+   ════════════════════════════════════════════════════════ */
+@media only screen and (device-width: 393px) and (device-height: 852px) {
+    /* iPhone 14 Pro specific optimizations */
+    html {
+        font-size: 15px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-dark: #0a0a0a;
+        --bg-card: #121212;
+    }
+}
+
+/* Landscape mode */
+@media (orientation: landscape) and (max-height: 500px) {
+    .portfolio-section,
+    .prices-section,
+    .slots-section,
+    .auto-adjust-section,
+    .trades-section,
+    .system-section {
+        padding: 12px;
+    }
+    
+    .portfolio-value {
+        font-size: 24px;
+    }
+}

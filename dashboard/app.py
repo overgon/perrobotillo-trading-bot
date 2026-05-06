@@ -37,6 +37,26 @@ CONFIG_FILE = f"{WORKSPACE}/config/capital-config.sh"
 # ════════════════════════════════════════════════════════
 
 # ════════════════════════════════════════════════════════
+# 📱 MOBILE VS DESKTOP ROUTING
+# ════════════════════════════════════════════════════════
+
+def is_mobile_device():
+    """Detectar si el usuario está en dispositivo móvil"""
+    user_agent = request.headers.get('User-Agent', '').lower()
+    
+    # Dispositivos móviles comunes
+    mobile_keywords = [
+        'mobile', 'android', 'iphone', 'ipad', 'ipod',
+        'blackberry', 'windows phone', 'opera mini', 'iemobile'
+    ]
+    
+    is_mobile = any(keyword in user_agent for keyword in mobile_keywords)
+    
+    print(f'📱 Device Detection: {"MOBILE" if is_mobile else "DESKTOP"} - {user_agent[:50]}')
+    
+    return is_mobile
+
+# ════════════════════════════════════════════════════════
 # 🔐 HTTP BASIC AUTH CONFIGURATION
 # ════════════════════════════════════════════════════════
 
@@ -275,7 +295,10 @@ def get_market_mode():
 @app.route('/')
 @requires_auth
 def index():
-    return render_template('index.html')
+    if is_mobile_device():
+        return render_template('mobile.html')
+    else:
+        return render_template('index.html')
 
 @app.route('/api/portfolio')
 def api_portfolio():
