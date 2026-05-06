@@ -1015,3 +1015,15 @@ body::before {
     opacity: 0.5;
     animation: none;
 }
+
+/* Slots Counter */
+.slots-counter {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--neon-green);
+    background: rgba(0, 255, 136, 0.1);
+    padding: 4px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--neon-green);
+    margin-left: 12px;
+}
