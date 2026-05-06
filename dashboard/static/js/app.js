@@ -390,8 +390,14 @@ function updateTradesTable(data) {
     
     console.log('📜 Updating trades table, trades:', trades.length);
     
+    // Ordenar del más reciente al más antiguo (descendente por timestamp)
     const sortedTrades = [...trades].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     const tradesToShow = sortedTrades.slice(0, CONFIG.MAX_TRADES_DISPLAY);
+    
+    console.log('📋 Trades ordenados (más recientes primero):');
+    tradesToShow.forEach((t, i) => {
+        console.log(`  ${i+1}. #${t.id} ${t.symbol} ${t.closeType} - ${new Date(t.timestamp).toLocaleString()}`);
+    });
     
     if (tradesToShow.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" class="loading-row">No trades yet (estrategia dinámica reseteada)</td></tr>';
