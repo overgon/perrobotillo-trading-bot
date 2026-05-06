@@ -1175,9 +1175,8 @@ El slot permanece activo."
             if [ "$sell_status" = "FILLED" ]; then
                 log "  ✅ TP3 ejecutado exitosamente ($sell_qty_fmt) - 5% ACUMULADO 📈"
                 update_slot_field "$slot_id" "tp3Done" "true"
-                # No cerrar el slot - 5% se acumula (MODO ACUMULACIÓN)
-                # El slot permanece ACTIVE con el 15% restante
-                log "  📈 5% de la posición se queda acumulando"
+                update_slot_field "$slot_id" "status" "CLOSED_TP3"
+                log "  ✅ Slot cerrado - TP3 completado (5% acumulado)"
                 
                 # Actualizar P&L
                 local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
