@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0a0a0a">
     <title>Perrobotillo Dashboard Mobile 🐕</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}?v={{ range(1000, 9999)|random }}">
 </head>
 <body>
     <!-- ════════════════════════════════════════════════════════
@@ -140,6 +140,6 @@
     <!-- ════════════════════════════════════════════════════════
          📱 JAVASCRIPT
          ════════════════════════════════════════════════════════ -->
-    <script src="{{ url_for('static', filename='js/mobile.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mobile.js') }}?v={{ range(1000, 9999)|random }}"></script>
 </body>
 </html>
