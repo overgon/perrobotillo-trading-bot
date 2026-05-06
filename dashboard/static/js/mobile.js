@@ -165,12 +165,23 @@ function updateSlots(data) {
     if (!tradeStates || Object.keys(tradeStates).length === 0) return;
     
     let html = '';
+    let activeCount = 0;
+    let totalCount = 0;
     
     coins.forEach(coin => {
         const coinData = tradeStates[coin];
         if (!coinData) return;
         
         const slots = coinData.slots || [];
+        totalCount += slots.length;
+        
+        // Count active slots
+        slots.forEach(slot => {
+            const status = slot.status || 'ACTIVE';
+            if (status === 'ACTIVE') {
+                activeCount++;
+            }
+        });
         
         if (slots.length === 0) {
             html += `
@@ -280,7 +291,14 @@ function updateSlots(data) {
     });
     
     slotsGrid.innerHTML = html;
-    console.log('✅ Slots updated');
+    
+    // Update slots counter
+    const counterEl = document.getElementById('slotsCounter');
+    if (counterEl) {
+        counterEl.textContent = `${activeCount}/21`;
+    }
+    
+    console.log('✅ Slots updated:', `${activeCount}/21`);
 }
 
 // ════════════════════════════════════════════════════════
