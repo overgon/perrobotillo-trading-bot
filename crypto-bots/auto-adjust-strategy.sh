@@ -100,7 +100,7 @@ Trailing: ${TRAILING_STOP}
 📈 Contexto:
 BTC: \$${BTC_PRICE}
 RSI: ${RSI}
-F&G: ${FG_VALUE} (${FG_CLASS})
+Fear and Greed: ${FG_VALUE} (${FG_CLASS})
 
 ✅ Estrategia ajustada automáticamente"
 fi
