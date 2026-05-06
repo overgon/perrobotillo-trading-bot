@@ -114,27 +114,25 @@ def requires_auth(f):
 # ════════════════════════════════════════════════════════
 
 def get_portfolio_value():
-    """Obtener valor total del portfolio (CACHED - 30s) para velocidad"""
-    import os, time, json
+    """Obtener valor total del portfolio DESDE BINANCE (tiempo real) + CACHE"""
+    import os, time, json, requests, hmac, hashlib
+    
     cache_file = "/tmp/portfolio_cache.json"
     
-    # Try cache first (30 seconds)
+    # 1. Try cache first (30 seconds)
     if os.path.exists(cache_file):
-        if time.time() - os.path.getmtime(cache_file) < 30:
+        cache_age = time.time() - os.path.getmtime(cache_file)
+        if cache_age < 30:
             with open(cache_file) as f:
-                return float(json.load(f).get('value', 2527))
+                cached = json.load(f)
+                print(f"💰 Portfolio from cache (${cached.get('value', 0):.2f}) - age: {cache_age:.1f}s")
+                return float(cached.get('value', 0))
     
-    # Fallback to reasonable default
-    return 2527.0
+    # 2. Try to fetch from Binance
     try:
-        import requests
-        import time
-        import hmac
-        import hashlib
-        
-        # Leer API keys
         secrets_file = "/home/overgon/.openclaw/secrets/binance.env"
         if not os.path.exists(secrets_file):
+            print("⚠️  No binance.env, using snapshot")
             snapshot_file = f"{WORKSPACE}/portfolio-snapshot.json"
             if os.path.exists(snapshot_file):
                 with open(snapshot_file, 'r') as f:
@@ -147,7 +145,7 @@ def get_portfolio_value():
             API_KEY = lines[0].split('=')[1].strip()
             API_SECRET = lines[1].split('=')[1].strip()
         
-        # 1. Obtener balance de Binance
+        # 3. Get balance from Binance
         timestamp = int(time.time() * 1000)
         params = f'recvWindow=5000&timestamp={timestamp}'
         signature = hmac.new(API_SECRET.encode(), params.encode(), hashlib.sha256).hexdigest()
@@ -161,12 +159,12 @@ def get_portfolio_value():
         if 'balances' not in data:
             raise Exception(f"Binance API error: {data}")
         
-        # 2. Obtener precios actuales
+        # 4. Get current prices
         prices_url = 'https://api.binance.com/api/v3/ticker/price'
         prices_response = requests.get(prices_url, timeout=10)
         prices = {p['symbol']: float(p['price']) for p in prices_response.json()}
         
-        # 3. Calcular valor total en USDT
+        # 5. Calculate total value in USDT
         total_usdt = 0.0
         
         for b in data['balances']:
@@ -187,10 +185,16 @@ def get_portfolio_value():
             if symbol in prices:
                 total_usdt += total * prices[symbol]
         
+        # 6. Save cache
+        with open(cache_file, 'w') as f:
+            json.dump({'value': total_usdt, 'timestamp': time.time()}, f)
+        
+        print(f"💰 Portfolio from Binance (${total_usdt:.2f})")
         return total_usdt
         
     except Exception as e:
-        print(f"Error getting portfolio: {e}")
+        print(f"❌ Error getting portfolio from Binance: {e}")
+        # Fallback to snapshot
         try:
             snapshot_file = f"{WORKSPACE}/portfolio-snapshot.json"
             if os.path.exists(snapshot_file):
