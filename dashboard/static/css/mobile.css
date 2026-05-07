@@ -598,3 +598,24 @@ body {
     border: 1px solid var(--neon-green);
     margin-left: 8px;
 }
+
+
+/* View More Button - Mobile */
+.view-more-btn {
+    margin-top: 12px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 255, 136, 0.1));
+    border: 1px solid var(--neon-blue);
+    color: var(--neon-blue);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.view-more-btn:active {
+    transform: scale(0.98);
+}

@@ -13,6 +13,7 @@ const CONFIG = {
 let lastData = null;
 let lastPrices = {};
 let countdownInterval = null;
+let showAllTrades = false;  // Show only 10 by default
 
 // ════════════════════════════════════════════════════════
 // 📱 DEVICE DETECTION
@@ -453,7 +454,8 @@ function updateTradesTable(data) {
     
     // Ordenar del más reciente al más antiguo (descendente por timestamp)
     const sortedTrades = [...trades].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    const tradesToShow = sortedTrades.slice(0, 10);
+    const limit = showAllTrades ? sortedTrades.length : 10;
+    const tradesToShow = sortedTrades.slice(0, limit);
     
     console.log('📋 Trades ordenados (más recientes primero):');
     tradesToShow.forEach((t, i) => {
@@ -518,3 +520,14 @@ function animateValue(id, end, prefix = '') {
     
     requestAnimationFrame(update);
 }
+
+// Toggle show all trades
+function toggleAllTrades() {
+    showAllTrades = !showAllTrades;
+    const btn = document.getElementById('viewMoreBtn');
+    if (btn) {
+        btn.textContent = showAllTrades ? '📋 Ver menos trades' : `📋 Ver más trades (${lastData?.history?.trades?.length || 0})`;
+    }
+    loadData();
+}
+

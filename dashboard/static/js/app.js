@@ -14,6 +14,7 @@ const CONFIG = {
 let lastData = null;
 let lastPrices = {};
 let countdownInterval = null;
+let showAllTrades = false;  // Show only 10 by default
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🐕 Perrobotillo Dashboard - Initializing...');
@@ -410,7 +411,8 @@ function updateTradesTable(data) {
     
     // Ordenar del más reciente al más antiguo (descendente por timestamp)
     const sortedTrades = [...trades].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    const tradesToShow = sortedTrades.slice(0, CONFIG.MAX_TRADES_DISPLAY);
+    const limit = showAllTrades ? sortedTrades.length : CONFIG.MAX_TRADES_DISPLAY;
+    const tradesToShow = sortedTrades.slice(0, limit);
     
     console.log('📋 Trades ordenados (más recientes primero):');
     tradesToShow.forEach((t, i) => {
@@ -471,3 +473,14 @@ function animateValue(id, end, prefix = '') {
     
     requestAnimationFrame(update);
 }
+
+// Toggle show all trades
+function toggleAllTrades() {
+    showAllTrades = !showAllTrades;
+    const btn = document.getElementById('viewMoreBtn');
+    if (btn) {
+        btn.textContent = showAllTrades ? '📋 Ver menos trades' : `📋 Ver más trades (${CONFIG.MAX_TRADES_DISPLAY} de ${lastData?.history?.trades?.length || 0})`;
+    }
+    loadData();  // Reload to show/hide trades
+}
+
