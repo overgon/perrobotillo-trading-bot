@@ -1178,6 +1178,9 @@ El slot permanece activo."
                 update_slot_field "$slot_id" "status" "CLOSED_TP3"
                 log "  ✅ Slot cerrado - TP3 completado (5% acumulado)"
                 
+                # LOG TRADE TO HISTORY (BUG FIX)
+                log_trade_to_history "$slot_id" "TP3" "$entry" "$exit_price" "$quantity" "$fee_usd"
+                
                 # Actualizar P&L
                 local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
                 local fee_bnb=$(echo "$sell_result" | jq -r '.fills[0].commission // 0')
