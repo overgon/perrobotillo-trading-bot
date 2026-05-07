@@ -245,9 +245,10 @@ def get_trade_history():
     }
 
 def get_daily_pnl():
-    """Calcular P&L de las últimas 24 horas"""
+    """Calcular P&L de las últimas 24 horas + P&L por moneda"""
     try:
         total_pnl = 0.0
+        pnl_by_coin = {}
         coins = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX']
         
         for coin in coins:
@@ -255,12 +256,17 @@ def get_daily_pnl():
             if os.path.exists(pnl_file):
                 with open(pnl_file, 'r') as f:
                     data = json.load(f)
-                    total_pnl += float(data.get('pnl', 0))
+                    # Fixed: Use correct field name 'netProfitUSDT' instead of 'pnl'
+                    coin_pnl = float(data.get('netProfitUSDT', 0))
+                    total_pnl += coin_pnl
+                    pnl_by_coin[coin] = coin_pnl
+            else:
+                pnl_by_coin[coin] = 0.0
         
-        return total_pnl
+        return total_pnl, pnl_by_coin
     except Exception as e:
         print(f"Error calculating daily PnL: {e}")
-        return 0.0
+        return 0.0, {}
 
 def get_cashout_history():
     """Obtener historial de cashouts"""
@@ -320,7 +326,7 @@ def api_status():
     portfolio_value = get_portfolio_value()
     trade_states = get_trade_states()
     trade_history = get_trade_history()
-    daily_pnl = get_daily_pnl()
+    daily_pnl, pnl_by_coin = get_daily_pnl()
     cashout_history = get_cashout_history()
     market_mode = get_market_mode()
     
@@ -393,7 +399,8 @@ def api_status():
         },
         'pnl': {
             '24h': daily_pnl,
-            '24h_percent': round((daily_pnl / portfolio_value * 100) if portfolio_value > 0 else 0, 2)
+            '24h_percent': round((daily_pnl / portfolio_value * 100) if portfolio_value > 0 else 0, 2),
+            'by_coin': pnl_by_coin
         },
         'history': {
             'total_trades': trade_history.get('totalTrades', 0),

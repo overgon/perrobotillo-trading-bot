@@ -1054,3 +1054,76 @@ body::before {
 .view-more-btn:active {
     transform: translateY(0);
 }
+
+/* P&L By Coin Section */
+.pnl-by-coin-container {
+    margin-top: 24px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 255, 136, 0.05));
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.pnl-by-coin-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.pnl-by-coin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 12px;
+}
+
+.pnl-coin-item {
+    background: var(--bg-card);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.pnl-coin-item:hover {
+    transform: translateY(-2px);
+    border-color: var(--neon-blue);
+}
+
+.pnl-coin-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.pnl-coin-value {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--neon-green);
+}
+
+.pnl-coin-value.loss {
+    color: var(--neon-red);
+}
+
+.pnl-coin-percent {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.pnl-coin-percent.positive {
+    color: var(--neon-green);
+}
+
+.pnl-coin-percent.negative {
+    color: var(--neon-red);
+}

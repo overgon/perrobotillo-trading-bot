@@ -619,3 +619,58 @@ body {
 .view-more-btn:active {
     transform: scale(0.98);
 }
+
+
+/* P&L By Coin - Mobile */
+.pnl-by-coin-container {
+    margin-top: 16px;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 255, 136, 0.05));
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.pnl-by-coin-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+}
+
+.pnl-by-coin-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.pnl-coin-item {
+    background: var(--bg-card);
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.pnl-coin-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.pnl-coin-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--neon-green);
+}
+
+.pnl-coin-value.loss {
+    color: var(--neon-red);
+}
+
+.pnl-coin-percent {
+    font-size: 10px;
+    font-weight: 600;
+    margin-top: 2px;
+}

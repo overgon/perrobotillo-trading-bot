@@ -128,6 +128,7 @@ function updatePortfolio(data) {
     const portfolio = data.portfolio || {};
     const history = data.history || {};
     const pnl = data.pnl || {};
+    const pnlByCoin = pnl.by_coin || {};
     
     const totalValue = portfolio.value || 0;
     animateValue('totalPortfolio', totalValue, '$');
@@ -149,6 +150,9 @@ function updatePortfolio(data) {
         pnlPercent.textContent = `${pnlPercent24h >= 0 ? '+' : ''}${pnlPercent24h.toFixed(2)}%`;
         pnlPercent.style.color = pnlPercent24h >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
     }
+    
+    // Update P&L by coin
+    updatePnlByCoin(pnlByCoin);
 }
 
 // ════════════════════════════════════════════════════════
@@ -305,6 +309,38 @@ function updateSlots(data) {
 // ════════════════════════════════════════════════════════
 // 💰 PRICES UPDATE
 // ════════════════════════════════════════════════════════
+
+function updatePnlByCoin(pnlByCoin) {
+    const grid = document.getElementById('pnlByCoinGrid');
+    const container = document.getElementById('pnlByCoinContainer');
+    const coins = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX'];
+    
+    if (!grid || !container) return;
+    
+    if (!pnlByCoin || Object.keys(pnlByCoin).length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    
+    container.style.display = 'block';
+    
+    let html = '';
+    coins.forEach(coin => {
+        const pnl = pnlByCoin[coin] || 0;
+        const pnlClass = pnl >= 0 ? '' : 'loss';
+        const pnlSign = pnl >= 0 ? '+' : '';
+        
+        html += `
+            <div class="pnl-coin-item">
+                <div class="pnl-coin-name">${coin}</div>
+                <div class="pnl-coin-value ${pnlClass}">${pnlSign}$${Math.abs(pnl).toFixed(2)}</div>
+            </div>
+        `;
+    });
+    
+    grid.innerHTML = html;
+    console.log('✅ P&L by coin updated:', pnlByCoin);
+}
 
 function updatePrices(prices) {
     const chartsGrid = document.getElementById('chartsGrid');
