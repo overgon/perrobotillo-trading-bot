@@ -1210,13 +1210,27 @@ El slot permanece activo."
             fi
         fi
         
-        # Check TP3 - 20% exit con trailing (TP1 done, TP3 pendiente, precio cruza TP3)
+        # Check TP3 - CIERRE TOTAL (TP1 done, TP3 pendiente, precio cruza TP3)
         # Nota: TP2 puede haber fallado por NOTIONAL, permitimos TP3 directo
         if [ "$tp1_done" = "true" ] && [ "$tp3_done" = "false" ] && (( $(echo "$current_price >= $tp3" | bc -l) )); then
             log "✅ Slot $slot_id TP3 HIT: \$${current_price} >= \$${tp3}"
-            # BUG-034 FIX: Usar cantidad restante del slot (NO balance total de Binance)
-            # Después de TP1 (35%), queda 65%. TP3 vende 20% del original.
-            local sell_qty=$(awk -v q="$quantity" 'BEGIN {printf "%.8f", q * 0.20}')
+            
+            # BUG-042 FIX: Calcular cantidad RESTANTE real después de TP1 + TP2
+            # TP1 vendió 35%, TP2 vendió 30%, queda 35%
+            # TP3 vende 30% (el 5% restante se queda como acumulado)
+            local tp2_done=$(echo "$slot_data" | jq -r '.tp2Done')
+            local sell_qty
+            
+            if [ "$tp2_done" = "true" ]; then
+                # TP1 + TP2 completados → vender 30% restante (deja 5% acumulado)
+                sell_qty=$(awk -v q="$quantity" 'BEGIN {printf "%.8f", q * 0.30}')
+                log "  📊 TP1+TP2 done → Vendiendo 30% restante (5% se queda acumulado)"
+            else
+                # Solo TP1 completado → vender 65% restante (deja 5% acumulado)
+                sell_qty=$(awk -v q="$quantity" 'BEGIN {printf "%.8f", q * 0.65}')
+                log "  📊 Solo TP1 done → Vendiendo 65% restante (5% se queda acumulado)"
+            fi
+            
             local sell_value=$(awk -v q="$sell_qty" -v p="$current_price" 'BEGIN {printf "%.2f", q * p}')
             
             # BUG-042 FIX: Si valor es < $5, usar get_balance() para vender 100% del restante
@@ -1249,16 +1263,16 @@ El slot permanece activo."
                 fi
             fi
             
-            log "  TP3: Vendiendo $sell_qty (valor: \$${sell_value}) - Cierre parcial (5% acumula)"
+            log "  TP3: Vendiendo $sell_qty (valor: \$${sell_value}) - CIERRE TOTAL (5% se queda acumulado)"
             local sell_qty_fmt=$(format_quantity "$SYMBOL" "$sell_qty")
             local sell_result=$(place_sell_order_market "$SYMBOL" "$sell_qty_fmt")
             log "  Resultado venta TP3: $sell_result"
             local sell_status=$(echo "$sell_result" | jq -r '.status // "ERROR"')
             if [ "$sell_status" = "FILLED" ]; then
-                log "  ✅ TP3 ejecutado exitosamente ($sell_qty_fmt) - 5% ACUMULADO 📈"
+                log "  ✅ TP3 ejecutado exitosamente ($sell_qty_fmt) - CIERRE TOTAL 📈"
                 update_slot_field "$slot_id" "tp3Done" "true"
                 update_slot_field "$slot_id" "status" "CLOSED_TP3"
-                log "  ✅ Slot cerrado - TP3 completado (5% acumulado)"
+                log "  ✅ Slot cerrado - TP3 completado (5% acumulado en Binance)"
                 
                 # Calcular P&L ANTES de guardar en histórico
                 local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$quantity" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
@@ -1286,38 +1300,16 @@ El slot permanece activo."
                 log "  📱 DEBUG: Preparando notificación TP3..."
                 log "  📱 DEBUG: pnl_icon=$pnl_icon, exit_price=$exit_price, sell_qty_fmt=$sell_qty_fmt"
                 
-                # BUG-042 FIX: Determinar si vendimos 100% (incluye 5% acumulado) o solo 20%
-                local tp3_percentage="20%"
-                local tp3_note="CIERRE PARCIAL"
-                local acumulado_note="✅ 5% de la posición SE QUEDA (acumulando)\n💰 Vendido total: 95% | Acumulado: 5%"
+                # BUG-042 FIX: Determinar porcentaje vendido
+                local tp3_percentage="30%"
+                local tp3_note="CIERRE TOTAL"
+                local acumulado_note="✅ 5% de la posición SE QUEDA en Binance (acumulado)\n💰 Vendido: 95% | Acumulado: 5%"
                 
-                # Si vendimos el balance completo (más que 20%), actualizar mensaje
-                local expected_20_pct=$(awk -v q="$quantity" 'BEGIN {printf "%.8f", q * 0.20}')
-                if (( $(echo "$sell_qty > $expected_20_pct * 1.5" | bc -l) )); then
-                    tp3_percentage="100%"
-                    tp3_note="CIERRE TOTAL + ACUMULADO"
-                    acumulado_note="✅ 5% ACUMULADO vendido en este TP3\n💰 Vendido total: 100% (incluye 5% acumulado) | Slot CERRADO"
-                    
-                    # BUG-042 FIX PERMANENTE: Cerrar slot después de venta total
-                    # Verificar si queda resto < $5 y cerrar slot automáticamente
-                    local remaining_qty=$(awk -v q="$quantity" 'BEGIN {printf "%.8f", q * 0.05}')
-                    local remaining_value=$(awk -v q="$remaining_qty" -v p="$current_price" 'BEGIN {printf "%.2f", q * p}')
-                    
-                    if (( $(echo "$remaining_value < 5" | bc -l) )); then
-                        # Resto < $5 - CERRAR SLOT PARA EVITAR BUG
-                        update_slot_field "$slot_id" "status" "CLOSED_TP3"
-                        log "  ✅ Slot cerrado completamente (100% vendido + 5% acumulado)"
-                        log "  ⚠️ Resto < \$5 (\$${remaining_value}) - Slot marcado como CLOSED_TP3"
-                        log "  💡 Resto se queda como 'dust' en Binance (convertible a BNB)"
-                    else
-                        # Resto >= $5 - mantener slot activo para vender después
-                        update_slot_field "$slot_id" "tp3Done" "true"
-                        log "  📈 5% de la posición se queda acumulando (valor: \$${remaining_value})"
-                    fi
-                else
-                    # Solo vendimos 20% - mantener slot activo
-                    update_slot_field "$slot_id" "tp3Done" "true"
-                    log "  📈 5% de la posición se queda acumulando"
+                # Si TP2 no se ejecutó, TP3 vende más
+                if [ "$tp2_done" != "true" ]; then
+                    tp3_percentage="65%"
+                    tp3_note="CIERRE TOTAL (sin TP2)"
+                    acumulado_note="✅ 5% de la posición SE QUEDA en Binance (acumulado)\n💰 Vendido: 95% | Acumulado: 5% (TP2 skip)"
                 fi
                 
                 local tp3_msg="${pnl_icon} *TP3 HIT - $SYMBOL* [$tp3_percentage - $tp3_note] 🎯
