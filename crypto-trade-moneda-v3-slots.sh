@@ -908,6 +908,9 @@ check_slot_tp_sl() {
                 log "  ✅ TP1 ejecutado exitosamente ($sell_qty_fmt)"
                 update_slot_field "$slot_id" "tp1Done" "true"
                 
+                # Calcular P&L ANTES de guardar en histórico
+                local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
+                
                 # LOG TRADE TO HISTORY
                 log_trade_to_history "$slot_id" "TP1" "$entry" "$current_price" "$sell_qty" "$pnl"
                 
@@ -1055,6 +1058,9 @@ Quedan 65% para TP2/TP3 🎯"
                 log "  ✅ TP2 ejecutado exitosamente ($sell_qty_fmt)"
                 update_slot_field "$slot_id" "tp2Done" "true"
                 
+                # Calcular P&L ANTES de guardar en histórico
+                local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
+                
                 # LOG TRADE TO HISTORY
                 log_trade_to_history "$slot_id" "TP2" "$entry" "$current_price" "$sell_qty" "$pnl"
                 
@@ -1178,8 +1184,11 @@ El slot permanece activo."
                 update_slot_field "$slot_id" "status" "CLOSED_TP3"
                 log "  ✅ Slot cerrado - TP3 completado (5% acumulado)"
                 
-                # LOG TRADE TO HISTORY (BUG FIX)
-                log_trade_to_history "$slot_id" "TP3" "$entry" "$exit_price" "$quantity" "$fee_usd"
+                # Calcular P&L ANTES de guardar en histórico
+                local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$quantity" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
+                
+                # LOG TRADE TO HISTORY
+                log_trade_to_history "$slot_id" "TP3" "$entry" "$current_price" "$quantity" "$pnl"
                 
                 # Actualizar P&L
                 local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
