@@ -258,20 +258,6 @@
         {
             "id": 18,
             "symbol": "AVAX",
-            "slotId": 1,
-            "type": "LONG",
-            "entryPrice": 9.29,
-            "exitPrice": 9.45722,
-            "quantity": 1.719,
-            "closeType": "TP1",
-            "pnlUSDT": 0.28745118,
-            "timestamp": "2026-05-05T01:00:00",
-            "seeded": false,
-            "note": "TP1 hit - 30% position closed"
-        },
-        {
-            "id": 19,
-            "symbol": "AVAX",
             "slotId": 2,
             "type": "LONG",
             "entryPrice": 9.45,
@@ -284,7 +270,7 @@
             "note": "TP1 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 20,
+            "id": 19,
             "symbol": "AVAX",
             "slotId": 3,
             "type": "LONG",
@@ -298,7 +284,7 @@
             "note": "TP1 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 21,
+            "id": 20,
             "symbol": "SOL",
             "slotId": 1,
             "type": "LONG",
@@ -312,7 +298,7 @@
             "note": "TP1 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 22,
+            "id": 21,
             "symbol": "SOL",
             "slotId": 1,
             "type": "LONG",
@@ -326,7 +312,7 @@
             "note": "TP2 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 23,
+            "id": 22,
             "symbol": "ETH",
             "slotId": 2,
             "type": "LONG",
@@ -340,7 +326,7 @@
             "note": "TP1 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 24,
+            "id": 23,
             "symbol": "ETH",
             "slotId": 3,
             "type": "LONG",
@@ -354,7 +340,7 @@
             "note": "TP1 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 25,
+            "id": 24,
             "symbol": "BNB",
             "slotId": 2,
             "type": "LONG",
@@ -368,7 +354,7 @@
             "note": "TP1 hit - 30% position closed (manual recovery)"
         },
         {
-            "id": 26,
+            "id": 25,
             "symbol": "BNB",
             "slotId": 3,
             "type": "LONG",
@@ -382,7 +368,7 @@
             "note": "TP1 hit - 30% position closed (manual recovery)"
         },
         {
-            "id": 27,
+            "id": 26,
             "symbol": "LINK",
             "slotId": 3,
             "type": "LONG",
@@ -395,7 +381,7 @@
             "seeded": false
         },
         {
-            "id": 28,
+            "id": 27,
             "symbol": "LINK",
             "slotId": 1,
             "type": "LONG",
@@ -408,7 +394,7 @@
             "seeded": false
         },
         {
-            "id": 29,
+            "id": 28,
             "symbol": "BTC",
             "slotId": 1,
             "type": "LONG",
@@ -421,7 +407,7 @@
             "seeded": false
         },
         {
-            "id": 30,
+            "id": 29,
             "symbol": "ETH",
             "slotId": 1,
             "type": "LONG",
@@ -434,7 +420,7 @@
             "seeded": false
         },
         {
-            "id": 31,
+            "id": 30,
             "symbol": "AVAX",
             "slotId": 1,
             "type": "LONG",
@@ -447,7 +433,7 @@
             "seeded": false
         },
         {
-            "id": 32,
+            "id": 31,
             "symbol": "AVAX",
             "slotId": 1,
             "type": "LONG",
@@ -459,6 +445,20 @@
             "timestamp": "2026-05-07T00:06:57-06:00",
             "seeded": false,
             "note": "TP1 hit - AVAX Slot 1 (Mayo 7 9:56 AM)"
+        },
+        {
+            "id": 32,
+            "symbol": "AVAX",
+            "slotId": 1,
+            "type": "LONG",
+            "entryPrice": 9.29,
+            "exitPrice": 9.45722,
+            "quantity": 1.719,
+            "closeType": "TP1",
+            "pnlUSDT": 0.28745118,
+            "timestamp": "2026-05-08T09:56:00-06:00",
+            "seeded": false,
+            "note": "TP1 hit - 30% position closed"
         }
     ]
 }
