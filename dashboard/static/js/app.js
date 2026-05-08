@@ -15,6 +15,18 @@ let lastData = null;
 let lastPrices = {};
 let countdownInterval = null;
 let showAllTrades = false;  // Show only 10 by default
+let lastTPProgress = {};  // Track TP progress to detect 100% hits
+
+// 💰 CASH REGISTER SOUND FUNCTION
+function playCashRegister() {
+    const sound = document.getElementById('cashRegisterSound');
+    if (sound) {
+        sound.currentTime = 0;  // Rewind to start
+        sound.volume = 0.7;  // 70% volume
+        sound.play().catch(e => console.log('🔊 Sound play blocked:', e));
+        console.log('💰 CASH REGISTER! TP HIT DETECTED!');
+    }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🐕 Perrobotillo Dashboard - Initializing...');
@@ -213,6 +225,18 @@ function updateSlots(data) {
             }
             
             console.log(`  Progress: ${progress.toFixed(1)}%`);
+            
+            // 💰 DETECTAR TP HIT (100% PROGRESS) - CASH REGISTER SOUND
+            const slotKey = `${coin}-${slot.slotId}-${targetName}`;
+            const lastProgress = lastTPProgress[slotKey] || 0;
+            
+            // Si el progreso llega al 100% (o estaba cerca y ahora es 100%)
+            if (progress >= 99.5 && lastProgress < 99.5) {
+                playCashRegister();  // 🔊 Reproducir sonido de caja registradora
+            }
+            
+            // Guardar progreso actual para próxima comparación
+            lastTPProgress[slotKey] = progress;
             
             let pnl = 0, pnlPercent = 0;
             if (entryPrice > 0 && currentPrice > 0) {
