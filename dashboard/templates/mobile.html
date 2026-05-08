@@ -7,7 +7,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0a0a0a">
     <title>Perrobotillo Dashboard Mobile</title>
-    <link rel="icon" type="image/webp" href="{{ url_for('static', filename='avatars/perrobotillo-avatar.webp') }}?v={{ range(1000, 9999)|random }}">
+    
+    <!-- FAVICON - Todos los formatos -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='avatars/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='avatars/favicon-16x16.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='avatars/apple-touch-icon.png') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='avatars/favicon.ico') }}">
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}?v={{ range(1000, 9999)|random }}">
 </head>
 <body>
