@@ -1295,10 +1295,18 @@ $acumulado_note
                 if [ "$fee_asset" = "BNB" ]; then
                     fee_usd=$(awk -v b="$fee_bnb" -v p="$current_price" 'BEGIN {printf "%.8f", b * p}')
                 fi
+                
+                # Calcular P&L ANTES de guardar en histórico
+                local pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
+                
+                # LOG TRADE TO HISTORY
+                log_trade_to_history "$slot_id" "SL" "$entry" "$exit_price" "$quantity" "$pnl"
+                
+                # Actualizar P&L diario
                 update_pnl_after_close "$slot_id" "SL" "$entry" "$exit_price" "$quantity" "$fee_usd"
                 
                 # Calcular P&L para notificación
-                local pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
+                local pnl_display=$(awk -v p="$pnl" 'BEGIN {printf "%.2f", p}')
                 local pnl_icon="🔴"
                 [ $(echo "$pnl > 0" | bc -l) -eq 1 ] && pnl_icon="🟢"
                 
@@ -1307,7 +1315,7 @@ $acumulado_note
 
 *Slot:* $slot_id / $MAX_SLOTS
 *Exit:* \$${exit_price}
-*P&L:* \$${pnl}
+*P&L:* \$${pnl_display}
 
 El slot está disponible para próximo trade. 🛡️"
                 
@@ -1350,10 +1358,18 @@ execute_trailing_stop() {
         if [ "$fee_asset" = "BNB" ]; then
             fee_usd=$(awk -v b="$fee_bnb" -v p="$exit_price" 'BEGIN {printf "%.8f", b * p}')
         fi
+        
+        # Calcular P&L ANTES de guardar en histórico
+        local pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
+        
+        # LOG TRADE TO HISTORY
+        log_trade_to_history "$slot_id" "TRAILING" "$entry" "$exit_price" "$quantity" "$pnl"
+        
+        # Actualizar P&L diario
         update_pnl_after_close "$slot_id" "TRAILING" "$entry" "$exit_price" "$quantity" "$fee_usd"
         
         # Calcular P&L para notificación
-        local pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
+        local pnl_display=$(awk -v p="$pnl" 'BEGIN {printf "%.2f", p}')
         local pnl_icon="🟢"
         [ $(echo "$pnl < 0" | bc -l) -eq 1 ] && pnl_icon="🔴"
         
@@ -1370,7 +1386,7 @@ execute_trailing_stop() {
 
 *Slot:* $slot_id / $MAX_SLOTS
 *Exit:* \$${exit_price}
-*P&L:* \$${pnl}
+*P&L:* \$${pnl_display}
 *Razón:* $reason
 
 ✅ Ganancias aseguradas 🛡️"
