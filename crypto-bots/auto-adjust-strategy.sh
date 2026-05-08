@@ -64,6 +64,11 @@ export STOP_LOSS=${SL}
 export POSITION_SIZE=${POSITION_SIZE}
 export TRAILING_STOP=${TRAILING_STOP}
 
+# Scalping Mode (Lateral Market)
+export SCALPING_ENABLED="true"
+export SCALP_TARGET_PERCENT="1.0"
+export SCALP_SL_PERCENT="2.5"
+
 # Market Context
 export MARKET_MODE="${MARKET_MODE}"
 export MARKET_REASON="${MARKET_REASON}"
@@ -96,6 +101,10 @@ TP3: +${TP3}%
 SL: -${SL}%
 Position: ${POSITION_SIZE}%
 Trailing: ${TRAILING_STOP}
+
+🎯 Scalping Mode (Lateral):
+Target: 1.0%
+SL: 2.5%
 
 📈 Contexto:
 BTC: \$${BTC_PRICE}

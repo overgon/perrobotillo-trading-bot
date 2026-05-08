@@ -85,6 +85,17 @@ ACCUMULATION_PERCENT=5  # (antes: 15)
 # false = Mantener estrategia piramidal tradicional
 SLOT_RECYCLING_ENABLED=true
 
+# ════════════════════════════════════════════════════════
+# 🎯 SCALPING MODE (LATERAL MARKET - 2026-05-08)
+# ════════════════════════════════════════════════════════
+# Activado solo en mercado lateral para ganancias rápidas
+# Target: 1.0% (rango: 0.8-1.5%)
+# SL: 2.5% (más tight para scalping)
+SCALPING_ENABLED=true
+SCALP_TARGET_PERCENT="1.0"
+SCALP_SL_PERCENT="2.5"
+SCALP_MIN_PROFIT="0.50"
+
 # STOP LOSS POR COIN (basado en volatilidad diaria promedio)
 # ACTUALIZADO 2026-05-02: Ajustado para mercado lateral (5-6% vs 3-4%)
 # Razón: Evitar ruido del mercado y reducir falsos positivos
@@ -181,7 +192,7 @@ EOF
 
 log_trade_to_history() {
     local slot_id="$1"
-    local close_type="$2"  # TP1, TP2, TP3, SL, TRAILING
+    local close_type="$2"  # TP1, TP2, TP3, SL, TRAILING, SCALP
     local entry_price="$3"
     local exit_price="$4"
     local quantity="$5"
@@ -837,6 +848,71 @@ check_slot_tp_sl() {
     
     log_debug "  Slot $slot_id: Current=\$${current_price} | TP1=\$${tp1} | SL=\$${sl}"
     
+    # 🎯 FASE 0: SCALPING MODE (solo mercado lateral)
+    if [ "$SCALPING_ENABLED" = "true" ] && [ "$CURRENT_MODE" = "LATERAL" ]; then
+        # Solo para slots NUEVOS (< 1 hora) sin TP1 done
+        if [ "$tp1_done" = "false" ]; then
+            local scalp_target=$(echo "scale=8; $entry * (1 + $SCALP_TARGET_PERCENT / 100)" | bc)
+            local scalp_sl=$(echo "scale=8; $entry * (1 - $SCALP_SL_PERCENT / 100)" | bc)
+            
+            # Check SCALP TP
+            if (( $(echo "$current_price >= $scalp_target" | bc -l) )); then
+                log "🎯 Slot $slot_id SCALP HIT: \$${current_price} >= \$${scalp_target}"
+                
+                # Vender 100% para scalping
+                local sell_result=$(place_sell_order_market "$SYMBOL" "$quantity")
+                log "  Resultado venta SCALP: $sell_result"
+                local sell_status=$(echo "$sell_result" | jq -r '.status // "ERROR"')
+                
+                if [ "$sell_status" = "FILLED" ]; then
+                    log "  ✅ SCALP ejecutado exitosamente - Slot cerrado"
+                    update_slot_status "$slot_id" "CLOSED_SCALP"
+                    
+                    # Calcular P&L
+                    local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
+                    local fee_bnb=$(echo "$sell_result" | jq -r '.fills[0].commission // 0')
+                    local fee_asset=$(echo "$sell_result" | jq -r '.fills[0].commissionAsset // "USDT"')
+                    local fee_usd=$fee_bnb
+                    if [ "$fee_asset" = "BNB" ]; then
+                        fee_usd=$(awk -v b="$fee_bnb" -v p="$exit_price" 'BEGIN {printf "%.8f", b * p}')
+                    fi
+                    
+                    # Calcular P&L ANTES de guardar
+                    local pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
+                    
+                    # LOG TRADE TO HISTORY
+                    log_trade_to_history "$slot_id" "SCALP" "$entry" "$exit_price" "$quantity" "$pnl"
+                    
+                    # Actualizar P&L diario
+                    update_pnl_after_close "$slot_id" "SCALP" "$entry" "$exit_price" "$quantity" "$fee_usd"
+                    
+                    # P&L para notificación
+                    local pnl_display=$(awk -v p="$pnl" 'BEGIN {printf "%.2f", p}')
+                    local pnl_icon="🟢"
+                    [ $(echo "$pnl < 0" | bc -l) -eq 1 ] && pnl_icon="🔴"
+                    
+                    # Telegram
+                    send_telegram "${pnl_icon} *SCALP HIT - $SYMBOL* 🎯
+
+*Slot:* $slot_id / $MAX_SLOTS
+*Exit:* \$${exit_price}
+*P&L:* \$${pnl_display}
+*Target:* ${SCALP_TARGET_PERCENT}%
+
+✅ Ganancia rápida en mercado lateral 🚀"
+                    
+                    return 0  # Slot cerrado
+                fi
+            fi
+            
+            # Check SCALP SL (más tight)
+            if (( $(echo "$current_price <= $scalp_sl" | bc -l) )); then
+                log "🛑 Slot $slot_id SCALP SL HIT: \$${current_price} <= \$${scalp_sl}"
+                # El SL normal se encargará después
+            fi
+        fi
+    fi
+    
     # FASE 1: Verificar trailing stop primero (antes de TP/SL)
     if [ "$TRAILING_STOP_ENABLED" = "true" ]; then
         local trailing_active=$(echo "$slot_data" | jq -r '.trailingStop // false')
@@ -1469,7 +1545,7 @@ auto_reset_slots() {
         local slot_status=$(jq -r ".slots[$((slot_id-1))].status" "$STATE_FILE")
         
         # Solo resetear slots CLOSED_SL o CLOSED_TP (no READY o ACTIVE)
-        if [[ "$slot_status" == "CLOSED_SL" || "$slot_status" == "CLOSED_TP" || "$slot_status" == "CLOSED_TP3" ]]; then
+        if [[ "$slot_status" == "CLOSED_SL" || "$slot_status" == "CLOSED_TP" || "$slot_status" == "CLOSED_TP3" || "$slot_status" == "CLOSED_SCALP" || "$slot_status" == "CLOSED_TRAILING" ]]; then
             local slot_timestamp=$(jq -r ".slots[$((slot_id-1))].timestamp" "$STATE_FILE" | tr -d '"')
             
             # Convertir timestamp a epoch (manejar formato ISO 8601)
