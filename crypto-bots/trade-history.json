@@ -9,12 +9,12 @@
         "winRate": 52.94,
         "netPnLUSDT": -7.66
     },
-    "totalTrades": 37,
-    "totalWins": 37,
+    "totalTrades": 42,
+    "totalWins": 42,
     "totalLosses": 0,
-    "totalProfitUSDT": 96.1715856314,
+    "totalProfitUSDT": 104.1315856314,
     "totalLossUSDT": 0,
-    "netPnLUSDT": 96.1715856314,
+    "netPnLUSDT": 104.1315856314,
     "winRate": 100.0,
     "trades": [
         {
@@ -529,6 +529,76 @@
             "timestamp": "2026-05-08T09:56:00-06:00",
             "seeded": false,
             "note": "TP1 hit - 30% position closed"
+        },
+        {
+            "id": 38,
+            "symbol": "SOL",
+            "slotId": 2,
+            "type": "LONG",
+            "entryPrice": 86.02,
+            "exitPrice": 91.53,
+            "quantity": 1.83908046,
+            "closeType": "TP2",
+            "pnlUSDT": 3.04,
+            "timestamp": "2026-05-08T11:33:00-06:00",
+            "seeded": false,
+            "note": "TP2 hit - Telegram notification (11:33-11:36 AM)"
+        },
+        {
+            "id": 39,
+            "symbol": "SOL",
+            "slotId": 3,
+            "type": "LONG",
+            "entryPrice": 86.35,
+            "exitPrice": 91.54,
+            "quantity": 0.51380861,
+            "closeType": "TP2",
+            "pnlUSDT": 0.8,
+            "timestamp": "2026-05-08T11:33:00-06:00",
+            "seeded": false,
+            "note": "TP2 hit - Telegram notification (11:33-11:36 AM)"
+        },
+        {
+            "id": 40,
+            "symbol": "LINK",
+            "slotId": 1,
+            "type": "LONG",
+            "entryPrice": 9.99,
+            "exitPrice": 10.24,
+            "quantity": 23.42857143,
+            "closeType": "TP1",
+            "pnlUSDT": 2.05,
+            "timestamp": "2026-05-08T11:34:00-06:00",
+            "seeded": false,
+            "note": "TP1 hit - Telegram notification (11:33-11:36 AM)"
+        },
+        {
+            "id": 41,
+            "symbol": "AVAX",
+            "slotId": 2,
+            "type": "LONG",
+            "entryPrice": 9.45,
+            "exitPrice": 9.84,
+            "quantity": 10.76923077,
+            "closeType": "TP2",
+            "pnlUSDT": 1.26,
+            "timestamp": "2026-05-08T11:36:00-06:00",
+            "seeded": false,
+            "note": "TP2 hit - Telegram notification (11:33-11:36 AM)"
+        },
+        {
+            "id": 42,
+            "symbol": "AVAX",
+            "slotId": 3,
+            "type": "LONG",
+            "entryPrice": 9.47,
+            "exitPrice": 9.84,
+            "quantity": 7.2972973,
+            "closeType": "TP2",
+            "pnlUSDT": 0.81,
+            "timestamp": "2026-05-08T11:36:00-06:00",
+            "seeded": false,
+            "note": "TP2 hit - Telegram notification (11:33-11:36 AM)"
         }
     ]
 }
