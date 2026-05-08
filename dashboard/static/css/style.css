@@ -282,11 +282,12 @@ body::before {
 }
 
 .avatar-img {
-    width: 64px;
-    height: 64px;
+    width: 80px;
+    height: 80px;
     object-fit: contain;
     animation: pulse 2s ease-in-out infinite;
-    filter: drop-shadow(0 0 10px var(--neon-blue));
+    filter: drop-shadow(0 0 15px var(--neon-blue));
+    border-radius: 12px;
 }
 
 @keyframes pulse {
