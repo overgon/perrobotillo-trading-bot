@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0a0a0a">
-    <title>Perrobotillo Dashboard Mobile 🐕</title>
+    <title>Perrobotillo Dashboard Mobile</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}?v={{ range(1000, 9999)|random }}">
 </head>
 <body>
@@ -16,7 +16,7 @@
     <header class="mobile-header">
         <div class="header-content">
             <div class="logo">
-                <span class="logo-icon">🐕</span>
+                <img src="{{ url_for('static', filename='avatars/perrobotillo-avatar.svg') }}" alt="Perrobotillo" class="avatar-img">
                 <span class="logo-text">PERROBOTILLO</span>
             </div>
             <div class="header-status">

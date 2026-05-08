@@ -281,6 +281,14 @@ body::before {
     animation: pulse 2s ease-in-out infinite;
 }
 
+.avatar-img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    animation: pulse 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px var(--neon-blue));
+}
+
 @keyframes pulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.1); }
