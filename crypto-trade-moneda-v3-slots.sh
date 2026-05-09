@@ -229,13 +229,15 @@ log_trade_to_history() {
     # Calcular win rate
     local win_rate=$(awk -v w="$new_wins" -v t="$new_trades" 'BEGIN {if (t > 0) printf "%.2f", (w/t)*100; else print "0"}')
     
-    # BUG FIX: Verificar si el trade ya existe (prevenir duplicados)
-    local existing=$(jq --arg sym "$SYMBOL" --argjson slot "$slot_id" --arg close "$close_type" \
-        '[.trades[] | select(.symbol == $sym and .slotId == $slot and .closeType == $close)] | length' \
+    # BUG FIX: Verificar duplicado EXACTO (mismo symbol+slot+closeType+timestamp minuto)
+    # NO bloquear trades nuevos del mismo slot
+    local current_minute=$(date +%Y-%m-%dT%H:%M)
+    local existing=$(jq --arg sym "$SYMBOL" --argjson slot "$slot_id" --arg close "$close_type" --arg ts "$current_minute" \
+        '[.trades[] | select(.symbol == $sym and .slotId == $slot and .closeType == $close) | select(.timestamp | startswith($ts))] | length' \
         "$HISTORY_FILE" 2>/dev/null)
     
     if [ "$existing" -gt 0 ]; then
-        log "  ⚠️ Trade ya existe (${SYMBOL} Slot ${slot_id} ${close_type}) - NO duplicar"
+        log "  ⚠️ Trade DUPLICADO del mismo minuto (${SYMBOL} Slot ${slot_id} ${close_type}) - NO guardar"
         return 0  # Salir sin guardar
     fi
     

@@ -9,12 +9,12 @@
         "winRate": 52.94,
         "netPnLUSDT": -7.66
     },
-    "totalTrades": 50,
-    "totalWins": 50,
+    "totalTrades": 51,
+    "totalWins": 51,
     "totalLosses": 0,
-    "totalProfitUSDT": 160.5560292114,
+    "totalProfitUSDT": 174.6119592114,
     "totalLossUSDT": 0,
-    "netPnLUSDT": 160.5560292114,
+    "netPnLUSDT": 174.6119592114,
     "winRate": 100.0,
     "trades": [
         {
@@ -702,6 +702,19 @@
             "closeType": "TP3",
             "pnlUSDT": 1.71539993,
             "timestamp": "2026-05-08T19:53:02-06:00",
+            "seeded": false
+        },
+        {
+            "id": 51,
+            "symbol": "LINK",
+            "slotId": 1,
+            "type": "LONG",
+            "entryPrice": 9.99,
+            "exitPrice": 10.5894,
+            "quantity": 23.45,
+            "closeType": "TP3",
+            "pnlUSDT": 14.05593,
+            "timestamp": "2026-05-08T20:44:02-06:00",
             "seeded": false
         }
     ]
