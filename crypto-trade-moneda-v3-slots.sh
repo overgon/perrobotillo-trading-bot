@@ -229,6 +229,16 @@ log_trade_to_history() {
     # Calcular win rate
     local win_rate=$(awk -v w="$new_wins" -v t="$new_trades" 'BEGIN {if (t > 0) printf "%.2f", (w/t)*100; else print "0"}')
     
+    # BUG FIX: Verificar si el trade ya existe (prevenir duplicados)
+    local existing=$(jq --arg sym "$SYMBOL" --argjson slot "$slot_id" --arg close "$close_type" \
+        '[.trades[] | select(.symbol == $sym and .slotId == $slot and .closeType == $close)] | length' \
+        "$HISTORY_FILE" 2>/dev/null)
+    
+    if [ "$existing" -gt 0 ]; then
+        log "  ⚠️ Trade ya existe (${SYMBOL} Slot ${slot_id} ${close_type}) - NO duplicar"
+        return 0  # Salir sin guardar
+    fi
+    
     # Crear nuevo trade entry
     local trade_id=$new_trades
     local timestamp=$(date -Iseconds)

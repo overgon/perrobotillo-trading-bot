@@ -9,16 +9,29 @@
         "winRate": 52.94,
         "netPnLUSDT": -7.66
     },
-    "totalTrades": 54,
-    "totalWins": 54,
+    "totalTrades": 50,
+    "totalWins": 50,
     "totalLosses": 0,
-    "totalProfitUSDT": 184.94568928,
+    "totalProfitUSDT": 160.5560292114,
     "totalLossUSDT": 0,
-    "netPnLUSDT": 184.94568928,
+    "netPnLUSDT": 160.5560292114,
     "winRate": 100.0,
     "trades": [
         {
-            "id": 54,
+            "id": 1,
+            "symbol": "SOL",
+            "slotId": 3,
+            "type": "LONG",
+            "entryPrice": 86.35,
+            "exitPrice": 93.56,
+            "quantity": 0.238,
+            "closeType": "TP3",
+            "pnlUSDT": 1.71539993,
+            "timestamp": "2026-05-08T19:53:02-06:00",
+            "seeded": false
+        },
+        {
+            "id": 2,
             "symbol": "SOL",
             "slotId": 2,
             "type": "LONG",
@@ -31,20 +44,7 @@
             "seeded": false
         },
         {
-            "id": 53,
-            "symbol": "SOL",
-            "slotId": 2,
-            "type": "LONG",
-            "entryPrice": 86.02,
-            "exitPrice": 93.16,
-            "quantity": 1.84,
-            "closeType": "TP3",
-            "pnlUSDT": 13.1376,
-            "timestamp": "2026-05-08T19:43:03-06:00",
-            "seeded": false
-        },
-        {
-            "id": 52,
+            "id": 3,
             "symbol": "AVAX",
             "slotId": 3,
             "type": "LONG",
@@ -57,20 +57,7 @@
             "seeded": false
         },
         {
-            "id": 51,
-            "symbol": "AVAX",
-            "slotId": 3,
-            "type": "LONG",
-            "entryPrice": 9.47,
-            "exitPrice": 10.06,
-            "quantity": 7.26,
-            "closeType": "TP3",
-            "pnlUSDT": 4.2834,
-            "timestamp": "2026-05-08T19:16:04-06:00",
-            "seeded": false
-        },
-        {
-            "id": 50,
+            "id": 4,
             "symbol": "AVAX",
             "slotId": 1,
             "type": "LONG",
@@ -83,20 +70,7 @@
             "seeded": false
         },
         {
-            "id": 49,
-            "symbol": "AVAX",
-            "slotId": 1,
-            "type": "LONG",
-            "entryPrice": 9.58,
-            "exitPrice": 10.07,
-            "quantity": 4.3,
-            "closeType": "TP3",
-            "pnlUSDT": 2.107,
-            "timestamp": "2026-05-08T19:16:02-06:00",
-            "seeded": false
-        },
-        {
-            "id": 48,
+            "id": 5,
             "symbol": "AVAX",
             "slotId": 2,
             "type": "LONG",
@@ -109,20 +83,7 @@
             "seeded": false
         },
         {
-            "id": 47,
-            "symbol": "AVAX",
-            "slotId": 2,
-            "type": "LONG",
-            "entryPrice": 9.45,
-            "exitPrice": 9.93,
-            "quantity": 10.76,
-            "closeType": "TP3",
-            "pnlUSDT": 5.1648,
-            "timestamp": "2026-05-08T15:26:02-06:00",
-            "seeded": false
-        },
-        {
-            "id": 46,
+            "id": 6,
             "symbol": "SOL",
             "slotId": 1,
             "type": "LONG",
@@ -135,20 +96,7 @@
             "seeded": false
         },
         {
-            "id": 45,
-            "symbol": "SOL",
-            "slotId": 1,
-            "type": "LONG",
-            "entryPrice": 86.51,
-            "exitPrice": 92.37,
-            "quantity": 0.241,
-            "closeType": "TP3",
-            "pnlUSDT": 1.41226,
-            "timestamp": "2026-05-08T13:13:02-06:00",
-            "seeded": false
-        },
-        {
-            "id": 44,
+            "id": 7,
             "symbol": "AVAX",
             "slotId": 1,
             "type": "LONG",
@@ -161,7 +109,7 @@
             "seeded": false
         },
         {
-            "id": 43,
+            "id": 8,
             "symbol": "LINK",
             "slotId": 2,
             "type": "LONG",
@@ -174,7 +122,7 @@
             "seeded": false
         },
         {
-            "id": 42,
+            "id": 9,
             "symbol": "AVAX",
             "slotId": 3,
             "type": "LONG",
@@ -188,7 +136,7 @@
             "note": "TP2 hit - Telegram notification (11:33-11:36 AM)"
         },
         {
-            "id": 41,
+            "id": 10,
             "symbol": "AVAX",
             "slotId": 2,
             "type": "LONG",
@@ -202,7 +150,7 @@
             "note": "TP2 hit - Telegram notification (11:33-11:36 AM)"
         },
         {
-            "id": 40,
+            "id": 11,
             "symbol": "LINK",
             "slotId": 1,
             "type": "LONG",
@@ -216,7 +164,7 @@
             "note": "TP1 hit - Telegram notification (11:33-11:36 AM)"
         },
         {
-            "id": 39,
+            "id": 12,
             "symbol": "SOL",
             "slotId": 3,
             "type": "LONG",
@@ -230,7 +178,7 @@
             "note": "TP2 hit - Telegram notification (11:33-11:36 AM)"
         },
         {
-            "id": 38,
+            "id": 13,
             "symbol": "SOL",
             "slotId": 2,
             "type": "LONG",
@@ -244,7 +192,7 @@
             "note": "TP2 hit - Telegram notification (11:33-11:36 AM)"
         },
         {
-            "id": 37,
+            "id": 14,
             "symbol": "AVAX",
             "slotId": 1,
             "type": "LONG",
@@ -258,7 +206,7 @@
             "note": "TP1 hit - 30% position closed"
         },
         {
-            "id": 36,
+            "id": 15,
             "symbol": "AVAX",
             "slotId": 1,
             "type": "LONG",
@@ -272,7 +220,7 @@
             "note": "TP1 hit - AVAX Slot 1 (Mayo 7 9:56 AM)"
         },
         {
-            "id": 35,
+            "id": 16,
             "symbol": "LINK",
             "slotId": 1,
             "type": "LONG",
@@ -286,7 +234,7 @@
             "note": "TP1 hit - Manual recovery"
         },
         {
-            "id": 34,
+            "id": 17,
             "symbol": "AVAX",
             "slotId": 1,
             "type": "LONG",
@@ -299,7 +247,7 @@
             "seeded": false
         },
         {
-            "id": 33,
+            "id": 18,
             "symbol": "ETH",
             "slotId": 1,
             "type": "LONG",
@@ -312,7 +260,7 @@
             "seeded": false
         },
         {
-            "id": 32,
+            "id": 19,
             "symbol": "BTC",
             "slotId": 1,
             "type": "LONG",
@@ -325,7 +273,7 @@
             "seeded": false
         },
         {
-            "id": 31,
+            "id": 20,
             "symbol": "LINK",
             "slotId": 1,
             "type": "LONG",
@@ -338,7 +286,7 @@
             "seeded": false
         },
         {
-            "id": 30,
+            "id": 21,
             "symbol": "LINK",
             "slotId": 3,
             "type": "LONG",
@@ -351,7 +299,7 @@
             "seeded": false
         },
         {
-            "id": 29,
+            "id": 22,
             "symbol": "BNB",
             "slotId": 3,
             "type": "LONG",
@@ -365,7 +313,7 @@
             "note": "TP1 hit - 30% position closed (manual recovery)"
         },
         {
-            "id": 28,
+            "id": 23,
             "symbol": "BNB",
             "slotId": 2,
             "type": "LONG",
@@ -379,7 +327,7 @@
             "note": "TP1 hit - 30% position closed (manual recovery)"
         },
         {
-            "id": 27,
+            "id": 24,
             "symbol": "ETH",
             "slotId": 3,
             "type": "LONG",
@@ -393,7 +341,7 @@
             "note": "TP1 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 26,
+            "id": 25,
             "symbol": "ETH",
             "slotId": 2,
             "type": "LONG",
@@ -407,7 +355,7 @@
             "note": "TP1 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 25,
+            "id": 26,
             "symbol": "SOL",
             "slotId": 1,
             "type": "LONG",
@@ -421,7 +369,7 @@
             "note": "TP2 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 24,
+            "id": 27,
             "symbol": "SOL",
             "slotId": 1,
             "type": "LONG",
@@ -435,7 +383,7 @@
             "note": "TP1 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 23,
+            "id": 28,
             "symbol": "AVAX",
             "slotId": 3,
             "type": "LONG",
@@ -449,7 +397,7 @@
             "note": "TP2 hit - Manual recovery"
         },
         {
-            "id": 22,
+            "id": 29,
             "symbol": "AVAX",
             "slotId": 3,
             "type": "LONG",
@@ -463,7 +411,7 @@
             "note": "TP1 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 21,
+            "id": 30,
             "symbol": "AVAX",
             "slotId": 2,
             "type": "LONG",
@@ -477,7 +425,7 @@
             "note": "TP2 hit - Manual recovery"
         },
         {
-            "id": 20,
+            "id": 31,
             "symbol": "AVAX",
             "slotId": 2,
             "type": "LONG",
@@ -491,7 +439,7 @@
             "note": "TP1 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 19,
+            "id": 32,
             "symbol": "XRP",
             "slotId": 3,
             "type": "LONG",
@@ -505,7 +453,7 @@
             "note": "TP1 hit - 30% position closed"
         },
         {
-            "id": 18,
+            "id": 33,
             "symbol": "XRP",
             "slotId": 2,
             "type": "LONG",
@@ -519,7 +467,7 @@
             "note": "TP1 hit - 30% position closed"
         },
         {
-            "id": 17,
+            "id": 34,
             "symbol": "XRP",
             "slotId": 1,
             "type": "LONG",
@@ -533,7 +481,7 @@
             "note": "TP1 hit - 30% position closed"
         },
         {
-            "id": 16,
+            "id": 35,
             "symbol": "LINK",
             "slotId": 3,
             "type": "LONG",
@@ -547,7 +495,7 @@
             "note": "TP2 hit - 30% position closed"
         },
         {
-            "id": 15,
+            "id": 36,
             "symbol": "LINK",
             "slotId": 1,
             "type": "LONG",
@@ -561,7 +509,7 @@
             "note": "TP2 hit - 30% position closed"
         },
         {
-            "id": 14,
+            "id": 37,
             "symbol": "BTC",
             "slotId": 1,
             "type": "LONG",
@@ -575,7 +523,7 @@
             "note": "TP2 hit - 30% position closed"
         },
         {
-            "id": 13,
+            "id": 38,
             "symbol": "XRP",
             "slotId": 3,
             "type": "LONG",
@@ -589,7 +537,7 @@
             "note": "TP2 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 12,
+            "id": 39,
             "symbol": "BTC",
             "slotId": 2,
             "type": "LONG",
@@ -603,7 +551,7 @@
             "note": "TP2 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 11,
+            "id": 40,
             "symbol": "BTC",
             "slotId": 2,
             "type": "LONG",
@@ -617,7 +565,7 @@
             "note": "TP1 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 10,
+            "id": 41,
             "symbol": "BNB",
             "slotId": 2,
             "type": "LONG",
@@ -631,7 +579,7 @@
             "note": "TP2 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 9,
+            "id": 42,
             "symbol": "XRP",
             "slotId": 2,
             "type": "LONG",
@@ -645,7 +593,7 @@
             "note": "TP2 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 8,
+            "id": 43,
             "symbol": "BNB",
             "slotId": 3,
             "type": "LONG",
@@ -659,7 +607,7 @@
             "note": "TP2 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 7,
+            "id": 44,
             "symbol": "BNB",
             "slotId": 1,
             "type": "LONG",
@@ -673,7 +621,7 @@
             "note": "TP1 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 6,
+            "id": 45,
             "symbol": "LINK",
             "slotId": 2,
             "type": "LONG",
@@ -687,7 +635,7 @@
             "note": "TP2 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 5,
+            "id": 46,
             "symbol": "LINK",
             "slotId": 2,
             "type": "LONG",
@@ -701,7 +649,7 @@
             "note": "TP1 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 4,
+            "id": 47,
             "symbol": "SOL",
             "slotId": 3,
             "type": "LONG",
@@ -715,7 +663,7 @@
             "note": "TP2 hit - Manual recovery"
         },
         {
-            "id": 3,
+            "id": 48,
             "symbol": "SOL",
             "slotId": 3,
             "type": "LONG",
@@ -729,7 +677,7 @@
             "note": "TP1 hit - Manual recovery (missing trade)"
         },
         {
-            "id": 2,
+            "id": 49,
             "symbol": "SOL",
             "slotId": 2,
             "type": "LONG",
@@ -743,7 +691,7 @@
             "note": "TP2 hit - Manual recovery"
         },
         {
-            "id": 1,
+            "id": 50,
             "symbol": "SOL",
             "slotId": 2,
             "type": "LONG",
