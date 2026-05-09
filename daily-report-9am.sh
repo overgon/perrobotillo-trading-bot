@@ -116,9 +116,23 @@ pnl_pct=$(echo "scale=2; if($snapshot>0) $pnl*100/$snapshot else 0" | bc)
 
 # Contar trades del día anterior
 yesterday=$(date -d "yesterday" +%Y-%m-%d)
-trades_count=$(grep "$yesterday" "$LOG_FILE" 2>/dev/null | grep -E "TP.*ejecutado|CLOSED" | wc -l)
-wins=$(grep "$yesterday" "$LOG_FILE" 2>/dev/null | grep "TP.*ejecutado" | wc -l)
-losses=$(grep "$yesterday" "$LOG_FILE" 2>/dev/null | grep "CLOSED_SL" | wc -l)
+# Leer trade-history.json directamente (más confiable que logs)
+HISTORY_FILE="$WORKSPACE/crypto-bots/trade-history.json"
+if [ -f "$HISTORY_FILE" ]; then
+    trades_count=$(jq --arg date "$yesterday" '[.trades[] | select(.timestamp | startswith($date))] | length' "$HISTORY_FILE" 2>/dev/null)
+    wins=$(jq --arg date "$yesterday" '[.trades[] | select(.timestamp | startswith($date)) | select(.pnlUSDT >= 0)] | length' "$HISTORY_FILE" 2>/dev/null)
+    losses=$(jq --arg date "$yesterday" '[.trades[] | select(.timestamp | startswith($date)) | select(.pnlUSDT < 0)] | length' "$HISTORY_FILE" 2>/dev/null)
+    total_pnl=$(jq --arg date "$yesterday" '[.trades[] | select(.timestamp | startswith($date)) | .pnlUSDT] | add // 0' "$HISTORY_FILE" 2>/dev/null)
+else
+    trades_count=0
+    wins=0
+    losses=0
+    total_pnl=0
+fi
+[ -z "$trades_count" ] && trades_count=0
+[ -z "$wins" ] && wins=0
+[ -z "$losses" ] && losses=0
+[ -z "$total_pnl" ] && total_pnl=0
 
 # Crear mensaje de resumen
 today=$(date +%Y-%m-%d)
@@ -240,6 +254,7 @@ cat >> "$report_file" << EOF
 | Wins ✅ | $wins |
 | Losses ❌ | $losses |
 | Win Rate | $(echo "scale=1; if(($wins+$losses)>0) $wins*100/($wins+$losses) else 0" | bc)% |
+| P&L Total | \$$(printf '%.2f' "$total_pnl") |
 
 ---
 
