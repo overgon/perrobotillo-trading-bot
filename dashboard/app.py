@@ -316,7 +316,7 @@ def api_portfolio():
     value = get_portfolio_value()
     return jsonify({
         'value': value,
-        'value_mx': value * 17.5,
+        'value_mx': get_mxn_rate() * value,
         'timestamp': datetime.now().isoformat()
     })
 
@@ -389,7 +389,7 @@ def api_status():
     return jsonify({
         'portfolio': {
             'value': portfolio_value,
-            'value_mx': portfolio_value * 17.5
+            'value_mx': portfolio_value * get_mxn_rate()
         },
         'slots': {
             'total': total_slots,
@@ -488,3 +488,13 @@ if __name__ == '__main__':
     print("🚀 Starting Flask server on port 8080...")
     print()
     app.run(host='0.0.0.0', port=8080, debug=False)
+
+def get_mxn_rate():
+    """Obtener tasa de cambio USDT/MXN en tiempo real de Binance"""
+    try:
+        import requests
+        response = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=USDTMXN', timeout=5)
+        rate = float(response.json().get('price', 17.5))
+        return rate
+    except:
+        return 17.5  # Fallback
