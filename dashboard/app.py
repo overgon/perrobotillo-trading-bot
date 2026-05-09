@@ -468,6 +468,15 @@ def api_trades():
     history = get_trade_history()
     return jsonify(history)
 
+# ════════════════════════════════════════════════════════
+# 🔊 TEST SOUND PAGE
+# ════════════════════════════════════════════════════════
+
+@app.route("/test-sound")
+def test_sound():
+    """Test page for cash register sound"""
+    return render_template("test-sound.html")
+
 if __name__ == '__main__':
     print("╔═══════════════════════════════════════════════════════╗")
     print("║  🐕 PERROBOTILLO DASHBOARD - STARTING                 ║")

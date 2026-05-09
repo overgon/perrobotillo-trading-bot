@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔊 TEST SONIDO - Perrobotillo</title>
+    <style>
+        body {
+            background: #0a0a1a;
+            color: #0aff00;
+            font-family: monospace;
+            padding: 40px;
+            text-align: center;
+        }
+        button {
+            background: #00f3ff;
+            color: #000;
+            border: none;
+            padding: 20px 40px;
+            font-size: 20px;
+            cursor: pointer;
+            margin: 10px;
+            border-radius: 10px;
+        }
+        button:hover { background: #0aff00; }
+        #status { margin-top: 20px; font-size: 18px; }
+        #log { 
+            margin-top: 20px; 
+            background: #1a1a3a; 
+            padding: 20px; 
+            text-align: left; 
+            max-width: 600px; 
+            margin-left: auto; 
+            margin-right: auto;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔊 TEST CASH REGISTER</h1>
+    <p>Perrobotillo Dashboard - Sound Test</p>
+    
+    <div style="margin: 40px 0;">
+        <button onclick="test1()">🔊 TEST 1: Play Sound</button>
+        <button onclick="test2()">🔁 TEST 2: Play 3x</button>
+        <button onclick="test3()">📋 TEST 3: Check Element</button>
+    </div>
+    
+    <div id="status">Status: Ready</div>
+    
+    <div id="log">
+        <strong>Log:</strong><br>
+        <div id="logContent"></div>
+    </div>
+
+    <!-- AUDIO ELEMENT -->
+    <audio id="cashRegisterSound" preload="auto" style="display:none;">
+        <source src="/static/sounds/cash-register.wav" type="audio/wav">
+    </audio>
+
+    <script>
+        const logDiv = document.getElementById('logContent');
+        const statusDiv = document.getElementById('status');
+        
+        function log(msg) {
+            logDiv.innerHTML += `<div>> ${msg}</div>`;
+            console.log(msg);
+        }
+        
+        function setStatus(msg, color = '#0aff00') {
+            statusDiv.innerHTML = `Status: <span style="color: ${color}">${msg}</span>`;
+        }
+        
+        function test1() {
+            log('🔊 TEST 1: Trying to play sound...');
+            const audio = document.getElementById('cashRegisterSound');
+            
+            if (!audio) {
+                log('❌ ERROR: Audio element not found!');
+                setStatus('Audio element not found', '#ff003c');
+                return;
+            }
+            
+            log('✅ Audio element found');
+            log(`   Source: ${audio.src}`);
+            log(`   Preload: ${audio.preload}`);
+            
+            audio.currentTime = 0;
+            audio.volume = 0.7;
+            
+            audio.play()
+                .then(() => {
+                    log('✅ SOUND PLAYING! 💰');
+                    setStatus('Playing!', '#0aff00');
+                })
+                .catch(e => {
+                    log(`❌ ERROR: ${e.message}`);
+                    log(`   Name: ${e.name}`);
+                    if (e.name === 'NotAllowedError') {
+                        log('   ⚠️ Browser blocked autoplay - need user interaction');
+                    }
+                    setStatus(`Error: ${e.name}`, '#ff003c');
+                });
+        }
+        
+        function test2() {
+            log('🔁 TEST 2: Playing 3 times...');
+            let count = 0;
+            const interval = setInterval(() => {
+                test1();
+                count++;
+                if (count >= 3) {
+                    clearInterval(interval);
+                    log('✅ Done playing 3x');
+                }
+            }, 1500);
+        }
+        
+        function test3() {
+            log('📋 TEST 3: Checking audio element...');
+            const audio = document.getElementById('cashRegisterSound');
+            
+            if (!audio) {
+                log('❌ Audio element NOT FOUND');
+                setStatus('Element not found', '#ff003c');
+                return;
+            }
+            
+            log('✅ Audio element FOUND');
+            log(`   ID: ${audio.id}`);
+            log(`   Tag: ${audio.tagName}`);
+            log(`   Sources: ${audio.sources.length}`);
+            if (audio.sources.length > 0) {
+                log(`   Source 1: ${audio.sources[0].src}`);
+                log(`   Type: ${audio.sources[0].type}`);
+            }
+            log(`   Can play WAV: ${audio.canPlayType('audio/wav')}`);
+            log(`   Can play MP3: ${audio.canPlayType('audio/mpeg')}`);
+            log(`   Volume: ${audio.volume}`);
+            log(`   CurrentTime: ${audio.currentTime}`);
+            log(`   Duration: ${audio.duration}`);
+            log(`   Paused: ${audio.paused}`);
+            
+            setStatus('Element OK', '#0aff00');
+        }
+        
+        // Auto-run test3 on page load
+        window.addEventListener('load', () => {
+            log('🐕 Perrobotillo Sound Test Loaded');
+            log('📱 Click any button to test sound');
+        });
+    </script>
+</body>
+</html>

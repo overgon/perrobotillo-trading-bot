@@ -20,11 +20,19 @@ let lastTPProgress = {};  // Track TP progress to detect 100% hits
 // 💰 CASH REGISTER SOUND FUNCTION
 function playCashRegister() {
     const sound = document.getElementById('cashRegisterSound');
+    console.log('🔊 playCashRegister() called');
+    console.log('   Audio element:', sound ? 'FOUND' : 'NOT FOUND');
+    
     if (sound) {
         sound.currentTime = 0;  // Rewind to start
         sound.volume = 0.7;  // 70% volume
-        sound.play().catch(e => console.log('🔊 Sound play blocked:', e));
+        console.log('   Playing sound...');
+        sound.play()
+            .then(() => console.log('💰 SOUND PLAYED SUCCESSFULLY!'))
+            .catch(e => console.log('❌ Sound play failed:', e.name, e.message));
         console.log('💰 CASH REGISTER! TP HIT DETECTED!');
+    } else {
+        console.error('❌ Audio element NOT FOUND!');
     }
 }
 
@@ -232,7 +240,19 @@ function updateSlots(data) {
             
             // Si el progreso llega al 100% (o estaba cerca y ahora es 100%)
             if (progress >= 99.5 && lastProgress < 99.5) {
+                console.log(`💰 TP HIT DETECTED: ${slotKey} - ${lastProgress.toFixed(1)}% → ${progress.toFixed(1)}%`);
                 playCashRegister();  // 🔊 Reproducir sonido de caja registradora
+            } else if (progress >= 99.5 && lastProgress >= 99.5) {
+                // Ya estaba en 100%, no spamear
+            } else {
+                // Progreso normal, loggear cada 25%
+                if (progress >= 25 && lastProgress < 25) {
+                    console.log(`📊 ${slotKey}: 25% complete`);
+                } else if (progress >= 50 && lastProgress < 50) {
+                    console.log(`📊 ${slotKey}: 50% complete`);
+                } else if (progress >= 75 && lastProgress < 75) {
+                    console.log(`📊 ${slotKey}: 75% complete`);
+                }
             }
             
             // Guardar progreso actual para próxima comparación
