@@ -268,7 +268,7 @@ log_trade_to_history() {
        --argjson totalLoss "$new_loss" \
        --argjson netPnL "$new_net" \
        --arg winRate "$win_rate" \
-       '.trades += [$trades] | .totalTrades = $totalTrades | .totalWins = $totalWins | .totalLosses = $totalLosses | .totalProfitUSDT = $totalProfit | .totalLossUSDT = $totalLoss | .netPnLUSDT = $netPnL | .winRate = ($winRate | tonumber)' \
+       '.trades = [$trades] + .trades | .totalTrades = $totalTrades | .totalWins = $totalWins | .totalLosses = $totalLosses | .totalProfitUSDT = $totalProfit | .totalLossUSDT = $totalLoss | .netPnLUSDT = $netPnL | .winRate = ($winRate | tonumber)' \
        "$HISTORY_FILE" > "$temp_file" && mv "$temp_file" "$HISTORY_FILE"
     
     log "  📜 Trade logged to history: #${trade_id} ${SYMBOL} ${close_type} PnL=\$${pnl}"
