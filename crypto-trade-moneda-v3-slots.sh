@@ -63,30 +63,6 @@ else
     log "⚠️ Sin config dinámica (usando defaults)"
 fi
 
-# ════════════════════════════════════════════════════════
-# 🎯 CARGAR CONFIGURACIÓN ETH ACCUMULATION (si está habilitada)
-# ════════════════════════════════════════════════════════
-
-ETH_ACCUM_CONFIG="${SCRIPT_DIR}/eth-accumulation-config.env"
-if [ -f "$ETH_ACCUM_CONFIG" ] && [ "$SYMBOL" = "ETH" ]; then
-    source "$ETH_ACCUM_CONFIG"
-    
-    if [ "$ETH_ACCUMULATION_ENABLED" = "true" ]; then
-        # Sobrescribir configuración solo para ETH
-        [ -n "$ETH_POSITION_SIZE" ] && TRADE_POSITION_PERCENT="$ETH_POSITION_SIZE"
-        [ -n "$ETH_TP1" ] && NORMAL_TP1="$ETH_TP1" && AGGRESSIVE_TP1="$ETH_TP1"
-        [ -n "$ETH_TP2" ] && NORMAL_TP2="$ETH_TP2" && AGGRESSIVE_TP2="$ETH_TP2"
-        [ -n "$ETH_TP3" ] && NORMAL_TP3="$ETH_TP3" && AGGRESSIVE_TP3="$ETH_TP3"
-        [ -n "$ETH_SL" ] && STOP_LOSS_PERCENT="$ETH_SL"
-        [ -n "$ETH_SCALP_TARGET" ] && SCALP_TARGET_PERCENT="$ETH_SCALP_TARGET"
-        
-        log "🎯 ETH ACCUMULATION MODE: Position ${TRADE_POSITION_PERCENT}%"
-        log "   TP1: ${NORMAL_TP1}% | TP2: ${NORMAL_TP2}% | TP3: ${NORMAL_TP3}%"
-        log "   SL: ${STOP_LOSS_PERCENT}%"
-        log "   Scalp: ${SCALP_TARGET_PERCENT}%"
-    fi
-fi
-
 TRADING_HOURS_OPTIMAL="00,01,13,14,15,16,21,22"
 AGGRESSIVE_MODE=true
 
