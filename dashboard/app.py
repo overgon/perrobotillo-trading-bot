@@ -15,6 +15,16 @@ from datetime import datetime
 import glob
 import base64
 
+def get_mxn_rate():
+    """Obtener tasa de cambio USDT/MXN en tiempo real de Binance"""
+    try:
+        import requests
+        response = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=USDTMXN', timeout=5)
+        rate = float(response.json().get('price', 17.5))
+        return rate
+    except:
+        return 17.5  # Fallback
+
 app = Flask(__name__)
 
 # ════════════════════════════════════════════════════════
@@ -489,12 +499,3 @@ if __name__ == '__main__':
     print()
     app.run(host='0.0.0.0', port=8080, debug=False)
 
-def get_mxn_rate():
-    """Obtener tasa de cambio USDT/MXN en tiempo real de Binance"""
-    try:
-        import requests
-        response = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=USDTMXN', timeout=5)
-        rate = float(response.json().get('price', 17.5))
-        return rate
-    except:
-        return 17.5  # Fallback
