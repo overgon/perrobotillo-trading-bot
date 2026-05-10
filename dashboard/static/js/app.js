@@ -16,7 +16,7 @@ let lastPrices = {};
 let countdownInterval = null;
 let showAllTrades = false;  // Show only 10 by default
 let lastTPProgress = {};  // Track TP progress to detect 100% hits
-let soundEnabled = false;  // Track if sound is enabled
+let soundEnabled = true;  // ✅ Sound ENABLED BY DEFAULT (browser will ask permission)
 
 // 🔊 SOUND ENABLE BANNER
 function showSoundEnableBanner() {
@@ -50,6 +50,8 @@ setTimeout(() => {
     if (!soundEnabled) {
         console.log('⚠️ Sound not enabled yet - showing banner');
         showSoundEnableBanner();
+    } else {
+        console.log('✅ Sound enabled by default - cash register will play on TP hits 🔔');
     }
 }, 3000);
 
