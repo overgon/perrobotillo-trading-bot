@@ -16,7 +16,31 @@ let lastPrices = {};
 let countdownInterval = null;
 let showAllTrades = false;  // Show only 10 by default
 let lastTPProgress = {};  // Track TP progress to detect 100% hits
-let soundEnabled = true;  // ✅ Sound ENABLED BY DEFAULT (browser will ask permission)
+let soundEnabled = true;  // ✅ Sound ENABLED BY DEFAULT
+let audioUnlocked = false;  // Track if browser has unlocked audio
+
+// 🔊 UNLOCK AUDIO ON FIRST USER INTERACTION (Firefox/Chrome policy)
+function unlockAudio() {
+    if (audioUnlocked) return;  // Already unlocked
+    
+    const sound = document.getElementById('cashRegisterSound');
+    if (sound) {
+        sound.volume = 0.01;  // Very quiet
+        sound.play().then(() => {
+            sound.pause();
+            sound.currentTime = 0;
+            audioUnlocked = true;
+            console.log('✅ Audio UNLOCKED - Cash register ready 🔔');
+        }).catch(() => {
+            // Still locked, will try again later
+        });
+    }
+}
+
+// Listen for ANY user interaction to unlock audio
+document.addEventListener('click', unlockAudio, { once: true });
+document.addEventListener('touchstart', unlockAudio, { once: true });
+document.addEventListener('keydown', unlockAudio, { once: true });
 
 // 🔊 SOUND ENABLE BANNER
 function showSoundEnableBanner() {
@@ -47,22 +71,29 @@ function enableSound() {
 
 // Check if sound needs to be enabled after page load
 setTimeout(() => {
-    if (!soundEnabled) {
-        console.log('⚠️ Sound not enabled yet - showing banner');
+    if (!audioUnlocked) {
+        console.log('⚠️ Audio not unlocked yet - showing banner');
         showSoundEnableBanner();
     } else {
-        console.log('✅ Sound enabled by default - cash register will play on TP hits 🔔');
+        console.log('✅ Audio unlocked - cash register ready 🔔');
     }
-}, 3000);
+}, 2000);
 
 // 💰 CASH REGISTER SOUND FUNCTION
 function playCashRegister() {
     console.log('🔊 playCashRegister() called');
     console.log('   Sound enabled:', soundEnabled);
+    console.log('   Audio unlocked:', audioUnlocked);
     
     if (!soundEnabled) {
         console.log('⚠️ Sound not enabled - skipping playback');
         return;
+    }
+    
+    // Try to unlock audio if not already unlocked
+    if (!audioUnlocked) {
+        console.log('🔓 Attempting to unlock audio...');
+        unlockAudio();
     }
     
     const sound = document.getElementById('cashRegisterSound');
@@ -73,8 +104,11 @@ function playCashRegister() {
         sound.volume = 0.7;  // 70% volume
         console.log('   Playing sound...');
         sound.play()
-            .then(() => console.log('💰 SOUND PLAYED SUCCESSFULLY!'))
-            .catch(e => console.log('❌ Sound play failed:', e.name, e.message));
+            .then(() => console.log('✅ Sound played successfully 🔔'))
+            .catch(error => {
+                console.log('❌ Sound play failed:', error.name, error.message);
+                console.log('💡 User needs to click/tap anywhere on page first');
+            });
         console.log('💰 CASH REGISTER! TP HIT DETECTED!');
     } else {
         console.error('❌ Audio element NOT FOUND!');
