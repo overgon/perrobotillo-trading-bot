@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐕 Reporte Diario - 2026-05-12</title>
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #121212;
+            --neon-green: #00ff88;
+            --neon-red: #ff3366;
+            --neon-blue: #00d4ff;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #1a1a2e, #0f0f1a);
+            border-radius: 10px;
+            border: 2px solid var(--neon-blue);
+            margin-bottom: 30px;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        }
+        
+        .header h1 {
+            font-size: 2em;
+            margin: 0;
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+        
+        .header .date {
+            color: var(--text-secondary);
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+        
+        .section {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #2a2a2a;
+        }
+        
+        .section h2 {
+            color: var(--neon-green);
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #2a2a2a;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        
+        th {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--neon-blue);
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .positive {
+            color: var(--neon-green);
+            font-weight: bold;
+        }
+        
+        .negative {
+            color: var(--neon-red);
+            font-weight: bold;
+        }
+        
+        .neutral {
+            color: var(--text-secondary);
+        }
+        
+        .total-row {
+            font-size: 1.2em;
+            font-weight: bold;
+            background: rgba(0, 255, 136, 0.1);
+        }
+        
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+            margin: 30px 0;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .emoji {
+            font-size: 1.3em;
+        }
+        
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .stat-card {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--neon-blue);
+        }
+        
+        .stat-card .value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--neon-blue);
+        }
+        
+        .stat-card .label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🐕 Reporte Diario de Trading</h1>
+        <div class="date">📅 2026-05-12 (Tuesday)</div>
+        <div class="date">🕐 Generado: 2026-05-12 19:00:00 CST</div>
+    </div>
+    
+    <div class="section">
+        <h2>💰 Resumen del Portfolio</h2>
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="value">$2,828.24</div>
+                <div class="label">Total USDT</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">$48,674.02</div>
+                <div class="label">Total MXN</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">$2,850.00</div>
+                <div class="label">Snapshot Ayer</div>
+            </div>
+            <div class="stat-card">
+                <div class="value negative">-$21.76 (-0.76%)</div>
+                <div class="label">P&L del Día</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <div class="section">
+        <h2>📈 P&L 24H por Coin</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Coin</th>
+                    <th>Balance</th>
+                    <th>Precio</th>
+                    <th>24h Change</th>
+                    <th>P&L 24h</th>
+                    <th>Valor USDT</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="emoji">₿</span> BTC</td>
+                    <td>0.01234567</td>
+                    <td>$80,504.46</td>
+                    <td class="positive">🟢 +2.50%</td>
+                    <td class="positive">+$24.85</td>
+                    <td>$994.05</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">Ψ</span> ETH</td>
+                    <td>0.23456789</td>
+                    <td>$2,400.00</td>
+                    <td class="negative">🔴 -1.20%</td>
+                    <td class="negative">-$6.77</td>
+                    <td>$562.96</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">🟙</span> BNB</td>
+                    <td>0.45678901</td>
+                    <td>$580.00</td>
+                    <td class="positive">🟢 +3.80%</td>
+                    <td class="positive">+$10.10</td>
+                    <td>$264.94</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">🌞</span> SOL</td>
+                    <td>1.23456789</td>
+                    <td>$150.00</td>
+                    <td class="positive">🟢 +5.80%</td>
+                    <td class="positive">+$10.74</td>
+                    <td>$185.19</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">🔗</span> LINK</td>
+                    <td>5.67890123</td>
+                    <td>$18.50</td>
+                    <td class="positive">🟢 +1.50%</td>
+                    <td class="positive">+$1.58</td>
+                    <td>$105.06</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">✕</span> XRP</td>
+                    <td>123.45678901</td>
+                    <td>$0.52</td>
+                    <td class="neutral">⚪ 0.00%</td>
+                    <td class="neutral">$0.00</td>
+                    <td>$64.20</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">🔺</span> AVAX</td>
+                    <td>2.34567890</td>
+                    <td>$35.00</td>
+                    <td class="negative">🔴 -2.50%</td>
+                    <td class="negative">-$2.05</td>
+                    <td>$82.10</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">💵</span> USDT</td>
+                    <td>572.74</td>
+                    <td>$1.00</td>
+                    <td class="neutral">⚪ 0.00%</td>
+                    <td class="neutral">$0.00</td>
+                    <td>$572.74</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="4">📊 TOTAL 24H</td>
+                    <td class="positive">+$38.45</td>
+                    <td>$2,828.24</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <div class="section">
+        <h2>📈 Trades de Ayer (2026-05-11)</h2>
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="value">15</div>
+                <div class="label">Total Trades</div>
+            </div>
+            <div class="stat-card">
+                <div class="value positive">15</div>
+                <div class="label">Wins ✅</div>
+            </div>
+            <div class="stat-card">
+                <div class="value negative">0</div>
+                <div class="label">Losses ❌</div>
+            </div>
+            <div class="stat-card">
+                <div class="value positive">100.0%</div>
+                <div class="label">Win Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="value positive">+$55.47</div>
+                <div class="label">P&L Total</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <div class="section">
+        <h2>🎯 Trades Activos</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Coin</th>
+                    <th>Slot</th>
+                    <th>Entry</th>
+                    <th>Current</th>
+                    <th>P&L %</th>
+                    <th>P&L $</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>BTC</td>
+                    <td>Slot 1</td>
+                    <td>$79,500.00</td>
+                    <td>$80,504.46</td>
+                    <td class="positive">+1.26%</td>
+                    <td class="positive">+$10.04</td>
+                    <td>🟢 IN TRADE</td>
+                </tr>
+                <tr>
+                    <td>ETH</td>
+                    <td>Slot 1</td>
+                    <td>$2,380.00</td>
+                    <td>$2,400.00</td>
+                    <td class="positive">+0.84%</td>
+                    <td class="positive">+$2.00</td>
+                    <td>🟢 IN TRADE</td>
+                </tr>
+                <tr>
+                    <td>SOL</td>
+                    <td>Slot 1</td>
+                    <td>$148.00</td>
+                    <td>$150.00</td>
+                    <td class="positive">+1.35%</td>
+                    <td class="positive">+$2.00</td>
+                    <td>🟢 IN TRADE</td>
+                </tr>
+                <tr>
+                    <td>BNB</td>
+                    <td>Slot 1</td>
+                    <td>$575.00</td>
+                    <td>$580.00</td>
+                    <td class="positive">+0.87%</td>
+                    <td class="positive">+$2.50</td>
+                    <td>🟢 IN TRADE</td>
+                </tr>
+                <tr>
+                    <td>LINK</td>
+                    <td>Slot 1</td>
+                    <td>$18.20</td>
+                    <td>$18.50</td>
+                    <td class="positive">+1.65%</td>
+                    <td class="positive">+$1.50</td>
+                    <td>🟢 IN TRADE</td>
+                </tr>
+            </tbody>
+        </table>
+        <p><strong>Total Slots Activos:</strong> 21/21 (100% utilización)</p>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <div class="section">
+        <h2>📊 Estadísticas Históricas</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Métrica</th>
+                    <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Total Trades (Historial)</td>
+                    <td>62</td>
+                </tr>
+                <tr>
+                    <td>Wins ✅</td>
+                    <td class="positive">62</td>
+                </tr>
+                <tr>
+                    <td>Losses ❌</td>
+                    <td class="negative">0</td>
+                </tr>
+                <tr>
+                    <td>Win Rate</td>
+                    <td class="positive">100.0%</td>
+                </tr>
+                <tr>
+                    <td>P&L Total Histórico</td>
+                    <td class="positive">+$219.04 USDT</td>
+                </tr>
+                <tr>
+                    <td>Cashouts Realizados</td>
+                    <td>2 ($360.04 USDT → $6,280.70 MXN)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="footer">
+        <p>🐕 <strong>Perrobotillo Trading Bot</strong> - FASE 1 v2.1</p>
+        <p>🤖 Auto-Adjust Strategy | TP Monitor | Auto Capital Manager</p>
+        <p>Generado automáticamente a las 9:00 AM CST</p>
+    </div>
+</body>
+</html>

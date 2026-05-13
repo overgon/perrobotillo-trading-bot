@@ -1,0 +1,11 @@
+[
+  {
+    "coin": "ETH",
+    "slot_id": 1,
+    "tp": "TP1",
+    "pnl": 2.00,
+    "timestamp": "2026-05-12T23:30:00",
+    "played": false,
+    "id": 999
+  }
+]

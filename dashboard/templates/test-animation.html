@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Animación - Perrobotillo</title>
+    <style>
+        body {
+            background: #0a0a0f;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+        }
+        
+        .test-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .tp-bar.danger {
+            background: rgba(255, 0, 60, 0.2);
+            border: 2px solid #ff003c;
+            height: 30px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        
+        .tp-bar.danger .tp-fill.danger-fill {
+            background: linear-gradient(90deg, #ff003c, #ff00ff);
+            box-shadow: 0 0 20px #ff003c;
+            -webkit-animation: pulse-danger 1.5s infinite;
+            animation: pulse-danger 1.5s infinite;
+            height: 100%;
+            border-radius: 2px;
+            width: 65%;
+        }
+        
+        @-webkit-keyframes pulse-danger {
+            0%, 100% { opacity: 1; -webkit-transform: scale(1); transform: scale(1); }
+            50% { opacity: 0.7; -webkit-transform: scale(1.02); transform: scale(1.02); }
+        }
+        
+        @keyframes pulse-danger {
+            0%, 100% { opacity: 1; -webkit-transform: scale(1); transform: scale(1); }
+            50% { opacity: 0.7; -webkit-transform: scale(1.02); transform: scale(1.02); }
+        }
+        
+        .label {
+            color: #ff003c;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .status {
+            margin-top: 30px;
+            padding: 10px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔴 Test Animación Pulse</h1>
+        
+        <div class="label">⚠️ Distance to SL: 65%</div>
+        
+        <div class="tp-bar danger">
+            <div class="tp-fill danger-fill"></div>
+        </div>
+        
+        <div class="status">
+            <strong>Estado:</strong> <span id="status">Cargando...</span><br>
+            <small>Si ves la barra roja palpitando, la animación funciona ✅</small>
+        </div>
+        
+        <button onclick="checkAnimation()" style="margin-top: 20px; padding: 10px 20px; background: #ff003c; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Verificar Animación
+        </button>
+    </div>
+    
+    <script>
+        function checkAnimation() {
+            const fill = document.querySelector('.tp-fill');
+            const computedStyle = window.getComputedStyle(fill);
+            const animation = computedStyle.animation || computedStyle.webkitAnimation;
+            
+            const status = document.getElementById('status');
+            
+            if (animation && animation !== 'none') {
+                status.innerHTML = '✅ ANIMACIÓN FUNCIONANDO<br><small>' + animation + '</small>';
+                status.style.borderColor = '#00ff00';
+                status.style.background = 'rgba(0, 255, 0, 0.2)';
+            } else {
+                status.innerHTML = '❌ ANIMACIÓN NO DETECTADA<br><small>Revisá Safari settings</small>';
+                status.style.borderColor = '#ff003c';
+                status.style.background = 'rgba(255, 0, 60, 0.2)';
+            }
+        }
+        
+        // Auto-check after 1 second
+        setTimeout(checkAnimation, 1000);
+    </script>
+</body>
+</html>

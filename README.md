@@ -185,6 +185,39 @@ El bot **ajusta automáticamente** la estrategia cada 6 horas basado en:
 - `LATERAL` → TP medios, menos exposición
 - `VOLATILE_BULL` → TP agresivos, SL amplio
 
+### 🤖 ML TP Prediction (FASE 1 - 2026-05-13)
+
+El bot usa **Machine Learning** para predecir probabilidad de TP y ajustar dinámicamente:
+
+**Características:**
+- ✅ **Modelo:** LightGBM Classifier (0.31 MB)
+- ✅ **Features:** 22 indicadores (RSI, MACD, Bollinger, volatilidad, volumen)
+- ✅ **Accuracy:** 79-90% (cross-validation)
+- ✅ **Inferencia:** < 1 segundo
+- ✅ **Actualización:** Cada 5 minutos (predicciones en vivo)
+- ✅ **Auto-retrain:** Semanal (domingo 3 AM) + cada 10 trades nuevos
+
+**Niveles de confianza:**
+- `AGGRESSIVE` (prob > 75%) → TP1: 4.0% | TP2: 8.0% | TP3: 15.0%
+- `NORMAL` (prob 60-75%) → TP1: 3.5% | TP2: 7.0% | TP3: 12.0%
+- `CONSERVATIVE` (prob 40-60%) → TP1: 2.5% | TP2: 5.0% | TP3: 8.0%
+- `DEFENSIVE` (prob < 40%) → TP1: 2.0% | TP2: 4.0% | TP3: 6.0%
+
+**Predicciones actuales (ejemplo):**
+- SOL: 88.7% → AGGRESSIVE (4.0% | 8.0% | 15.0%)
+- LINK: 93.1% → AGGRESSIVE (4.0% | 8.0% | 15.0%)
+- XRP: 90.3% → AGGRESSIVE (4.0% | 8.0% | 15.0%)
+- BTC: 66.1% → NORMAL (3.5% | 7.0% | 12.0%)
+- BNB: 49.4% → CONSERVATIVE (2.5% | 5.0% | 8.0%)
+- ETH: 7.3% → DEFENSIVE (2.0% | 4.0% | 6.0%)
+
+**Archivos ML:**
+- `ml/train-tp-model.py` - Entrenamiento inicial
+- `ml/predict-tp.py` - Inferencia en tiempo real
+- `ml/auto-retrain.py` - Auto-mejora continua
+- `ml/tp_prediction_model.pkl` - Modelo entrenado
+- `ml/tp-recommendations.json` - Recomendaciones actuales
+
 ### Coins Soportadas (7)
 
 - BTC (Bitcoin) - 3 slots
@@ -425,6 +458,28 @@ perrobotillo-trading-bot/
 ---
 
 ## 🔧 SCRIPTS PRINCIPALES (21)
+
+### 🤖 ML TP Prediction (NUEVO - 2026-05-13)
+
+```bash
+# Ejecutar predicción en tiempo real
+python3 ml/predict-tp.py
+
+# Obtener recomendación para una coin
+bash ml/get-tp-recommendation.sh BTC
+# Output: 3.5|7.0|12.0 (TP1|TP2|TP3)
+
+# Ver predicciones actuales
+cat ml/tp-recommendations.json | jq .
+
+# Logs de re-entrenamiento
+tail -f logs/ml-retrain.log
+```
+
+**Auto-retrain automático:**
+- 📅 Domingo 3 AM (cron)
+- 🆕 Cada 10+ trades nuevos
+- 📊 Mejora continua sin intervención humana
 
 Ver [`CHEATSHEET.md`](CHEATSHEET.md) para lista completa.
 

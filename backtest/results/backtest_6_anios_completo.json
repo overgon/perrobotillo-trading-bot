@@ -1,0 +1,680 @@
+{
+  "fecha": "2026-05-09T16:24:04.052588",
+  "periodo": "6 a\u00f1os (2020-2026)",
+  "monedas": [
+    "BTC",
+    "ETH",
+    "BNB",
+    "SOL",
+    "LINK",
+    "XRP",
+    "AVAX"
+  ],
+  "estrategias": [
+    "ACTUAL",
+    "CONSERVADORA",
+    "MODERADA",
+    "AGRESIVA",
+    "SCALPING",
+    "SWING",
+    "OPTIMIZADA_1",
+    "OPTIMIZADA_2"
+  ],
+  "resultados_por_moneda": {
+    "BTC": {
+      "ACTUAL": {
+        "estrategia": "ACTUAL",
+        "trades": 2189,
+        "wins": 639,
+        "losses": 1550,
+        "win_rate": 29.191411603471906,
+        "pnl_total": 9550.150724772737,
+        "retorno": 955.0150724772726,
+        "capital_final": 10550.150724772726,
+        "max_drawdown": 9.150800791698417
+      },
+      "CONSERVADORA": {
+        "estrategia": "CONSERVADORA",
+        "trades": 2189,
+        "wins": 737,
+        "losses": 1452,
+        "win_rate": 33.66834170854271,
+        "pnl_total": 1735.3541381640275,
+        "retorno": 173.5354138164029,
+        "capital_final": 2735.354138164029,
+        "max_drawdown": 8.198912662022659
+      },
+      "MODERADA": {
+        "estrategia": "MODERADA",
+        "trades": 2189,
+        "wins": 296,
+        "losses": 1893,
+        "win_rate": 13.522156235724076,
+        "pnl_total": 229.41541201383797,
+        "retorno": 22.941541201383895,
+        "capital_final": 1229.415412013839,
+        "max_drawdown": 25.483762217247968
+      },
+      "AGRESIVA": {
+        "estrategia": "AGRESIVA",
+        "trades": 2189,
+        "wins": 123,
+        "losses": 2066,
+        "win_rate": 5.619004111466423,
+        "pnl_total": -580.2449374461834,
+        "retorno": -58.0244937446184,
+        "capital_final": 419.75506255381606,
+        "max_drawdown": 62.07290798475845
+      },
+      "SCALPING": {
+        "estrategia": "SCALPING",
+        "trades": 2189,
+        "wins": 829,
+        "losses": 1360,
+        "win_rate": 37.87117405207858,
+        "pnl_total": 712.131151192659,
+        "retorno": 71.21311511926619,
+        "capital_final": 1712.131151192662,
+        "max_drawdown": 46.447550507929726
+      },
+      "SWING": {
+        "estrategia": "SWING",
+        "trades": 2189,
+        "wins": 65,
+        "losses": 2124,
+        "win_rate": 2.9693924166285974,
+        "pnl_total": -507.90296321751777,
+        "retorno": -50.79029632175174,
+        "capital_final": 492.09703678248263,
+        "max_drawdown": 54.3355189163927
+      },
+      "OPTIMIZADA_1": {
+        "estrategia": "OPTIMIZADA_1",
+        "trades": 2189,
+        "wins": 199,
+        "losses": 1990,
+        "win_rate": 9.090909090909092,
+        "pnl_total": -683.750217952536,
+        "retorno": -68.37502179525352,
+        "capital_final": 316.2497820474648,
+        "max_drawdown": 69.60070379055591
+      },
+      "OPTIMIZADA_2": {
+        "estrategia": "OPTIMIZADA_2",
+        "trades": 2189,
+        "wins": 437,
+        "losses": 1752,
+        "win_rate": 19.963453631795343,
+        "pnl_total": 184.51134811291845,
+        "retorno": 18.45113481129156,
+        "capital_final": 1184.5113481129156,
+        "max_drawdown": 29.353993998928896
+      }
+    },
+    "ETH": {
+      "ACTUAL": {
+        "estrategia": "ACTUAL",
+        "trades": 2189,
+        "wins": 852,
+        "losses": 1337,
+        "win_rate": 38.92188213796254,
+        "pnl_total": 12820.570993924775,
+        "retorno": 1282.057099392478,
+        "capital_final": 13820.570993924779,
+        "max_drawdown": 11.34876804951664
+      },
+      "CONSERVADORA": {
+        "estrategia": "CONSERVADORA",
+        "trades": 2189,
+        "wins": 873,
+        "losses": 1316,
+        "win_rate": 39.881224303334854,
+        "pnl_total": 1704.0090865195525,
+        "retorno": 170.40090865195538,
+        "capital_final": 2704.009086519554,
+        "max_drawdown": 10.202131641033532
+      },
+      "MODERADA": {
+        "estrategia": "MODERADA",
+        "trades": 2189,
+        "wins": 461,
+        "losses": 1728,
+        "win_rate": 21.05984467793513,
+        "pnl_total": 690.0027645967408,
+        "retorno": 69.00027645967423,
+        "capital_final": 1690.0027645967423,
+        "max_drawdown": 29.599702920742548
+      },
+      "AGRESIVA": {
+        "estrategia": "AGRESIVA",
+        "trades": 2189,
+        "wins": 230,
+        "losses": 1959,
+        "win_rate": 10.507080858839652,
+        "pnl_total": -638.0654467240083,
+        "retorno": -63.80654467240072,
+        "capital_final": 361.93455327599276,
+        "max_drawdown": 69.9214183628701
+      },
+      "SCALPING": {
+        "estrategia": "SCALPING",
+        "trades": 2189,
+        "wins": 791,
+        "losses": 1398,
+        "win_rate": 36.13522156235724,
+        "pnl_total": -316.99452445972156,
+        "retorno": -31.699452445972337,
+        "capital_final": 683.0054755402766,
+        "max_drawdown": 70.32814291349648
+      },
+      "SWING": {
+        "estrategia": "SWING",
+        "trades": 2189,
+        "wins": 123,
+        "losses": 2066,
+        "win_rate": 5.619004111466423,
+        "pnl_total": -683.7316697123632,
+        "retorno": -68.37316697123632,
+        "capital_final": 316.26833028763684,
+        "max_drawdown": 71.03480227858809
+      },
+      "OPTIMIZADA_1": {
+        "estrategia": "OPTIMIZADA_1",
+        "trades": 2189,
+        "wins": 283,
+        "losses": 1906,
+        "win_rate": 12.928277752398357,
+        "pnl_total": -784.7627772813648,
+        "retorno": -78.47627772813658,
+        "capital_final": 215.2372227186343,
+        "max_drawdown": 79.73619436529586
+      },
+      "OPTIMIZADA_2": {
+        "estrategia": "OPTIMIZADA_2",
+        "trades": 2189,
+        "wins": 590,
+        "losses": 1599,
+        "win_rate": 26.952946550936502,
+        "pnl_total": 1207.5310274355365,
+        "retorno": 120.75310274355293,
+        "capital_final": 2207.5310274355293,
+        "max_drawdown": 19.520548557021115
+      }
+    },
+    "BNB": {
+      "ACTUAL": {
+        "estrategia": "ACTUAL",
+        "trades": 2189,
+        "wins": 720,
+        "losses": 1469,
+        "win_rate": 32.8917313841937,
+        "pnl_total": 9294.076179867026,
+        "retorno": 929.4076179867023,
+        "capital_final": 10294.076179867023,
+        "max_drawdown": 10.887690318951124
+      },
+      "CONSERVADORA": {
+        "estrategia": "CONSERVADORA",
+        "trades": 2189,
+        "wins": 779,
+        "losses": 1410,
+        "win_rate": 35.587026039287345,
+        "pnl_total": 1329.8638144970987,
+        "retorno": 132.98638144971,
+        "capital_final": 2329.8638144971,
+        "max_drawdown": 11.233250720210012
+      },
+      "MODERADA": {
+        "estrategia": "MODERADA",
+        "trades": 2189,
+        "wins": 365,
+        "losses": 1824,
+        "win_rate": 16.67428049337597,
+        "pnl_total": 372.1837919001965,
+        "retorno": 37.218379190019846,
+        "capital_final": 1372.1837919001985,
+        "max_drawdown": 21.33286137759864
+      },
+      "AGRESIVA": {
+        "estrategia": "AGRESIVA",
+        "trades": 2189,
+        "wins": 178,
+        "losses": 2011,
+        "win_rate": 8.131566925536776,
+        "pnl_total": -484.6907023466013,
+        "retorno": -48.469070234659945,
+        "capital_final": 515.3092976534006,
+        "max_drawdown": 64.40082257712237
+      },
+      "SCALPING": {
+        "estrategia": "SCALPING",
+        "trades": 2189,
+        "wins": 781,
+        "losses": 1408,
+        "win_rate": 35.678391959798994,
+        "pnl_total": -526.0271126890688,
+        "retorno": -52.60271126890689,
+        "capital_final": 473.97288731093107,
+        "max_drawdown": 73.918233303658
+      },
+      "SWING": {
+        "estrategia": "SWING",
+        "trades": 2189,
+        "wins": 100,
+        "losses": 2089,
+        "win_rate": 4.568296025582458,
+        "pnl_total": -542.3553554819797,
+        "retorno": -54.23553554819789,
+        "capital_final": 457.64464451802104,
+        "max_drawdown": 58.48491244811107
+      },
+      "OPTIMIZADA_1": {
+        "estrategia": "OPTIMIZADA_1",
+        "trades": 2189,
+        "wins": 241,
+        "losses": 1948,
+        "win_rate": 11.009593421653722,
+        "pnl_total": -683.2643861887893,
+        "retorno": -68.32643861887891,
+        "capital_final": 316.73561381121095,
+        "max_drawdown": 73.06917235686998
+      },
+      "OPTIMIZADA_2": {
+        "estrategia": "OPTIMIZADA_2",
+        "trades": 2189,
+        "wins": 487,
+        "losses": 1702,
+        "win_rate": 22.24760164458657,
+        "pnl_total": 174.5129851505139,
+        "retorno": 17.45129851505153,
+        "capital_final": 1174.5129851505153,
+        "max_drawdown": 24.705757845615615
+      }
+    },
+    "SOL": {
+      "ACTUAL": {
+        "estrategia": "ACTUAL",
+        "trades": 2097,
+        "wins": 972,
+        "losses": 1125,
+        "win_rate": 46.3519313304721,
+        "pnl_total": 9332.583105790105,
+        "retorno": 933.2583105790095,
+        "capital_final": 10332.583105790094,
+        "max_drawdown": 25.588427210510844
+      },
+      "CONSERVADORA": {
+        "estrategia": "CONSERVADORA",
+        "trades": 2097,
+        "wins": 849,
+        "losses": 1248,
+        "win_rate": 40.486409155937054,
+        "pnl_total": 680.3865183509566,
+        "retorno": 68.03865183509542,
+        "capital_final": 1680.3865183509542,
+        "max_drawdown": 29.841167225476546
+      },
+      "MODERADA": {
+        "estrategia": "MODERADA",
+        "trades": 2097,
+        "wins": 637,
+        "losses": 1460,
+        "win_rate": 30.376728659990466,
+        "pnl_total": 2939.5132234991966,
+        "retorno": 293.95132234991996,
+        "capital_final": 3939.5132234991997,
+        "max_drawdown": 27.008931640314156
+      },
+      "AGRESIVA": {
+        "estrategia": "AGRESIVA",
+        "trades": 2097,
+        "wins": 420,
+        "losses": 1677,
+        "win_rate": 20.028612303290416,
+        "pnl_total": 882.3659050420856,
+        "retorno": 88.2365905042083,
+        "capital_final": 1882.3659050420829,
+        "max_drawdown": 54.14605700021114
+      },
+      "SCALPING": {
+        "estrategia": "SCALPING",
+        "trades": 2097,
+        "wins": 534,
+        "losses": 1563,
+        "win_rate": 25.464949928469245,
+        "pnl_total": -969.4047091744463,
+        "retorno": -96.94047091744467,
+        "capital_final": 30.595290825553185,
+        "max_drawdown": 97.22887933646548
+      },
+      "SWING": {
+        "estrategia": "SWING",
+        "trades": 2097,
+        "wins": 283,
+        "losses": 1814,
+        "win_rate": 13.495469718645683,
+        "pnl_total": -215.6215542547785,
+        "retorno": -21.56215542547775,
+        "capital_final": 784.3784457452225,
+        "max_drawdown": 57.86870840517027
+      },
+      "OPTIMIZADA_1": {
+        "estrategia": "OPTIMIZADA_1",
+        "trades": 2097,
+        "wins": 451,
+        "losses": 1646,
+        "win_rate": 21.50691463996185,
+        "pnl_total": 144.94398207893983,
+        "retorno": 14.494398207893914,
+        "capital_final": 1144.9439820789391,
+        "max_drawdown": 45.35605227892464
+      },
+      "OPTIMIZADA_2": {
+        "estrategia": "OPTIMIZADA_2",
+        "trades": 2097,
+        "wins": 632,
+        "losses": 1465,
+        "win_rate": 30.138292799237004,
+        "pnl_total": 1100.5743513647121,
+        "retorno": 110.0574351364714,
+        "capital_final": 2100.574351364714,
+        "max_drawdown": 32.63502203144634
+      }
+    },
+    "LINK": {
+      "ACTUAL": {
+        "estrategia": "ACTUAL",
+        "trades": 2189,
+        "wins": 1001,
+        "losses": 1188,
+        "win_rate": 45.7286432160804,
+        "pnl_total": 12450.03065012398,
+        "retorno": 1245.0030650123986,
+        "capital_final": 13450.030650123985,
+        "max_drawdown": 21.27918938039189
+      },
+      "CONSERVADORA": {
+        "estrategia": "CONSERVADORA",
+        "trades": 2189,
+        "wins": 872,
+        "losses": 1317,
+        "win_rate": 39.835541343079036,
+        "pnl_total": 492.6941276131317,
+        "retorno": 49.26941276131349,
+        "capital_final": 1492.694127613135,
+        "max_drawdown": 21.18100341756862
+      },
+      "MODERADA": {
+        "estrategia": "MODERADA",
+        "trades": 2189,
+        "wins": 621,
+        "losses": 1568,
+        "win_rate": 28.369118318867066,
+        "pnl_total": 1077.938677772828,
+        "retorno": 107.7938677772831,
+        "capital_final": 2077.938677772831,
+        "max_drawdown": 24.233227276878587
+      },
+      "AGRESIVA": {
+        "estrategia": "AGRESIVA",
+        "trades": 2189,
+        "wins": 399,
+        "losses": 1790,
+        "win_rate": 18.227501142074008,
+        "pnl_total": -351.69569332886937,
+        "retorno": -35.169569332886915,
+        "capital_final": 648.3043066711308,
+        "max_drawdown": 59.604320476432136
+      },
+      "SCALPING": {
+        "estrategia": "SCALPING",
+        "trades": 2189,
+        "wins": 574,
+        "losses": 1615,
+        "win_rate": 26.22201918684331,
+        "pnl_total": -969.8343875945337,
+        "retorno": -96.98343875945342,
+        "capital_final": 30.16561240546578,
+        "max_drawdown": 97.39114146114505
+      },
+      "SWING": {
+        "estrategia": "SWING",
+        "trades": 2189,
+        "wins": 234,
+        "losses": 1955,
+        "win_rate": 10.689812699862951,
+        "pnl_total": -677.5670535242967,
+        "retorno": -67.75670535242965,
+        "capital_final": 322.4329464757035,
+        "max_drawdown": 73.6542844738595
+      },
+      "OPTIMIZADA_1": {
+        "estrategia": "OPTIMIZADA_1",
+        "trades": 2189,
+        "wins": 444,
+        "losses": 1745,
+        "win_rate": 20.283234353586113,
+        "pnl_total": -555.8926826484137,
+        "retorno": -55.589268264841465,
+        "capital_final": 444.10731735158544,
+        "max_drawdown": 64.91564249711408
+      },
+      "OPTIMIZADA_2": {
+        "estrategia": "OPTIMIZADA_2",
+        "trades": 2189,
+        "wins": 649,
+        "losses": 1540,
+        "win_rate": 29.64824120603015,
+        "pnl_total": 607.9531594377165,
+        "retorno": 60.79531594377124,
+        "capital_final": 1607.9531594377124,
+        "max_drawdown": 22.12848660200634
+      }
+    },
+    "XRP": {
+      "ACTUAL": {
+        "estrategia": "ACTUAL",
+        "trades": 2189,
+        "wins": 801,
+        "losses": 1388,
+        "win_rate": 36.59205116491548,
+        "pnl_total": 7023.8438936493585,
+        "retorno": 702.3843893649359,
+        "capital_final": 8023.843893649359,
+        "max_drawdown": 18.909625390212593
+      },
+      "CONSERVADORA": {
+        "estrategia": "CONSERVADORA",
+        "trades": 2189,
+        "wins": 801,
+        "losses": 1388,
+        "win_rate": 36.59205116491548,
+        "pnl_total": 432.32521605939235,
+        "retorno": 43.2325216059392,
+        "capital_final": 1432.325216059392,
+        "max_drawdown": 19.128980597484134
+      },
+      "MODERADA": {
+        "estrategia": "MODERADA",
+        "trades": 2189,
+        "wins": 466,
+        "losses": 1723,
+        "win_rate": 21.288259479214254,
+        "pnl_total": 472.8381535244588,
+        "retorno": 47.28381535244582,
+        "capital_final": 1472.8381535244582,
+        "max_drawdown": 24.967661467954315
+      },
+      "AGRESIVA": {
+        "estrategia": "AGRESIVA",
+        "trades": 2189,
+        "wins": 269,
+        "losses": 1920,
+        "win_rate": 12.288716308816811,
+        "pnl_total": -176.99268619017056,
+        "retorno": -17.699268619017083,
+        "capital_final": 823.0073138098292,
+        "max_drawdown": 47.06036174457239
+      },
+      "SCALPING": {
+        "estrategia": "SCALPING",
+        "trades": 2189,
+        "wins": 650,
+        "losses": 1539,
+        "win_rate": 29.693924166285974,
+        "pnl_total": -930.0748042870587,
+        "retorno": -93.00748042870592,
+        "capital_final": 69.92519571294086,
+        "max_drawdown": 93.69624266023304
+      },
+      "SWING": {
+        "estrategia": "SWING",
+        "trades": 2189,
+        "wins": 170,
+        "losses": 2019,
+        "win_rate": 7.766103243490178,
+        "pnl_total": -348.1849715789145,
+        "retorno": -34.81849715789141,
+        "capital_final": 651.8150284210859,
+        "max_drawdown": 47.77736397822221
+      },
+      "OPTIMIZADA_1": {
+        "estrategia": "OPTIMIZADA_1",
+        "trades": 2189,
+        "wins": 313,
+        "losses": 1876,
+        "win_rate": 14.298766560073092,
+        "pnl_total": -713.5146959701531,
+        "retorno": -71.35146959701542,
+        "capital_final": 286.4853040298457,
+        "max_drawdown": 71.50011582158034
+      },
+      "OPTIMIZADA_2": {
+        "estrategia": "OPTIMIZADA_2",
+        "trades": 2189,
+        "wins": 525,
+        "losses": 1664,
+        "win_rate": 23.9835541343079,
+        "pnl_total": -302.64254403749015,
+        "retorno": -30.264254403749042,
+        "capital_final": 697.3574559625096,
+        "max_drawdown": 52.828433296504365
+      }
+    },
+    "AVAX": {
+      "ACTUAL": {
+        "estrategia": "ACTUAL",
+        "trades": 2055,
+        "wins": 919,
+        "losses": 1136,
+        "win_rate": 44.72019464720194,
+        "pnl_total": 6835.826047029499,
+        "retorno": 683.5826047029503,
+        "capital_final": 7835.826047029504,
+        "max_drawdown": 25.774756340206288
+      },
+      "CONSERVADORA": {
+        "estrategia": "CONSERVADORA",
+        "trades": 2055,
+        "wins": 777,
+        "losses": 1278,
+        "win_rate": 37.81021897810219,
+        "pnl_total": -36.734738023229745,
+        "retorno": -3.673473802323008,
+        "capital_final": 963.2652619767699,
+        "max_drawdown": 26.13821092951159
+      },
+      "MODERADA": {
+        "estrategia": "MODERADA",
+        "trades": 2055,
+        "wins": 596,
+        "losses": 1459,
+        "win_rate": 29.002433090024333,
+        "pnl_total": 2348.2288662654914,
+        "retorno": 234.82288662654915,
+        "capital_final": 3348.2288662654914,
+        "max_drawdown": 22.557849082518647
+      },
+      "AGRESIVA": {
+        "estrategia": "AGRESIVA",
+        "trades": 2055,
+        "wins": 409,
+        "losses": 1646,
+        "win_rate": 19.902676399026763,
+        "pnl_total": 475.3512176413055,
+        "retorno": 47.53512176413087,
+        "capital_final": 1475.3512176413087,
+        "max_drawdown": 51.80096920174011
+      },
+      "SCALPING": {
+        "estrategia": "SCALPING",
+        "trades": 2055,
+        "wins": 510,
+        "losses": 1545,
+        "win_rate": 24.817518248175183,
+        "pnl_total": -977.7990404613008,
+        "retorno": -97.77990404613007,
+        "capital_final": 22.20095953869928,
+        "max_drawdown": 98.06587957797753
+      },
+      "SWING": {
+        "estrategia": "SWING",
+        "trades": 2055,
+        "wins": 272,
+        "losses": 1783,
+        "win_rate": 13.236009732360095,
+        "pnl_total": -130.70662176572233,
+        "retorno": -13.070662176572409,
+        "capital_final": 869.2933782342759,
+        "max_drawdown": 56.62319371388457
+      },
+      "OPTIMIZADA_1": {
+        "estrategia": "OPTIMIZADA_1",
+        "trades": 2055,
+        "wins": 408,
+        "losses": 1647,
+        "win_rate": 19.854014598540147,
+        "pnl_total": -603.6577153912176,
+        "retorno": -60.365771539121994,
+        "capital_final": 396.3422846087802,
+        "max_drawdown": 75.30283905221118
+      },
+      "OPTIMIZADA_2": {
+        "estrategia": "OPTIMIZADA_2",
+        "trades": 2055,
+        "wins": 570,
+        "losses": 1485,
+        "win_rate": 27.73722627737226,
+        "pnl_total": -65.25646638922888,
+        "retorno": -6.52564663892283,
+        "capital_final": 934.7435336107717,
+        "max_drawdown": 32.61137048545307
+      }
+    }
+  },
+  "mejor_por_moneda": {
+    "BTC": "ACTUAL",
+    "ETH": "ACTUAL",
+    "BNB": "ACTUAL",
+    "SOL": "ACTUAL",
+    "LINK": "ACTUAL",
+    "XRP": "ACTUAL",
+    "AVAX": "ACTUAL"
+  },
+  "mejor_global": "ACTUAL",
+  "proyeccion_2026": {
+    "dias_restantes": 236,
+    "estrategia_actual": {
+      "ganancia": 3626.5916110632797,
+      "capital_final": 4126.59161106328
+    },
+    "estrategia_optima": {
+      "ganancia": 3626.5916110632797,
+      "capital_final": 4126.59161106328
+    },
+    "mejora": {
+      "absoluta": 0.0,
+      "relativa": 0.0
+    }
+  }
+}

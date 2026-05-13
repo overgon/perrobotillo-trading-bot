@@ -6,7 +6,7 @@
 # Autor: Perrobotillo 🐕
 # ════════════════════════════════════════════════════════
 
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, send_from_directory
 from functools import wraps
 import json
 import os
@@ -255,23 +255,55 @@ def get_trade_history():
     }
 
 def get_daily_pnl():
-    """Calcular P&L de las últimas 24 horas + P&L por moneda"""
+    """Calcular P&L de las últimas 24 horas + P&L por moneda desde trade-history.json"""
     try:
+        import time
+        from datetime import datetime, timedelta
+        
+        # Calcular fecha de hace 24 horas
+        now = datetime.now()
+        yesterday = now - timedelta(hours=24)
+        
         total_pnl = 0.0
         pnl_by_coin = {}
         coins = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX']
         
+        # Inicializar todas las monedas en 0
         for coin in coins:
-            pnl_file = f"{CRYPTO_BOTS}/{coin}-daily-pnl.json"
-            if os.path.exists(pnl_file):
-                with open(pnl_file, 'r') as f:
-                    data = json.load(f)
-                    # Fixed: Use correct field name 'netProfitUSDT' instead of 'pnl'
-                    coin_pnl = float(data.get('netProfitUSDT', 0))
-                    total_pnl += coin_pnl
-                    pnl_by_coin[coin] = coin_pnl
-            else:
-                pnl_by_coin[coin] = 0.0
+            pnl_by_coin[coin] = 0.0
+        
+        # Leer trade-history.json
+        history_file = f"{CRYPTO_BOTS}/trade-history.json"
+        if os.path.exists(history_file):
+            with open(history_file, 'r') as f:
+                data = json.load(f)
+                trades = data.get('trades', [])
+                
+                for trade in trades:
+                    # Verificar si el trade es de las últimas 24 horas
+                    close_time_str = trade.get('closeTime')
+                    if not close_time_str:
+                        continue
+                    
+                    # Parsear fecha (formato: "2026-05-12 10:30:45")
+                    try:
+                        close_time = datetime.strptime(close_time_str, "%Y-%m-%d %H:%M:%S")
+                        if close_time >= yesterday:
+                            # Trade dentro de las últimas 24 horas
+                            symbol = trade.get('symbol', 'UNKNOWN')
+                            pnl = float(trade.get('pnlUSDT', 0) or 0)
+                            
+                            total_pnl += pnl
+                            if symbol in pnl_by_coin:
+                                pnl_by_coin[symbol] += pnl
+                            else:
+                                pnl_by_coin[symbol] = pnl
+                    except Exception as e:
+                        print(f"Error parsing date {close_time_str}: {e}")
+                        continue
+        
+        print(f"📊 24H P&L calculado: ${total_pnl:.2f} USDT")
+        print(f"📊 P&L por moneda: {pnl_by_coin}")
         
         return total_pnl, pnl_by_coin
     except Exception as e:
@@ -399,7 +431,10 @@ def api_status():
     return jsonify({
         'portfolio': {
             'value': portfolio_value,
-            'value_mx': portfolio_value * get_mxn_rate()
+            'value_mx': portfolio_value * get_mxn_rate(),
+            'pnl_24h': round(daily_pnl, 2),
+            'pnl_24h_percent': round((daily_pnl / portfolio_value * 100) if portfolio_value > 0 else 0, 2),
+            'pnl_by_coin': pnl_by_coin
         },
         'slots': {
             'total': total_slots,
@@ -486,6 +521,53 @@ def api_trades():
 def test_sound():
     """Test page for cash register sound"""
     return render_template("test-sound.html")
+
+@app.route('/crypto-bots/<path:filename>')
+def serve_crypto_bot_file(filename):
+    """Servir archivos desde crypto-bots/ (reportes, notificaciones, etc.)"""
+    return send_from_directory(
+        os.path.join(WORKSPACE, 'crypto-bots'),
+        filename
+    )
+
+@app.route('/api/notify-tp', methods=['POST'])
+def notify_tp():
+    """Endpoint para que TP Monitor notifique TP hits y active sonido en dashboard"""
+    import os
+    data = request.json
+    coin = data.get('coin', 'UNKNOWN')
+    slot_id = data.get('slot_id', 0)
+    tp_type = data.get('tp', 'TP')
+    pnl = data.get('pnl', 0)
+    
+    # Log para que el frontend pueda detectar y reproducir sonido
+    log_file = os.path.join(WORKSPACE, 'crypto-bots', 'tp-notifications.json')
+    
+    notifications = []
+    if os.path.exists(log_file):
+        try:
+            with open(log_file, 'r') as f:
+                notifications = json.load(f)
+        except:
+            pass
+    
+    # Agregar nueva notificación
+    notifications.append({
+        'coin': coin,
+        'slot_id': slot_id,
+        'tp': tp_type,
+        'pnl': pnl,
+        'timestamp': datetime.now().isoformat(),
+        'played': False  # Flag para que el frontend sepa que debe reproducir
+    })
+    
+    # Mantener solo las últimas 10 notificaciones
+    notifications = notifications[-10:]
+    
+    with open(log_file, 'w') as f:
+        json.dump(notifications, f, indent=2)
+    
+    return jsonify({'status': 'ok', 'message': f'TP {tp_type} detected for {coin} Slot {slot_id}'})
 
 if __name__ == '__main__':
     print("╔═══════════════════════════════════════════════════════╗")

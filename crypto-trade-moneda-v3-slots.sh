@@ -123,6 +123,56 @@ AGGRESSIVE_TP1=2.0
 AGGRESSIVE_TP2=4.0
 AGGRESSIVE_TP3=6.0
 
+# ════════════════════════════════════════════════════════
+# 🤖 ML TP PREDICTION - DYNAMIC TP ADJUSTMENT
+# ════════════════════════════════════════════════════════
+# Obtiene recomendación de ML para TPs dinámicos
+# Ejecuta predict-tp.py si no hay recomendaciones recientes
+ML_RECOMMENDATIONS_FILE="/home/overgon/.openclaw/workspace/ml/tp-recommendations.json"
+ML_SCRIPT="/home/overgon/.openclaw/workspace/ml/predict-tp.py"
+ML_GETTER="/home/overgon/.openclaw/workspace/ml/get-tp-recommendation.sh"
+
+# Función para obtener TPs de ML
+get_ml_tp() {
+    local coin="$1"
+    
+    # Si no existe el archivo de recomendaciones o tiene > 5 minutos, actualizar
+    if [ ! -f "$ML_RECOMMENDATIONS_FILE" ] || [ $(find "$ML_RECOMMENDATIONS_FILE" -mmin +5 2>/dev/null | wc -l) -gt 0 ]; then
+        log "🤖 ML: Actualizando predicciones..."
+        python3 "$ML_SCRIPT" > /dev/null 2>&1 &
+    fi
+    
+    # Obtener recomendación para esta coin
+    if [ -f "$ML_RECOMMENDATIONS_FILE" ] && [ -x "$ML_GETTER" ]; then
+        local ml_tps=$(bash "$ML_GETTER" "$coin" 2>/dev/null)
+        if [ -n "$ml_tps" ]; then
+            ML_TP1=$(echo "$ml_tps" | cut -d'|' -f1)
+            ML_TP2=$(echo "$ml_tps" | cut -d'|' -f2)
+            ML_TP3=$(echo "$ml_tps" | cut -d'|' -f3)
+            log "🤖 ML $coin: TP1=$ML_TP1% TP2=$ML_TP2% TP3=$ML_TP3%"
+            return 0
+        fi
+    fi
+    
+    # Fallback a TPs normales
+    ML_TP1=$NORMAL_TP1
+    ML_TP2=$NORMAL_TP2
+    ML_TP3=$NORMAL_TP3
+    return 1
+}
+
+# Obtener TPs dinámicos para esta coin (si ML está disponible)
+if [ -f "$ML_SCRIPT" ] && [ -f "$ML_GETTER" ]; then
+    get_ml_tp "$COIN"
+    # Sobrescribir TPs con recomendación de ML
+    TP1=$ML_TP1
+    TP2=$ML_TP2
+    TP3=$ML_TP3
+    log "🤖 ML TP Prediction: $COIN → TP1=$TP1% TP2=$TP2% TP3=$TP3%"
+else
+    log "⚠️  ML no disponible, usando TPs fijos"
+fi
+
 # Zero Trust + NOTIONAL Filter Fix (BUG-052)
 MIN_TRADE_USDT=10  # Mínimo Binance con margen (era $5)
 MAX_TRADE_USDT=100
@@ -244,6 +294,7 @@ log_trade_to_history() {
     # Crear nuevo trade entry
     local trade_id=$new_trades
     local timestamp=$(date -Iseconds)
+    local close_time=$(date '+%Y-%m-%d %H:%M:%S')
     
     local new_trade=$(jq -n \
         --argjson id "$trade_id" \
@@ -256,6 +307,7 @@ log_trade_to_history() {
         --arg closeType "$close_type" \
         --argjson pnl "$pnl" \
         --arg ts "$timestamp" \
+        --arg closeTime "$close_time" \
         '{
             id: $id,
             symbol: $symbol,
@@ -267,6 +319,7 @@ log_trade_to_history() {
             closeType: $closeType,
             pnlUSDT: $pnl,
             timestamp: $ts,
+            closeTime: $closeTime,
             seeded: false
         }')
     
@@ -671,7 +724,7 @@ send_telegram() {
         if [ -n "$bot_token" ] && [ "$bot_token" != "null" ]; then
             local result=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
                 -H "Content-Type: application/json" \
-                -d "{\"chat_id\":\"7543955537\",\"text\":\"$message\",\"parse_mode\":\"Markdown\"}" 2>&1)
+                -d "{\"chat_id\":\"7543955537\",\"text\":\"$message\",\"parse_mode=HTML\"}" 2>&1)
             local http_code=$(echo "$result" | grep "HTTP_CODE:" | cut -d':' -f2)
             if [ "$http_code" = "200" ]; then
                 log "✅ Telegram enviado exitosamente"
@@ -1002,6 +1055,10 @@ check_slot_tp_sl() {
                 # LOG TRADE TO HISTORY
                 log_trade_to_history "$slot_id" "TP1" "$entry" "$current_price" "$sell_qty" "$pnl"
                 
+                # Marcar TP1 como completado
+                log "  ✅ TP1 marcado como completado"
+                update_slot_field "$slot_id" "tp1Done" "true"
+                
                 # FASE 1: TRAILING STOP - Mover SL a breakeven después de TP1
                 if [ "$TRAILING_STOP_ENABLED" = "true" ]; then
                     local breakeven_sl=$(echo "scale=8; $entry * 1.002" | bc)  # Entry + 0.2%
@@ -1152,6 +1209,10 @@ Quedan 65% para TP2/TP3 🎯"
                 # LOG TRADE TO HISTORY
                 log_trade_to_history "$slot_id" "TP2" "$entry" "$current_price" "$sell_qty" "$pnl"
                 
+                # Marcar TP2 como completado
+                log "  ✅ TP2 marcado como completado"
+                update_slot_field "$slot_id" "tp2Done" "true"
+                
                 # FASE 1: TRAILING STOP - Activar trailing stop 2% después de TP2
                 if [ "$TRAILING_STOP_ENABLED" = "true" ]; then
                     log "  🛡️ TP2 done - Activando trailing stop 2%"
@@ -1292,6 +1353,10 @@ El slot permanece activo."
                 # LOG TRADE TO HISTORY
                 log_trade_to_history "$slot_id" "TP3" "$entry" "$current_price" "$quantity" "$pnl"
                 
+                # Marcar TP3 como completado
+                log "  ✅ TP3 marcado como completado"
+                update_slot_field "$slot_id" "tp3Done" "true"
+                
                 # Actualizar P&L
                 local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
                 local fee_bnb=$(echo "$sell_result" | jq -r '.fills[0].commission // 0')
@@ -1381,6 +1446,10 @@ $acumulado_note
                 
                 # LOG TRADE TO HISTORY
                 log_trade_to_history "$slot_id" "SL" "$entry" "$exit_price" "$quantity" "$pnl"
+                
+                # Marcar SL como ejecutado
+                log "  🛑 SL ejecutado"
+                update_slot_field "$slot_id" "status" "CLOSED_SL"
                 
                 # Actualizar P&L diario
                 update_pnl_after_close "$slot_id" "SL" "$entry" "$exit_price" "$quantity" "$fee_usd"

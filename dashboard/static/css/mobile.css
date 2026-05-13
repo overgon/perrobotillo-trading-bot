@@ -682,3 +682,65 @@ body {
     font-weight: 600;
     margin-top: 2px;
 }
+
+/* ════════════════════════════════════════════════════════
+   🔴 SL DANGER MODE - Para slots en negativo
+   ════════════════════════════════════════════════════════ */
+
+.tp-bar.danger {
+    background: rgba(255, 0, 60, 0.2);
+    border-color: var(--neon-red);
+}
+
+.tp-bar.danger .tp-fill.danger-fill {
+    background: linear-gradient(90deg, var(--neon-red), var(--neon-purple));
+    box-shadow: 0 0 20px var(--neon-red);
+    animation: pulse-danger 1.5s infinite;
+}
+
+@keyframes pulse-danger {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.slot-status.in-trade.loss {
+    background: var(--neon-red);
+    color: var(--dark-bg);
+}
+
+/* ════════════════════════════════════════════════════════
+
+/* ════════════════════════════════════════════════════════
+   🔴 SL DANGER MODE - Animación para Safari iOS
+   ════════════════════════════════════════════════════════ */
+
+.tp-bar.danger {
+    background: rgba(255, 0, 60, 0.2);
+    border-color: var(--neon-red);
+}
+
+.tp-bar.danger .tp-fill.danger-fill {
+    background: linear-gradient(90deg, var(--neon-red), var(--neon-purple));
+    box-shadow: 0 0 20px var(--neon-red);
+    -webkit-animation: pulse-danger 1.5s infinite;
+    animation: pulse-danger 1.5s infinite;
+}
+
+@-webkit-keyframes pulse-danger {
+    0%, 100% { opacity: 1; -webkit-transform: scale(1); transform: scale(1); }
+    50% { opacity: 0.7; -webkit-transform: scale(1.02); transform: scale(1.02); }
+}
+
+@keyframes pulse-danger {
+    0%, 100% { opacity: 1; -webkit-transform: scale(1); transform: scale(1); }
+    50% { opacity: 0.7; -webkit-transform: scale(1.02); transform: scale(1.02); }
+}
+
+.slot-status.in-trade.loss {
+    background: var(--neon-red);
+    color: var(--dark-bg);
+}

@@ -1,23 +1,144 @@
 # 🐕 PERROBOTILLO TRADING BOT - CHEATSHEET COMPLETO
 
-> **Última actualización:** Mayo 11, 2026  
-> **Total de scripts:** 21  
+> **Última actualización:** Mayo 13, 2026  
+> **Total de scripts:** 26 (+5 ML)  
 > **Estado:** 100% OPERATIVO ✅
 
 ---
 
 ## 📋 ÍNDICE
 
-1. [Trading Bot Principal](#-trading-bot-principal)
-2. [Estrategia y Mercado](#-estrategia-y-mercado)
-3. [Dashboard](#-dashboard)
-4. [Reportes y Monitoreo](#-reportes-y-monitoreo)
-5. [Seguridad y Emergencias](#-seguridad-y-emergencias)
-6. [Backtesting](#-backtesting)
-7. [Utilidades](#-utilidades)
-8. [Gestión de Capital](#-gestión-de-capital)
-9. [Sistema](#-sistema)
-10. [Tests](#-tests)
+1. [🤖 ML TP Prediction (NUEVO)](#-ml-tp-prediction-nuevo)
+2. [Trading Bot Principal](#-trading-bot-principal)
+3. [Estrategia y Mercado](#-estrategia-y-mercado)
+4. [Dashboard](#-dashboard)
+5. [Reportes y Monitoreo](#-reportes-y-monitoreo)
+6. [Seguridad y Emergencias](#-seguridad-y-emergencias)
+7. [Backtesting](#-backtesting)
+8. [Utilidades](#-utilidades)
+9. [Gestión de Capital](#-gestión-de-capital)
+10. [Sistema](#-sistema)
+11. [Tests](#-tests)
+
+---
+
+## 🤖 ML TP PREDICTION (NUEVO)
+
+### `predict-tp.py`
+**Ubicación:** `/home/overgon/.openclaw/workspace/ml/predict-tp.py`
+
+**Propósito:** Predice probabilidad de TP en tiempo real usando ML
+
+**Características:**
+- ✅ Modelo: LightGBM Classifier (0.31 MB)
+- ✅ Features: 22 indicadores (RSI, MACD, Bollinger, volatilidad, volumen)
+- ✅ Accuracy: 79-90% (cross-validation)
+- ✅ Inferencia: < 1 segundo
+- ✅ Predice por coin: BTC, ETH, BNB, SOL, LINK, XRP, AVAX
+- ✅ Output: Probabilidad TP1 + recomendación de TPs
+
+**Niveles de confianza:**
+- `AGGRESSIVE` (>75%) → TP1: 4.0% | TP2: 8.0% | TP3: 15.0%
+- `NORMAL` (60-75%) → TP1: 3.5% | TP2: 7.0% | TP3: 12.0%
+- `CONSERVATIVE` (40-60%) → TP1: 2.5% | TP2: 5.0% | TP3: 8.0%
+- `DEFENSIVE` (<40%) → TP1: 2.0% | TP2: 4.0% | TP3: 6.0%
+
+**Comando:**
+```bash
+python3 /home/overgon/.openclaw/workspace/ml/predict-tp.py
+```
+
+**Output:**
+```json
+{
+  "predictions": {
+    "BTC": {"prob_tp1": 0.661, "prediction": "TP1_LIKELY"},
+    "SOL": {"prob_tp1": 0.887, "prediction": "TP1_LIKELY"}
+  },
+  "recommendations": {
+    "BTC": {"action": "NORMAL", "tp1_pct": 3.5, "tp2_pct": 7.0, "tp3_pct": 12.0},
+    "SOL": {"action": "AGGRESSIVE", "tp1_pct": 4.0, "tp2_pct": 8.0, "tp3_pct": 15.0}
+  }
+}
+```
+
+---
+
+### `get-tp-recommendation.sh`
+**Ubicación:** `/home/overgon/.openclaw/workspace/ml/get-tp-recommendation.sh`
+
+**Propósito:** Obtiene recomendación de TP para una moneda específica (usado por el bot principal)
+
+**Comando:**
+```bash
+bash /home/overgon/.openclaw/workspace/ml/get-tp-recommendation.sh BTC
+# Output: 3.5|7.0|12.0 (TP1|TP2|TP3)
+```
+
+**Integración:** El bot principal llama este script automáticamente para ajustar TPs dinámicamente
+
+---
+
+### `auto-retrain.py`
+**Ubicación:** `/home/overgon/.openclaw/workspace/ml/auto-retrain.py`
+
+**Propósito:** Re-entrena automáticamente el modelo con nuevos trades
+
+**Características:**
+- ✅ Trigger: Domingo 3 AM (cron) O cuando hay 10+ trades nuevos
+- ✅ Carga trades reales de trade-history.json
+- ✅ Crea labels basados en trades reales
+- ✅ Re-entrena modelo LightGBM con class weights
+- ✅ Guarda nuevo modelo y metadata
+- ✅ Logs en ml-retrain.log
+
+**Comando:**
+```bash
+python3 /home/overgon/.openclaw/workspace/ml/auto-retrain.py
+```
+
+**Cron:** `0 3 * * 0` (domingo 3 AM)
+
+**Logs:**
+```bash
+tail -f /home/overgon/.openclaw/logs/ml-retrain.log
+```
+
+---
+
+### `train-tp-model.py`
+**Ubicación:** `/home/overgon/.openclaw/workspace/ml/train-tp-model.py`
+
+**Propósito:** Entrenamiento inicial del modelo (one-time)
+
+**Características:**
+- ✅ Usa datos históricos de backtest/data/
+- ✅ Calcula 22 indicadores técnicos
+- ✅ Crea labels basados en estrategia fija o trades reales
+- ✅ Entrena LightGBM Classifier
+- ✅ Guarda modelo en ml/tp_prediction_model.pkl
+
+**Comando:**
+```bash
+python3 /home/overgon/.openclaw/workspace/ml/train-tp-model.py
+```
+
+**Output:**
+- `ml/tp_prediction_model.pkl` (0.31 MB)
+- `ml/model_metadata.json` (accuracy, features, version)
+
+---
+
+### Archivos ML
+
+| Archivo | Propósito |
+|---------|----------|
+| `ml/tp_prediction_model.pkl` | Modelo entrenado (0.31 MB) |
+| `ml/model_metadata.json` | Metadata (accuracy, features) |
+| `ml/tp-recommendations.json` | Recomendaciones actuales (se actualiza cada 5 min) |
+| `ml/tp-predictions.json` | Predicciones raw |
+| `ml/last_retrain.json` | Info del último re-entrenamiento |
+| `logs/ml-retrain.log` | Logs de auto-retrain |
 
 ---
 

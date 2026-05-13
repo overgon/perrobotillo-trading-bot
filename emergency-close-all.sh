@@ -36,7 +36,7 @@ send_telegram() {
         [ -n "$bot_token" ] && [ "$bot_token" != "null" ] && \
             curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
                 -H "Content-Type: application/json" \
-                -d "{\"chat_id\":\"7543955537\",\"text\":\"$message\",\"parse_mode\":\"Markdown\"}" > /dev/null
+                -d "{\"chat_id\":\"7543955537\",\"text\":\"$message\",\"parse_mode=HTML\"}" > /dev/null
     fi
 }
 

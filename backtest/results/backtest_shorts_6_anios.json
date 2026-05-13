@@ -1,0 +1,70 @@
+{
+  "long": {
+    "BTC": 955.0,
+    "ETH": 1282.1,
+    "BNB": 929.4,
+    "SOL": 933.3,
+    "LINK": 1245.0,
+    "XRP": 702.4,
+    "AVAX": 683.6
+  },
+  "shorts": {
+    "ETH": {
+      "SHORT_ACTUAL": {
+        "estrategia": "SHORT_ACTUAL",
+        "trades": 729,
+        "wins": 289,
+        "losses": 440,
+        "win_rate": 39.64334705075446,
+        "pnl_total": 2606.5796510165724,
+        "retorno": 260.65796510165745,
+        "capital_final": 3606.579651016574,
+        "max_drawdown": 4.915306871746939
+      },
+      "SHORT_CONSERV": {
+        "estrategia": "SHORT_CONSERV",
+        "trades": 729,
+        "wins": 300,
+        "losses": 429,
+        "win_rate": 41.1522633744856,
+        "pnl_total": 713.846656735521,
+        "retorno": 71.38466567355219,
+        "capital_final": 1713.846656735522,
+        "max_drawdown": 4.847395930148954
+      },
+      "SHORT_MODERAD": {
+        "estrategia": "SHORT_MODERAD",
+        "trades": 729,
+        "wins": 165,
+        "losses": 564,
+        "win_rate": 22.633744855967077,
+        "pnl_total": 947.4196544169245,
+        "retorno": 94.74196544169244,
+        "capital_final": 1947.4196544169245,
+        "max_drawdown": 14.208414126059745
+      },
+      "SHORT_AGRESIV": {
+        "estrategia": "SHORT_AGRESIV",
+        "trades": 729,
+        "wins": 72,
+        "losses": 657,
+        "win_rate": 9.876543209876543,
+        "pnl_total": 94.9846304273441,
+        "retorno": 9.498463042734192,
+        "capital_final": 1094.984630427342,
+        "max_drawdown": 20.520339480888843
+      },
+      "SHORT_SCALP": {
+        "estrategia": "SHORT_SCALP",
+        "trades": 729,
+        "wins": 267,
+        "losses": 462,
+        "win_rate": 36.62551440329218,
+        "pnl_total": 20.41464196003494,
+        "retorno": 2.041464196003585,
+        "capital_final": 1020.4146419600359,
+        "max_drawdown": 21.12273162048166
+      }
+    }
+  }
+}

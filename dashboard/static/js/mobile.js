@@ -6,7 +6,7 @@
 const CONFIG = {
     API_URL: '/api/status',
     PRICES_URL: '/api/prices',
-    REFRESH_INTERVAL: 30000,
+    REFRESH_INTERVAL: 60000,
     PRICES_INTERVAL: 60000
 };
 
@@ -224,41 +224,55 @@ function updateSlots(data) {
             const tp1 = parseFloat(slot.tp1) || 0;
             const tp2 = parseFloat(slot.tp2) || 0;
             const tp3 = parseFloat(slot.tp3) || 0;
+            const stopLoss = parseFloat(slot.stopLoss) || 0;
             const quantity = parseFloat(slot.quantity) || 0;
             
-            // Determinar target actual basado en TPs completados
-            let targetPrice = tp1;
-            let targetName = 'TP1';
-            let progress = 0;
-            
-            if (slot.tp1Done && slot.tp2Done) {
-                targetPrice = tp3;
-                targetName = 'TP3';
-            } else if (slot.tp1Done) {
-                targetPrice = tp2;
-                targetName = 'TP2';
-            } else {
-                targetPrice = tp1;
-                targetName = 'TP1';
-            }
-            
-            if (entryPrice > 0 && targetPrice > 0 && currentPrice > 0 && targetPrice !== entryPrice) {
-                progress = Math.min(100, ((currentPrice - entryPrice) / (targetPrice - entryPrice)) * 100);
-            }
-            
+            // Calcular P&L primero para determinar modo
             let pnl = 0, pnlPercent = 0;
             if (entryPrice > 0 && currentPrice > 0) {
                 pnlPercent = ((currentPrice - entryPrice) / entryPrice) * 100;
                 pnl = (currentPrice - entryPrice) * quantity;
             }
             
+            // Determinar target actual basado en P&L (negativo → SL, positivo → TP)
+            let targetPrice = tp1;
+            let targetName = 'TP1';
+            let progress = 0;
+            let isLossMode = pnl < 0;
+            
+            // Si está en negativo, mostrar SL como next target
+            if (isLossMode && stopLoss > 0) {
+                targetPrice = stopLoss;
+                targetName = 'SL';
+                // Progreso hacia SL (0% = entry, 100% = SL hit)
+                if (entryPrice > 0 && stopLoss > 0 && stopLoss !== entryPrice) {
+                    progress = Math.min(100, ((entryPrice - currentPrice) / (entryPrice - stopLoss)) * 100);
+                }
+            } else {
+                // Positivo o neutral → mostrar TP normal
+                if (slot.tp1Done && slot.tp2Done) {
+                    targetPrice = tp3;
+                    targetName = 'TP3';
+                } else if (slot.tp1Done) {
+                    targetPrice = tp2;
+                    targetName = 'TP2';
+                } else {
+                    targetPrice = tp1;
+                    targetName = 'TP1';
+                }
+                
+                if (entryPrice > 0 && targetPrice > 0 && currentPrice > 0 && targetPrice !== entryPrice) {
+                    progress = Math.min(100, ((currentPrice - entryPrice) / (targetPrice - entryPrice)) * 100);
+                }
+            }
+            
             html += `
-                <div class="slot-card active">
+                <div class="slot-card active ${pnl >= 0 ? 'profit' : 'loss'}">
                     <div class="slot-header">
                         <div class="slot-coin">${coin}</div>
                         <div class="slot-id">Slot ${slot.slotId}</div>
                     </div>
-                    <div class="slot-status in-trade">IN TRADE</div>
+                    <div class="slot-status in-trade ${pnl >= 0 ? 'profit' : 'loss'}">${pnl >= 0 ? 'IN TRADE 🟢' : 'IN TRADE 🔴'}</div>
                     
                     <div class="slot-grid-info">
                         <div class="slot-info-item">
@@ -277,17 +291,17 @@ function updateSlots(data) {
                         </div>
                         <div class="slot-info-item">
                             <div class="slot-info-label">Target</div>
-                            <div class="slot-info-value">$${targetPrice.toFixed(2)} (${targetName})</div>
+                            <div class="slot-info-value" style="color: ${isLossMode ? 'var(--neon-red)' : 'var(--neon-blue)'}">$${targetPrice.toFixed(2)} (${targetName}${isLossMode ? ' ⚠️' : ''})</div>
                         </div>
                     </div>
                     
                     <div class="tp-progress-container">
                         <div class="tp-label">
-                            <span>Progress to ${targetName}</span>
+                            <span>${isLossMode ? '⚠️ Distance to SL' : 'Progress to ' + targetName}</span>
                             <span>${Math.min(100, Math.max(0, progress)).toFixed(1)}%</span>
                         </div>
-                        <div class="tp-bar ${pnl >= 0 ? 'profit' : 'loss'}">
-                            <div class="tp-fill" style="width: ${Math.min(100, Math.max(0, progress)).toFixed(1)}%"></div>
+                        <div class="tp-bar ${isLossMode ? 'danger' : (pnl >= 0 ? 'profit' : 'loss')}">
+                            <div class="tp-fill ${isLossMode ? 'danger-fill' : ''}" style="width: ${Math.min(100, Math.max(0, progress)).toFixed(1)}%"></div>
                         </div>
                     </div>
                 </div>

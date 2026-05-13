@@ -13,7 +13,7 @@ TRADE_PERCENT=80       # % para trading (activo)
 # ════════════════════════════════════════════════════════
 # TRADE SETTINGS
 # ════════════════════════════════════════════════════════
-TRADE_POSITION_PERCENT=40  # % del capital de trading por trade
+TRADE_POSITION_PERCENT=  # % del capital de trading por trade
 MIN_TRADE_SIZE=10          # USDT mínimo con margen (Binance = $5-10)
 
 # ════════════════════════════════════════════════════════

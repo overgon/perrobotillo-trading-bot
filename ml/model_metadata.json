@@ -1,0 +1,29 @@
+{
+  "feature_cols": [
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume",
+    "rsi",
+    "macd",
+    "macd_signal",
+    "bb_upper",
+    "bb_lower",
+    "bb_width",
+    "ema_9",
+    "ema_21",
+    "volatility",
+    "volume_ratio",
+    "coin_AVAX",
+    "coin_BNB",
+    "coin_BTC",
+    "coin_ETH",
+    "coin_LINK",
+    "coin_SOL",
+    "coin_XRP"
+  ],
+  "accuracy": 0.9024390243902439,
+  "trained_at": "2026-05-13T13:56:14.664267",
+  "version": "1.0.0"
+}
