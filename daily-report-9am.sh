@@ -3,18 +3,18 @@
 # Envía P&L real, portfolio y estadísticas por Telegram
 # 2026-04-20 - Perrobotillo Trading Bot - CON 24H CHANGE
 
-source /home/overgon/.openclaw/secrets/binance.env
+source $HOME/.openclaw/secrets/binance.env
 
 # Debug: Verificar que las credenciales se cargaron
 if [ -z "$BINANCE_API_KEY" ] || [ -z "$BINANCE_API_SECRET" ]; then
     echo "❌ ERROR: BINANCE_API_KEY o BINANCE_API_SECRET no están configuradas"
-    echo "   Verificando archivo: /home/overgon/.openclaw/secrets/binance.env"
-    ls -la /home/overgon/.openclaw/secrets/binance.env
+    echo "   Verificando archivo: $HOME/.openclaw/secrets/binance.env"
+    ls -la $HOME/.openclaw/secrets/binance.env
     exit 1
 fi
 echo "✅ Credenciales de Binance cargadas correctamente"
-WORKSPACE="/home/overgon/.openclaw/workspace"
-LOG_FILE="/home/overgon/.openclaw/logs/auto-trade-all.log"
+WORKSPACE="$HOME/.openclaw/workspace"
+LOG_FILE="$HOME/.openclaw/logs/auto-trade-all.log"
 
 echo "╔═══════════════════════════════════════════════════════╗"
 echo "║  📊 REPORTE DIARIO AUTOMÁTICO - 9 AM                 ║"

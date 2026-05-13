@@ -6,9 +6,9 @@
 # Autor: Perrobotillo 🐕
 # ════════════════════════════════════════════════════════
 
-WORKSPACE="/home/overgon/.openclaw/workspace"
+WORKSPACE="$HOME/.openclaw/workspace"
 CONFIG_FILE="$WORKSPACE/config/capital-config.sh"
-LOG_FILE="/home/overgon/.openclaw/logs/auto-increase-capital.log"
+LOG_FILE="$HOME/.openclaw/logs/auto-increase-capital.log"
 PROGRESS_FILE="$WORKSPACE/crypto-bots/capital-increase-progress.json"
 TRADE_HISTORY="$WORKSPACE/crypto-bots/trade-history.json"
 
@@ -68,7 +68,7 @@ import json
 import os
 
 # Leer API keys
-with open('/home/overgon/.openclaw/secrets/binance.env', 'r') as f:
+with open('$HOME/.openclaw/secrets/binance.env', 'r') as f:
     for line in f:
         if line.startswith('BINANCE_API_KEY'):
             api_key = line.split('=')[1].strip()
@@ -93,7 +93,7 @@ for balance in account['balances']:
 coins = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX']
 invested = 0
 for coin in coins:
-    file = f'/home/overgon/.openclaw/workspace/crypto-bots/{coin}-trade-state.json'
+    file = f'$HOME/.openclaw/workspace/crypto-bots/{coin}-trade-state.json'
     if os.path.exists(file):
         with open(file, 'r') as f:
             data = json.load(f)

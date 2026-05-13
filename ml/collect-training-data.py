@@ -119,7 +119,7 @@ def main():
     print("║  🤖 Perrobotillo ML - Data Collector                  ║")
     print("╚═══════════════════════════════════════════════════════╝")
     
-    os.makedirs('/home/overgon/.openclaw/workspace/ml/data', exist_ok=True)
+    os.makedirs('$HOME/.openclaw/workspace/ml/data', exist_ok=True)
     
     for coin in COINS:
         print(f"\n📊 Procesando {coin}USDT...")
@@ -136,7 +136,7 @@ def main():
                 df = create_labels(df)
                 
                 # Guardar
-                filename = f"/home/overgon/.openclaw/workspace/ml/data/{symbol}_{interval}_raw.csv"
+                filename = f"$HOME/.openclaw/workspace/ml/data/{symbol}_{interval}_raw.csv"
                 df.to_csv(filename, index=False)
                 print(f"  └─ ✅ Guardado: {filename}")
                 

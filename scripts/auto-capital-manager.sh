@@ -6,9 +6,9 @@
 # Autor: Perrobotillo 🐕
 # ════════════════════════════════════════════════════════
 
-WORKSPACE="/home/overgon/.openclaw/workspace"
+WORKSPACE="$HOME/.openclaw/workspace"
 CONFIG_FILE="$WORKSPACE/config/capital-config.sh"
-LOG_FILE="/home/overgon/.openclaw/logs/auto-capital-manager.log"
+LOG_FILE="$HOME/.openclaw/logs/auto-capital-manager.log"
 PROGRESS_FILE="$WORKSPACE/crypto-bots/capital-manager-progress.json"
 TRADE_HISTORY="$WORKSPACE/crypto-bots/trade-history.json"
 
@@ -62,7 +62,7 @@ import hmac, hashlib, time
 import json
 
 # Leer API keys
-with open('/home/overgon/.openclaw/secrets/binance.env', 'r') as f:
+with open('$HOME/.openclaw/secrets/binance.env', 'r') as f:
     for line in f:
         if line.startswith('BINANCE_API_KEY'):
             api_key = line.split('=')[1].strip()

@@ -14,8 +14,8 @@ import sys
 from datetime import datetime
 
 # Configuración
-MODEL_PATH = '/home/overgon/.openclaw/workspace/ml/tp_prediction_model.pkl'
-METADATA_PATH = '/home/overgon/.openclaw/workspace/ml/model_metadata.json'
+MODEL_PATH = '$HOME/.openclaw/workspace/ml/tp_prediction_model.pkl'
+METADATA_PATH = '$HOME/.openclaw/workspace/ml/model_metadata.json'
 BINANCE_API_KEY = os.environ.get('BINANCE_API_KEY', '')
 BINANCE_SECRET_KEY = os.environ.get('BINANCE_SECRET_KEY', '')
 
@@ -200,7 +200,7 @@ def get_tp_recommendation(prob_tp1):
             'reason': 'Muy baja probabilidad - reducir exposición'
         }
 
-def save_predictions(predictions, output_file='/home/overgon/.openclaw/workspace/ml/tp-predictions.json'):
+def save_predictions(predictions, output_file='$HOME/.openclaw/workspace/ml/tp-predictions.json'):
     """Guarda predicciones en archivo"""
     with open(output_file, 'w') as f:
         json.dump(predictions, f, indent=2, default=str)
@@ -261,10 +261,10 @@ def main():
     }
     
     # Guardar para que el bot lo lea
-    with open('/home/overgon/.openclaw/workspace/ml/tp-recommendations.json', 'w') as f:
+    with open('$HOME/.openclaw/workspace/ml/tp-recommendations.json', 'w') as f:
         json.dump(output, f, indent=2, default=str)
     
-    print(f"\n✅ Recomendaciones guardadas: /home/overgon/.openclaw/workspace/ml/tp-recommendations.json")
+    print(f"\n✅ Recomendaciones guardadas: $HOME/.openclaw/workspace/ml/tp-recommendations.json")
     
     return output
 

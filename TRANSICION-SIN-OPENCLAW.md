@@ -142,24 +142,24 @@ openclaw gateway status
 
 ```bash
 # Trading Bot (cada 10 min por moneda)
-*/10 * * * * /home/overgon/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh BTC
-*/10 * * * * /home/overgon/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh ETH
+*/10 * * * * /home/<YOUR_USERNAME>/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh BTC
+*/10 * * * * /home/<YOUR_USERNAME>/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh ETH
 # ... etc
 
 # Dashboard (auto-start)
 systemctl start perrobotillo-dashboard-ngrok
 
 # Daily Report (9 AM)
-0 9 * * * /home/overgon/.openclaw/workspace/daily-report-9am.sh
+0 9 * * * /home/<YOUR_USERNAME>/.openclaw/workspace/daily-report-9am.sh
 
 # Check Drawdown (cada 30 min)
-*/30 * * * * /home/overgon/.openclaw/workspace/check-drawdown-alert.sh
+*/30 * * * * /home/<YOUR_USERNAME>/.openclaw/workspace/check-drawdown-alert.sh
 
 # Check IP (cada hora)
-0 * * * * /home/overgon/.openclaw/workspace/check-public-ip.sh
+0 * * * * /home/<YOUR_USERNAME>/.openclaw/workspace/check-public-ip.sh
 
 # Auto-Repair (cada 5 min)
-*/5 * * * * /home/overgon/.openclaw/workspace/auto-repair-states.sh
+*/5 * * * * /home/<YOUR_USERNAME>/.openclaw/workspace/auto-repair-states.sh
 ```
 
 **Todos funcionan SIN OpenClaw** ✅
@@ -192,7 +192,7 @@ systemctl start perrobotillo-dashboard-ngrok
 
 Si algo falla después de la transición:
 
-1. Revisar logs: `tail -f /home/overgon/.openclaw/logs/*.log`
+1. Revisar logs: `tail -f /home/<YOUR_USERNAME>/.openclaw/logs/*.log`
 2. Ver status: `source lib/claw-utils.sh && status`
 3. Verificar cron: `crontab -l`
 4. Verificar servicios: `systemctl status perrobotillo-dashboard-ngrok`

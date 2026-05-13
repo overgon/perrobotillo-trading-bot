@@ -13,9 +13,9 @@ if [ -z "$SYMBOL" ]; then
     exit 1
 fi
 
-WORKSPACE="/home/overgon/.openclaw/workspace"
-SECRETS="/home/overgon/.openclaw/secrets"
-LOGS="/home/overgon/.openclaw/logs"
+WORKSPACE="$HOME/.openclaw/workspace"
+SECRETS="$HOME/.openclaw/secrets"
+LOGS="$HOME/.openclaw/logs"
 BINANCE="https://api.binance.com"
 
 source "$SECRETS/binance.env"
@@ -128,9 +128,9 @@ AGGRESSIVE_TP3=6.0
 # ════════════════════════════════════════════════════════
 # Obtiene recomendación de ML para TPs dinámicos
 # Ejecuta predict-tp.py si no hay recomendaciones recientes
-ML_RECOMMENDATIONS_FILE="/home/overgon/.openclaw/workspace/ml/tp-recommendations.json"
-ML_SCRIPT="/home/overgon/.openclaw/workspace/ml/predict-tp.py"
-ML_GETTER="/home/overgon/.openclaw/workspace/ml/get-tp-recommendation.sh"
+ML_RECOMMENDATIONS_FILE="$HOME/.openclaw/workspace/ml/tp-recommendations.json"
+ML_SCRIPT="$HOME/.openclaw/workspace/ml/predict-tp.py"
+ML_GETTER="$HOME/.openclaw/workspace/ml/get-tp-recommendation.sh"
 
 # Función para obtener TPs de ML
 get_ml_tp() {

@@ -7,7 +7,7 @@ echo "🐕 Iniciando Perrobotillo Dashboard con Ngrok..."
 
 # 1. Iniciar Dashboard
 echo "🚀 Iniciando dashboard..."
-cd /home/overgon/.openclaw/workspace/dashboard
+cd $HOME/.openclaw/workspace/dashboard
 python3 app.py &
 DASHBOARD_PID=$!
 

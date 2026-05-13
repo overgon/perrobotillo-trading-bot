@@ -299,21 +299,21 @@ echo "✅ Todas las monedas iniciadas"
 crontab -e
 
 # Agregar al final:
-0 9 * * * /home/overgon/bots/perrobotillo-trading-bot/daily-report-9am.sh
+0 9 * * * /home/<YOUR_USERNAME>/bots/perrobotillo-trading-bot/daily-report-9am.sh
 ```
 
 ### 9.2 Monitoreo de IP (cada hora)
 
 ```bash
 # Agregar al crontab:
-0 * * * * /home/overgon/bots/perrobotillo-trading-bot/check-public-ip.sh
+0 * * * * /home/<YOUR_USERNAME>/bots/perrobotillo-trading-bot/check-public-ip.sh
 ```
 
 ### 9.3 Alertas de Drawdown (cada 30 min)
 
 ```bash
 # Agregar al crontab:
-*/30 * * * * /home/overgon/bots/perrobotillo-trading-bot/check-drawdown-alert.sh
+*/30 * * * * /home/<YOUR_USERNAME>/bots/perrobotillo-trading-bot/check-drawdown-alert.sh
 ```
 
 ---

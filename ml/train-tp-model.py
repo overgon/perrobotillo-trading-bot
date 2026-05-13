@@ -16,9 +16,9 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Configuración
-DATA_DIR = '/home/overgon/.openclaw/workspace/backtest/data'
-ML_DIR = '/home/overgon/.openclaw/workspace/ml'
-TRADE_HISTORY = '/home/overgon/.openclaw/workspace/crypto-bots/trade-history.json'
+DATA_DIR = '$HOME/.openclaw/workspace/backtest/data'
+ML_DIR = '$HOME/.openclaw/workspace/ml'
+TRADE_HISTORY = '$HOME/.openclaw/workspace/crypto-bots/trade-history.json'
 
 def load_historical_data():
     """Carga datos históricos de todas las coins"""

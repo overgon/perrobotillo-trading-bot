@@ -6,7 +6,7 @@
 # Autor: Perrobotillo 🐕
 # ════════════════════════════════════════════════════════
 
-LOG_FILE="/home/overgon/.openclaw/logs/fan-control.log"
+LOG_FILE="$HOME/.openclaw/logs/fan-control.log"
 PWM_FAN="/sys/class/hwmon/hwmon2/pwm1"
 PWM_ENABLE="/sys/class/hwmon/hwmon2/pwm1_enable"
 

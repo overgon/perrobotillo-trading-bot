@@ -38,7 +38,7 @@ def hide_server_headers(response):
     response.headers.pop('X-Powered-By', None)
     return response
 
-WORKSPACE = "/home/overgon/.openclaw/workspace"
+WORKSPACE = "$HOME/.openclaw/workspace"
 CRYPTO_BOTS = f"{WORKSPACE}/crypto-bots"
 CONFIG_FILE = f"{WORKSPACE}/config/capital-config.sh"
 
@@ -140,7 +140,7 @@ def get_portfolio_value():
     
     # 2. Try to fetch from Binance
     try:
-        secrets_file = "/home/overgon/.openclaw/secrets/binance.env"
+        secrets_file = "$HOME/.openclaw/secrets/binance.env"
         if not os.path.exists(secrets_file):
             print("⚠️  No binance.env, using snapshot")
             snapshot_file = f"{WORKSPACE}/portfolio-snapshot.json"

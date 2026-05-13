@@ -4,9 +4,9 @@
 # ║  Monitorea cambios de IP pública y alerta por Telegram ║
 # ═══════════════════════════════════════════════════════╝
 
-WORKSPACE="/home/overgon/.openclaw/workspace"
-SECRETS="/home/overgon/.openclaw/secrets"
-LOGS="/home/overgon/.openclaw/logs"
+WORKSPACE="$HOME/.openclaw/workspace"
+SECRETS="$HOME/.openclaw/secrets"
+LOGS="$HOME/.openclaw/logs"
 CONFIG_FILE="$WORKSPACE/crypto-bots/.public_ip"
 
 # ============================================

@@ -4,9 +4,9 @@
 # ║  Envía alerta Telegram si drawdown > 5%              ║
 # ╚═══════════════════════════════════════════════════════╝
 
-WORKSPACE="/home/overgon/.openclaw/workspace"
-SECRETS="/home/overgon/.openclaw/secrets"
-LOGS="/home/overgon/.openclaw/logs"
+WORKSPACE="$HOME/.openclaw/workspace"
+SECRETS="$HOME/.openclaw/secrets"
+LOGS="$HOME/.openclaw/logs"
 
 source "$SECRETS/binance.env"
 source "$SECRETS/telegram.env"

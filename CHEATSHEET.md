@@ -25,7 +25,7 @@
 ## 🤖 ML TP PREDICTION (NUEVO)
 
 ### `predict-tp.py`
-**Ubicación:** `/home/overgon/.openclaw/workspace/ml/predict-tp.py`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/ml/predict-tp.py`
 
 **Propósito:** Predice probabilidad de TP en tiempo real usando ML
 
@@ -45,7 +45,7 @@
 
 **Comando:**
 ```bash
-python3 /home/overgon/.openclaw/workspace/ml/predict-tp.py
+python3 /home/<YOUR_USERNAME>/.openclaw/workspace/ml/predict-tp.py
 ```
 
 **Output:**
@@ -65,13 +65,13 @@ python3 /home/overgon/.openclaw/workspace/ml/predict-tp.py
 ---
 
 ### `get-tp-recommendation.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/ml/get-tp-recommendation.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/ml/get-tp-recommendation.sh`
 
 **Propósito:** Obtiene recomendación de TP para una moneda específica (usado por el bot principal)
 
 **Comando:**
 ```bash
-bash /home/overgon/.openclaw/workspace/ml/get-tp-recommendation.sh BTC
+bash /home/<YOUR_USERNAME>/.openclaw/workspace/ml/get-tp-recommendation.sh BTC
 # Output: 3.5|7.0|12.0 (TP1|TP2|TP3)
 ```
 
@@ -80,7 +80,7 @@ bash /home/overgon/.openclaw/workspace/ml/get-tp-recommendation.sh BTC
 ---
 
 ### `auto-retrain.py`
-**Ubicación:** `/home/overgon/.openclaw/workspace/ml/auto-retrain.py`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/ml/auto-retrain.py`
 
 **Propósito:** Re-entrena automáticamente el modelo con nuevos trades
 
@@ -94,20 +94,20 @@ bash /home/overgon/.openclaw/workspace/ml/get-tp-recommendation.sh BTC
 
 **Comando:**
 ```bash
-python3 /home/overgon/.openclaw/workspace/ml/auto-retrain.py
+python3 /home/<YOUR_USERNAME>/.openclaw/workspace/ml/auto-retrain.py
 ```
 
 **Cron:** `0 3 * * 0` (domingo 3 AM)
 
 **Logs:**
 ```bash
-tail -f /home/overgon/.openclaw/logs/ml-retrain.log
+tail -f /home/<YOUR_USERNAME>/.openclaw/logs/ml-retrain.log
 ```
 
 ---
 
 ### `train-tp-model.py`
-**Ubicación:** `/home/overgon/.openclaw/workspace/ml/train-tp-model.py`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/ml/train-tp-model.py`
 
 **Propósito:** Entrenamiento inicial del modelo (one-time)
 
@@ -120,7 +120,7 @@ tail -f /home/overgon/.openclaw/logs/ml-retrain.log
 
 **Comando:**
 ```bash
-python3 /home/overgon/.openclaw/workspace/ml/train-tp-model.py
+python3 /home/<YOUR_USERNAME>/.openclaw/workspace/ml/train-tp-model.py
 ```
 
 **Output:**
@@ -145,7 +145,7 @@ python3 /home/overgon/.openclaw/workspace/ml/train-tp-model.py
 ## 🤖 TRADING BOT PRINCIPAL
 
 ### `crypto-trade-moneda-v3-slots.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh`
 
 **Propósito:** Script principal de trading multi-slot (7 monedas, 21 slots)
 
@@ -161,7 +161,7 @@ python3 /home/overgon/.openclaw/workspace/ml/train-tp-model.py
 
 **Comando:**
 ```bash
-/home/overgon/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh [COIN]
+/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh [COIN]
 # Ejemplo: ./crypto-trade-moneda-v3-slots.sh BTC
 ```
 
@@ -172,7 +172,7 @@ python3 /home/overgon/.openclaw/workspace/ml/train-tp-model.py
 ## 📈 ESTRATEGIA Y MERCADO
 
 ### `auto-adjust-strategy.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/crypto-bots/auto-adjust-strategy.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/auto-adjust-strategy.sh`
 
 **Propósito:** Ajuste automático de estrategia según condiciones de mercado
 
@@ -192,13 +192,13 @@ python3 /home/overgon/.openclaw/workspace/ml/train-tp-model.py
 
 **Comando:**
 ```bash
-/home/overgon/.openclaw/workspace/crypto-bots/auto-adjust-strategy.sh
+/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/auto-adjust-strategy.sh
 ```
 
 ---
 
 ### `market-sentiment.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/crypto-bots/market-sentiment.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/market-sentiment.sh`
 
 **Propósito:** Análisis de sentimiento de mercado (RSI, EMAs, Fear & Greed)
 
@@ -211,7 +211,7 @@ python3 /home/overgon/.openclaw/workspace/ml/train-tp-model.py
 
 **Comando:**
 ```bash
-/home/overgon/.openclaw/workspace/crypto-bots/market-sentiment.sh
+/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/market-sentiment.sh
 ```
 
 **Cron:** `0 * * * *` (cada hora)
@@ -219,25 +219,25 @@ python3 /home/overgon/.openclaw/workspace/ml/train-tp-model.py
 ---
 
 ### `test-scalping.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/crypto-bots/test-scalping.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/test-scalping.sh`
 
 **Propósito:** Testear configuración SCALPING MODE
 
 **Comando:**
 ```bash
-/home/overgon/.openclaw/workspace/crypto-bots/test-scalping.sh
+/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/test-scalping.sh
 ```
 
 ---
 
 ### `test-tp3-fix.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/crypto-bots/test-tp3-fix.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/test-tp3-fix.sh`
 
 **Propósito:** Testear fix de TP3 (cantidad de venta 30%/65%)
 
 **Comando:**
 ```bash
-/home/overgon/.openclaw/workspace/crypto-bots/test-tp3-fix.sh
+/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/test-tp3-fix.sh
 ```
 
 ---
@@ -245,13 +245,13 @@ python3 /home/overgon/.openclaw/workspace/ml/train-tp-model.py
 ## 🖥️ DASHBOARD
 
 ### `start.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/dashboard/start.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/dashboard/start.sh`
 
 **Propósito:** Iniciar dashboard Flask (sin Ngrok)
 
 **Comando:**
 ```bash
-cd /home/overgon/.openclaw/workspace/dashboard && bash start.sh
+cd /home/<YOUR_USERNAME>/.openclaw/workspace/dashboard && bash start.sh
 ```
 
 **URL:** `http://192.168.3.215:8080`
@@ -259,18 +259,18 @@ cd /home/overgon/.openclaw/workspace/dashboard && bash start.sh
 ---
 
 ### `start-with-ngrok.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/dashboard/start-with-ngrok.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/dashboard/start-with-ngrok.sh`
 
 **Propósito:** Iniciar dashboard + túnel Ngrok (HTTPS)
 
 **Características:**
 - ✅ HTTPS con candado verde
 - ✅ Auto-start con systemd
-- ✅ Dominio: `https://knapsack-divinity-diffuser.ngrok-free.dev`
+- ✅ Dominio: `https://<YOUR_NGROK_SUBDOMAIN>.ngrok-free.dev`
 
 **Comando:**
 ```bash
-cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
+cd /home/<YOUR_USERNAME>/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
 ```
 
 **Systemd:** `perrobotillo-dashboard-ngrok.service`
@@ -280,7 +280,7 @@ cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
 ## 📊 REPORTES Y MONITOREO
 
 ### `daily-report-9am.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/daily-report-9am.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/daily-report-9am.sh`
 
 **Propósito:** Reporte diario automático a las 9 AM
 
@@ -296,7 +296,7 @@ cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
 
 **Comando:**
 ```bash
-/home/overgon/.openclaw/workspace/daily-report-9am.sh
+/home/<YOUR_USERNAME>/.openclaw/workspace/daily-report-9am.sh
 ```
 
 **Output:** `daily-report-YYYY-MM-DD.md`
@@ -304,7 +304,7 @@ cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
 ---
 
 ### `check-drawdown-alert.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/check-drawdown-alert.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/check-drawdown-alert.sh`
 
 **Propósito:** Monitorear drawdown y alertar si excede límite
 
@@ -317,13 +317,13 @@ cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
 
 **Comando:**
 ```bash
-/home/overgon/.openclaw/workspace/check-drawdown-alert.sh
+/home/<YOUR_USERNAME>/.openclaw/workspace/check-drawdown-alert.sh
 ```
 
 ---
 
 ### `check-public-ip.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/check-public-ip.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/check-public-ip.sh`
 
 **Propósito:** Monitorear IP pública y alertar si cambia (Binance whitelist)
 
@@ -337,13 +337,13 @@ cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
 
 **Comando:**
 ```bash
-/home/overgon/.openclaw/workspace/check-public-ip.sh
+/home/<YOUR_USERNAME>/.openclaw/workspace/check-public-ip.sh
 ```
 
 ---
 
 ### `fan-control.sh` 🆕
-**Ubicación:** `/home/overgon/.openclaw/workspace/scripts/fan-control.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/scripts/fan-control.sh`
 
 **Propósito:** Control automático del ventilador de RPi5 por temperatura
 
@@ -368,15 +368,15 @@ cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
 
 **Comando:**
 ```bash
-/home/overgon/.openclaw/workspace/scripts/fan-control.sh
+/home/<YOUR_USERNAME>/.openclaw/workspace/scripts/fan-control.sh
 ```
 
-**Log:** `/home/overgon/.openclaw/logs/fan-control.log`
+**Log:** `/home/<YOUR_USERNAME>/.openclaw/logs/fan-control.log`
 
 ---
 
 ### `tp-monitor.sh` 🆕🎯
-**Ubicación:** `/home/overgon/.openclaw/workspace/scripts/tp-monitor.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/scripts/tp-monitor.sh`
 
 **Propósito:** Monitoreo en tiempo real de TPs y cierre INMEDIATO al 100%
 
@@ -395,10 +395,10 @@ cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
 
 **Comando:**
 ```bash
-/home/overgon/.openclaw/workspace/scripts/tp-monitor.sh
+/home/<YOUR_USERNAME>/.openclaw/workspace/scripts/tp-monitor.sh
 ```
 
-**Log:** `/home/overgon/.openclaw/logs/tp-monitor.log`
+**Log:** `/home/<YOUR_USERNAME>/.openclaw/logs/tp-monitor.log`
 
 **Output ejemplo:**
 ```
@@ -413,7 +413,7 @@ cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
 ## 🔒 SEGURIDAD Y EMERGENCIAS
 
 ### `emergency-close-all.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/emergency-close-all.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/emergency-close-all.sh`
 
 **Propósito:** Cerrar TODAS las posiciones inmediatamente (emergency stop)
 
@@ -427,13 +427,13 @@ cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
 
 **Comando:**
 ```bash
-/home/overgon/.openclaw/workspace/emergency-close-all.sh
+/home/<YOUR_USERNAME>/.openclaw/workspace/emergency-close-all.sh
 ```
 
 ---
 
 ### `auto-reset-closed-slots.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/auto-reset-closed-slots.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/auto-reset-closed-slots.sh`
 
 **Propósito:** Resetear slots cerrados a READY para nuevas entradas
 
@@ -447,7 +447,7 @@ cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
 
 **Comando:**
 ```bash
-/home/overgon/.openclaw/workspace/auto-reset-closed-slots.sh
+/home/<YOUR_USERNAME>/.openclaw/workspace/auto-reset-closed-slots.sh
 ```
 
 ---
@@ -455,7 +455,7 @@ cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
 ## 🧪 BACKTESTING
 
 ### `run-backtest.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/backtest/run-backtest.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/backtest/run-backtest.sh`
 
 **Propósito:** Ejecutar backtesting de estrategias con datos históricos
 
@@ -473,7 +473,7 @@ cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
 
 **Comando:**
 ```bash
-/home/overgon/.openclaw/workspace/backtest/run-backtest.sh [COIN] [YEARS]
+/home/<YOUR_USERNAME>/.openclaw/workspace/backtest/run-backtest.sh [COIN] [YEARS]
 # Ejemplo: ./run-backtest.sh BTC 2
 ```
 
@@ -482,7 +482,7 @@ cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
 ## 🛠️ UTILIDADES
 
 ### `claw-utils.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/lib/claw-utils.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/lib/claw-utils.sh`
 
 **Propósito:** Utilidades generales del sistema (reemplaza OpenClaw CLI)
 
@@ -493,13 +493,13 @@ cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
 
 **Comando:**
 ```bash
-source /home/overgon/.openclaw/workspace/lib/claw-utils.sh
+source /home/<YOUR_USERNAME>/.openclaw/workspace/lib/claw-utils.sh
 ```
 
 ---
 
 ### `send-telegram.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/lib/send-telegram.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/lib/send-telegram.sh`
 
 **Propósito:** Enviar mensajes a Telegram sin OpenClaw (independiente)
 
@@ -510,33 +510,33 @@ source /home/overgon/.openclaw/workspace/lib/claw-utils.sh
 
 **Comando:**
 ```bash
-/home/overgon/.openclaw/workspace/lib/send-telegram.sh "Mensaje de prueba"
+/home/<YOUR_USERNAME>/.openclaw/workspace/lib/send-telegram.sh "Mensaje de prueba"
 ```
 
-**Secrets:** `/home/overgon/.openclaw/secrets/telegram.env`
+**Secrets:** `/home/<YOUR_USERNAME>/.openclaw/secrets/telegram.env`
 
 ---
 
 ### `crypto-coincap-prices.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/crypto-coincap-prices.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-coincap-prices.sh`
 
 **Propósito:** Obtener precios de CoinCap API
 
 **Comando:**
 ```bash
-/home/overgon/.openclaw/workspace/crypto-coincap-prices.sh
+/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-coincap-prices.sh
 ```
 
 ---
 
 ### `crypto-exchange-compare.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/crypto-exchange-compare.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-exchange-compare.sh`
 
 **Propósito:** Comparar precios entre exchanges (Binance vs CoinCap)
 
 **Comando:**
 ```bash
-/home/overgon/.openclaw/workspace/crypto-exchange-compare.sh
+/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-exchange-compare.sh
 ```
 
 ---
@@ -544,7 +544,7 @@ source /home/overgon/.openclaw/workspace/lib/claw-utils.sh
 ## 💰 GESTIÓN DE CAPITAL
 
 ### `auto-capital-manager.sh` 🆕🤖
-**Ubicación:** `/home/overgon/.openclaw/workspace/scripts/auto-capital-manager.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/scripts/auto-capital-manager.sh`
 
 **Propósito:** Gestión AUTOMÁTICA de position size según capital y win rate
 
@@ -569,12 +569,12 @@ source /home/overgon/.openclaw/workspace/lib/claw-utils.sh
 
 **Comando:**
 ```bash
-/home/overgon/.openclaw/workspace/scripts/auto-capital-manager.sh
+/home/<YOUR_USERNAME>/.openclaw/workspace/scripts/auto-capital-manager.sh
 ```
 
-**Log:** `/home/overgon/.openclaw/logs/auto-capital-manager.log`
+**Log:** `/home/<YOUR_USERNAME>/.openclaw/logs/auto-capital-manager.log`
 
-**Progreso:** `/home/overgon/.openclaw/workspace/crypto-bots/capital-manager-progress.json`
+**Progreso:** `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/capital-manager-progress.json`
 
 **Output ejemplo:**
 ```
@@ -591,7 +591,7 @@ Position ÓPTIMO: 27%
 ## ⚙️ CONFIGURACIÓN
 
 ### `capital-config.sh`
-**Ubicación:** `/home/overgon/.openclaw/workspace/config/capital-config.sh`
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/config/capital-config.sh`
 
 **Propósito:** Configuración de capital por moneda
 
@@ -603,7 +603,7 @@ Position ÓPTIMO: 27%
 
 **Comando:**
 ```bash
-source /home/overgon/.openclaw/workspace/config/capital-config.sh
+source /home/<YOUR_USERNAME>/.openclaw/workspace/config/capital-config.sh
 ```
 
 ---
@@ -629,26 +629,26 @@ source /home/overgon/.openclaw/workspace/config/capital-config.sh
 ## 📁 ARCHIVOS CLAVE
 
 ### Configuración
-- `/home/overgon/.openclaw/secrets/binance.env` - API keys de Binance 🔒
-- `/home/overgon/.openclaw/secrets/telegram.env` - Telegram bot token 🔒
-- `/home/overgon/.openclaw/workspace/crypto-bots/dynamic-config.env` - Config dinámica (auto-generada)
-- `/home/overgon/.openclaw/workspace/crypto-bots/market-mode.conf` - Modo de mercado actual
-- `/home/overgon/.openclaw/workspace/config/capital-config.sh` - Capital por moneda
+- `/home/<YOUR_USERNAME>/.openclaw/secrets/binance.env` - API keys de Binance 🔒
+- `/home/<YOUR_USERNAME>/.openclaw/secrets/telegram.env` - Telegram bot token 🔒
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/dynamic-config.env` - Config dinámica (auto-generada)
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/market-mode.conf` - Modo de mercado actual
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/config/capital-config.sh` - Capital por moneda
 
 ### Estado
-- `/home/overgon/.openclaw/workspace/crypto-bots/[COIN]-trade-state.json` - Estado de slots por moneda
-- `/home/overgon/.openclaw/workspace/crypto-bots/trade-history.json` - Histórico de trades (62 trades, 100% win rate)
-- `/home/overgon/.openclaw/workspace/crypto-bots/cashout-history.json` - Histórico de cashouts
-- `/home/overgon/.openclaw/workspace/crypto-bots/capital-manager-progress.json` - Progreso auto-capital
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/[COIN]-trade-state.json` - Estado de slots por moneda
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/trade-history.json` - Histórico de trades (62 trades, 100% win rate)
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/cashout-history.json` - Histórico de cashouts
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/capital-manager-progress.json` - Progreso auto-capital
 
 ### Logs
-- `/home/overgon/.openclaw/logs/auto-trade-all.log` - Log principal de trading
-- `/home/overgon/.openclaw/logs/fan-control.log` - Log de control de ventilador
-- `/home/overgon/.openclaw/logs/tp-monitor.log` - Log de monitoreo de TPs
-- `/home/overgon/.openclaw/logs/auto-capital-manager.log` - Log de gestión de capital
+- `/home/<YOUR_USERNAME>/.openclaw/logs/auto-trade-all.log` - Log principal de trading
+- `/home/<YOUR_USERNAME>/.openclaw/logs/fan-control.log` - Log de control de ventilador
+- `/home/<YOUR_USERNAME>/.openclaw/logs/tp-monitor.log` - Log de monitoreo de TPs
+- `/home/<YOUR_USERNAME>/.openclaw/logs/auto-capital-manager.log` - Log de gestión de capital
 
 ### Reportes
-- `/home/overgon/.openclaw/workspace/daily-report-YYYY-MM-DD.md` - Reportes diarios
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/daily-report-YYYY-MM-DD.md` - Reportes diarios
 
 ---
 
@@ -670,27 +670,27 @@ curl -s http://localhost:8080/api/status | jq .
 curl -s http://localhost:8080/api/portfolio | jq .
 
 # Trades activos
-jq '.slots[] | select(.status == "ACTIVE")' /home/overgon/.openclaw/workspace/crypto-bots/*-trade-state.json
+jq '.slots[] | select(.status == "ACTIVE")' /home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/*-trade-state.json
 
 # TP Monitor status
 systemctl status perrobotillo-tp-monitor
 
 # Capital Manager progress
-cat /home/overgon/.openclaw/workspace/crypto-bots/capital-manager-progress.json | jq .
+cat /home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/capital-manager-progress.json | jq .
 ```
 
 ### Ver logs en tiempo real
 ```bash
-tail -f /home/overgon/.openclaw/logs/auto-trade-all.log
-tail -f /home/overgon/.openclaw/logs/fan-control.log
-tail -f /home/overgon/.openclaw/logs/tp-monitor.log
-tail -f /home/overgon/.openclaw/logs/auto-capital-manager.log
+tail -f /home/<YOUR_USERNAME>/.openclaw/logs/auto-trade-all.log
+tail -f /home/<YOUR_USERNAME>/.openclaw/logs/fan-control.log
+tail -f /home/<YOUR_USERNAME>/.openclaw/logs/tp-monitor.log
+tail -f /home/<YOUR_USERNAME>/.openclaw/logs/auto-capital-manager.log
 ```
 
 ### Reiniciar servicios
 ```bash
 # Dashboard
-pkill -9 -f "python.*app.py" && cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh &
+pkill -9 -f "python.*app.py" && cd /home/<YOUR_USERNAME>/.openclaw/workspace/dashboard && bash start-with-ngrok.sh &
 
 # TP Monitor
 sudo systemctl restart perrobotillo-tp-monitor
@@ -759,13 +759,13 @@ Estrategia Actual: LATERAL + SCALPING MODE
 
 ## 📚 DOCUMENTACIÓN ADICIONAL
 
-- `/home/overgon/.openclaw/workspace/README.md` - Introducción
-- `/home/overgon/.openclaw/workspace/INSTALL.md` - Instalación
-- `/home/overgon/.openclaw/workspace/SECURITY.md` - Seguridad
-- `/home/overgon/.openclaw/workspace/TRANSICION-SIN-OPENCLAW.md` - Migración
-- `/home/overgon/.openclaw/workspace/ESTRATEGIAS-TRADING.md` - Estrategias (10.2KB)
-- `/home/overgon/.openclaw/workspace/CHANGELOG-2026-05-08.md` - Changelog completo (14KB)
-- `/home/overgon/.openclaw/workspace/backtest/results/PROYECCION-FIN-2026.md` - Proyecciones
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/README.md` - Introducción
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/INSTALL.md` - Instalación
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/SECURITY.md` - Seguridad
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/TRANSICION-SIN-OPENCLAW.md` - Migración
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/ESTRATEGIAS-TRADING.md` - Estrategias (10.2KB)
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/CHANGELOG-2026-05-08.md` - Changelog completo (14KB)
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/backtest/results/PROYECCION-FIN-2026.md` - Proyecciones
 
 ---
 
@@ -773,7 +773,7 @@ Estrategia Actual: LATERAL + SCALPING MODE
 
 **GitHub:** https://github.com/overgon/perrobotillo-trading-bot
 
-**Dashboard:** https://knapsack-divinity-diffuser.ngrok-free.dev
+**Dashboard:** https://<YOUR_NGROK_SUBDOMAIN>.ngrok-free.dev
 
 **Telegram:** Bot integrado para alertas y reportes
 

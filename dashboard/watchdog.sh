@@ -6,8 +6,8 @@
 # Ejecución: Cada 1 minuto desde cron
 # ════════════════════════════════════════════════════════
 
-DASHBOARD_DIR="/home/overgon/.openclaw/workspace/dashboard"
-LOG_FILE="/home/overgon/.openclaw/logs/dashboard-watchdog.log"
+DASHBOARD_DIR="$HOME/.openclaw/workspace/dashboard"
+LOG_FILE="$HOME/.openclaw/logs/dashboard-watchdog.log"
 PID_FILE="/tmp/dashboard.pid"
 PORT=8080
 NGROK_LOG="/tmp/ngrok.log"
@@ -217,7 +217,7 @@ elif [ "$dashboard_ok" = false ] && [ "$ngrok_ok" = true ]; then
 🔧 <b>Acción:</b> Reinicio automático fallido
 
 <b>Revisar:</b>
-• Log: /home/overgon/.openclaw/logs/dashboard-watchdog.log
+• Log: $HOME/.openclaw/logs/dashboard-watchdog.log
 • Dashboard: /tmp/dashboard.log
 
 🐕 Perrobotillo Trading Bot"

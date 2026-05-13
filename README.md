@@ -268,13 +268,13 @@ http://localhost:8080/
 
 **Acceso remoto (SSH tunnel):**
 ```bash
-ssh -L 9090:localhost:8080 -N overgon@192.168.3.215
+ssh -L 9090:localhost:8080 -N <YOUR_USERNAME>@<YOUR_RPI_IP>
 # Luego abrir: http://localhost:9090/
 ```
 
 **Acceso remoto (Ngrok):**
 ```
-https://knapsack-divinity-diffuser.ngrok-free.dev
+https://<YOUR_NGROK_SUBDOMAIN>.ngrok-free.dev
 ```
 
 **Características del Dashboard:**
@@ -311,21 +311,21 @@ cat crypto-bots/daily-report-$(date +%Y-%m-%d).md
 crontab -e
 
 # Agrega esta línea:
-0 * * * * /home/overgon/.openclaw/workspace/check-public-ip.sh
+0 * * * * /home/<YOUR_USERNAME>/.openclaw/workspace/check-public-ip.sh
 ```
 
 ### Alertas de Drawdown
 
 ```bash
 # Agregar al crontab (cada 30 min)
-*/30 * * * * /home/overgon/.openclaw/workspace/check-drawdown-alert.sh
+*/30 * * * * /home/<YOUR_USERNAME>/.openclaw/workspace/check-drawdown-alert.sh
 ```
 
 ### Reporte Diario Automático
 
 ```bash
 # Agregar al crontab (9 AM diario)
-0 9 * * * /home/overgon/.openclaw/workspace/daily-report-9am.sh
+0 9 * * * /home/<YOUR_USERNAME>/.openclaw/workspace/daily-report-9am.sh
 ```
 
 ### TP Monitor (Take Profit Detection)
@@ -335,7 +335,7 @@ crontab -e
 systemctl status perrobotillo-tp-monitor
 
 # Logs
-tail -f /home/overgon/.openclaw/logs/tp-monitor.log
+tail -f /home/<YOUR_USERNAME>/.openclaw/logs/tp-monitor.log
 ```
 
 **Funciones:**
@@ -351,7 +351,7 @@ tail -f /home/overgon/.openclaw/logs/tp-monitor.log
 crontab -l | grep watchdog
 
 # Logs
-tail -f /home/overgon/.openclaw/logs/dashboard-watchdog.log
+tail -f /home/<YOUR_USERNAME>/.openclaw/logs/dashboard-watchdog.log
 ```
 
 **Funciones:**
@@ -364,10 +364,10 @@ tail -f /home/overgon/.openclaw/logs/dashboard-watchdog.log
 
 ```bash
 # Mensual (1ro de cada mes, 1 AM)
-0 1 1 * * /home/overgon/.openclaw/scripts/housekeeping.sh
+0 1 1 * * /home/<YOUR_USERNAME>/.openclaw/scripts/housekeeping.sh
 
 # Semanal (domingos, 2 AM)
-0 2 * * 0 logrotate -f /home/overgon/.openclaw/logs/logrotate.conf
+0 2 * * 0 logrotate -f /home/<YOUR_USERNAME>/.openclaw/logs/logrotate.conf
 ```
 
 **Funciones:**
@@ -381,7 +381,7 @@ tail -f /home/overgon/.openclaw/logs/dashboard-watchdog.log
 
 ```bash
 # Cada 6 horas
-0 */6 * * * /home/overgon/.openclaw/workspace/crypto-bots/auto-adjust-strategy.sh
+0 */6 * * * /home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/auto-adjust-strategy.sh
 ```
 
 **Funciones:**
@@ -394,7 +394,7 @@ tail -f /home/overgon/.openclaw/logs/dashboard-watchdog.log
 
 ```bash
 # Diario 9:00 AM
-0 9 * * * /home/overgon/.openclaw/workspace/scripts/auto-capital-manager.sh
+0 9 * * * /home/<YOUR_USERNAME>/.openclaw/workspace/scripts/auto-capital-manager.sh
 ```
 
 **Funciones:**
@@ -542,7 +542,7 @@ systemctl restart perrobotillo-dashboard-ngrok
 systemctl restart perrobotillo-tp-monitor
 
 # Ver logs en vivo
-tail -f /home/overgon/.openclaw/logs/auto-trade-all.log
+tail -f /home/<YOUR_USERNAME>/.openclaw/logs/auto-trade-all.log
 ```
 
 ---
@@ -571,18 +571,54 @@ tail -f /home/overgon/.openclaw/logs/auto-trade-all.log
 
 ## 🎯 PRÓXIMAS MEJORAS (ROADMAP)
 
+### FASE 1 (✅ COMPLETADA - 2026-05-13)
+- [x] Soporte para LONG positions
+- [x] Multi-slot (3 por moneda, 21 total)
+- [x] Dashboard web con datos en vivo
+- [x] TP Monitor (detección 30s)
+- [x] Auto-Adjust Strategy (6h)
+- [x] Auto Capital Manager (9 AM)
+- [x] Watchdog con alertas Telegram
+- [x] Housekeeping automático
+- [x] **🤖 ML TP Prediction (FASE 1)**
+  - [x] Modelo LightGBM (0.31 MB)
+  - [x] 22 features (RSI, MACD, BB, volatilidad)
+  - [x] Accuracy: 79-90%
+  - [x] Inferencia < 1 segundo
+  - [x] Auto-retrain semanal
+  - [x] Integración con bot principal
+
 ### FASE 2 (En desarrollo)
-- [ ] Soporte para SHORT positions
-- [ ] Machine learning para predicción de TP
-- [ ] Integración con más exchanges
-- [ ] Dashboard con gráficos en vivo
+- [ ] ML FASE 2: Mejorar accuracy a 85%+ (más features, más trades)
+- [ ] Integración con más exchanges (KuCoin, Bybit)
+- [ ] Dashboard con gráficos en vivo (Chart.js)
 - [ ] Backtesting en la nube
+- [ ] ML para detección de mercado (BULL/BEAR/LATERAL)
 
 ### FASE 3 (Futuro)
 - [ ] Estrategias multi-timeframe
 - [ ] Portfolio rebalancing automático
 - [ ] Alertas de mercado avanzadas
 - [ ] API REST para control externo
+- [ ] Mobile app (React Native)
+
+---
+
+## 📝 NOTA SOBRE LONG ONLY
+
+**¿Por qué solo LONG?**
+
+Después de backtesting de 6 años y 62+ trades reales:
+- ✅ **Win rate LONG:** 100% (62 trades)
+- ❌ **Win rate SHORT:** <40% (backtest)
+
+**Razones:**
+1. **Crypto tiene bias alcista** - A largo plazo, el mercado tiende a subir
+2. **Volatilidad asimétrica** - Las subidas son más predecibles que las bajadas
+3. **Nuestra estrategia** - Está optimizada para mercados con tendencia positiva
+4. **Risk/Reward** - LONG tiene mejor relación riesgo/beneficio en crypto
+
+**Conclusión:** LONG ONLY es la estrategia validada. No recomendamos SHORT.
 
 ---
 

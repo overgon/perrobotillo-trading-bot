@@ -448,13 +448,13 @@ Escenario OPTIMISTA (si mercado BULL):
 ## 📞 SOPORTE
 
 **Documentación adicional:**
-- `/home/overgon/.openclaw/workspace/README.md`
-- `/home/overgon/.openclaw/workspace/CHEATSHEET.md`
-- `/home/overgon/.openclaw/workspace/CHANGELOG-2026-05-08.md`
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/README.md`
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/CHEATSHEET.md`
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/CHANGELOG-2026-05-08.md`
 
 **GitHub:** https://github.com/overgon/perrobotillo-trading-bot
 
-**Dashboard:** https://knapsack-divinity-diffuser.ngrok-free.dev
+**Dashboard:** https://<YOUR_NGROK_SUBDOMAIN>.ngrok-free.dev
 
 ---
 

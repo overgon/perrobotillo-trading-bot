@@ -18,11 +18,11 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Configuración
-MODEL_PATH = '/home/overgon/.openclaw/workspace/ml/tp_prediction_model.pkl'
-METADATA_PATH = '/home/overgon/.openclaw/workspace/ml/model_metadata.json'
-TRADE_HISTORY_PATH = '/home/overgon/.openclaw/workspace/crypto-bots/trade-history.json'
-BACKTEST_DATA_DIR = '/home/overgon/.openclaw/workspace/backtest/data'
-ML_LOG_PATH = '/home/overgon/.openclaw/logs/ml-retrain.log'
+MODEL_PATH = '$HOME/.openclaw/workspace/ml/tp_prediction_model.pkl'
+METADATA_PATH = '$HOME/.openclaw/workspace/ml/model_metadata.json'
+TRADE_HISTORY_PATH = '$HOME/.openclaw/workspace/crypto-bots/trade-history.json'
+BACKTEST_DATA_DIR = '$HOME/.openclaw/workspace/backtest/data'
+ML_LOG_PATH = '$HOME/.openclaw/logs/ml-retrain.log'
 MIN_TRADES_FOR_RETRAIN = 10  # Mínimo trades nuevos para re-entrenar
 
 def log(message):
@@ -314,7 +314,7 @@ def save_last_retrain_info(trade_count):
         'retrain_count': get_retrain_count() + 1
     }
     
-    with open('/home/overgon/.openclaw/workspace/ml/last_retrain.json', 'w') as f:
+    with open('$HOME/.openclaw/workspace/ml/last_retrain.json', 'w') as f:
         json.dump(info, f, indent=2)
     
     log(f"💾 Info guardada: last_retrain.json")
@@ -333,7 +333,7 @@ def main():
     trades = load_trade_history()
     
     # 3. Verificar si hay suficientes trades nuevos
-    last_retrain_info_path = '/home/overgon/.openclaw/workspace/ml/last_retrain.json'
+    last_retrain_info_path = '$HOME/.openclaw/workspace/ml/last_retrain.json'
     last_trade_count = 0
     
     if os.path.exists(last_retrain_info_path):

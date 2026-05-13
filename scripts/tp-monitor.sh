@@ -6,11 +6,11 @@
 # Autor: Perrobotillo 🐕
 # ════════════════════════════════════════════════════════
 
-WORKSPACE="/home/overgon/.openclaw/workspace"
-LOG_FILE="/home/overgon/.openclaw/logs/tp-monitor.log"
+WORKSPACE="$HOME/.openclaw/workspace"
+LOG_FILE="$HOME/.openclaw/logs/tp-monitor.log"
 BINANCE="https://api.binance.com"
 
-source "/home/overgon/.openclaw/secrets/binance.env"
+source "$HOME/.openclaw/secrets/binance.env"
 
 # ════════════════════════════════════════════════════════
 # 🔧 FUNCIONES
@@ -113,7 +113,7 @@ for slot_info in slots_to_close:
     print(f"   🚀 Ejecutando cierre INMEDIATO...")
     
     # Ejecutar cierre
-    cmd = f"/home/overgon/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh {coin}"
+    cmd = f"$HOME/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh {coin}"
     subprocess.run(cmd, shell=True, capture_output=True)
     
     print(f"   ✅ Cierre ejecutado")
@@ -139,7 +139,7 @@ for slot_info in slots_to_close:
     print(f"   📝 Estado actualizado: Slot {slot_id} → READY")
     
     # Enviar alerta por Telegram
-    telegram_env = "/home/overgon/.openclaw/workspace/secrets/telegram.env"
+    telegram_env = "$HOME/.openclaw/workspace/secrets/telegram.env"
     if os.path.exists(telegram_env):
         with open(telegram_env, 'r') as tg_file:
             for line in tg_file:

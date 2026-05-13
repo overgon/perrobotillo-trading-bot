@@ -5,8 +5,8 @@
 # ╚═══════════════════════════════════════════════════════╝
 
 SYMBOL="SOL"
-WORKSPACE="/home/overgon/.openclaw/workspace"
-SECRETS="/home/overgon/.openclaw/secrets"
+WORKSPACE="$HOME/.openclaw/workspace"
+SECRETS="$HOME/.openclaw/secrets"
 BINANCE="https://api.binance.com"
 
 source "$SECRETS/binance.env"
