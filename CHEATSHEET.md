@@ -1,7 +1,7 @@
 # 🐕 PERROBOTILLO TRADING BOT - CHEATSHEET COMPLETO
 
-> **Última actualización:** Mayo 9, 2026  
-> **Total de scripts:** 19  
+> **Última actualización:** Mayo 11, 2026  
+> **Total de scripts:** 21  
 > **Estado:** 100% OPERATIVO ✅
 
 ---
@@ -15,8 +15,9 @@
 5. [Seguridad y Emergencias](#-seguridad-y-emergencias)
 6. [Backtesting](#-backtesting)
 7. [Utilidades](#-utilidades)
-8. [Sistema](#-sistema)
-9. [Tests](#-tests)
+8. [Gestión de Capital](#-gestión-de-capital)
+9. [Sistema](#-sistema)
+10. [Tests](#-tests)
 
 ---
 
@@ -35,6 +36,7 @@
 - ✅ Auto-save de trades (TP1/TP2/TP3/SL/TRAILING/SCALP)
 - ✅ P&L por moneda
 - ✅ Check de duplicados antes de guardar
+- ✅ TP3 quantity: 30% (después TP1+TP2) o 65% (solo TP1)
 
 **Comando:**
 ```bash
@@ -252,6 +254,41 @@ cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
 
 ---
 
+### `tp-monitor.sh` 🆕🎯
+**Ubicación:** `/home/overgon/.openclaw/workspace/scripts/tp-monitor.sh`
+
+**Propósito:** Monitoreo en tiempo real de TPs y cierre INMEDIATO al 100%
+
+**Características:**
+- ✅ Escanea slots activos cada 30 segundos
+- ✅ Detecta cuando TP1/TP2/TP3 llega a 100%
+- ✅ Ejecuta cierre INMEDIATO (sin esperar 10 min)
+- ✅ Alerta cuando slot está >95% del TP
+- ✅ Evita perder TPs por caídas de precio
+
+**Ventajas:**
+- **ANTES:** Delay de 10 min (podía perder TPs)
+- **AHORA:** Ejecución en ≤30 segundos
+
+**Systemd:** `perrobotillo-tp-monitor.service` (auto-start)
+
+**Comando:**
+```bash
+/home/overgon/.openclaw/workspace/scripts/tp-monitor.sh
+```
+
+**Log:** `/home/overgon/.openclaw/logs/tp-monitor.log`
+
+**Output ejemplo:**
+```
+⚠️  CERCA DEL TP: SOL Slot 1 → 95.2%
+🎯 TP HIT DETECTADO: SOL Slot 1 TP1
+🚀 Ejecutando cierre INMEDIATO...
+✅ Cierre ejecutado
+```
+
+---
+
 ## 🔒 SEGURIDAD Y EMERGENCIAS
 
 ### `emergency-close-all.sh`
@@ -308,13 +345,10 @@ cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh
 - ✅ Compara vs HODL
 - ✅ Genera reporte en Markdown
 
-**Resultados históricos (2 años BTC):**
-- **Dynamic (Auto-Ajuste):** +2,777% return, 86.05% win rate 🏆
-- **Lateral:** +2,777% return, 86.05% win rate
-- **Actual (FASE 1 v2.1):** +2,484% return, 85.37% win rate
-- **Bear:** +1,868% return, 83.33% win rate
-- **Bull:** +936% return, 88.46% win rate
-- **HODL:** +98.61% return
+**Resultados históricos (6 años 2020-2026):**
+- **LONG (Current Strategy):** +961.5% average return 🏆 OPTIMAL
+- **SHORT (All strategies):** +260.7% average (700% worse)
+- **Conclusión:** LONG ONLY confirmado óptimo para crypto
 
 **Comando:**
 ```bash
@@ -386,6 +420,53 @@ source /home/overgon/.openclaw/workspace/lib/claw-utils.sh
 
 ---
 
+## 💰 GESTIÓN DE CAPITAL
+
+### `auto-capital-manager.sh` 🆕🤖
+**Ubicación:** `/home/overgon/.openclaw/workspace/scripts/auto-capital-manager.sh`
+
+**Propósito:** Gestión AUTOMÁTICA de position size según capital y win rate
+
+**Características:**
+- ✅ Calcula portfolio REAL en tiempo real (todas las monedas + USDT)
+- ✅ Decide position size óptimo automáticamente
+- ✅ Ajusta según capital y win rate
+- ✅ Notifica cambios por Telegram
+- ✅ Ejecución diaria automática
+
+**Reglas inteligentes:**
+
+| Capital Total | Position Base | Ajuste Win Rate |
+|---------------|---------------|-----------------|
+| < $1,000 | 15% (Conservador) | WR < 70%: -5% |
+| $1,000-$2,000 | 22% (Moderado) | WR > 95%: +2% |
+| $2,000-$3,000 | 25% (Crecimiento) | Límites: 15-30% |
+| $3,000-$5,000 | 28% (Alto) | |
+| > $5,000 | 30% (Máximo) | |
+
+**Cron:** `0 9 * * *` (diario a las 9 AM)
+
+**Comando:**
+```bash
+/home/overgon/.openclaw/workspace/scripts/auto-capital-manager.sh
+```
+
+**Log:** `/home/overgon/.openclaw/logs/auto-capital-manager.log`
+
+**Progreso:** `/home/overgon/.openclaw/workspace/crypto-bots/capital-manager-progress.json`
+
+**Output ejemplo:**
+```
+Portfolio REAL: $2,887.02 USDT
+Win Rate: 100.0%
+Position actual: 24%
+Position ÓPTIMO: 27%
+📈 Aumento menor: 24% → 27%
+✅ Position size actualizado: 27%
+```
+
+---
+
 ## ⚙️ CONFIGURACIÓN
 
 ### `capital-config.sh`
@@ -397,6 +478,7 @@ source /home/overgon/.openclaw/workspace/lib/claw-utils.sh
 - ✅ Define USDT por slot
 - ✅ Define porcentaje de posición
 - ✅ Configuración centralizada
+- ✅ Actualizado por `auto-capital-manager.sh`
 
 **Comando:**
 ```bash
@@ -414,11 +496,12 @@ source /home/overgon/.openclaw/workspace/config/capital-config.sh
 | `0 * * * *` | `market-sentiment.sh` | Sentimiento mercado (cada hora) |
 | `0 * * * *` | `check-public-ip.sh` | Check IP pública (cada hora) |
 | `0 9 * * *` | `daily-report-9am.sh` | Reporte diario (9 AM) |
+| `0 9 * * *` | `auto-capital-manager.sh` | Gestión capital (9 AM) |
 | `0 */6 * * *` | `auto-adjust-strategy.sh` | Auto-ajuste estrategia (6 horas) |
 | `4,14,24,34,44,54 * * * *` | `crypto-trade-moneda-v3-slots.sh LINK` | Trading bot LINK |
 | *(similar)* | `crypto-trade-moneda-v3-slots.sh [COIN]` | Trading bot cada moneda |
 
-**Total:** 24 cron jobs activos
+**Total:** 25 cron jobs activos
 
 ---
 
@@ -429,15 +512,19 @@ source /home/overgon/.openclaw/workspace/config/capital-config.sh
 - `/home/overgon/.openclaw/secrets/telegram.env` - Telegram bot token 🔒
 - `/home/overgon/.openclaw/workspace/crypto-bots/dynamic-config.env` - Config dinámica (auto-generada)
 - `/home/overgon/.openclaw/workspace/crypto-bots/market-mode.conf` - Modo de mercado actual
+- `/home/overgon/.openclaw/workspace/config/capital-config.sh` - Capital por moneda
 
 ### Estado
 - `/home/overgon/.openclaw/workspace/crypto-bots/[COIN]-trade-state.json` - Estado de slots por moneda
-- `/home/overgon/.openclaw/workspace/crypto-bots/trade-history.json` - Histórico de trades (51 trades, 100% win rate)
+- `/home/overgon/.openclaw/workspace/crypto-bots/trade-history.json` - Histórico de trades (62 trades, 100% win rate)
 - `/home/overgon/.openclaw/workspace/crypto-bots/cashout-history.json` - Histórico de cashouts
+- `/home/overgon/.openclaw/workspace/crypto-bots/capital-manager-progress.json` - Progreso auto-capital
 
 ### Logs
 - `/home/overgon/.openclaw/logs/auto-trade-all.log` - Log principal de trading
 - `/home/overgon/.openclaw/logs/fan-control.log` - Log de control de ventilador
+- `/home/overgon/.openclaw/logs/tp-monitor.log` - Log de monitoreo de TPs
+- `/home/overgon/.openclaw/logs/auto-capital-manager.log` - Log de gestión de capital
 
 ### Reportes
 - `/home/overgon/.openclaw/workspace/daily-report-YYYY-MM-DD.md` - Reportes diarios
@@ -463,18 +550,29 @@ curl -s http://localhost:8080/api/portfolio | jq .
 
 # Trades activos
 jq '.slots[] | select(.status == "ACTIVE")' /home/overgon/.openclaw/workspace/crypto-bots/*-trade-state.json
+
+# TP Monitor status
+systemctl status perrobotillo-tp-monitor
+
+# Capital Manager progress
+cat /home/overgon/.openclaw/workspace/crypto-bots/capital-manager-progress.json | jq .
 ```
 
 ### Ver logs en tiempo real
 ```bash
 tail -f /home/overgon/.openclaw/logs/auto-trade-all.log
 tail -f /home/overgon/.openclaw/logs/fan-control.log
+tail -f /home/overgon/.openclaw/logs/tp-monitor.log
+tail -f /home/overgon/.openclaw/logs/auto-capital-manager.log
 ```
 
 ### Reiniciar servicios
 ```bash
 # Dashboard
 pkill -9 -f "python.*app.py" && cd /home/overgon/.openclaw/workspace/dashboard && bash start-with-ngrok.sh &
+
+# TP Monitor
+sudo systemctl restart perrobotillo-tp-monitor
 
 # Ngrok
 pkill -9 ngrok && ngrok http 8080 --log=stdout &
@@ -487,21 +585,29 @@ crontab -l
 
 ---
 
-## 📊 ESTADÍSTICAS ACTUALES (Mayo 9, 2026)
+## 📊 ESTADÍSTICAS ACTUALES (Mayo 11, 2026)
 
 ```
-Total Trades: 51
+Total Trades: 62
 Win Rate: 100% 🏆
-Net P&L: +$174.61 USDT
+Net P&L: +$219.04 USDT
 
-Portfolio: ~$2,820 USDT (~$48,540 MXN)
+Portfolio: ~$2,887 USDT (~$49,700 MXN con tasa real)
 
-Slots Activos: 20/21 (95% utilización)
+Slots Activos: 13/21 (62% utilización)
+Slots Disponibles: 8/21
 
-Trades Hoy (Mayo 8): 15 trades, +$78.73 USDT
+Cashouts: 2 ($360.04 USDT → $6,280.70 MXN)
 
-Temperatura RPi5: 37.3°C
-Ventilador: 0/255 (OFF - auto control)
+Temperatura RPi5: ~38-45°C
+Ventilador: Auto control (PWM 0-255)
+
+Position Size: 27% (auto-ajustado por bot)
+  → ~$779 USDT por trade
+
+Estrategia Actual: LATERAL + SCALPING MODE
+  TP1: 2.5% | TP2: 5.0% | TP3: 7.0% | SL: 5.0%
+  SCALPING: 1.0% target, 2.5% SL
 ```
 
 ---
@@ -522,20 +628,56 @@ Ventilador: 0/255 (OFF - auto control)
 - ✅ Sin retiros permitidos
 - ✅ Emergency close protegido
 
+### Independencia de OpenClaw
+- ✅ Trading bot: Independiente (cron + API directa)
+- ✅ Dashboard: Independiente (Flask + Ngrok)
+- ✅ Alertas: Independientes (Telegram API directa)
+- ✅ Solo chat: Depende de OpenClaw/Ollama
+
+---
+
+## 📚 DOCUMENTACIÓN ADICIONAL
+
+- `/home/overgon/.openclaw/workspace/README.md` - Introducción
+- `/home/overgon/.openclaw/workspace/INSTALL.md` - Instalación
+- `/home/overgon/.openclaw/workspace/SECURITY.md` - Seguridad
+- `/home/overgon/.openclaw/workspace/TRANSICION-SIN-OPENCLAW.md` - Migración
+- `/home/overgon/.openclaw/workspace/ESTRATEGIAS-TRADING.md` - Estrategias (10.2KB)
+- `/home/overgon/.openclaw/workspace/CHANGELOG-2026-05-08.md` - Changelog completo (14KB)
+- `/home/overgon/.openclaw/workspace/backtest/results/PROYECCION-FIN-2026.md` - Proyecciones
+
 ---
 
 ## 🦴 SOPORTE
 
-**Documentación:**
-- `/home/overgon/.openclaw/workspace/README.md`
-- `/home/overgon/.openclaw/workspace/INSTALL.md`
-- `/home/overgon/.openclaw/workspace/SECURITY.md`
-- `/home/overgon/.openclaw/workspace/TRANSICION-SIN-OPENCLAW.md`
-- `/home/overgon/.openclaw/workspace/CHANGELOG-2026-05-08.md`
-
 **GitHub:** https://github.com/overgon/perrobotillo-trading-bot
 
 **Dashboard:** https://knapsack-divinity-diffuser.ngrok-free.dev
+
+**Telegram:** Bot integrado para alertas y reportes
+
+---
+
+## 🎯 NOVEDADES MAYO 11, 2026
+
+### 🆕 TP Monitor (`tp-monitor.sh`)
+- Monitoreo en tiempo real cada 30 segundos
+- Cierre INMEDIATO al detectar TP 100%
+- Evita perder TPs por caídas de precio
+- Systemd auto-start habilitado
+
+### 🆕 Auto Capital Manager (`auto-capital-manager.sh`)
+- Gestión AUTOMÁTICA de position size
+- Calcula portfolio REAL (todas las monedas)
+- Decide position óptimo según capital y win rate
+- Ajuste automático diario (9 AM)
+- Notificaciones por Telegram
+
+### 📊 Stats Actualizadas
+- Portfolio corregido: ~$2,887 USDT (antes $1,972)
+- Position size: 27% (auto-ajustado de 40%)
+- 62 trades en histórico (+$219.04 USDT)
+- 100% win rate mantenido
 
 ---
 

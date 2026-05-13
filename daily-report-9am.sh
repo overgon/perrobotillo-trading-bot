@@ -4,6 +4,15 @@
 # 2026-04-20 - Perrobotillo Trading Bot - CON 24H CHANGE
 
 source /home/overgon/.openclaw/secrets/binance.env
+
+# Debug: Verificar que las credenciales se cargaron
+if [ -z "$BINANCE_API_KEY" ] || [ -z "$BINANCE_API_SECRET" ]; then
+    echo "❌ ERROR: BINANCE_API_KEY o BINANCE_API_SECRET no están configuradas"
+    echo "   Verificando archivo: /home/overgon/.openclaw/secrets/binance.env"
+    ls -la /home/overgon/.openclaw/secrets/binance.env
+    exit 1
+fi
+echo "✅ Credenciales de Binance cargadas correctamente"
 WORKSPACE="/home/overgon/.openclaw/workspace"
 LOG_FILE="/home/overgon/.openclaw/logs/auto-trade-all.log"
 
@@ -21,7 +30,7 @@ send_telegram() {
         if [ -n "$bot_token" ] && [ "$bot_token" != "null" ]; then
             curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
                 -H "Content-Type: application/json" \
-                -d "{\"chat_id\":\"7543955537\",\"text\":\"$message\",\"parse_mode\":\"Markdown\"}" > /dev/null
+                -d "{\"chat_id\":\"7543955537\",\"text\":\"$message\",\"parse_mode=HTML\"}" > /dev/null
             echo "✅ Telegram enviado"
         else
             echo "❌ Bot token no encontrado"
@@ -49,8 +58,11 @@ total_usdt=0
 total_pnl_24h=0
 
 # USDT disponible
-usdt_free=$(echo "$balance" | jq -r '.balances[] | select(.asset=="USDT") | .free')
-[ -z "$usdt_free" ] || [ "$usdt_free" = "null" ] && usdt_free="0"
+usdt_free=$(echo "$balance" | jq -r '.balances[] | select(.asset=="USDT") | .free' 2>/dev/null | head -1)
+if [ -z "$usdt_free" ] || [ "$usdt_free" = "null" ] || [ "$usdt_free" = "" ]; then
+    usdt_free="0"
+    echo "⚠️  Warning: No se pudo leer USDT balance de Binance"
+fi
 total_usdt=$usdt_free
 
 # COINS del portfolio
@@ -62,8 +74,16 @@ declare -A coin_24h_pnl
 declare -A coin_values
 
 for asset in "${COINS[@]}"; do
-    free=$(echo "$balance" | jq -r ".balances[] | select(.asset==\"$asset\") | .free")
-    price=$(echo "$prices" | jq -r ".[] | select(.symbol==\"${asset}USDT\") | .price")
+    free=$(echo "$balance" | jq -r --arg coin "$asset" '.balances[] | select(.asset==$coin) | .free' 2>/dev/null | head -1)
+    price=$(echo "$prices" | jq -r --arg sym "${asset}USDT" '.[] | select(.symbol==$sym) | .price' 2>/dev/null | head -1)
+    
+    # Debug
+    # echo "  $asset: free=$free, price=$price"
+    
+    # Si no hay datos, saltar
+    if [ -z "$free" ] || [ "$free" = "null" ]; then
+        continue
+    fi
     
     # Obtener cambio 24h de Binance
     ticker_24h=$(curl -s "https://api.binance.com/api/v3/ticker/24hr?symbol=${asset}USDT" 2>/dev/null)
@@ -134,34 +154,68 @@ fi
 [ -z "$losses" ] && losses=0
 [ -z "$total_pnl" ] && total_pnl=0
 
-# Crear mensaje de resumen
+# Crear mensaje de resumen con Markdown para Telegram
 today=$(date +%Y-%m-%d)
 day_name=$(date +%A)
 
-report_msg="📊 *REPORTE DIARIO - $today ($day_name)*
-
-💰 *PORTFOLIO ACTUAL:*
-Total: \$${total_usdt} USDT
-Total: \$${total_mxn} MXN
-Snapshot: \$${snapshot} USDT
-P&L: \$${pnl} (${pnl_pct}%)
-
-📈 *P&L 24H POR COIN:*
-$(for asset in "${COINS[@]}"; do
+# Construir tabla de P&L por coin (formato Markdown)
+coin_table=""
+for asset in "${COINS[@]}"; do
     if [ -n "${coin_24h_change[$asset]}" ]; then
         change="${coin_24h_change[$asset]}"
         pnl="${coin_24h_pnl[$asset]}"
+        
+        # Determinar emoji
         if (( $(echo "$change > 0" | bc -l) )); then
-            echo "• $asset: 🟢 +${change}% (+\$${pnl})"
+            emoji="🟢"
+            sign="+"
         elif (( $(echo "$change < 0" | bc -l) )); then
-            echo "• $asset: 🔴 ${change}% (\$${pnl})"
+            emoji="🔴"
+            sign=""
+        else
+            emoji="⚪"
+            sign=""
         fi
+        
+        coin_table+="$(printf '%-6s  %8s%%  %12s\n' "$asset" "${sign}${change}" "$pnl")
+"
     fi
-done)
+done
 
-📊 *TOTAL 24H:* \$${total_pnl_24h} (${pnl_24h_pct}%)
+report_msg="*📊 REPORTE DIARIO - $today*
+_$day_name_
 
-🐕 Perrobotillo Trading Bot"
+━━━━━━━━━━━━━━━━━━━━━━
+
+*💰 PORTFOLIO ACTUAL*
+
+Total USDT:   *\$${total_usdt}*
+Total MXN:    *\$${total_mxn}*
+Snapshot:     \$${snapshot}
+P\&L:         *\$${pnl} (${pnl_pct}%)*
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+*📈 P\&L 24H POR COIN*
+
+\`\`\`
+$(printf '%-6s  %8s  %12s\n' "Coin" "24h" "P\&L")
+$(printf '%-6s  %8s  %12s\n' "----" "----" "----")
+${coin_table}\`\`\`
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+*📊 TOTAL 24H:* *\$${total_pnl_24h} (${pnl_24h_pct}%)*
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+*📊 TRADES AYER:* $trades_count operaciones
+*✅ Wins:* $wins | *❌ Losses:* $losses
+*💰 P\&L:* \$${total_pnl}
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+🐕 _Perrobotillo Trading Bot_"
 
 # Enviar Telegram
 echo "Enviando reporte..."
@@ -359,6 +413,222 @@ if [ -f "$config_file" ] && [ -f "$report_file" ]; then
 📊 Trades Activos: $active_count/21
 🐕 Perrobotillo Trading Bot" > /dev/null
         echo "✅ Archivo adjunto enviado a Telegram"
+    fi
+fi
+
+echo ""
+
+# ============================================
+# GENERAR REPORTE EN HTML CON DATOS REALES
+# ============================================
+
+# html_file="$WORKSPACE/crypto-bots/daily-report-$today.html"
+
+# Leer trades de ayer desde trade-history.json
+HISTORY_FILE="$WORKSPACE/crypto-bots/trade-history.json"
+trades_json=$(jq --arg date "$yesterday" '[.trades[] | select(.timestamp | startswith($date))]' "$HISTORY_FILE" 2>/dev/null)
+trades_count=$(echo "$trades_json" | jq 'length')
+
+# Generar HTML con datos reales
+# cat > "$html_file" << HTMLEOF
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐕 Reporte Diario - $today</title>
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #121212;
+            --neon-green: #00ff88;
+            --neon-red: #ff3366;
+            --neon-blue: #00d4ff;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+        }
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #1a1a2e, #0f0f1a);
+            border-radius: 10px;
+            border: 2px solid var(--neon-blue);
+            margin-bottom: 30px;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        }
+        .header h1 {
+            font-size: 2em;
+            margin: 0;
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+        .section {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #2a2a2a;
+        }
+        .section h2 {
+            color: var(--neon-green);
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #2a2a2a;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        th {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--neon-blue);
+            font-weight: bold;
+        }
+        .positive { color: var(--neon-green); font-weight: bold; }
+        .negative { color: var(--neon-red); font-weight: bold; }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .stat-card {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--neon-blue);
+        }
+        .stat-card .value { font-size: 1.8em; font-weight: bold; color: var(--neon-blue); }
+        .stat-card .label { color: var(--text-secondary); font-size: 0.9em; margin-top: 5px; }
+        .trade-card {
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid var(--neon-green);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🐕 Reporte Diario de Trading</h1>
+        <div class="date">📅 $yesterday</div>
+        <div class="date">🕐 Generado: $(date '+%Y-%m-%d %H:%M:%S CST')</div>
+    </div>
+    
+    <div class="section">
+        <h2>📊 Resumen del Día</h2>
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="value">$trades_count</div>
+                <div class="label">Total Trades</div>
+            </div>
+            <div class="stat-card">
+                <div class="value positive">$wins</div>
+                <div class="label">Wins ✅</div>
+            </div>
+            <div class="stat-card">
+                <div class="value negative">$losses</div>
+                <div class="label">Losses ❌</div>
+            </div>
+            <div class="stat-card">
+                <div class="value positive">$(echo "scale=1; if(($wins+$losses)>0) $wins*100/($wins+$losses) else 0" | bc)%</div>
+                <div class="label">Win Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="value positive">+\$$(printf '%.2f' "$total_pnl")</div>
+                <div class="label">P&L Total</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <div class="section">
+        <h2>🎯 Trades Cerrados ($yesterday)</h2>
+    </div>
+HTMLEOF
+
+# Agregar cada trade como card usando script Python
+# export TRADES_JSON="$trades_json"
+# python3 "$WORKSPACE/scripts/generate-html-trades.py" >> "$html_file"
+
+# Abrir siguiente sección
+# cat >> "$html_file" << HTMLEOF
+    
+    <div class="divider"></div>
+    
+    <div class="section">
+        <h2>💰 Portfolio Actual</h2>
+    
+    <div class="divider"></div>
+    
+    <div class="section">
+        <h2>💰 Portfolio Actual</h2>
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="value">\$$(printf '%.2f' "$total_usdt")</div>
+                <div class="label">Total USDT</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">\$$(printf '%.2f' "$total_mxn")</div>
+                <div class="label">Total MXN</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">\$$(printf '%.2f' "$snapshot")</div>
+                <div class="label">Snapshot Ayer</div>
+            </div>
+            <div class="stat-card">
+                <div class="value \(if (( $(echo "$pnl >= 0" | bc -l) )); then echo 'positive'; else echo 'negative'; fi)">\$$(printf '%.2f' "$pnl") ($(printf '%.2f' "$pnl_pct")%)</div>
+                <div class="label">P&L del Día</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>🐕 <strong>Perrobotillo Trading Bot</strong> - FASE 1 v2.1</p>
+        <p>🤖 Auto-Adjust Strategy | TP Monitor | Auto Capital Manager</p>
+        <p>"¡Nunca confiar, siempre verificar!"</p>
+    </div>
+</body>
+</html>
+HTMLEOF
+
+# echo "✅ HTML generado: $html_file"
+
+# ENVÍO DE HTML CANCELADO - Solo usamos MD
+config_file="$HOME/.openclaw/openclaw.json"
+if [ -f "$config_file" ] && [ -f "$html_file" ]; then
+    bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)
+    if [ -n "$bot_token" ] && [ "$bot_token" != "null" ]; then
+        curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendDocument"             -F "chat_id=7543955537"             -F "document=@$html_file"             -F "caption=📊 Reporte Diario HTML - $today
+
+💰 Total: \$${total_usdt} USDT / \$${total_mxn} MXN
+📈 P&L 24h: \$${total_pnl_24h} (${pnl_24h_pct}%)
+📊 Trades Ayer: $trades_count (\$${total_pnl})
+🐕 Perrobotillo Trading Bot" > /dev/null
+        echo "✅ HTML enviado a Telegram"
     fi
 fi
 

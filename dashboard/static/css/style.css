@@ -43,7 +43,7 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    pointer-events: none;
+    pointer-events: none; display: none; /* Removido para GPU */ 
     z-index: 1;
     overflow: hidden;
 }
@@ -110,7 +110,7 @@ body {
         transparent 1px,
         transparent 2px
     );
-    pointer-events: none;
+    pointer-events: none; display: none; /* Removido para GPU */ 
     z-index: 2;
     animation: scanlineMove 8s linear infinite;
     opacity: 0.4;
@@ -151,7 +151,7 @@ body::before {
     transform: translate(-50%, -50%);
     z-index: 0;
     animation: glowPulse 10s ease-in-out infinite;
-    pointer-events: none;
+    pointer-events: none; display: none; /* Removido para GPU */ 
 }
 
 @keyframes glowPulse {
@@ -183,7 +183,7 @@ body::before {
         linear-gradient(90deg, rgba(188, 19, 254, 0.06) 1px, transparent 1px);
     background-size: 50px 50px, 50px 50px, 100px 100px, 100px 100px;
     animation: gridMove 15s ease-in-out infinite, gridColor 8s ease-in-out infinite;
-    pointer-events: none;
+    pointer-events: none; display: none; /* Removido para GPU */ 
     z-index: 0;
     opacity: 0.6;
 }
@@ -244,7 +244,7 @@ body::before {
         transparent 1px,
         transparent 2px
     );
-    pointer-events: none;
+    pointer-events: none; display: none; /* Removido para GPU */ 
     z-index: 1;
 }
 
@@ -255,7 +255,7 @@ body::before {
 .cyber-header {
     background: linear-gradient(135deg, var(--dark-panel), var(--dark-border));
     border-bottom: 2px solid var(--neon-blue);
-    box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+    box-shadow: 0 0 8px rgba(0, 243, 255, 0.3);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -278,19 +278,19 @@ body::before {
 
 .logo-icon {
     font-size: 3rem;
-    animation: pulse 2s ease-in-out infinite;
+    // animation: pulse 2s ease-in-out infinite;
 }
 
 .avatar-img {
     width: 80px;
     height: 80px;
     object-fit: contain;
-    animation: pulse 2s ease-in-out infinite;
+    // animation: pulse 2s ease-in-out infinite;
     filter: drop-shadow(0 0 15px var(--neon-blue));
     border-radius: 12px;
 }
 
-@keyframes pulse {
+// @keyframes pulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.1); }
 }
@@ -302,7 +302,7 @@ body::before {
     background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+    text-shadow: none /* glow removido */  20px rgba(0, 243, 255, 0.5);
 }
 
 .cyber-subtitle {
@@ -379,7 +379,7 @@ body::before {
     box-shadow: 
         0 0 20px rgba(0, 243, 255, 0.1),
         inset 0 0 20px rgba(0, 243, 255, 0.05);
-    backdrop-filter: blur(10px);
+    backdrop-filter: none /* blur removido */ (10px);
 }
 
 /* Sticky top for Price Charts */
@@ -432,7 +432,7 @@ body::before {
 
 .portfolio-item.highlight {
     border-color: var(--neon-pink);
-    box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+    box-shadow: 0 0 8px rgba(255, 0, 255, 0.3);
 }
 
 .portfolio-label {
@@ -503,6 +503,27 @@ body::before {
     box-shadow: 0 0 15px rgba(255, 0, 60, 0.2);
 }
 
+/* SL Danger Mode */
+.tp-bar.danger {
+    background: rgba(255, 0, 60, 0.2);
+    border-color: var(--neon-red);
+}
+
+.tp-bar.danger .tp-fill.danger-fill {
+    background: linear-gradient(90deg, var(--neon-red), var(--neon-pink));
+    box-shadow: 0 0 8px var(--neon-red);
+    // animation: pulse-danger 1.5s infinite;
+}
+
+// @keyframes pulse-danger {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
 .slot-header {
     display: flex;
     justify-content: space-between;
@@ -540,6 +561,11 @@ body::before {
 
 .slot-status.ready {
     background: var(--neon-yellow);
+    color: var(--dark-bg);
+}
+
+.slot-status.loss {
+    background: var(--neon-red);
     color: var(--dark-bg);
 }
 
@@ -598,16 +624,16 @@ body::before {
 /* Loss state - RED bar for negative P&L */
 .tp-bar.loss .tp-fill {
     background: linear-gradient(90deg, var(--neon-red), #ff6b6b);
-    box-shadow: 0 0 10px var(--neon-red);
-    animation: pulseLoss 2s ease-in-out infinite;
+    box-shadow: none /* shadow removido */  var(--neon-red);
+    // animation: pulseLoss 2s ease-in-out infinite;
 }
 
-@keyframes pulseLoss {
+// @keyframes pulseLoss {
     0%, 100% {
-        box-shadow: 0 0 10px var(--neon-red);
+        box-shadow: none /* shadow removido */  var(--neon-red);
     }
     50% {
-        box-shadow: 0 0 20px var(--neon-red), 0 0 30px rgba(255, 69, 58, 0.3);
+        box-shadow: 0 0 8px var(--neon-red), 0 0 30px rgba(255, 69, 58, 0.3);
     }
 }
 
@@ -817,7 +843,7 @@ body::before {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--neon-blue);
-    text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+    text-shadow: none /* glow removido */  10px rgba(0, 243, 255, 0.5);
 }
 
 .countdown-note {
@@ -915,7 +941,7 @@ body::before {
 
 .cyber-button:hover {
     background: linear-gradient(135deg, rgba(0, 243, 255, 0.2), rgba(188, 19, 254, 0.2));
-    box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+    box-shadow: 0 0 8px rgba(0, 243, 255, 0.4);
     transform: translateY(-2px);
 }
 
@@ -977,17 +1003,17 @@ body::before {
 
 .tp-bar-1 .tp-fill {
     background: linear-gradient(90deg, var(--neon-blue), #00d4ff);
-    box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+    box-shadow: none /* shadow removido */  rgba(0, 243, 255, 0.5);
 }
 
 .tp-bar-2 .tp-fill {
     background: linear-gradient(90deg, var(--neon-purple), #d400ff);
-    box-shadow: 0 0 10px rgba(188, 19, 254, 0.5);
+    box-shadow: none /* shadow removido */  rgba(188, 19, 254, 0.5);
 }
 
 .tp-bar-3 .tp-fill {
     background: linear-gradient(90deg, var(--neon-pink), #ff00aa);
-    box-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+    box-shadow: none /* shadow removido */  rgba(255, 0, 255, 0.5);
 }
 
 .tp-fill {
@@ -1056,7 +1082,7 @@ body::before {
 
 .view-more-btn:hover {
     background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 255, 136, 0.2));
-    box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
     transform: translateY(-2px);
 }
 

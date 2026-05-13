@@ -6,7 +6,7 @@
 const CONFIG = {
     API_URL: '/api/status',
     PRICES_URL: '/api/prices',
-    REFRESH_INTERVAL: 30000,
+    REFRESH_INTERVAL: 60000,
     PRICES_INTERVAL: 60000,
     MAX_TRADES_DISPLAY: 10
 };
@@ -75,6 +75,8 @@ setTimeout(() => {
         console.log('⚠️ Audio not unlocked yet - showing banner');
         showSoundEnableBanner();
     } else {
+                    console.log("⚠️ Audio NOT unlocked - cannot play sound");
+                    console.log("⚠️ Audio NOT unlocked yet - click anywhere first");
         console.log('✅ Audio unlocked - cash register ready 🔔');
     }
 }, 2000);
@@ -101,16 +103,24 @@ function playCashRegister() {
     
     if (sound) {
         sound.currentTime = 0;  // Rewind to start
-        sound.volume = 0.7;  // 70% volume
-        console.log('   Playing sound...');
-        sound.play()
-            .then(() => console.log('✅ Sound played successfully 🔔'))
-            .catch(error => {
-                console.log('❌ Sound play failed:', error.name, error.message);
-                console.log('💡 User needs to click/tap anywhere on page first');
-            });
+        sound.volume = 1.0;  // 100% volume 🔊
+        console.log('   Playing sound at 100% volume...');
+        
+        const playPromise = sound.play();
+        
+        if (playPromise !== undefined) {
+            playPromise
+                .then(() => console.log('✅ Sound played successfully 🔔'))
+                .catch(error => {
+                    console.log('❌ Sound play failed:', error.name, error.message);
+                    console.log('💡 User needs to click/tap anywhere on page first');
+                });
+        }
+        
         console.log('💰 CASH REGISTER! TP HIT DETECTED!');
     } else {
+                    console.log("⚠️ Audio NOT unlocked - cannot play sound");
+                    console.log("⚠️ Audio NOT unlocked yet - click anywhere first");
         console.error('❌ Audio element NOT FOUND!');
     }
 }
@@ -146,13 +156,23 @@ async function loadData() {
 async function loadPrices() {
     try {
         console.log('📊 Loading prices...');
-        const response = await fetch(CONFIG.PRICES_URL);
+        const response = await fetch(CONFIG.PRICES_URL, { 
+            method: 'GET',
+            headers: { 'Accept': 'application/json' },
+            timeout: 10000
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const prices = await response.json();
         lastPrices = prices;
         console.log('✅ Prices loaded:', Object.keys(prices).length, 'coins');
         updatePrices(prices);
     } catch (error) {
-        console.error('❌ Error loading prices:', error);
+        console.log('⚠️ Prices fetch failed (will retry):', error.message);
+        // No loguear como error crítico - se reintenta en 60s
     }
 }
 
@@ -282,74 +302,63 @@ function updateSlots(data) {
             const tp1 = parseFloat(slot.tp1) || 0;
             const tp2 = parseFloat(slot.tp2) || 0;
             const tp3 = parseFloat(slot.tp3) || 0;
+            const sl = parseFloat(slot.stopLoss) || 0;
             const quantity = parseFloat(slot.quantity) || 0;
             
-            console.log(`🔍 ${coin} Slot ${slot.slotId}: entry=$${entryPrice}, current=$${currentPrice}, tp1=$${tp1}, tp1Done=${slot.tp1Done}`);
+            console.log(`🔍 ${coin} Slot ${slot.slotId}: entry=$${entryPrice}, current=$${currentPrice}, tp1=$${tp1}, sl=$${sl}`);
             
-            // Determinar target actual basado en TPs completados
-            let targetPrice = tp1;
-            let targetName = 'TP1';
-            let progress = 0;
-            
-            if (slot.tp1Done && slot.tp2Done) {
-                // Ya completó TP1 y TP2 → mostrar progreso a TP3
-                targetPrice = tp3;
-                targetName = 'TP3';
-            } else if (slot.tp1Done) {
-                // Ya completó TP1 → mostrar progreso a TP2
-                targetPrice = tp2;
-                targetName = 'TP2';
-            } else {
-                // No completó ninguno → mostrar progreso a TP1
-                targetPrice = tp1;
-                targetName = 'TP1';
-            }
-            
-            console.log(`  Target: ${targetName}=$${targetPrice}`);
-            
-            if (entryPrice > 0 && targetPrice > 0 && currentPrice > 0 && targetPrice !== entryPrice) {
-                progress = Math.min(100, ((currentPrice - entryPrice) / (targetPrice - entryPrice)) * 100);
-            }
-            
-            console.log(`  Progress: ${progress.toFixed(1)}%`);
-            
-            // 💰 DETECTAR TP HIT (100% PROGRESS) - CASH REGISTER SOUND
-            const slotKey = `${coin}-${slot.slotId}-${targetName}`;
-            const lastProgress = lastTPProgress[slotKey] || 0;
-            
-            // Si el progreso llega al 100% (o estaba cerca y ahora es 100%)
-            if (progress >= 99.5 && lastProgress < 99.5) {
-                console.log(`💰 TP HIT DETECTED: ${slotKey} - ${lastProgress.toFixed(1)}% → ${progress.toFixed(1)}%`);
-                playCashRegister();  // 🔊 Reproducir sonido de caja registradora
-            } else if (progress >= 99.5 && lastProgress >= 99.5) {
-                // Ya estaba en 100%, no spamear
-            } else {
-                // Progreso normal, loggear cada 25%
-                if (progress >= 25 && lastProgress < 25) {
-                    console.log(`📊 ${slotKey}: 25% complete`);
-                } else if (progress >= 50 && lastProgress < 50) {
-                    console.log(`📊 ${slotKey}: 50% complete`);
-                } else if (progress >= 75 && lastProgress < 75) {
-                    console.log(`📊 ${slotKey}: 75% complete`);
-                }
-            }
-            
-            // Guardar progreso actual para próxima comparación
-            lastTPProgress[slotKey] = progress;
-            
+            // Determinar target actual basado en P&L (negativo → SL, positivo → TP)
             let pnl = 0, pnlPercent = 0;
             if (entryPrice > 0 && currentPrice > 0) {
                 pnlPercent = ((currentPrice - entryPrice) / entryPrice) * 100;
                 pnl = (currentPrice - entryPrice) * quantity;
             }
             
+            let targetPrice = tp1;
+            let targetName = 'TP1';
+            let progress = 0;
+            let isLossMode = pnl < 0;
+            
+            // Si está en negativo, mostrar SL como next target
+            if (isLossMode && sl > 0) {
+                targetPrice = sl;
+                targetName = 'SL';
+                // Progreso hacia SL (0% = entry, 100% = SL hit)
+                if (entryPrice > 0 && sl > 0 && sl !== entryPrice) {
+                    progress = Math.min(100, ((entryPrice - currentPrice) / (entryPrice - sl)) * 100);
+                }
+            } else {
+                    console.log("⚠️ Audio NOT unlocked - cannot play sound");
+                    console.log("⚠️ Audio NOT unlocked yet - click anywhere first");
+                // Positivo o neutral → mostrar TP normal
+                if (slot.tp1Done && slot.tp2Done) {
+                    targetPrice = tp3;
+                    targetName = 'TP3';
+                } else if (slot.tp1Done) {
+                    targetPrice = tp2;
+                    targetName = 'TP2';
+                } else {
+                    console.log("⚠️ Audio NOT unlocked - cannot play sound");
+                    console.log("⚠️ Audio NOT unlocked yet - click anywhere first");
+                    targetPrice = tp1;
+                    targetName = 'TP1';
+                }
+                
+                if (entryPrice > 0 && targetPrice > 0 && currentPrice > 0 && targetPrice !== entryPrice) {
+                    progress = Math.min(100, ((currentPrice - entryPrice) / (targetPrice - entryPrice)) * 100);
+                }
+            }
+            
+            // Determinar clase según P&L (rojo para negativos, verde para positivos)
+            const pnlClass = pnl >= 0 ? 'profit' : 'loss';
+            
             html += `
-                <div class="slot-card active">
+                <div class="slot-card active ${pnlClass}">
                     <div class="slot-header">
                         <div class="slot-coin">${coin}</div>
                         <div class="slot-id">Slot ${slot.slotId}</div>
                     </div>
-                    <div class="slot-status in-trade">IN TRADE</div>
+                    <div class="slot-status in-trade ${pnlClass}">${pnl >= 0 ? 'IN TRADE 🟢' : 'IN TRADE 🔴'}</div>
                     
                     <div class="slot-grid-info">
                         <div class="slot-info-item">
@@ -368,17 +377,19 @@ function updateSlots(data) {
                         </div>
                         <div class="slot-info-item">
                             <div class="slot-info-label">Next Target</div>
-                            <div class="slot-info-value">$${targetPrice.toFixed(2)} (${targetName})</div>
+                            <div class="slot-info-value" style="color: ${isLossMode ? 'var(--neon-red)' : 'var(--neon-blue)'}">
+                                $${targetPrice.toFixed(2)} (${targetName}${isLossMode ? ' ⚠️' : ''})
+                            </div>
                         </div>
                     </div>
                     
                     <div class="tp-progress-container">
                         <div class="tp-label">
-                            <span>Progress to ${targetName}</span>
+                            <span>${isLossMode ? '⚠️ Distance to SL' : `Progress to ${targetName}`}</span>
                             <span>${Math.min(100, Math.max(0, progress)).toFixed(1)}%</span>
                         </div>
-                        <div class="tp-bar ${pnl >= 0 ? 'profit' : 'loss'}">
-                            <div class="tp-fill" style="width: ${Math.min(100, Math.max(0, progress)).toFixed(1)}%"></div>
+                        <div class="tp-bar ${isLossMode ? 'danger' : (pnl >= 0 ? 'profit' : 'loss')}">
+                            <div class="tp-fill ${isLossMode ? 'danger-fill' : ''}" style="width: ${Math.min(100, Math.max(0, progress)).toFixed(1)}%"></div>
                         </div>
                     </div>
                 </div>
@@ -466,6 +477,8 @@ function updatePrices(prices) {
                 </div>
             `;
         } else {
+                    console.log("⚠️ Audio NOT unlocked - cannot play sound");
+                    console.log("⚠️ Audio NOT unlocked yet - click anywhere first");
             console.warn(`⚠️ No price data for ${coin}`);
         }
     });
@@ -506,6 +519,8 @@ function updateSystemStatus(data) {
             ipStatus.textContent = `✅ ${system.ip_whitelist}`;
             ipStatus.title = 'IP Pública Actual';
         } else {
+                    console.log("⚠️ Audio NOT unlocked - cannot play sound");
+                    console.log("⚠️ Audio NOT unlocked yet - click anywhere first");
             ipStatus.textContent = '❌ No disponible';
             ipStatus.title = 'No se pudo obtener IP';
         }
@@ -646,3 +661,109 @@ function toggleAllTrades() {
     loadData();  // Reload to show/hide trades
 }
 
+
+// ════════════════════════════════════════════════════════
+// 🔔 TP NOTIFICATION SOUND
+// ════════════════════════════════════════════════════════
+
+
+// ════════════════════════════════════════════════════════
+// 🔔 TP NOTIFICATION SOUND (usa audioUnlocked existente)
+// ════════════════════════════════════════════════════════
+
+let lastNotificationId = 0;
+
+// Check for new TP notifications
+async function checkTPNotifications() {
+    console.log("🔍 checkTPNotifications running...");
+    try {
+        const response = await fetch('/crypto-bots/tp-notifications.json?v=' + Date.now());
+        if (!response.ok) return;
+        
+        const notifications = await response.json();
+        if (!Array.isArray(notifications)) return;
+        
+        // Find new notifications
+        for (let i = notifications.length - 1; i >= 0; i--) {
+            const notif = notifications[i];
+            const notifId = i;
+            
+            if (notifId > lastNotificationId && !notif.played) {
+                    console.log("🎯 NEW TP NOTIFICATION FOUND:", notif.coin, notif.tp, "pnl:", notif.pnl);
+                lastNotificationId = notifId;
+                
+                // Play sound (usa función existente)
+                if (audioUnlocked) {
+                    console.log("🔔 Audio unlocked, playing sound...");
+                    playCashRegister();
+                    console.log(`🔔 💰 TP HIT! ${notif.coin} Slot ${notif.slot_id} - ${notif.tp}`);
+                    showTPNotification(notif);
+                }
+                
+                notif.played = true;
+            }
+        }
+    } catch (error) {
+        // Silently fail
+    }
+}
+
+// Show visual notification
+function showTPNotification(notif) {
+    const pnlClass = notif.pnl >= 0 ? 'profit' : 'loss';
+    const pnlIcon = notif.pnl >= 0 ? '🟢' : '🔴';
+    const pnlSign = notif.pnl >= 0 ? '+' : '';
+    
+    const notification = document.createElement('div');
+    notification.className = `tp-notification ${pnlClass}`;
+    notification.innerHTML = `
+        <div class="tp-notification-content">
+            <div class="tp-notification-icon">${pnlIcon} ${notif.tp}</div>
+            <div class="tp-notification-coin">${notif.coin}</div>
+            <div class="tp-notification-slot">Slot ${notif.slot_id}</div>
+            <div class="tp-notification-pnl">${pnlSign}$${notif.pnl.toFixed(2)}</div>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    setTimeout(() => notification.classList.add('show'), 100);
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 500);
+    }, 5000);
+}
+
+// Add CSS for notifications
+const notificationStyle = document.createElement('style');
+notificationStyle.textContent = `
+    .tp-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: var(--bg-card);
+        border: 2px solid var(--neon-green);
+        border-radius: 10px;
+        padding: 20px;
+        z-index: 10000;
+        transform: translateX(400px);
+        transition: transform 0.5s ease;
+        box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+    }
+    .tp-notification.show { transform: translateX(0); }
+    .tp-notification.loss {
+        border-color: var(--neon-red);
+        box-shadow: 0 0 30px rgba(255, 51, 102, 0.3);
+    }
+    .tp-notification-content { display: flex; flex-direction: column; gap: 5px; }
+    .tp-notification-icon { font-size: 1.5em; font-weight: bold; }
+    .tp-notification-coin { font-size: 1.2em; font-weight: bold; }
+    .tp-notification-slot { color: var(--text-secondary); }
+    .tp-notification-pnl { font-size: 1.3em; font-weight: bold; }
+    .tp-notification.profit .tp-notification-pnl { color: var(--neon-green); }
+    .tp-notification.loss .tp-notification-pnl { color: var(--neon-red); }
+`;
+document.head.appendChild(notificationStyle);
+
+// Check every 5 seconds
+setInterval(checkTPNotifications, 5000);
+console.log('🔔 TP Notification system initialized');

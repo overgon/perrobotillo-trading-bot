@@ -12,7 +12,7 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='avatars/favicon.ico') }}">
     <meta name="theme-color" content="#0a0a1a">
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ range(1000, 9999)|random }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -176,7 +176,10 @@
         <p style="margin: 5px 0 0 0; font-size: 12px; color: #a0a0c0;">Click to enable cash register on TP hits</p>
     </div>
 
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}?v={{ range(1000, 9999) | random }}"></script>
+
+
+
 </body>
 </html>
 <!-- Version: 1777956985 -->

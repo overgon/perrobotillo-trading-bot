@@ -34,7 +34,7 @@ fi
 # Función para enviar mensaje
 send_telegram() {
     local message="$1"
-    local parse_mode="${2:-Markdown}"
+    local parse_mode="${2:-HTML}"
     
     local result=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X POST \
         "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
