@@ -205,7 +205,65 @@ sed -i 's|WORKSPACE = "\$HOME|WORKSPACE = os.path.expanduser("~|g' app.py
 
 ## 🛑 DETENER EL DASHBOARD
 
+**Si estás usando systemd (recomendado):**
+```bash
+sudo systemctl stop perrobotillo-dashboard.service
+```
+
+**Si estás corriendo manualmente:**
 Presionar `Ctrl+C` en la terminal donde está corriendo.
+
+---
+
+## ⚡ AUTO-INICIO (SYSTEMD)
+
+Para que el dashboard y ngrok arranquen automáticamente al iniciar el sistema o después de un corte de luz:
+
+### Instalación automática
+
+```bash
+cd /home/overgon/.openclaw/workspace/dashboard
+sudo ./install-systemd-services.sh
+```
+
+Esto creará dos servicios:
+- `perrobotillo-dashboard.service` - El dashboard Flask
+- `perrobotillo-ngrok.service` - El túnel ngrok (depende del dashboard)
+
+### Comandos útiles
+
+```bash
+# Ver status
+sudo systemctl status perrobotillo-dashboard.service
+sudo systemctl status perrobotillo-ngrok.service
+
+# Ver logs
+tail -f ~/.openclaw/logs/dashboard-stdout.log
+tail -f ~/.openclaw/logs/ngrok-stdout.log
+
+# Reiniciar servicios
+sudo systemctl restart perrobotillo-dashboard.service
+sudo systemctl restart perrobotillo-ngrok.service
+
+# Detener servicios
+sudo systemctl stop perrobotillo-dashboard.service
+sudo systemctl stop perrobotillo-ngrok.service
+
+# Habilitar auto-inicio (ya lo hace el script de instalación)
+sudo systemctl enable perrobotillo-dashboard.service
+sudo systemctl enable perrobotillo-ngrok.service
+```
+
+### Verificar que están activos
+
+```bash
+systemctl list-units | grep perrobotillo
+```
+
+Deberías ver:
+- `perrobotillo-dashboard.service` ✅ active running
+- `perrobotillo-ngrok.service` ✅ active running
+- `perrobotillo-tp-monitor.service` ✅ active running
 
 ---
 
