@@ -261,237 +261,127 @@ cat crypto-bots/trade-history.json | jq '.'
 
 ### Dashboard Web
 
-**Acceso local:**
+**Dashboard Cyberpunk con datos en tiempo real**
+
+#### Instalación y Configuración (Paso a Paso)
+
+**Paso 1: Configurar Autenticación**
+
+La primera vez, configura usuario y contraseña:
+
+```bash
+cd /home/<TU_USUARIO>/.openclaw/workspace/dashboard
+./setup-auth.sh
+```
+
+El script te pedirá:
+- Usuario deseado
+- Contraseña (mínimo 6 caracteres)
+- Confirmación de contraseña
+
+**Paso 2: Configurar Auto-Inicio (Systemd)**
+
+Para que el dashboard arranque automáticamente al boot o después de un corte de luz:
+
+```bash
+cd /home/<TU_USUARIO>/.openclaw/workspace/dashboard
+sudo ./install-systemd-services.sh
+```
+
+Esto creará dos servicios:
+- `perrobotillo-dashboard.service` - Dashboard Flask
+- `perrobotillo-ngrok.service` - Túnel ngrok
+
+**Paso 3: Verificar que está corriendo**
+
+```bash
+# Ver status
+sudo systemctl status perrobotillo-dashboard.service
+sudo systemctl status perrobotillo-ngrok.service
+
+# Ver logs
+tail -f ~/.openclaw/logs/dashboard-stdout.log
+tail -f ~/.openclaw/logs/ngrok-stdout.log
+```
+
+**Paso 4: Obtener URL de acceso**
+
+```bash
+# URL pública (ngrok)
+curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'
+
+# O ver archivo guardado
+cat /home/<TU_USUARIO>/.openclaw/workspace/dashboard/ngrok-url.txt
+```
+
+#### Accesos
+
+**Local (desde la Raspberry Pi):**
 ```
 http://localhost:8080/
 ```
 
-**Acceso remoto (SSH tunnel):**
-```bash
-ssh -L 9090:localhost:8080 -N <YOUR_USERNAME>@<YOUR_RPI_IP>
-# Luego abrir: http://localhost:9090/
+**Red local (desde tu PC/móvil):**
+```
+http://192.168.3.215:8080/
 ```
 
-**Acceso remoto (Ngrok):**
+**Remoto (ngrok - desde cualquier lugar):**
 ```
-https://<TU_SUBDOMINIO>.ngrok-free.dev
+https://<SUBDOMINIO>.ngrok-free.dev
 ```
 
-**⚙️ CONFIGURACIÓN DE NGROK (Paso a paso):**
-
-### Opción A: Script Automático (Recomendado) 🚀
+#### Comandos Útiles
 
 ```bash
-# Ejecutar script de configuración automática
-cd /home/<TU_USUARIO>/.openclaw/workspace
-./scripts/setup-ngrok.sh
+# Ver status
+sudo systemctl status perrobotillo-dashboard.service
+
+# Reiniciar
+sudo systemctl restart perrobotillo-dashboard.service
+
+# Detener
+sudo systemctl stop perrobotillo-dashboard.service
+
+# Ver logs en vivo
+tail -f ~/.openclaw/logs/dashboard-stderr.log
+
+# Habilitar auto-inicio (ya lo hace el script)
+sudo systemctl enable perrobotillo-dashboard.service
 ```
 
-**El script hace TODO automáticamente:**
-1. ✅ Verifica si ngrok está instalado
-2. ✅ Guía la autenticación paso a paso
-3. ✅ Inicia el dashboard si no está corriendo
-4. ✅ Inicia el tunnel de ngrok
-5. ✅ Obtiene tu URL pública
-6. ✅ Guarda la URL en un archivo
+#### Solución de Problemas
 
-### Opción B: Manual (Paso a paso) 📝
-
-#### **Paso 1: Instalar Ngrok**
-
+**Error de autenticación:**
 ```bash
-# Descargar ngrok (Linux ARM64 para Raspberry Pi)
-wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm64.tgz
-
-# Descomprimir
-tar -xzf ngrok-v3-stable-linux-arm64.tgz
-
-# Mover a PATH
-sudo mv ngrok /usr/local/bin/
-
-# Verificar instalación
-ngrok --version
-```
-
-**Otras plataformas:**
-- **macOS:** `brew install ngrok`
-- **Windows:** Descargar desde https://ngrok.com/download
-- **Linux x64:** `wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz`
-
-#### **Paso 2: Crear Cuenta en Ngrok**
-
-1. Ve a https://ngrok.com/signup
-2. Creá una cuenta gratuita (email o Google)
-3. Verificá tu email
-
-#### **Paso 3: Obtener Authtoken**
-
-1. Iniciá sesión en https://dashboard.ngrok.com/
-2. Andá a "Your Authtoken" (menú izquierdo)
-3. Copiá tu token (se ve como: `2AbCdEfGhIjKlMnOpQrStUvWxYz1234567890`)
-
-#### **Paso 4: Autenticar Ngrok**
-
-```bash
-# Reemplaza <TU_TOKEN> con tu authtoken
-ngrok config add-authtoken <TU_TOKEN>
-```
-
-**Ejemplo:**
-```bash
-ngrok config add-authtoken 2AbCdEfGhIjKlMnOpQrStUvWxYz1234567890
-```
-
-**Verificar autenticación:**
-```bash
-cat ~/.config/ngrok/ngrok.yml
-```
-
-#### **Paso 5: Iniciar Dashboard**
-
-```bash
-# Iniciar dashboard (si no está corriendo)
+# Regenerar .htpasswd
 cd /home/<TU_USUARIO>/.openclaw/workspace/dashboard
-python3 app.py &
-
-# Verificar que esté corriendo
-curl http://localhost:8080/api/status
-```
-
-#### **Paso 6: Iniciar Ngrok Tunnel**
-
-```bash
-# Iniciar tunnel hacia el dashboard
-ngrok http 8080 --log=stdout
-```
-
-**Verás algo como:**
-```
-Session Status                online
-Account                       tu_email@gmail.com
-Version                       3.x.x
-Region                        United States (us)
-Forwarding                    https://abc123.ngrok-free.dev -> http://localhost:8080
-```
-
-**¡Esa URL (`https://abc123.ngrok-free.dev`) es tu acceso remoto!**
-
-#### **Paso 7: Acceder Remotamente**
-
-Desde cualquier dispositivo:
-```
-https://<TU_SUBDOMINIO>.ngrok-free.dev
-```
-
-**Ejemplo:**
-```
-https://knapsack-divinity-diffuser.ngrok-free.dev
-```
-
-### 📌 Notas Importantes
-
-**Plan Gratuito:**
-- ✅ URL cambia cada vez que reiniciás ngrok
-- ✅ 1 tunnel concurrente
-- ✅ 40 GB/month bandwidth
-- ❌ No podés elegir el subdominio
-
-**Plan de Pago (USD $8/mes):**
-- ✅ URL fija (elegís el subdominio)
-- ✅ Tunnels concurrentes ilimitados
-- ✅ Más bandwidth
-- ✅ Autenticación básica
-
-**Reiniciar Ngrok:**
-```bash
-# Matar ngrok existente
-pkill ngrok
-
-# Iniciar de nuevo
-ngrok http 8080 --log=stdout
-```
-
-**Ver URL actual:**
-```bash
-curl http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'
-```
-
-**Guardar URL en archivo:**
-```bash
-curl http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url' > ngrok-url.txt
-cat ngrok-url.txt
-```
-
-### 🔧 Solución de Problemas
-
-**Error: "client session established" pero no hay URL:**
-```bash
-# Reiniciar ngrok
-pkill ngrok
-ngrok http 8080 --log=stdout
-```
-
-**Error: "ERR_NGROK_3200 - endpoint offline":**
-```bash
-# Matar todos los ngrok y reiniciar
-pkill -9 ngrok
-sleep 2
-ngrok http 8080 --log=stdout
-```
-
-**Error: "authentication failed":**
-```bash
-# Re-autenticar
-ngrok config add-authtoken <TU_NUEVO_TOKEN>
+htpasswd -cb .htpasswd tu_usuario tu_contraseña
 ```
 
 **Dashboard no responde:**
 ```bash
-# Verificar dashboard
-curl http://localhost:8080/api/status
-
-# Si no responde, reiniciar
-cd /home/<TU_USUARIO>/.openclaw/workspace/dashboard
-pkill -f "python.*app.py"
-nohup python3 app.py > /tmp/dashboard.log 2>&1 &
+# Reiniciar servicio
+sudo systemctl restart perrobotillo-dashboard.service
 ```
 
-### 🚀 Script de Inicio Rápido
-
-Creá un script para iniciar todo con un comando:
-
+**Ngrok offline (ERR_NGROK_3200):**
 ```bash
-# Crear script
-cat > ~/start-dashboard.sh << 'EOF'
-#!/bin/bash
-cd /home/<TU_USUARIO>/.openclaw/workspace/dashboard
-
-# Iniciar dashboard
-nohup python3 app.py > /tmp/dashboard.log 2>&1 &
-echo "✅ Dashboard iniciado"
-
-# Iniciar ngrok
-nohup ngrok http 8080 --log=stdout > /tmp/ngrok.log 2>&1 &
-echo "✅ Ngrok iniciado"
-
-# Esperar y mostrar URL
-sleep 8
-URL=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
-echo "🔗 URL: $URL"
-echo "$URL" > ngrok-url.txt
-EOF
-
-chmod +x ~/start-dashboard.sh
+# Reiniciar ngrok
+sudo systemctl restart perrobotillo-ngrok.service
 ```
 
-**Uso:**
+**Ver servicios activos:**
 ```bash
-~/start-dashboard.sh
+systemctl list-units | grep perrobotillo
 ```
 
----
+Deberías ver:
+- ✅ perrobotillo-dashboard.service active running
+- ✅ perrobotillo-ngrok.service active running
+- ✅ perrobotillo-tp-monitor.service active running
 
-**Características del Dashboard:**
+### Características del Dashboard:
 - ✅ Portfolio en tiempo real desde Binance
 - ✅ Trades activos con P&L en vivo
 - ✅ Barras de progreso TP1/TP2/TP3
@@ -499,8 +389,9 @@ chmod +x ~/start-dashboard.sh
 - ✅ P&L por moneda
 - ✅ P&L 24H
 - ✅ Notificaciones visuales y sonoras en TP hits
-- ✅ Mobile optimized (iPhone 14 Pro)
-- ✅ GPU optimized (21% usage)
+- ✅ Mobile optimized
+- ✅ Autenticación HTTP Basic
+- ✅ Auto-inicio con systemd
 
 ### Reportes
 
