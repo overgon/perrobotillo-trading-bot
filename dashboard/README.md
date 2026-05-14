@@ -4,9 +4,43 @@
 
 ---
 
+## 🔒 SEGURIDAD - AUTENTICACIÓN
+
+El dashboard requiere autenticación HTTP Basic.
+
+### 🔑 Configurar Usuario y Contraseña
+
+**Ejecuta el script de setup:**
+```bash
+cd /home/overgon/.openclaw/workspace/dashboard
+./setup-auth.sh
+```
+
+El script te pedirá:
+1. Usuario deseado
+2. Contraseña (mínimo 6 caracteres)
+3. Confirmación de contraseña
+
+**Opción manual:**
+```bash
+htpasswd -cb .htpasswd tu_usuario tu_contraseña
+```
+
+### 📋 Credenciales por defecto (si no has configurado)
+- **Usuario:** `overgon`
+- **Contraseña:** La que hayas configurado en el setup
+
+---
+
 ## 🚀 INICIO RÁPIDO
 
-### 1. Iniciar el Dashboard
+### 1. Configurar autenticación (primera vez)
+```bash
+cd /home/overgon/.openclaw/workspace/dashboard
+./setup-auth.sh
+```
+
+### 2. Iniciar el Dashboard
 
 ```bash
 cd /home/overgon/.openclaw/workspace/dashboard
@@ -150,6 +184,23 @@ sudo ufw allow 8080
 - Verificar conexión a internet
 - Revisar logs: `tail -f logs/trade-*.log`
 
+### Error de autenticación (WORKSPACE)
+
+Si las credenciales no funcionan, verifica que `app.py` tenga:
+```python
+WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
+```
+
+**NO debe tener:**
+```python
+WORKSPACE = "$HOME/.openclaw/workspace"  # ❌ Esto no funciona
+```
+
+**Fix automático:**
+```bash
+sed -i 's|WORKSPACE = "\$HOME|WORKSPACE = os.path.expanduser("~|g' app.py
+```
+
 ---
 
 ## 🛑 DETENER EL DASHBOARD
@@ -170,13 +221,28 @@ http://192.168.3.215:8080
 http://192.168.3.215:8080
 ```
 
-### Para acceso externo (fuera de casa):
+### Acceso externo con Ngrok (HTTPS)
+
+**Iniciar con ngrok:**
+```bash
+cd /home/overgon/.openclaw/workspace/dashboard
+./start-with-ngrok.sh
+```
+
+Esto te dará una URL pública tipo:
+```
+https://algo-random.ngrok-free.dev
+```
+
+**Requisitos:**
+- Tener ngrok instalado: `https://ngrok.com`
+- Autenticar ngrok: `ngrok config add-authtoken <tu-token>`
+
+**Para acceso externo (fuera de casa):**
 Se requiere configurar:
 1. Port forwarding en tu router
 2. O usar Tailscale/VPN
-3. O usar ngrok
-
-**No recomendado sin seguridad adicional.**
+3. O usar ngrok (recomendado)
 
 ---
 

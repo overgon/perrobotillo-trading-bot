@@ -38,7 +38,7 @@ def hide_server_headers(response):
     response.headers.pop('X-Powered-By', None)
     return response
 
-WORKSPACE = "$HOME/.openclaw/workspace"
+WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
 CRYPTO_BOTS = f"{WORKSPACE}/crypto-bots"
 CONFIG_FILE = f"{WORKSPACE}/config/capital-config.sh"
 
