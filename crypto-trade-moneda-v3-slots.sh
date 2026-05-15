@@ -700,7 +700,7 @@ check_daily_limit() {
         
         # Solo enviar alerta UNA VEZ por día
         if [ "$last_alert" != "$today" ]; then
-            send_telegram "⚠️ *LÍMITE DIARIO - $SYMBOL*
+            send_telegram "⚠️ LÍMITE DIARIO - $SYMBOL
 
 Pérdida: \$${daily_loss} | Límite (3% de \$${portfolio_value}): \$${max_loss}
 
@@ -809,40 +809,69 @@ execute_long() {
     local tp3=$(echo "scale=8; $price * (1 + $TP3_PERCENT / 100)" | bc)
     local sl=$(echo "scale=8; $price * (1 - $STOP_LOSS_PERCENT / 100)" | bc)
     
-    # BUG-039 FIX: Notificación de NUEVO SCALP (antes de abrir)
-    log "  📱 DEBUG: Preparando notificación de NUEVO SCALP..."
-    
-    local scalp_msg="🎯 *NUEVA OPORTUNIDAD DE SCALP - $SYMBOL* [$CURRENT_MODE]
-
-*Slot:* $slot_id / $MAX_SLOTS
-*Precio Actual:* \$${price}
-*Cantidad:* $quantity
-*Inversión:* \$${order_value}
-
-*Objetivos:*
-TP1: \$${tp1} (+${TP1_PERCENT}%)
-TP2: \$${tp2} (+${TP2_PERCENT}%)
-TP3: \$${tp3} (+${TP3_PERCENT}%)
-
-*Stop Loss:* \$${sl} (-${STOP_LOSS_PERCENT}%)
-
-🚀 Bot abrirá posición automáticamente..."
-    
-    send_telegram "$scalp_msg"
-    log "  📱 DEBUG: Notificación de NUEVO SCALP enviada"
+    # ============================================
+    # 🚀 EJECUTAR ORDEN PRIMERO (antes de notificar)
+    # ============================================
     
     log "📈 BUY Slot $slot_id: $quantity $SYMBOL @ \$${price}"
     
     local buy_result=$(place_buy_order_market "$SYMBOL" "$quantity")
     local buy_status=$(echo "$buy_result" | jq -r '.status // "ERROR"')
     
-    if [ "$buy_status" = "NEW" ] || [ "$buy_status" = "FILLED" ]; then
-        local order_id=$(echo "$buy_result" | jq -r '.orderId')
-        local fill_price=$(echo "$buy_result" | jq -r '.fills[0].price // "'$price'"')
-        local usdt_spent=$(echo "scale=2; $quantity * $fill_price" | bc)
-        local fee_buy=$(echo "scale=4; $usdt_spent * $BINANCE_FEE_PERCENT / 100" | bc)
-        local total_cost=$(echo "scale=2; $usdt_spent + $fee_buy" | bc)
+    # Verificar si la orden fue exitosa
+    if [ "$buy_status" != "NEW" ] && [ "$buy_status" != "FILLED" ]; then
+        local error_msg=$(echo "$buy_result" | jq -r '.msg // "Unknown error"')
+        local error_code=$(echo "$buy_result" | jq -r '.code // "-1"')
+        log "❌ Orden falló: status=$buy_status, code=$error_code, msg=$error_msg"
         
+        # Notificar falla por Telegram
+        send_telegram "❌ ORDEN FALLÓ - $SYMBOL
+
+Slot: $slot_id / $MAX_SLOTS
+Razón: $error_msg (Código: $error_code)
+
+El slot permanece disponible para próximo trade. 🛡️"
+        
+        return 1
+    fi
+    
+    # Orden exitosa - extraer datos reales de ejecución
+    local order_id=$(echo "$buy_result" | jq -r '.orderId')
+    local fill_price=$(echo "$buy_result" | jq -r '.fills[0].price // "'$price'"')
+    local usdt_spent=$(echo "scale=2; $quantity * $fill_price" | bc)
+    local fee_buy=$(echo "scale=4; $usdt_spent * $BINANCE_FEE_PERCENT / 100" | bc)
+    local total_cost=$(echo "scale=2; $usdt_spent + $fee_buy" | bc)
+    
+    log "✅ Orden ejecutada: ID=$order_id, fill_price=\$${fill_price}"
+    
+    # ============================================
+    # 📱 NOTIFICAR ORDEN ABIERTA (después de confirmar)
+    # ============================================
+    
+    local scalp_msg="🟢 ORDEN ABIERTA - $SYMBOL [$CURRENT_MODE]
+
+Slot: $slot_id / $MAX_SLOTS
+Entry: \$${fill_price} | Qty: $quantity
+Costo: \$${usdt_spent} | Fee: -\$${fee_buy}
+
+Objetivos:
+TP1: \$${tp1} (+${TP1_PERCENT}%)
+TP2: \$${tp2} (+${TP2_PERCENT}%)
+TP3: \$${tp3} (+${TP3_PERCENT}%)
+
+Stop Loss: \$${sl} (-${STOP_LOSS_PERCENT}%)
+
+🚀 Trade activo - Monitoreando TPs..."
+    
+    send_telegram "$scalp_msg"
+    log "  📱 Notificación de orden abierta enviada"
+    
+    # ============================================
+    # 📝 ACTUALIZAR ESTADO DEL SLOT
+    # ============================================
+    
+    if [ "$buy_status" = "NEW" ] || [ "$buy_status" = "FILLED" ]; then
+
         # Actualizar slot
         update_slot_status "$slot_id" "ACTIVE"
         update_slot_field "$slot_id" "type" "\"LONG\""
@@ -861,18 +890,18 @@ TP3: \$${tp3} (+${TP3_PERCENT}%)
         # BUG-038 FIX: Notificación de apertura
         log "  📱 DEBUG: Preparando notificación de apertura..."
         
-        local open_msg="🟢 *LONG V3 SLOT $slot_id - $SYMBOL* [$CURRENT_MODE]
+        local open_msg="🟢 LONG V3 SLOT $slot_id - $SYMBOL [$CURRENT_MODE]
 
-*Slot:* $slot_id / $MAX_SLOTS
-*Entry:* \$${fill_price} | *Qty:* $quantity
-*Costo:* \$${usdt_spent} | *Fee:* -\$${fee_buy}
+Slot: $slot_id / $MAX_SLOTS
+Entry: \$${fill_price} | Qty: $quantity
+Costo: \$${usdt_spent} | Fee: -\$${fee_buy}
 
-*TPs:*
+TPs:
 TP1: \$${tp1} (+${TP1_PERCENT}%) 50%
 TP2: \$${tp2} (+${TP2_PERCENT}%) 30%
 TP3: \$${tp3} (+${TP3_PERCENT}%) 20%
 
-*SL:* \$${sl} (-${STOP_LOSS_PERCENT}%)
+SL: \$${sl} (-${STOP_LOSS_PERCENT}%)
 
 🚀 V3: Multi-Slot System"
         
@@ -957,12 +986,12 @@ check_slot_tp_sl() {
                     [ $(echo "$pnl < 0" | bc -l) -eq 1 ] && pnl_icon="🔴"
                     
                     # Telegram
-                    send_telegram "${pnl_icon} *SCALP HIT - $SYMBOL* 🎯
+                    send_telegram "${pnl_icon} SCALP HIT - $SYMBOL 🎯
 
-*Slot:* $slot_id / $MAX_SLOTS
-*Exit:* \$${exit_price}
-*P&L:* \$${pnl_display}
-*Target:* ${SCALP_TARGET_PERCENT}%
+Slot: $slot_id / $MAX_SLOTS
+Exit: \$${exit_price}
+P&L: \$${pnl_display}
+Target: ${SCALP_TARGET_PERCENT}%
 
 ✅ Ganancia rápida en mercado lateral 🚀"
                     
@@ -1094,14 +1123,14 @@ check_slot_tp_sl() {
                         log "  ✅ Slot #$slot_id listo para nueva entrada en próximo ciclo"
                         
                         # Enviar Telegram TP1 con nota de reciclaje
-                        send_telegram "✅ *TP1 HIT - $SYMBOL* [35%] 🎯
+                        send_telegram "✅ TP1 HIT - $SYMBOL [35%] 🎯
 
-*Slot:* $slot_id / $MAX_SLOTS
-*Exit:* \$${current_price}
-*Qty:* $sell_qty_fmt (35%)
-*P&L:* \$${pnl_partial}
+Slot: $slot_id / $MAX_SLOTS
+Exit: \$${current_price}
+Qty: $sell_qty_fmt (35%)
+P&L: \$${pnl_partial}
 
-🔄 *MODO RECICLAJE ACTIVADO*
+🔄 MODO RECICLAJE ACTIVADO
 El slot buscará nueva entrada 🚀"
                     else
                         # Slot existente → mantener estrategia piramidal
@@ -1111,13 +1140,13 @@ El slot buscará nueva entrada 🚀"
                         local pnl_partial=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
                         
                         # Enviar Telegram TP1 (versión piramidal)
-                        send_telegram "✅ *TP1 HIT - $SYMBOL* [35%] 🎯
+                        send_telegram "✅ TP1 HIT - $SYMBOL [35%] 🎯
 
-*Slot:* $slot_id / $MAX_SLOTS
-*Exit:* \$${current_price}
-*Qty:* $sell_qty_fmt (35%)
-*P&L Parcial:* \$${pnl_partial}
-*ACUMULADO:* 5% 📈
+Slot: $slot_id / $MAX_SLOTS
+Exit: \$${current_price}
+Qty: $sell_qty_fmt (35%)
+P&L Parcial: \$${pnl_partial}
+ACUMULADO: 5% 📈
 
 Quedan 65% para TP2/TP3 🎯"
                     fi
@@ -1127,13 +1156,13 @@ Quedan 65% para TP2/TP3 🎯"
                     local pnl_partial=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
                     
                     # Enviar Telegram TP1 (versión piramidal)
-                    send_telegram "✅ *TP1 HIT - $SYMBOL* [35%] 🎯
+                    send_telegram "✅ TP1 HIT - $SYMBOL [35%] 🎯
 
-*Slot:* $slot_id / $MAX_SLOTS
-*Exit:* \$${current_price}
-*Qty:* $sell_qty_fmt (35%)
-*P&L Parcial:* \$${pnl_partial}
-*ACUMULADO:* 5% 📈
+Slot: $slot_id / $MAX_SLOTS
+Exit: \$${current_price}
+Qty: $sell_qty_fmt (35%)
+P&L Parcial: \$${pnl_partial}
+ACUMULADO: 5% 📈
 
 Quedan 65% para TP2/TP3 🎯"
                 fi
@@ -1143,13 +1172,13 @@ Quedan 65% para TP2/TP3 🎯"
                 local pnl_partial=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
                 
                 # Enviar Telegram TP1
-                send_telegram "✅ *TP1 HIT - $SYMBOL* [35%] 🎯
+                send_telegram "✅ TP1 HIT - $SYMBOL [35%] 🎯
 
-*Slot:* $slot_id / $MAX_SLOTS
-*Exit:* \$${current_price}
-*Qty:* $sell_qty_fmt (35%)
-*P&L Parcial:* \$${pnl_partial}
-*ACUMULADO:* 5% 📈
+Slot: $slot_id / $MAX_SLOTS
+Exit: \$${current_price}
+Qty: $sell_qty_fmt (35%)
+P&L Parcial: \$${pnl_partial}
+ACUMULADO: 5% 📈
 
 Quedan 65% para TP2/TP3 🎯"
             else
@@ -1227,13 +1256,13 @@ Quedan 65% para TP2/TP3 🎯"
                 # BUG-036 FIX: Enviar Telegram TP2
                 log "  📱 DEBUG: Preparando notificación TP2..."
                 
-                local tp2_msg="✅ *TP2 HIT - $SYMBOL* [30%] 🎯
+                local tp2_msg="✅ TP2 HIT - $SYMBOL [30%] 🎯
 
-*Slot:* $slot_id / $MAX_SLOTS
-*Exit:* \$${current_price}
-*Qty:* $sell_qty_fmt (30%)
-*P&L Parcial:* \$${pnl_partial}
-*ACUMULADO:* 5% 📈
+Slot: $slot_id / $MAX_SLOTS
+Exit: \$${current_price}
+Qty: $sell_qty_fmt (30%)
+P&L Parcial: \$${pnl_partial}
+ACUMULADO: 5% 📈
 
 Queda 35% para TP3 🎯"
                 
@@ -1257,12 +1286,12 @@ Queda 35% para TP3 🎯"
                         log "  ⚠️ Resto < \$5 (\$${remaining_value}) - Slot marcado como CLOSED_TP2"
                         log "  💡 Resto se queda como 'dust' en Binance (convertible a BNB)"
                         
-                        send_telegram "⚠️ *TP2 FALLÓ - $SYMBOL* [BUG-047 FIX]
+                        send_telegram "⚠️ TP2 FALLÓ - $SYMBOL [BUG-047 FIX]
 
-*Slot:* $slot_id
-*Error:* $error
-*Razón:* Valor < \$5 mínimo de Binance
-*Resto:* \$${remaining_value} (< \$5)
+Slot: $slot_id
+Error: $error
+Razón: Valor < \$5 mínimo de Binance
+Resto: \$${remaining_value} (< \$5)
 
 ✅ Slot cerrado automáticamente
 💡 Resto se queda como 'dust' (convertible a BNB)
@@ -1270,12 +1299,12 @@ Queda 35% para TP3 🎯"
 🛡️ Auto-Heal v2.0"
                     else
                         # Resto >= $5 - mantener slot activo
-                        send_telegram "⚠️ *TP2 FALLÓ - $SYMBOL*
+                        send_telegram "⚠️ TP2 FALLÓ - $SYMBOL
 
-*Slot:* $slot_id
-*Error:* $error
-*Razón:* Valor < \$5 mínimo de Binance
-*ACUMULADO:* 5% se queda HODL 📈
+Slot: $slot_id
+Error: $error
+Razón: Valor < \$5 mínimo de Binance
+ACUMULADO: 5% se queda HODL 📈
 
 El slot permanece activo."
                     fi
@@ -1389,15 +1418,15 @@ El slot permanece activo."
                     acumulado_note="✅ 5% de la posición SE QUEDA en Binance (acumulado)\n💰 Vendido: 95% | Acumulado: 5% (TP2 skip)"
                 fi
                 
-                local tp3_msg="${pnl_icon} *TP3 HIT - $SYMBOL* [$tp3_percentage - $tp3_note] 🎯
+                local tp3_msg="${pnl_icon} TP3 HIT - $SYMBOL [$tp3_percentage - $tp3_note] 🎯
 
-*Slot:* $slot_id / $MAX_SLOTS
-*Exit:* \$${exit_price}
-*Qty:* $sell_qty_fmt ($tp3_percentage)
-*ACUMULADO:* 5% 📈
+Slot: $slot_id / $MAX_SLOTS
+Exit: \$${exit_price}
+Qty: $sell_qty_fmt ($tp3_percentage)
+ACUMULADO: 5% 📈
 
 $acumulado_note
-*P&L Total:* \$${pnl_total}
+P&L Total: \$${pnl_total}
 
 ✅ Slot cerrado y disponible 🎯"
                 
@@ -1410,12 +1439,12 @@ $acumulado_note
                 # BUG-036 FIX: Notificar incluso si falla por NOTIONAL
                 if echo "$error" | grep -q "NOTIONAL\|minimum"; then
                     log "  📱 Enviando notificación de falla NOTIONAL..."
-                    send_telegram "⚠️ *TP3 FALLÓ - $SYMBOL*
+                    send_telegram "⚠️ TP3 FALLÓ - $SYMBOL
 
-*Slot:* $slot_id
-*Error:* $error
-*Razón:* Valor < \$5 mínimo de Binance
-*ACUMULADO:* 5% se queda HODL 📈
+Slot: $slot_id
+Error: $error
+Razón: Valor < \$5 mínimo de Binance
+ACUMULADO: 5% se queda HODL 📈
 
 🔧 BUG-042: El slot permanece ACTIVE. Próximo cycle intentará vender todo el balance (incluye 5% acumulado)."
                 fi
@@ -1460,11 +1489,11 @@ $acumulado_note
                 [ $(echo "$pnl > 0" | bc -l) -eq 1 ] && pnl_icon="🟢"
                 
                 # Enviar Telegram
-                send_telegram "${pnl_icon} *SL HIT - $SYMBOL*
+                send_telegram "${pnl_icon} SL HIT - $SYMBOL
 
-*Slot:* $slot_id / $MAX_SLOTS
-*Exit:* \$${exit_price}
-*P&L:* \$${pnl_display}
+Slot: $slot_id / $MAX_SLOTS
+Exit: \$${exit_price}
+P&L: \$${pnl_display}
 
 El slot está disponible para próximo trade. 🛡️"
                 
@@ -1531,12 +1560,12 @@ execute_trailing_stop() {
         fi
         
         # Enviar Telegram
-        send_telegram "${pnl_icon} *TRAILING STOP - $SYMBOL*
+        send_telegram "${pnl_icon} TRAILING STOP - $SYMBOL
 
-*Slot:* $slot_id / $MAX_SLOTS
-*Exit:* \$${exit_price}
-*P&L:* \$${pnl_display}
-*Razón:* $reason
+Slot: $slot_id / $MAX_SLOTS
+Exit: \$${exit_price}
+P&L: \$${pnl_display}
+Razón: $reason
 
 ✅ Ganancias aseguradas 🛡️"
     else
