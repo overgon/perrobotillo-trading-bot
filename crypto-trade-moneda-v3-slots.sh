@@ -813,6 +813,25 @@ execute_long() {
     # 🚀 EJECUTAR ORDEN PRIMERO (antes de notificar)
     # ============================================
     
+    # DEBUG: Log balance antes de orden
+    log "💰 DEBUG: Balance USDT free: \$${usdt_balance}"
+    log "💰 DEBUG: Order value calculado: \$${order_value}"
+    log "💰 DEBUG: Quantity: $quantity @ \$${price}"
+    log "💰 DEBUG: Slot $slot_id de $MAX_SLOTS"
+    
+    # Verificar mínimo de Binance ANTES de enviar orden
+    if (( $(awk -v val="$order_value" -v min="10" 'BEGIN {print (val < min) ? 1 : 0}') )); then
+        log "❌ Orden rechazada: \$${order_value} < \$10 mínimo de Binance"
+        send_telegram "❌ ORDEN FALLÓ - $SYMBOL
+
+Slot: $slot_id / $MAX_SLOTS
+Razón: Order value \$${order_value} es menor al mínimo de Binance (\$10)
+Balance disponible: \$${usdt_balance}
+
+Ajusta position_size o espera más capital. 🛡️"
+        return 1
+    fi
+    
     log "📈 BUY Slot $slot_id: $quantity $SYMBOL @ \$${price}"
     
     local buy_result=$(place_buy_order_market "$SYMBOL" "$quantity")
@@ -824,11 +843,18 @@ execute_long() {
         local error_code=$(echo "$buy_result" | jq -r '.code // "-1"')
         log "❌ Orden falló: status=$buy_status, code=$error_code, msg=$error_msg"
         
-        # Notificar falla por Telegram
+        # Obtener balance actual para debugging
+        local current_balance=$(get_balance "USDT")
+        
+        # Notificar falla por Telegram con más contexto
         send_telegram "❌ ORDEN FALLÓ - $SYMBOL
 
 Slot: $slot_id / $MAX_SLOTS
-Razón: $error_msg (Código: $error_code)
+Razón: $error_msg
+Código: $error_code
+
+Balance disponible: \$${current_balance} USDT
+Order value: \$${order_value}
 
 El slot permanece disponible para próximo trade. 🛡️"
         
