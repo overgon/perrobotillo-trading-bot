@@ -861,6 +861,10 @@ Ajusta position_size o espera más capital. 🛡️"
     
     log "📈 BUY Slot $slot_id: $quantity $SYMBOL @ \$${price}"
     
+    # DEBUG: Log details antes de enviar
+    log "🔍 DEBUG: Quantity='$quantity' | Price='$price' | OrderValue='$order_value'"
+    log "🔍 DEBUG: Balance free='$usdt_balance' | Position%='$position_percent'"
+    
     # Validar quantity antes de enviar orden
     if [ -z "$quantity" ] || [ "$quantity" = "0" ] || [ "$quantity" = "0.00000000" ]; then
         log "❌ Quantity inválida: '$quantity'"
@@ -875,12 +879,21 @@ Revisa configuración del bot. 🛡️"
     fi
     
     local buy_result=$(place_buy_order_market "$SYMBOL" "$quantity")
+    
+    # DEBUG: Log raw response
+    log "🔍 DEBUG: Binance response: $buy_result"
+    
     local buy_status=$(echo "$buy_result" | jq -r '.status // "ERROR"')
     
     # Verificar si la orden fue exitosa
     if [ "$buy_status" != "NEW" ] && [ "$buy_status" != "FILLED" ]; then
-        local error_msg=$(echo "$buy_result" | jq -r '.msg // "Unknown error"')
-        local error_code=$(echo "$buy_result" | jq -r '.code // "-1"')
+        local error_msg=$(echo "$buy_result" | jq -r '.msg // "Unknown error"' 2>/dev/null)
+        local error_code=$(echo "$buy_result" | jq -r '.code // "-1"' 2>/dev/null)
+        
+        # Fallback si jq falla
+        [ -z "$error_msg" ] || [ "$error_msg" = "null" ] && error_msg="Unknown error"
+        [ -z "$error_code" ] || [ "$error_code" = "null" ] && error_code="-1"
+        
         log "❌ Orden falló: status=$buy_status, code=$error_code, msg=$error_msg"
         
         # Obtener balance actual para debugging
