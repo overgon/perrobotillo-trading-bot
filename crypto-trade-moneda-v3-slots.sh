@@ -741,10 +741,25 @@ send_telegram() {
 
 place_buy_order_market() {
     local symbol="$1" quantity="$2"
+    
+    # Generar timestamp inmediatamente antes de usar
     local timestamp=$(date -u +%s%3N)
-    local query_string="symbol=${symbol}USDT&side=BUY&type=MARKET&quantity=${quantity}&timestamp=${timestamp}&recvWindow=5000"
+    local query_string="symbol=${symbol}USDT&side=BUY&type=MARKET&quantity=${quantity}&timestamp=${timestamp}&recvWindow=10000"
     local signature=$(get_signature "$query_string")
-    curl -s -X POST "${BINANCE}/api/v3/order?${query_string}&signature=${signature}" -H "X-MBX-APIKEY: ${BINANCE_API_KEY}"
+    
+    # Ejecutar con timeout de 5 segundos
+    local result=$(curl -s -m 5 -w "\n%{http_code}" -X POST "${BINANCE}/api/v3/order?${query_string}&signature=${signature}" -H "X-MBX-APIKEY: ${BINANCE_API_KEY}")
+    local http_code=$(echo "$result" | tail -1)
+    local body=$(echo "$result" | head -n -1)
+    
+    # Log error si hay problema de HTTP
+    if [ "$http_code" != "200" ]; then
+        log "❌ Binance API HTTP error: $http_code"
+        echo "{"code":"-9999","msg":"HTTP error $http_code"}"
+        return
+    fi
+    
+    echo "$body"
 }
 
 place_sell_order_market() {
@@ -833,6 +848,19 @@ Ajusta position_size o espera más capital. 🛡️"
     fi
     
     log "📈 BUY Slot $slot_id: $quantity $SYMBOL @ \$${price}"
+    
+    # Validar quantity antes de enviar orden
+    if [ -z "$quantity" ] || [ "$quantity" = "0" ] || [ "$quantity" = "0.00000000" ]; then
+        log "❌ Quantity inválida: '$quantity'"
+        send_telegram "❌ ORDEN FALLÓ - $SYMBOL
+
+Slot: $slot_id / $MAX_SLOTS
+Razón: Quantity calculada es inválida ($quantity)
+Precio: \$${price} | Order value: \$${order_value}
+
+Revisa configuración del bot. 🛡️"
+        return 1
+    fi
     
     local buy_result=$(place_buy_order_market "$SYMBOL" "$quantity")
     local buy_status=$(echo "$buy_result" | jq -r '.status // "ERROR"')
