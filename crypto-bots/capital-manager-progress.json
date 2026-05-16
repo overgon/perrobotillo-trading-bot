@@ -1,9 +1,9 @@
 {
-    "timestamp": "2026-05-13T09:00:23-06:00",
-    "position_size": 100.0,
-    "win_rate": DECREASE,
-    "total_capital": Position actual (27%) muy alto para capital de $,
-    "last_action": "",
-    "reason": "",
+    "timestamp": "2026-05-15T09:00:02-06:00",
+    "position_size": #,
+    "win_rate": 96.05,
+    "total_capital": 2787.78,
+    "last_action": "MAINTAIN",
+    "reason": "Mantener posición actual",
     "history": []
 }

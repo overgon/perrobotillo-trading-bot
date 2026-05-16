@@ -165,8 +165,8 @@ for slot_info in slots_to_close:
             pnl_str = f"-${abs(pnl):.2f} ({pnl_pct:.2f}%)"
         
         message = (
-            f"{emoji} <b>{title}</b>\n\n"
-            f"🪙 <b>{coin}/USDT</b> - Slot {slot_id}\n\n"
+            f"{emoji} {title}\n\n"
+            f"🪙 {coin}/USDT - Slot {slot_id}\n\n"
             f"💰 Entry: ${slot_info['entry']:.2f}\n"
             f"🎯 Target: ${slot_info['tp_price']:.2f}\n"
             f"📈 Current: ${slot_info['current']:.2f}\n\n"
@@ -174,7 +174,7 @@ for slot_info in slots_to_close:
             f"📊 Cantidad: {slot_info['quantity']}\n\n"
             f"⚡ Cierre ejecutado por TP Monitor\n"
             f"🕐 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CST\n\n"
-            f"🐕 <i>Perrobotillo Trading Bot</i>"
+            f"🐕 Perrobotillo Trading Bot"
         )
         
         try:

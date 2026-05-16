@@ -124,4 +124,11 @@ echo ""
 echo "🔄 El bot usará esta configuración en la próxima ejecución"
 echo ""
 
+# ════════════════════════════════════════════════════════
+# PASO 4: VALIDACIÓN ML (NUEVO)
+# ════════════════════════════════════════════════════════
+
+echo "⏳ Paso 4/4: Ejecutando ML validation..."
+"${SCRIPT_DIR}/ml-market-validator.sh"
+
 exit 0

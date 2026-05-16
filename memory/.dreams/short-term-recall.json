@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-04-12T00:58:24.252Z",
+  "updatedAt": "2026-05-14T20:34:47.402Z",
   "entries": {
     "memory:memory/2026-04-10.md:84:114": {
       "key": "memory:memory/2026-04-10.md:84:114",
@@ -9,18 +9,20 @@
       "endLine": 114,
       "source": "memory",
       "snippet": "| 10 min | Bot cycles | ✅ Operando | --- ### 🐕 **LECCIONES APRENDIDAS** 1. **Nunca estimar P&L** - Siempre verificar con balance real de Binance 2. **Mensajes multi-línea en variables** - No inline en send_telegram() 3. **Logs de debug** - Antes y después de notificaciones críticas 4. **Balance comparison** - Mejor método para P&L real 5. **Documentar TODO** - 30KB creados hoy --- ### 📊 **ESTADÍSTICAS FINALES** ``` Portfolio: $907.54 USDT P&L Día: -$1.34 (-0.15%) Bugs Fixed: 40/40 (100%) Notificaciones Fixeadas: ~53 Documentación: ~30KB Scripts Nuevos: 3 Sistema: 100% operacional ✅ ``` --- **Fin del día 2026-04-09 - 23:30 CST** 🌙 **Perrobotillo Xoloitzcuintle 🐕🇲🇽**",
-      "recallCount": 1,
+      "recallCount": 2,
       "dailyCount": 0,
       "groundedCount": 0,
-      "totalScore": 0.0000012621862784652385,
-      "maxScore": 0.0000012621862784652385,
+      "totalScore": 1.0000012621862784,
+      "maxScore": 1,
       "firstRecalledAt": "2026-04-12T00:58:24.252Z",
-      "lastRecalledAt": "2026-04-12T00:58:24.252Z",
+      "lastRecalledAt": "2026-05-14T20:34:47.402Z",
       "queryHashes": [
-        "fdcfee746000"
+        "fdcfee746000",
+        "afc369220f35"
       ],
       "recallDays": [
-        "2026-04-11"
+        "2026-04-11",
+        "2026-05-14"
       ],
       "conceptTags": [
         "multi-línea",

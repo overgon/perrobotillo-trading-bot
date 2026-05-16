@@ -68,15 +68,30 @@ check_ngrok() {
         return 1  # No hay tunnel activo
     fi
     
+    # ✅ VERIFICAR SI EL TUNNEL RESPONDE (ngrok free tier devuelve 401/403 normalmente)
+    local http_status=$(curl -s -o /dev/null -w "%{http_code}" "$public_url" 2>/dev/null)
+    
+    # Ngrok free tier devuelve 401/403 para requerir auth en browser - ESTO ES NORMAL
+    # Solo es ERROR si es 502, 503, 504, o timeout
+    if [ "$http_status" = "502" ] || [ "$http_status" = "503" ] || [ "$http_status" = "504" ]; then
+        log "❌ Ngrok tunnel responde con HTTP $http_status - SERVIDOR CAÍDO"
+        return 1  # Tunnel no funciona
+    fi
+    
+    # 401/403 es NORMAL en ngrok free tier (requiere auth en browser)
+    if [ "$http_status" = "401" ] || [ "$http_status" = "403" ]; then
+        log "✅ Ngrok tunnel ONLINE (HTTP $http_status - auth requerida, normal en free tier)"
+    fi
+    
     # Verificar errores recientes en el log de ngrok
     if [ -f "$NGROK_LOG" ]; then
-        local recent_errors=$(tail -20 "$NGROK_LOG" 2>/dev/null | grep -c "ERR_NGROK\|failed to start tunnel")
+        local recent_errors=$(tail -20 "$NGROK_LOG" 2>/dev/null | grep -c "ERR_NGROK\|failed to start tunnel\|authentication failed")
         if [ "$recent_errors" -gt 0 ]; then
             return 1  # Hay errores recientes
         fi
     fi
     
-    return 0  # ngrok está funcionando
+    return 0  # ngrok está funcionando correctamente
 }
 
 # Matar procesos del dashboard
@@ -108,7 +123,7 @@ restart_ngrok() {
     log "🔄 Reiniciando ngrok..."
     
     # Matar ngrok existente
-    pkill -9 ngrok 2>/dev/null
+    pkill -9 -f "/usr/local/bin/ngrok" 2>/dev/null
     sleep 2
     
     # Iniciar ngrok

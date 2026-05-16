@@ -25,7 +25,7 @@ echo "✅ Dashboard corriendo (PID: $DASHBOARD_PID)"
 
 # 4. Iniciar Ngrok (sin --log=stdout para evitar problemas)
 echo "🔌 Iniciando ngrok tunnel..."
-ngrok http 8080 > /tmp/ngrok.log 2>&1 &
+/usr/local/bin/ngrok http 8080 > /tmp/ngrok.log 2>&1 &
 NGROK_PID=$!
 
 echo "✅ Ngrok iniciado (PID: $NGROK_PID)"
