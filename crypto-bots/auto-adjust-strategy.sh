@@ -154,7 +154,6 @@ if [ -f "$ML_RESULT_FILE" ]; then
             echo "" >> "$DYNAMIC_CONFIG"
             echo "# ML Override: $(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(d.get('reason', ''))")" >> "$DYNAMIC_CONFIG"
             echo "# ML Confidence: $ML_CONFIDENCE" >> "$DYNAMIC_CONFIG"
-            log "✅ ML override aplicado: $AUTO_MODE → $FINAL_MODE"
         fi
     else
         FINAL_MODE="$AUTO_MODE"

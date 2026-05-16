@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-16T01:13:20.306896",
+  "timestamp": "2026-05-16T01:33:05.629695",
   "model_accuracy": 0.6428571428571429,
   "predictions": {
     "SOL": {
@@ -14,10 +14,10 @@
         "MEDIUM_RISK": 0.094
       },
       "risk_indicators": {
-        "loss_streak": 5,
-        "loss_rate_24h": 0.8333333333333334,
-        "drawdown_24h": 13.35179883,
-        "drawdown_7d": 13.35179883,
+        "loss_streak": 6,
+        "loss_rate_24h": 0.8571428571428571,
+        "drawdown_24h": 21.31769144,
+        "drawdown_7d": 21.31769144,
         "hour": 1
       }
     }

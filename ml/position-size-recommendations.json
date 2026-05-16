@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-16T01:13:18.661908",
+  "timestamp": "2026-05-16T01:33:04.014304",
   "model_accuracy": 0.5625,
   "recommendations": {
     "SOL": {
@@ -13,8 +13,8 @@
         "MEDIUM": 0.75
       },
       "features_used": {
-        "win_rate_24h": 0.16666666666666666,
-        "win_rate_7d": 0.8148148148148148,
+        "win_rate_24h": 0.14285714285714285,
+        "win_rate_7d": 0.7857142857142857,
         "hour": 1
       }
     }

@@ -1,72 +1,69 @@
 {
-  "timestamp": "2026-05-16T00:15:48.793752",
+  "timestamp": "2026-05-16T01:32:02.779411",
   "model_accuracy": 0.9970238095238095,
   "predictions": {
     "BTC": {
       "market_mode": "LATERAL",
-      "confidence": 1.0,
+      "confidence": 0.992,
       "probabilities": {
-        "BEAR": 0.0,
+        "BEAR": 0.008,
         "BULL": 0.0,
-        "LATERAL": 1.0
+        "LATERAL": 0.992
       }
     },
     "ETH": {
       "market_mode": "LATERAL",
-      "confidence": 1.0,
+      "confidence": 0.962,
       "probabilities": {
-        "BEAR": 0.0,
+        "BEAR": 0.038,
         "BULL": 0.0,
-        "LATERAL": 1.0
+        "LATERAL": 0.962
       }
     },
     "BNB": {
       "market_mode": "LATERAL",
-      "confidence": 0.945,
+      "confidence": 0.873,
       "probabilities": {
-        "BEAR": 0.055,
+        "BEAR": 0.127,
         "BULL": 0.0,
-        "LATERAL": 0.945
+        "LATERAL": 0.873
       }
     },
     "SOL": {
-      "market_mode": "LATERAL",
-      "confidence": 0.963,
+      "market_mode": "BEAR",
+      "confidence": 0.887,
       "probabilities": {
-        "BEAR": 0.037,
+        "BEAR": 0.887,
         "BULL": 0.0,
-        "LATERAL": 0.963
+        "LATERAL": 0.113
       }
     },
     "LINK": {
-      "market_mode": "LATERAL",
-      "confidence": 0.848,
+      "market_mode": "BEAR",
+      "confidence": 0.975,
       "probabilities": {
-        "BEAR": 0.152,
+        "BEAR": 0.975,
         "BULL": 0.0,
-        "LATERAL": 0.848
+        "LATERAL": 0.025
       }
     },
     "XRP": {
       "market_mode": "LATERAL",
-      "confidence": 0.963,
+      "confidence": 0.922,
       "probabilities": {
-        "BEAR": 0.037,
+        "BEAR": 0.078,
         "BULL": 0.0,
-        "LATERAL": 0.963
+        "LATERAL": 0.922
       }
     },
     "AVAX": {
-      "market_mode": "LATERAL",
-      "confidence": 0.84,
+      "market_mode": "BEAR",
+      "confidence": 0.952,
       "probabilities": {
-        "BEAR": 0.16,
+        "BEAR": 0.952,
         "BULL": 0.0,
-        "LATERAL": 0.84
+        "LATERAL": 0.048
       }
     }
-  },
-  "recommended_mode": "LATERAL",
-  "discrepancy": true,
-  "reason": "ML LATERAL vs Auto-Adjust BEAR"
+  }
 }

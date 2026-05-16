@@ -9,14 +9,28 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 78,
+  "totalTrades": 79,
   "totalWins": 73,
-  "totalLosses": 5,
+  "totalLosses": 6,
   "totalProfitUSDT": 281.64939271,
-  "totalLossUSDT": -13.35179883,
-  "netPnLUSDT": 268.29759388,
-  "winRate": 93.59,
+  "totalLossUSDT": -21.31769144,
+  "netPnLUSDT": 260.33170127,
+  "winRate": 92.41,
   "trades": [
+    {
+      "id": 79,
+      "symbol": "ETH",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 2347.16000000,
+      "exitPrice": 2189.38000000,
+      "quantity": 0.0488,
+      "closeType": "SL",
+      "pnlUSDT": -7.96589261,
+      "timestamp": "2026-05-16T01:21:02-06:00",
+      "closeTime": "2026-05-16 01:21:02",
+      "seeded": false
+    },
     {
       "id": 78,
       "symbol": "AVAX",
