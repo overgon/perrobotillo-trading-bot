@@ -88,39 +88,16 @@ if [ "$ML_DISCREPANCY" = "true" ]; then
         fi
         
         echo "✅ Configuración actualizada con ML override"
-        
-        # Notificar por Telegram
-        if [ -f "${WORKSPACE}/lib/send-telegram.sh" ]; then
-            source "${WORKSPACE}/lib/send-telegram.sh"
-            send_telegram "⚠️ ML VALIDATION OVERRIDE
-
-🤖 Auto-Adjust: $AUTO_MODE
-🧠 ML Classifier: $ML_MODE
-📊 BTC Confidence: $BTC_CONF
-
-Motivo: $ML_REASON
-
-✅ Usando ML prediction por alta confianza"
-        fi
+        # NOTA: La notificación la hace auto-adjust-strategy.sh
     else
         echo "⚠️ DISCREPANCIA: ML tiene <80% confianza"
         echo "   Manteniendo Auto-Adjust ($AUTO_MODE) por seguridad"
-        
-        # Notificar discrepancia de baja confianza
-        if [ -f "${WORKSPACE}/lib/send-telegram.sh" ]; then
-            source "${WORKSPACE}/lib/send-telegram.sh"
-            send_telegram "⚠️ ML VALIDATION - DISCREPANCIA
-
-🤖 Auto-Adjust: $AUTO_MODE
-🧠 ML Classifier: $ML_MODE
-📊 BTC Confidence: $BTC_CONF
-
-Manteniendo Auto-Adjust por baja confianza ML"
-        fi
+        # NOTA: La notificación la hace auto-adjust-strategy.sh
     fi
 else
     echo "✅ ACUERDO: ML y Auto-Adjust coinciden en $ML_MODE"
     echo "   Sin cambios necesarios"
+    # NOTA: La notificación la hace auto-adjust-strategy.sh
 fi
 
 echo ""

@@ -1,24 +1,24 @@
 {
-  "timestamp": "2026-05-15T22:33:24.962693",
+  "timestamp": "2026-05-16T01:06:39.062403",
   "model_accuracy": 0.6428571428571429,
   "predictions": {
-    "SOL": {
-      "symbol": "SOL",
-      "risk_level": "MEDIUM_RISK",
-      "action": "REDUCE",
-      "position_size": 25,
-      "confidence": 0.632,
-      "message": "Riesgo medio - reducir posici\u00f3n",
+    "AVAX": {
+      "symbol": "AVAX",
+      "risk_level": "LOW_RISK",
+      "action": "NORMAL",
+      "position_size": 40,
+      "confidence": 0.872,
+      "message": "Riesgo bajo - operar normal",
       "probabilities": {
-        "LOW_RISK": 0.368,
-        "MEDIUM_RISK": 0.632
+        "LOW_RISK": 0.872,
+        "MEDIUM_RISK": 0.128
       },
       "risk_indicators": {
-        "loss_streak": 3,
-        "loss_rate_24h": 0.75,
-        "drawdown_24h": 7.37413675,
-        "drawdown_7d": 7.37413675,
-        "hour": 22
+        "loss_streak": 5,
+        "loss_rate_24h": 0.8333333333333334,
+        "drawdown_24h": 13.35179883,
+        "drawdown_7d": 13.35179883,
+        "hour": 1
       }
     }
   }

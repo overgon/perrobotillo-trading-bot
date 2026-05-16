@@ -131,4 +131,74 @@ echo ""
 echo "⏳ Paso 4/4: Ejecutando ML validation..."
 "${SCRIPT_DIR}/ml-market-validator.sh"
 
+# ════════════════════════════════════════════════════════
+# PASO 5: NOTIFICAR (DESPUÉS DE ML VALIDATION)
+# ════════════════════════════════════════════════════════
+
+# Leer resultado de ML validation
+ML_RESULT_FILE="${SCRIPT_DIR}/../ml/market-predictions.json"
+if [ -f "$ML_RESULT_FILE" ]; then
+    ML_DISCREPANCY=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print('true' if d.get('discrepancy', False) else 'false')")
+    ML_MODE=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(d.get('recommended_mode', 'UNKNOWN'))")
+    ML_CONFIDENCE=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(f\"{d['predictions'].get('BTC', {}).get('confidence', 0)*100:.0f}%\")")
+    
+    # Determinar modo final
+    if [ "$ML_DISCREPANCY" = "true" ] && [ "$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(int(d['predictions'].get('BTC', {}).get('confidence', 0)*100))")" -gt 80 ]; then
+        FINAL_MODE="$ML_MODE"
+        OVERRIDE="✅ ML override aplicado"
+    else
+        FINAL_MODE="$AUTO_MODE"
+        OVERRIDE="✅ ML de acuerdo"
+    fi
+    
+    # Notificar resultado final
+    if [ -f "${WORKSPACE}/lib/send-telegram.sh" ]; then
+        source "${WORKSPACE}/lib/send-telegram.sh"
+        send_telegram "🧠 AUTO-ADJUST + ML VALIDATION
+
+🎯 Modo Final: ${FINAL_MODE}
+${OVERRIDE}
+
+📝 Razón: ${MARKET_REASON}
+
+📊 Configuración:
+TP1: +${TP1}%
+TP2: +${TP2}%
+TP3: +${TP3}%
+SL: -${SL}%
+Position: ${POSITION_SIZE}%
+
+📈 Contexto:
+BTC: \$${BTC_PRICE}
+RSI: ${RSI}
+F&G: ${FG_VALUE} (${FG_CLASS})
+ML Confianza: ${ML_CONFIDENCE}
+
+✅ Estrategia validada y ajustada"
+    fi
+else
+    # Fallback: notificar sin ML
+    if [ -f "${WORKSPACE}/lib/send-telegram.sh" ]; then
+        source "${WORKSPACE}/lib/send-telegram.sh"
+        send_telegram "🧠 AUTO-ADJUST STRATEGY UPDATE
+
+🎯 Modo: ${MARKET_MODE}
+📝 Razón: ${MARKET_REASON}
+
+📊 Configuración:
+TP1: +${TP1}%
+TP2: +${TP2}%
+TP3: +${TP3}%
+SL: -${SL}%
+Position: ${POSITION_SIZE}%
+
+📈 Contexto:
+BTC: \$${BTC_PRICE}
+RSI: ${RSI}
+F&G: ${FG_VALUE} (${FG_CLASS})
+
+✅ Estrategia ajustada automáticamente"
+    fi
+fi
+
 exit 0
