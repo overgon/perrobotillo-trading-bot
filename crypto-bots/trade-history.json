@@ -9,14 +9,28 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 79,
+  "totalTrades": 80,
   "totalWins": 73,
-  "totalLosses": 6,
+  "totalLosses": 7,
   "totalProfitUSDT": 281.64939271,
-  "totalLossUSDT": -21.31769144,
-  "netPnLUSDT": 260.33170127,
-  "winRate": 92.41,
+  "totalLossUSDT": -27.42252922,
+  "netPnLUSDT": 254.22686349,
+  "winRate": 91.25,
   "trades": [
+    {
+      "id": 80,
+      "symbol": "LINK",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 10.63000000,
+      "exitPrice": 9.83000000,
+      "quantity": 7.63,
+      "closeType": "SL",
+      "pnlUSDT": -6.10483778,
+      "timestamp": "2026-05-16T01:44:03-06:00",
+      "closeTime": "2026-05-16 01:44:03",
+      "seeded": false
+    },
     {
       "id": 79,
       "symbol": "ETH",
