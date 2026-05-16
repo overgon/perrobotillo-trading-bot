@@ -24,7 +24,9 @@ echo ""
 
 echo "⏳ Paso 1/3: Ejecutando ML classifier..."
 
-python3 "${ML_DIR}/market-classifier.py" --predict --validate
+# Primero predecir, luego validar
+python3 "${ML_DIR}/market-classifier.py" --predict
+python3 "${ML_DIR}/market-classifier.py" --validate
 
 if [ ! -f "$ML_PREDICTIONS" ]; then
     echo "❌ Error: ML no generó predicciones"

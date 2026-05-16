@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-15T19:04:41.723822",
+  "timestamp": "2026-05-15T19:09:39.830858",
   "model_accuracy": 0.9970238095238095,
   "predictions": {
     "BTC": {
@@ -65,5 +65,8 @@
         "LATERAL": 0.991
       }
     }
-  }
+  },
+  "recommended_mode": "LATERAL",
+  "discrepancy": true,
+  "reason": "ML LATERAL vs Auto-Adjust BEAR"
 }
