@@ -63,6 +63,18 @@ else
     log "⚠️ Sin config dinámica (usando defaults)"
 fi
 
+# Fallback: Asegurar que TRADE_POSITION_PERCENT tenga valor default
+if [ -z "$TRADE_POSITION_PERCENT" ] || [ "$TRADE_POSITION_PERCENT" = "0" ]; then
+    TRADE_POSITION_PERCENT=40
+    log "💡 TRADE_POSITION_PERCENT no definido, usando default 40%"
+fi
+
+# Fallback para NORMAL_TRADE_PERCENT
+if [ -z "$NORMAL_TRADE_PERCENT" ] || [ "$NORMAL_TRADE_PERCENT" = "0" ]; then
+    NORMAL_TRADE_PERCENT=$TRADE_POSITION_PERCENT
+    log "💡 NORMAL_TRADE_PERCENT no definido, usando TRADE_POSITION_PERCENT=$NORMAL_TRADE_PERCENT%"
+fi
+
 TRADING_HOURS_OPTIMAL="00,01,13,14,15,16,21,22"
 AGGRESSIVE_MODE=true
 
@@ -1911,10 +1923,14 @@ execute_cycle() {
     local available_slot=$(get_available_slot)
     [ "$available_slot" = "0" ] && return 0
     
+    # DEBUG: Log variables antes de ejecutar
+    log "🔍 DEBUG: TRADE_PERCENT=$TRADE_PERCENT | NORMAL_TRADE_PERCENT=$NORMAL_TRADE_PERCENT | AGGRESSIVE_TRADE_PERCENT=$AGGRESSIVE_TRADE_PERCENT"
+    
     # Simple signal logic (puede expandirse con TA)
     local signal="LONG"  # Por defecto para testing
     
     if [ "$signal" = "LONG" ]; then
+        log "📈 Ejecutando execute_long slot=$available_slot con TRADE_PERCENT=$TRADE_PERCENT"
         execute_long "$available_slot" "$TRADE_PERCENT"
     fi
     
