@@ -1945,6 +1945,32 @@ execute_cycle() {
     
     log "⏰ Modo: $CURRENT_MODE (${current_hour} UTC) | SL=${STOP_LOSS_PERCENT}% (por coin) | TP: ${TP1_PERCENT}%/${TP2_PERCENT}%/${TP3_PERCENT}%"
     
+    # ════════════════════════════════════════════════════════
+    # 🧠 ML POSITION SIZE OPTIMIZATION
+    # ════════════════════════════════════════════════════════
+    
+    ML_POSITION_SCRIPT="${WORKSPACE}/ml/ml-position-size.sh"
+    if [ -x "$ML_POSITION_SCRIPT" ]; then
+        log "🧠 ML: Consultando position size optimizer..."
+        ML_POSITION_SIZE=$(bash "$ML_POSITION_SCRIPT" "$SYMBOL" 2>/dev/null)
+        
+        if [ -n "$ML_POSITION_SIZE" ] && [ "$ML_POSITION_SIZE" != "40" ]; then
+            log "🧠 ML: Position size recomendado: ${ML_POSITION_SIZE}%"
+            
+            # Aplicar ML position size (respetando límites 15-50%)
+            if [ "$ML_POSITION_SIZE" -ge 15 ] && [ "$ML_POSITION_SIZE" -le 50 ]; then
+                TRADE_PERCENT=$ML_POSITION_SIZE
+                log "✅ ML override aplicado: TRADE_PERCENT=${TRADE_PERCENT}%"
+            else
+                log "⚠️ ML position size fuera de rango (${ML_POSITION_SIZE}%), usando default 40%"
+            fi
+        else
+            log "🧠 ML: Usando position size default (40%)"
+        fi
+    else
+        log "⚠️ ML position size script no disponible"
+    fi
+    
     # FASE 1: Verificar TRAILING STOP en slots activos
     check_trailing_stops
     
