@@ -132,7 +132,7 @@ echo "⏳ Paso 4/4: Ejecutando ML validation..."
 "${SCRIPT_DIR}/ml-market-validator.sh"
 
 # ════════════════════════════════════════════════════════
-# PASO 5: NOTIFICAR (DESPUÉS DE ML VALIDATION)
+# PASO 5: NOTIFICAR + APLICAR OVERRIDE (DESPUÉS DE ML VALIDATION)
 # ════════════════════════════════════════════════════════
 
 # Leer resultado de ML validation
@@ -141,11 +141,21 @@ if [ -f "$ML_RESULT_FILE" ]; then
     ML_DISCREPANCY=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print('true' if d.get('discrepancy', False) else 'false')")
     ML_MODE=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(d.get('recommended_mode', 'UNKNOWN'))")
     ML_CONFIDENCE=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(f\"{d['predictions'].get('BTC', {}).get('confidence', 0)*100:.0f}%\")")
+    ML_CONF_NUM=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(int(d['predictions'].get('BTC', {}).get('confidence', 0)*100))")
     
-    # Determinar modo final
-    if [ "$ML_DISCREPANCY" = "true" ] && [ "$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(int(d['predictions'].get('BTC', {}).get('confidence', 0)*100))")" -gt 80 ]; then
+    # Determinar modo final y aplicar override si corresponde
+    if [ "$ML_DISCREPANCY" = "true" ] && [ "$ML_CONF_NUM" -gt 80 ]; then
         FINAL_MODE="$ML_MODE"
         OVERRIDE="✅ ML override aplicado"
+        
+        # Aplicar override en dynamic-config.env
+        if [ -f "$DYNAMIC_CONFIG" ]; then
+            sed -i "s/^export MARKET_MODE=.*/export MARKET_MODE=\"$FINAL_MODE\"/" "$DYNAMIC_CONFIG"
+            echo "" >> "$DYNAMIC_CONFIG"
+            echo "# ML Override: $(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(d.get('reason', ''))")" >> "$DYNAMIC_CONFIG"
+            echo "# ML Confidence: $ML_CONFIDENCE" >> "$DYNAMIC_CONFIG"
+            log "✅ ML override aplicado: $AUTO_MODE → $FINAL_MODE"
+        fi
     else
         FINAL_MODE="$AUTO_MODE"
         OVERRIDE="✅ ML de acuerdo"

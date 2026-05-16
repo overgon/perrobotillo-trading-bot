@@ -1,17 +1,17 @@
 {
-  "timestamp": "2026-05-16T01:06:39.062403",
+  "timestamp": "2026-05-16T01:13:20.306896",
   "model_accuracy": 0.6428571428571429,
   "predictions": {
-    "AVAX": {
-      "symbol": "AVAX",
+    "SOL": {
+      "symbol": "SOL",
       "risk_level": "LOW_RISK",
       "action": "NORMAL",
       "position_size": 40,
-      "confidence": 0.872,
+      "confidence": 0.906,
       "message": "Riesgo bajo - operar normal",
       "probabilities": {
-        "LOW_RISK": 0.872,
-        "MEDIUM_RISK": 0.128
+        "LOW_RISK": 0.906,
+        "MEDIUM_RISK": 0.094
       },
       "risk_indicators": {
         "loss_streak": 5,
