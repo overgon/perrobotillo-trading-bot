@@ -1,8 +1,8 @@
 # 🐕 Perrobotillo Trading Bot
 
 **Bot de Trading Automatizado para Binance**  
-*Versión: FASE 1 v2.1 Optimizada*  
-*Última actualización: 2026-05-13*
+*Versión: FASE 2 v2.2 - ML Drawdown Predictor con Entrenamiento Histórico*  
+*Última actualización: 2026-05-16*
 
 > ⚠️ **ADVERTENCIA:** Este bot opera con criptomonedas reales. El trading de criptoactivos conlleva riesgos significativos. Úsalo bajo tu propia responsabilidad.
 
@@ -203,20 +203,52 @@ El bot usa **Machine Learning** para predecir probabilidad de TP y ajustar diná
 - `CONSERVATIVE` (prob 40-60%) → TP1: 2.5% | TP2: 5.0% | TP3: 8.0%
 - `DEFENSIVE` (prob < 40%) → TP1: 2.0% | TP2: 4.0% | TP3: 6.0%
 
-**Predicciones actuales (ejemplo):**
-- SOL: 88.7% → AGGRESSIVE (4.0% | 8.0% | 15.0%)
-- LINK: 93.1% → AGGRESSIVE (4.0% | 8.0% | 15.0%)
-- XRP: 90.3% → AGGRESSIVE (4.0% | 8.0% | 15.0%)
-- BTC: 66.1% → NORMAL (3.5% | 7.0% | 12.0%)
-- BNB: 49.4% → CONSERVATIVE (2.5% | 5.0% | 8.0%)
-- ETH: 7.3% → DEFENSIVE (2.0% | 4.0% | 6.0%)
-
 **Archivos ML:**
 - `ml/train-tp-model.py` - Entrenamiento inicial
 - `ml/predict-tp.py` - Inferencia en tiempo real
 - `ml/auto-retrain.py` - Auto-mejora continua
 - `ml/tp_prediction_model.pkl` - Modelo entrenado
 - `ml/tp-recommendations.json` - Recomendaciones actuales
+
+---
+
+### 🛡️ ML Drawdown Predictor (FASE 2 - 2026-05-16)
+
+El bot usa **Machine Learning** para predecir rachas de pérdidas y pausar trading automáticamente:
+
+**Características:**
+- ✅ **Modelo:** Random Forest Classifier (11 MB)
+- ✅ **Dataset:** 14,498 trades de 6 años (2020-2026)
+- ✅ **Accuracy:** 76.31% (vs 64% modelo anterior)
+- ✅ **HIGH_RISK samples:** 6,517 (45% del dataset)
+- ✅ **Inferencia:** < 1 segundo
+- ✅ **Crisis incluidas:** COVID crash (2020), FTX collapse (2022), bear markets
+
+**Sistema Híbrido de Protección:**
+
+1. **Reglas Hard-Coded (Emergencia):**
+   - Loss Rate >80% en 24h → PAUSE
+   - Loss Streak >5 → PAUSE
+   - Drawdown >$50 en 24h → PAUSE
+   - Loss Rate >50% → REDUCE position a 20%
+
+2. **ML Random Forest (v2.0):**
+   - 76% accuracy
+   - Entrenado con crisis reales
+   - 216x más data que modelo original
+   - Re-entrena mensualmente
+
+**Anti-Spam:**
+- Flag files por moneda (`*-ml-pause-flag.json`)
+- Notifica 1 vez por evento de pausa
+- Notifica al reanudar operaciones
+
+**Archivos ML:**
+- `ml/train-drawdown-historical.py` - Entrenamiento con data histórica
+- `ml/drawdown-predictor-historical.pkl` - Modelo (11 MB)
+- `ml/drawdown-training-historical.csv` - Dataset (14,498 rows)
+- `ml/ml-drawdown-check.sh` - Checker con reglas + ML
+- `ml/drawdown-historical-metadata.json` - Metadata del modelo
 
 ### Coins Soportadas (7)
 
@@ -685,7 +717,7 @@ tail -f /home/<YOUR_USERNAME>/.openclaw/logs/auto-trade-all.log
 - [x] Auto Capital Manager (9 AM)
 - [x] Watchdog con alertas Telegram
 - [x] Housekeeping automático
-- [x] **🤖 ML TP Prediction (FASE 1)**
+- [x] **🤖 ML TP Prediction**
   - [x] Modelo LightGBM (0.31 MB)
   - [x] 22 features (RSI, MACD, BB, volatilidad)
   - [x] Accuracy: 79-90%
@@ -693,19 +725,64 @@ tail -f /home/<YOUR_USERNAME>/.openclaw/logs/auto-trade-all.log
   - [x] Auto-retrain semanal
   - [x] Integración con bot principal
 
-### FASE 2 (En desarrollo)
-- [ ] ML FASE 2: Mejorar accuracy a 85%+ (más features, más trades)
-- [ ] Integración con más exchanges (KuCoin, Bybit)
-- [ ] Dashboard con gráficos en vivo (Chart.js)
-- [ ] Backtesting en la nube
-- [ ] ML para detección de mercado (BULL/BEAR/LATERAL)
+### FASE 2 (✅ COMPLETADA - 2026-05-16)
+- [x] **🛡️ ML Drawdown Predictor**
+  - [x] Entrenamiento con 14,498 trades (6 años)
+  - [x] Incluye COVID crash, FTX collapse, bear markets
+  - [x] Accuracy: 76.31% (vs 64% anterior)
+  - [x] Sistema híbrido: Reglas + ML
+  - [x] Anti-spam de notificaciones
+  - [x] Dashboard sincronizado (BEAR/LATERAL fix)
+- [x] **📊 Reporte Diario Optimizado**
+  - [x] Formato Telegram sin asteriscos
+  - [x] Notificaciones de orden sin duplicados
+- [x] **🔧 Dashboard Fixes**
+  - [x] Parser de dynamic-config.env
+  - [x] MARKET_MODE sincronizado
 
-### FASE 3 (Futuro)
-- [ ] Estrategias multi-timeframe
-- [ ] Portfolio rebalancing automático
-- [ ] Alertas de mercado avanzadas
-- [ ] API REST para control externo
-- [ ] Mobile app (React Native)
+### FASE 2.5 (En desarrollo - Q3 2026)
+- [ ] **Pipeline de Re-entrenamiento ML**
+  - [ ] Re-entrenamiento mensual automático
+  - [ ] Validación de accuracy antes de deploy
+  - [ ] Rollback automático si accuracy < 70%
+  - [ ] Model registry con versionado
+- [ ] **ML para Coin Ranking**
+  - [ ] Ranking simple (80% beneficio, 20% complejidad)
+  - [ ] Performance histórico por coin
+  - [ ] Volatilidad actual + volume relativo
+  - [ ] Sugerir coins a pausar temporalmente
+- [ ] **Mejoras de Seguridad**
+  - [ ] Emergency Stop con confirmación
+  - [ ] Circuit breaker automático
+  - [ ] Alertas de anomalías en tiempo real
+
+### FASE 3 (Futuro - Q4 2026 / Q1 2027)
+- [ ] **Estrategias Multi-Timeframe**
+  - [ ] Análisis 1h + 4h + 1d simultáneo
+  - [ ] Detección de divergencias
+  - [ ] Confirmación de tendencias
+- [ ] **Portfolio Rebalancing Automático**
+  - [ ] Rebalanceo semanal/mensual
+  - [ ] Optimización de correlaciones
+  - [ ] Take profit automático a USDT
+- [ ] **ML Avanzado**
+  - [ ] LSTM para predicción de series temporales
+  - [ ] Ensemble de múltiples modelos
+  - [ ] Feature engineering automático
+  - [ ] Detección de regime de mercado (HMM)
+- [ ] **Dashboard Pro**
+  - [ ] Gráficos en vivo (Chart.js/TradingView)
+  - [ ] Backtesting on-demand
+  - [ ] Simulación de estrategias
+  - [ ] Mobile responsive
+- [ ] **API REST**
+  - [ ] Control externo del bot
+  - [ ] Webhooks para integraciones
+  - [ ] Export de datos en tiempo real
+- [ ] **Notificaciones Inteligentes**
+  - [ ] Resumen diario por email
+  - [ ] Alertas SMS para eventos críticos
+  - [ ] Integración con Discord/Slack
 
 ---
 
@@ -752,13 +829,13 @@ MIT License - Ver archivo LICENSE
 
 ## 📊 SYSTEM STATUS
 
-**Última verificación:** 2026-05-13
+**Última verificación:** 2026-05-16
 
 | Componente | Status | Notas |
 |------------|--------|-------|
 | **Trading Bot** | ✅ ONLINE | 7 coins, 21 slots |
 | **TP Monitor** | ✅ ONLINE | Systemd, 30s scan |
-| **Dashboard** | ✅ ONLINE | GPU optimized (21%) |
+| **Dashboard** | ✅ ONLINE | GPU optimized (21%), MARKET_MODE sync |
 | **Ngrok** | ✅ ONLINE | HTTPS enabled |
 | **Watchdog** | ✅ ONLINE | Telegram alerts |
 | **Housekeeping** | ✅ ONLINE | Monthly cleanup |
@@ -766,8 +843,10 @@ MIT License - Ver archivo LICENSE
 | **Daily Report** | ✅ ONLINE | 9 AM Telegram |
 | **IP Monitor** | ✅ ONLINE | Hourly checks |
 | **Drawdown Alert** | ✅ ONLINE | Every 30 min |
+| **ML TP Prediction** | ✅ ONLINE | LightGBM, 79-90% accuracy |
+| **ML Drawdown Predictor** | ✅ ONLINE | Random Forest, 76% accuracy |
 
-**Total:** 10/10 sistemas operativos 🎉
+**Total:** 12/12 sistemas operativos 🎉
 
 ---
 
@@ -779,6 +858,6 @@ MIT License - Ver archivo LICENSE
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Status](https://img.shields.io/badge/status-100%25%20operational-brightgreen)](https://github.com/overgon/perrobotillo-trading-bot)
 
-🐕 **Perrobotillo Trading Bot** - FASE 1 v2.1 Optimizada
+🐕 **Perrobotillo Trading Bot** - FASE 2 v2.2 - ML Drawdown Predictor
 
 </div>
