@@ -324,7 +324,14 @@ def get_cashout_history():
 
 def get_market_mode():
     """Obtener modo de mercado actual"""
-    config_file = f"{CRYPTO_BOTS}/market-mode.conf"
+    # Primero intentar dynamic-config.env (tiene ML overrides)
+    config_file = f"{CRYPTO_BOTS}/dynamic-config.env"
+    fallback_file = f"{CRYPTO_BOTS}/market-mode.conf"
+    
+    # Usar dynamic-config.env si existe (tiene config real que usa el bot)
+    if not os.path.exists(config_file):
+        config_file = fallback_file
+    
     if os.path.exists(config_file):
         try:
             mode_data = {}
