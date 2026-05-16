@@ -339,6 +339,8 @@ def get_market_mode():
                 for line in f:
                     line = line.strip()
                     if line and not line.startswith('#') and '=' in line:
+                        # Remover 'export ' si existe (bash script format)
+                        line = line.replace('export ', '').strip()
                         key, value = line.split('=', 1)
                         mode_data[key.strip()] = value.strip().strip('"')
             return mode_data

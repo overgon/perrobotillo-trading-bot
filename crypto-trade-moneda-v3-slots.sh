@@ -946,28 +946,6 @@ El slot permanece disponible para próximo trade. 🛡️"
     log "✅ Orden ejecutada: ID=$order_id, fill_price=\$${fill_price}"
     
     # ============================================
-    # 📱 NOTIFICAR ORDEN ABIERTA (después de confirmar)
-    # ============================================
-    
-    local scalp_msg="🟢 ORDEN ABIERTA - $SYMBOL [$CURRENT_MODE]
-
-Slot: $slot_id / $MAX_SLOTS
-Entry: \$${fill_price} | Qty: $quantity
-Costo: \$${usdt_spent} | Fee: -\$${fee_buy}
-
-Objetivos:
-TP1: \$${tp1} (+${TP1_PERCENT}%)
-TP2: \$${tp2} (+${TP2_PERCENT}%)
-TP3: \$${tp3} (+${TP3_PERCENT}%)
-
-Stop Loss: \$${sl} (-${STOP_LOSS_PERCENT}%)
-
-🚀 Trade activo - Monitoreando TPs..."
-    
-    send_telegram "$scalp_msg"
-    log "  📱 Notificación de orden abierta enviada"
-    
-    # ============================================
     # 📝 ACTUALIZAR ESTADO DEL SLOT
     # ============================================
     
@@ -1004,7 +982,7 @@ TP3: \$${tp3} (+${TP3_PERCENT}%) 20%
 
 SL: \$${sl} (-${STOP_LOSS_PERCENT}%)
 
-🚀 V3: Multi-Slot System"
+🚀 Trade activo - Monitoreando TPs..."
         
         send_telegram "$open_msg"
         log "  📱 DEBUG: Notificación de apertura enviada"
@@ -1989,24 +1967,56 @@ execute_cycle() {
             log "🛡️ ML: Riesgo=${ML_RISK_LEVEL} | Acción=${ML_RISK_ACTION} | Position=${ML_RISK_POSITION}%"
             log "🛡️ ML: ${ML_RISK_MSG}"
             
-            # Aplicar acción de riesgo
+            # ════════════════════════════════════════════════════════
+            # 🛑 CHECK PAUSE STATE - Evitar spam de notificaciones
+            # ════════════════════════════════════════════════════════
+            PAUSE_FLAG_FILE="${WORKSPACE}/crypto-bots/${SYMBOL}-ml-pause-flag.json"
+            
             if [ "$ML_RISK_ACTION" = "PAUSE" ]; then
-                log "🛑 ML: Riesgo ALTO - Pausando trading para $SYMBOL"
-                send_telegram "🛑 TRADING PAUSADO - $SYMBOL
+                # Verificar si ya notificamos esta pausa
+                ALREADY_PAUSED=false
+                if [ -f "$PAUSE_FLAG_FILE" ]; then
+                    last_pause=$(jq -r '.last_pause // ""' "$PAUSE_FLAG_FILE" 2>/dev/null)
+                    pause_msg=$(jq -r '.pause_msg // ""' "$PAUSE_FLAG_FILE" 2>/dev/null)
+                    
+                    # Si el mensaje es el mismo, no notificar de nuevo
+                    if [ "$pause_msg" = "$ML_RISK_MSG" ]; then
+                        ALREADY_PAUSED=true
+                        log "🛑 ML: Pausa ya notificada, silenciando"
+                    fi
+                fi
+                
+                if [ "$ALREADY_PAUSED" = false ]; then
+                    log "🛑 ML: Riesgo ALTO - Pausando trading para $SYMBOL"
+                    send_telegram "🛑 TRADING PAUSADO - $SYMBOL
 
 🛡️ ML Risk Detector: Riesgo ALTO
 ${ML_RISK_MSG}
 
 Se recomienda esperar condiciones mejores. 🐕"
-                return 1  # No operar
-            elif [ "$ML_RISK_ACTION" = "REDUCE" ]; then
-                log "⚠️ ML: Riesgo MEDIO - Reduciendo position size"
-                if [ "$ML_RISK_POSITION" -lt "$TRADE_PERCENT" ]; then
-                    TRADE_PERCENT=$ML_RISK_POSITION
-                    log "✅ Risk override aplicado: TRADE_PERCENT=${TRADE_PERCENT}%"
+                    
+                    # Guardar flag de pausa
+                    echo "{\"last_pause\": \"$(date -Iseconds)\", \"pause_msg\": \"$ML_RISK_MSG\"}" > "$PAUSE_FLAG_FILE"
                 fi
+                
+                return 1  # No operar
             else
-                log "✅ ML: Riesgo BAJO - Operando normal"
+                # ML permite operar (LOW_RISK o MEDIUM_RISK con REDUCE)
+                # Limpiar flag de pausa si existía
+                if [ -f "$PAUSE_FLAG_FILE" ]; then
+                    rm -f "$PAUSE_FLAG_FILE"
+                    log "✅ ML: Pausa removida, trading reanudado"
+                fi
+                
+                if [ "$ML_RISK_ACTION" = "REDUCE" ]; then
+                    log "⚠️ ML: Riesgo MEDIO - Reduciendo position size"
+                    if [ "$ML_RISK_POSITION" -lt "$TRADE_PERCENT" ]; then
+                        TRADE_PERCENT=$ML_RISK_POSITION
+                        log "✅ Risk override aplicado: TRADE_PERCENT=${TRADE_PERCENT}%"
+                    fi
+                else
+                    log "✅ ML: Riesgo BAJO - Operando normal"
+                fi
             fi
         fi
     else

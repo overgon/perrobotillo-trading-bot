@@ -1,21 +1,21 @@
 {
-  "timestamp": "2026-05-16T01:46:18.786213",
+  "timestamp": "2026-05-16T13:01:04.080903",
   "model_accuracy": 0.5625,
   "recommendations": {
-    "AVAX": {
-      "symbol": "AVAX",
-      "recommendation": "MEDIUM",
-      "position_size": 40,
-      "confidence": 0.538,
+    "ETH": {
+      "symbol": "ETH",
+      "recommendation": "LOW",
+      "position_size": 25,
+      "confidence": 0.663,
       "probabilities": {
-        "HIGH": 0.46,
-        "LOW": 0.002,
-        "MEDIUM": 0.538
+        "HIGH": 0.007,
+        "LOW": 0.663,
+        "MEDIUM": 0.33
       },
       "features_used": {
-        "win_rate_24h": 0.125,
-        "win_rate_7d": 0.7586206896551724,
-        "hour": 1
+        "win_rate_24h": 0.0,
+        "win_rate_7d": 0.6470588235294118,
+        "hour": 13
       }
     }
   }

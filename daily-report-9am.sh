@@ -182,40 +182,39 @@ for asset in "${COINS[@]}"; do
     fi
 done
 
-report_msg="*📊 REPORTE DIARIO - $today*
-_$day_name_
+report_msg="📊 REPORTE DIARIO - $today
+$day_name
 
 ━━━━━━━━━━━━━━━━━━━━━━
 
-*💰 PORTFOLIO ACTUAL*
+💰 PORTFOLIO ACTUAL
 
-Total USDT:   *\$${total_usdt}*
-Total MXN:    *\$${total_mxn}*
-Snapshot:     \$${snapshot}
-P\&L:         *\$${pnl} (${pnl_pct}%)*
+Total USDT:   $${total_usdt}
+Total MXN:    $${total_mxn}
+Snapshot:     $${snapshot}
+P&L:          $${pnl} (${pnl_pct}%)
 
 ━━━━━━━━━━━━━━━━━━━━━━
 
-*📈 P\&L 24H POR COIN*
+📈 P&L 24H POR COIN
 
-\`\`\`
-$(printf '%-6s  %8s  %12s\n' "Coin" "24h" "P\&L")
+$(printf '%-6s  %8s  %12s\n' "Coin" "24h" "P&L")
 $(printf '%-6s  %8s  %12s\n' "----" "----" "----")
-${coin_table}\`\`\`
+${coin_table}
 
 ━━━━━━━━━━━━━━━━━━━━━━
 
-*📊 TOTAL 24H:* *\$${total_pnl_24h} (${pnl_24h_pct}%)*
+📊 TOTAL 24H: $${total_pnl_24h} (${pnl_24h_pct}%)
 
 ━━━━━━━━━━━━━━━━━━━━━━
 
-*📊 TRADES AYER:* $trades_count operaciones
-*✅ Wins:* $wins | *❌ Losses:* $losses
-*💰 P\&L:* \$${total_pnl}
+📊 TRADES AYER: $trades_count operaciones
+✅ Wins: $wins | ❌ Losses: $losses
+💰 P&L: $${total_pnl}
 
 ━━━━━━━━━━━━━━━━━━━━━━
 
-🐕 _Perrobotillo Trading Bot_"
+🐕 Perrobotillo Trading Bot"
 
 # Enviar Telegram
 echo "Enviando reporte..."
