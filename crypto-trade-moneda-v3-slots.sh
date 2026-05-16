@@ -759,14 +759,36 @@ place_buy_order_market() {
     local query_string="symbol=${symbol}USDT&side=BUY&type=MARKET&quantity=${quantity}&timestamp=${timestamp}&recvWindow=10000"
     local signature=$(get_signature "$query_string")
     
-    # Ejecutar con timeout de 5 segundos
-    local result=$(curl -s -m 5 -w "\n%{http_code}" -X POST "${BINANCE}/api/v3/order?${query_string}&signature=${signature}" -H "X-MBX-APIKEY: ${BINANCE_API_KEY}")
+    # Ejecutar con timeout de 15 segundos y retry
+    # Timeout extendido + retry logic
+    local max_retries=2
+    local attempt=0
+    local result=""
+    local http_code=""
+    
+    while [ $attempt -le $max_retries ]; do
+    local result=$(curl -s -m 15 -w "\n%{http_code}" -X POST "${BINANCE}/api/v3/order?${query_string}&signature=${signature}" -H "X-MBX-APIKEY: ${BINANCE_API_KEY}")
+        http_code=$(echo "$result" | tail -1)
+        
+        # Si HTTP 200 o error de Binance (no de red), salir del loop
+        if [ "$http_code" = "200" ] || [ "$http_code" = "403" ] || [ "$http_code" = "429" ]; then
+            break
+        fi
+        
+        # HTTP 000 o error de red → retry
+        attempt=$((attempt + 1))
+        if [ $attempt -le $max_retries ]; then
+            log "⚠️  Retry $attempt/$max_retries (HTTP $http_code)..."
+            sleep 1
+        fi
+    done
+    
     local http_code=$(echo "$result" | tail -1)
     local body=$(echo "$result" | head -n -1)
     
     # Log error si hay problema de HTTP
     if [ "$http_code" != "200" ]; then
-        log "❌ Binance API HTTP error: $http_code"
+        log "❌ Binance API HTTP error: $http_code (after $attempt retries)"
         echo "{"code":"-9999","msg":"HTTP error $http_code"}"
         return
     fi
