@@ -1971,6 +1971,48 @@ execute_cycle() {
         log "⚠️ ML position size script no disponible"
     fi
     
+    # ════════════════════════════════════════════════════════
+    # 🛡️ ML DRAWDOWN RISK CHECK
+    # ════════════════════════════════════════════════════════
+    
+    ML_DRAWDOWN_SCRIPT="${WORKSPACE}/ml/ml-drawdown-check.sh"
+    if [ -x "$ML_DRAWDOWN_SCRIPT" ]; then
+        log "🛡️ ML: Consultando drawdown risk checker..."
+        ML_RISK_RESULT=$(bash "$ML_DRAWDOWN_SCRIPT" "$SYMBOL" 2>/dev/null)
+        
+        if [ -n "$ML_RISK_RESULT" ]; then
+            ML_RISK_LEVEL=$(echo "$ML_RISK_RESULT" | cut -d'|' -f1)
+            ML_RISK_ACTION=$(echo "$ML_RISK_RESULT" | cut -d'|' -f2)
+            ML_RISK_POSITION=$(echo "$ML_RISK_RESULT" | cut -d'|' -f3)
+            ML_RISK_MSG=$(echo "$ML_RISK_RESULT" | cut -d'|' -f4)
+            
+            log "🛡️ ML: Riesgo=${ML_RISK_LEVEL} | Acción=${ML_RISK_ACTION} | Position=${ML_RISK_POSITION}%"
+            log "🛡️ ML: ${ML_RISK_MSG}"
+            
+            # Aplicar acción de riesgo
+            if [ "$ML_RISK_ACTION" = "PAUSE" ]; then
+                log "🛑 ML: Riesgo ALTO - Pausando trading para $SYMBOL"
+                send_telegram "🛑 TRADING PAUSADO - $SYMBOL
+
+🛡️ ML Risk Detector: Riesgo ALTO
+${ML_RISK_MSG}
+
+Se recomienda esperar condiciones mejores. 🐕"
+                return 1  # No operar
+            elif [ "$ML_RISK_ACTION" = "REDUCE" ]; then
+                log "⚠️ ML: Riesgo MEDIO - Reduciendo position size"
+                if [ "$ML_RISK_POSITION" -lt "$TRADE_PERCENT" ]; then
+                    TRADE_PERCENT=$ML_RISK_POSITION
+                    log "✅ Risk override aplicado: TRADE_PERCENT=${TRADE_PERCENT}%"
+                fi
+            else
+                log "✅ ML: Riesgo BAJO - Operando normal"
+            fi
+        fi
+    else
+        log "⚠️ ML drawdown script no disponible"
+    fi
+    
     # FASE 1: Verificar TRAILING STOP en slots activos
     check_trailing_stops
     
