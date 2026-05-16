@@ -1,21 +1,21 @@
 {
-  "timestamp": "2026-05-15T21:46:18.622934",
+  "timestamp": "2026-05-15T22:33:23.346374",
   "model_accuracy": 0.5625,
   "recommendations": {
-    "AVAX": {
-      "symbol": "AVAX",
+    "SOL": {
+      "symbol": "SOL",
       "recommendation": "MEDIUM",
       "position_size": 40,
-      "confidence": 0.538,
+      "confidence": 0.75,
       "probabilities": {
-        "HIGH": 0.46,
-        "LOW": 0.002,
-        "MEDIUM": 0.538
+        "HIGH": 0.168,
+        "LOW": 0.082,
+        "MEDIUM": 0.75
       },
       "features_used": {
         "win_rate_24h": 0.25,
         "win_rate_7d": 0.88,
-        "hour": 21
+        "hour": 22
       }
     }
   }

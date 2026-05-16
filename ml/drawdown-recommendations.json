@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-05-15T22:33:24.962693",
+  "model_accuracy": 0.6428571428571429,
+  "predictions": {
+    "SOL": {
+      "symbol": "SOL",
+      "risk_level": "MEDIUM_RISK",
+      "action": "REDUCE",
+      "position_size": 25,
+      "confidence": 0.632,
+      "message": "Riesgo medio - reducir posici\u00f3n",
+      "probabilities": {
+        "LOW_RISK": 0.368,
+        "MEDIUM_RISK": 0.632
+      },
+      "risk_indicators": {
+        "loss_streak": 3,
+        "loss_rate_24h": 0.75,
+        "drawdown_24h": 7.37413675,
+        "drawdown_7d": 7.37413675,
+        "hour": 22
+      }
+    }
+  }
+}
