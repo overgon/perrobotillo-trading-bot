@@ -1980,21 +1980,37 @@ execute_cycle() {
                 # Check 1: Flag global (primera moneda en pausar)
                 if [ -f "$GLOBAL_PAUSE_FLAG" ]; then
                     global_timestamp=$(jq -r '.timestamp // ""' "$GLOBAL_PAUSE_FLAG" 2>/dev/null)
-                    global_msg=$(jq -r '.pause_msg // ""' "$GLOBAL_PAUSE_FLAG" 2>/dev/null)
+                    global_risk_level=$(jq -r '.risk_level // "HIGH_RISK"' "$GLOBAL_PAUSE_FLAG" 2>/dev/null)
                     
-                    # Si el mensaje es similar y fue en las últimas 6 horas, no notificar
-                    if [ "$global_msg" = "$ML_RISK_MSG" ]; then
-                        ALREADY_PAUSED=true
-                        log "🛑 ML: Pausa global ya notificada, silenciando $SYMBOL"
+                    # Si el risk level es el mismo (HIGH_RISK) y fue en las últimas 12 horas, no notificar
+                    # No comparamos mensaje porque puede variar ligeramente entre coins
+                    if [ "$global_risk_level" = "HIGH_RISK" ]; then
+                        # Verificar timestamp (12 horas en segundos)
+                        global_epoch=$(date -d "$global_timestamp" +%s 2>/dev/null || echo 0)
+                        now_epoch=$(date +%s)
+                        diff_hours=$(( (now_epoch - global_epoch) / 3600 ))
+                        
+                        if [ $diff_hours -lt 12 ]; then
+                            ALREADY_PAUSED=true
+                            log "🛑 ML: Pausa global ya notificada (hace ${diff_hours}h), silenciando $SYMBOL"
+                        fi
                     fi
                 fi
                 
-                # Check 2: Flag individual (si ya esta moneda había pausado antes)
+                # Check 2: Flag individual (si ya esta moneda había pausado antes con mismo motivo)
                 if [ "$ALREADY_PAUSED" = false ] && [ -f "$PAUSE_FLAG_FILE" ]; then
-                    pause_msg=$(jq -r '.pause_msg // ""' "$PAUSE_FLAG_FILE" 2>/dev/null)
-                    if [ "$pause_msg" = "$ML_RISK_MSG" ]; then
-                        ALREADY_PAUSED=true
-                        log "🛑 ML: Pausa individual ya notificada, silenciando $SYMBOL"
+                    last_pause=$(jq -r '.last_pause // ""' "$PAUSE_FLAG_FILE" 2>/dev/null)
+                    
+                    # Verificar si fue en las últimas 2 horas (misma racha de pérdidas)
+                    if [ -n "$last_pause" ]; then
+                        last_epoch=$(date -d "$last_pause" +%s 2>/dev/null || echo 0)
+                        now_epoch=$(date +%s)
+                        diff_minutes=$(( (now_epoch - last_epoch) / 60 ))
+                        
+                        if [ $diff_minutes -lt 120 ]; then
+                            ALREADY_PAUSED=true
+                            log "🛑 ML: Pausa individual reciente (${diff_minutes}min), silenciando $SYMBOL"
+                        fi
                     fi
                 fi
                 
@@ -2008,11 +2024,11 @@ ${ML_RISK_MSG}
 Se recomienda esperar condiciones mejores. 🐕"
                     
                     # Guardar flag individual
-                    echo "{\"last_pause\": \"$(date -Iseconds)\", \"pause_msg\": \"$ML_RISK_MSG\"}" > "$PAUSE_FLAG_FILE"
+                    echo "{\"last_pause\": \"$(date -Iseconds)\", \"pause_msg\": \"$ML_RISK_MSG\", \"risk_level\": \"HIGH_RISK\"}" > "$PAUSE_FLAG_FILE"
                     
                     # Guardar flag global (primera notificación)
                     if [ ! -f "$GLOBAL_PAUSE_FLAG" ]; then
-                        echo "{\"timestamp\": \"$(date -Iseconds)\", \"pause_msg\": \"$ML_RISK_MSG\", \"first_coin\": \"$SYMBOL\"}" > "$GLOBAL_PAUSE_FLAG"
+                        echo "{\"timestamp\": \"$(date -Iseconds)\", \"pause_msg\": \"$ML_RISK_MSG\", \"first_coin\": \"$SYMBOL\", \"risk_level\": \"HIGH_RISK\"}" > "$GLOBAL_PAUSE_FLAG"
                         log "🛑 ML: Flag global creado por $SYMBOL"
                     fi
                 fi
