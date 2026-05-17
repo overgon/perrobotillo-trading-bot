@@ -1971,18 +1971,30 @@ execute_cycle() {
             # 🛑 CHECK PAUSE STATE - Evitar spam de notificaciones
             # ════════════════════════════════════════════════════════
             PAUSE_FLAG_FILE="${WORKSPACE}/crypto-bots/${SYMBOL}-ml-pause-flag.json"
+            GLOBAL_PAUSE_FLAG="${WORKSPACE}/crypto-bots/ml-global-pause-flag.json"
             
             if [ "$ML_RISK_ACTION" = "PAUSE" ]; then
-                # Verificar si ya notificamos esta pausa
+                # Verificar si ya notificamos esta pausa (global)
                 ALREADY_PAUSED=false
-                if [ -f "$PAUSE_FLAG_FILE" ]; then
-                    last_pause=$(jq -r '.last_pause // ""' "$PAUSE_FLAG_FILE" 2>/dev/null)
-                    pause_msg=$(jq -r '.pause_msg // ""' "$PAUSE_FLAG_FILE" 2>/dev/null)
+                
+                # Check 1: Flag global (primera moneda en pausar)
+                if [ -f "$GLOBAL_PAUSE_FLAG" ]; then
+                    global_timestamp=$(jq -r '.timestamp // ""' "$GLOBAL_PAUSE_FLAG" 2>/dev/null)
+                    global_msg=$(jq -r '.pause_msg // ""' "$GLOBAL_PAUSE_FLAG" 2>/dev/null)
                     
-                    # Si el mensaje es el mismo, no notificar de nuevo
+                    # Si el mensaje es similar y fue en las últimas 6 horas, no notificar
+                    if [ "$global_msg" = "$ML_RISK_MSG" ]; then
+                        ALREADY_PAUSED=true
+                        log "🛑 ML: Pausa global ya notificada, silenciando $SYMBOL"
+                    fi
+                fi
+                
+                # Check 2: Flag individual (si ya esta moneda había pausado antes)
+                if [ "$ALREADY_PAUSED" = false ] && [ -f "$PAUSE_FLAG_FILE" ]; then
+                    pause_msg=$(jq -r '.pause_msg // ""' "$PAUSE_FLAG_FILE" 2>/dev/null)
                     if [ "$pause_msg" = "$ML_RISK_MSG" ]; then
                         ALREADY_PAUSED=true
-                        log "🛑 ML: Pausa ya notificada, silenciando"
+                        log "🛑 ML: Pausa individual ya notificada, silenciando $SYMBOL"
                     fi
                 fi
                 
@@ -1995,17 +2007,44 @@ ${ML_RISK_MSG}
 
 Se recomienda esperar condiciones mejores. 🐕"
                     
-                    # Guardar flag de pausa
+                    # Guardar flag individual
                     echo "{\"last_pause\": \"$(date -Iseconds)\", \"pause_msg\": \"$ML_RISK_MSG\"}" > "$PAUSE_FLAG_FILE"
+                    
+                    # Guardar flag global (primera notificación)
+                    if [ ! -f "$GLOBAL_PAUSE_FLAG" ]; then
+                        echo "{\"timestamp\": \"$(date -Iseconds)\", \"pause_msg\": \"$ML_RISK_MSG\", \"first_coin\": \"$SYMBOL\"}" > "$GLOBAL_PAUSE_FLAG"
+                        log "🛑 ML: Flag global creado por $SYMBOL"
+                    fi
                 fi
                 
                 return 1  # No operar
             else
                 # ML permite operar (LOW_RISK o MEDIUM_RISK con REDUCE)
-                # Limpiar flag de pausa si existía
+                # Limpiar flags si existen
                 if [ -f "$PAUSE_FLAG_FILE" ]; then
                     rm -f "$PAUSE_FLAG_FILE"
-                    log "✅ ML: Pausa removida, trading reanudado"
+                    log "✅ ML: Pausa individual removida para $SYMBOL"
+                fi
+                
+                # Si todas las monedas están operando, limpiar flag global
+                OPERATING_COUNT=0
+                for coin in BTC ETH BNB SOL LINK XRP AVAX; do
+                    if [ ! -f "${WORKSPACE}/crypto-bots/${coin}-ml-pause-flag.json" ]; then
+                        OPERATING_COUNT=$((OPERATING_COUNT + 1))
+                    fi
+                done
+                
+                if [ $OPERATING_COUNT -eq 7 ] && [ -f "$GLOBAL_PAUSE_FLAG" ]; then
+                    rm -f "$GLOBAL_PAUSE_FLAG"
+                    log "✅ ML: Todas las monedas operando, flag global removido"
+                    
+                    # Notificar reanudación
+                    send_telegram "✅ TRADING REANUDADO
+
+🛡️ ML Risk Detector: Riesgo bajo
+Todas las monedas pueden operar normalmente.
+
+🚀 Bot operativo - Monitoreando TPs..." 2>/dev/null || true
                 fi
                 
                 if [ "$ML_RISK_ACTION" = "REDUCE" ]; then
