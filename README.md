@@ -41,10 +41,12 @@
 - Conexión a internet estable
 
 ### Software
-- Node.js 20+ 
-- OpenClaw 2026.4.15+
+- Linux (Ubuntu/Debian) o Raspberry Pi OS
+- Python 3.8+
+- pip (Python package manager)
 - Cuenta en Binance con API keys
 - (Opcional) Telegram para notificaciones
+- (Opcional) OpenClaw para asistente por chat
 
 ---
 
@@ -57,15 +59,17 @@ git clone git@github.com:overgon/perrobotillo-trading-bot.git
 cd perrobotillo-trading-bot
 ```
 
-### 2. Instalar OpenClaw
+### 2. Instalar dependencias de Python
 
 ```bash
-# Instalar OpenClaw (si no lo tienes)
-npm install -g openclaw
-
-# Inicializar OpenClaw
-openclaw onboard
+pip install -r requirements.txt
 ```
+
+**Requisitos principales:**
+- `python-binance` - Conexión con Binance API
+- `pandas`, `numpy` - Procesamiento de datos
+- `scikit-learn`, `lightgbm` - Machine Learning
+- `requests` - HTTP requests
 
 ### 3. Configurar API Keys de Binance
 
@@ -145,14 +149,30 @@ chmod 600 secrets/telegram.env
 ### 6. Verificar configuración
 
 ```bash
-# Ejecutar script de verificación
-./check-public-ip.sh
+# Verificar IP pública (para actualizar whitelist en Binance)
+curl -s https://api.ipify.org
 
-# Deberías ver:
-# ✅ API Binance: Conectada
-# ✅ IP Whitelist: Verificada
-# ✅ Secrets: Configurados
+# Ejecutar script de verificación (opcional)
+./check-public-ip.sh
 ```
+
+---
+
+## 🤖 OPENCLAW (OPCIONAL)
+
+OpenClaw es un asistente por chat que puede ayudarte a monitorear el bot, pero **NO es necesario** para que el bot funcione.
+
+**Si quieres usar OpenClaw:**
+
+```bash
+# Instalar OpenClaw
+npm install -g openclaw
+
+# Inicializar
+openclaw onboard
+```
+
+El bot de trading funciona **independientemente** de OpenClaw. Los scripts de trading se ejecutan vía cron/systemd sin necesidad del asistente.
 
 ---
 
