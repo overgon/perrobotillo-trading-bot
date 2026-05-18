@@ -18,11 +18,12 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Configuración
-MODEL_PATH = '$HOME/.openclaw/workspace/ml/tp_prediction_model.pkl'
-METADATA_PATH = '$HOME/.openclaw/workspace/ml/model_metadata.json'
-TRADE_HISTORY_PATH = '$HOME/.openclaw/workspace/crypto-bots/trade-history.json'
-BACKTEST_DATA_DIR = '$HOME/.openclaw/workspace/backtest/data'
-ML_LOG_PATH = '$HOME/.openclaw/logs/ml-retrain.log'
+HOME = os.path.expandvars('$HOME')
+MODEL_PATH = os.path.join(HOME, '.openclaw/workspace/ml/tp_prediction_model.pkl')
+METADATA_PATH = os.path.join(HOME, '.openclaw/workspace/ml/model_metadata.json')
+TRADE_HISTORY_PATH = os.path.join(HOME, '.openclaw/workspace/crypto-bots/trade-history.json')
+BACKTEST_DATA_DIR = os.path.join(HOME, '.openclaw/workspace/backtest/data')
+ML_LOG_PATH = os.path.join(HOME, '.openclaw/logs/ml-retrain.log')
 MIN_TRADES_FOR_RETRAIN = 10  # Mínimo trades nuevos para re-entrenar
 
 def log(message):
@@ -55,14 +56,26 @@ def load_trade_history():
         return []
     
     with open(TRADE_HISTORY_PATH, 'r') as f:
-        trades = json.load(f)
+        data = json.load(f)
+    
+    # El JSON puede ser un dict con 'trades' array o una lista directa
+    if isinstance(data, dict):
+        trades = data.get('trades', [])
+    else:
+        trades = data
     
     log(f"✅ {len(trades)} trades en histórico")
     return trades
 
 def get_new_trades(trades, last_retrain_count):
-    """Obtiene trades nuevos desde último re-entrenamiento"""
-    new_trades = trades[last_retrain_count:]
+    """Obtiene trades nuevos desde último re-entrenamiento
+    
+    Los trades están en orden INVERSO (más reciente en índice 0).
+    last_retrain_count es el número de trades que había en el último re-entrenamiento.
+    Los trades nuevos son los primeros (last_retrain_count) trades en el array.
+    """
+    # trades[0:last_retrain_count] son los trades nuevos (más recientes)
+    new_trades = trades[:last_retrain_count] if last_retrain_count > 0 else trades
     log(f"🆕 {len(new_trades)} trades nuevos desde último re-entrenamiento")
     return new_trades
 
@@ -314,7 +327,8 @@ def save_last_retrain_info(trade_count):
         'retrain_count': get_retrain_count() + 1
     }
     
-    with open('$HOME/.openclaw/workspace/ml/last_retrain.json', 'w') as f:
+    last_retrain_path = os.path.join(HOME, '.openclaw/workspace/ml/last_retrain.json')
+    with open(last_retrain_path, 'w') as f:
         json.dump(info, f, indent=2)
     
     log(f"💾 Info guardada: last_retrain.json")
@@ -333,7 +347,7 @@ def main():
     trades = load_trade_history()
     
     # 3. Verificar si hay suficientes trades nuevos
-    last_retrain_info_path = '$HOME/.openclaw/workspace/ml/last_retrain.json'
+    last_retrain_info_path = os.path.join(HOME, '.openclaw/workspace/ml/last_retrain.json')
     last_trade_count = 0
     
     if os.path.exists(last_retrain_info_path):
@@ -341,6 +355,8 @@ def main():
             last_info = json.load(f)
             last_trade_count = last_info.get('trade_count_at_retrain', 0)
     
+    # Los trades están en orden INVERSO (más reciente en índice 0)
+    # new_trades_count = total actual - último count
     new_trades_count = len(trades) - last_trade_count
     
     if new_trades_count < MIN_TRADES_FOR_RETRAIN:
@@ -348,6 +364,8 @@ def main():
         log(f"💤 Saltando re-entrenamiento")
         return
     
+    # Obtener los trades nuevos (los primeros new_trades_count en el array)
+    new_trades = trades[:new_trades_count]
     log(f"✅ {new_trades_count} trades nuevos - Procediendo con re-entrenamiento")
     
     # 4. Cargar datos históricos

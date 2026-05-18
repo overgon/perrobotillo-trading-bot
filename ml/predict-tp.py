@@ -14,8 +14,9 @@ import sys
 from datetime import datetime
 
 # Configuración
-MODEL_PATH = '$HOME/.openclaw/workspace/ml/tp_prediction_model.pkl'
-METADATA_PATH = '$HOME/.openclaw/workspace/ml/model_metadata.json'
+HOME = os.path.expandvars('$HOME')
+MODEL_PATH = os.path.join(HOME, '.openclaw/workspace/ml/tp_prediction_model.pkl')
+METADATA_PATH = os.path.join(HOME, '.openclaw/workspace/ml/model_metadata.json')
 BINANCE_API_KEY = os.environ.get('BINANCE_API_KEY', '')
 BINANCE_SECRET_KEY = os.environ.get('BINANCE_SECRET_KEY', '')
 
@@ -200,8 +201,10 @@ def get_tp_recommendation(prob_tp1):
             'reason': 'Muy baja probabilidad - reducir exposición'
         }
 
-def save_predictions(predictions, output_file='$HOME/.openclaw/workspace/ml/tp-predictions.json'):
+def save_predictions(predictions, output_file=None):
     """Guarda predicciones en archivo"""
+    if output_file is None:
+        output_file = os.path.join(HOME, '.openclaw/workspace/ml/tp-predictions.json')
     with open(output_file, 'w') as f:
         json.dump(predictions, f, indent=2, default=str)
     
@@ -261,10 +264,11 @@ def main():
     }
     
     # Guardar para que el bot lo lea
-    with open('$HOME/.openclaw/workspace/ml/tp-recommendations.json', 'w') as f:
+    recommendations_path = os.path.join(HOME, '.openclaw/workspace/ml/tp-recommendations.json')
+    with open(recommendations_path, 'w') as f:
         json.dump(output, f, indent=2, default=str)
     
-    print(f"\n✅ Recomendaciones guardadas: $HOME/.openclaw/workspace/ml/tp-recommendations.json")
+    print(f"\n✅ Recomendaciones guardadas: {recommendations_path}")
     
     return output
 
