@@ -189,10 +189,10 @@ $day_name
 
 💰 PORTFOLIO ACTUAL
 
-Total USDT:   $${total_usdt}
-Total MXN:    $${total_mxn}
-Snapshot:     $${snapshot}
-P&L:          $${pnl} (${pnl_pct}%)
+Total USDT:   ${total_usdt}
+Total MXN:    ${total_mxn}
+Snapshot:     ${snapshot}
+P&L:          ${pnl} (${pnl_pct}%)
 
 ━━━━━━━━━━━━━━━━━━━━━━
 
@@ -204,13 +204,13 @@ ${coin_table}
 
 ━━━━━━━━━━━━━━━━━━━━━━
 
-📊 TOTAL 24H: $${total_pnl_24h} (${pnl_24h_pct}%)
+📊 TOTAL 24H: ${total_pnl_24h} (${pnl_24h_pct}%)
 
 ━━━━━━━━━━━━━━━━━━━━━━
 
-📊 TRADES AYER: $trades_count operaciones
-✅ Wins: $wins | ❌ Losses: $losses
-💰 P&L: $${total_pnl}
+📊 TRADES AYER: ${trades_count} operaciones
+✅ Wins: ${wins} | ❌ Losses: ${losses}
+💰 P&L: ${total_pnl}
 
 ━━━━━━━━━━━━━━━━━━━━━━
 
@@ -409,7 +409,7 @@ if [ -f "$config_file" ] && [ -f "$report_file" ]; then
 
 💰 Total: \$${total_usdt} USDT / \$${total_mxn} MXN
 📈 P&L 24h: \$${total_pnl_24h} (${pnl_24h_pct}%)
-📊 Trades Activos: $active_count/21
+📊 Trades Activos: ${active_count}/21
 🐕 Perrobotillo Trading Bot" > /dev/null
         echo "✅ Archivo adjunto enviado a Telegram"
     fi
