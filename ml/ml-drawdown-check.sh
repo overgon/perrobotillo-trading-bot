@@ -65,20 +65,28 @@ for t in trades:
 df_trades.sort(key=lambda x: x['timestamp'])
 now = datetime.now(timezone.utc)
 
-# Trades últimas 24h
-trades_24h = [t for t in df_trades if t['timestamp'] >= (now - timedelta(hours=24))]
+# ════════════════════════════════════════════════════════
+# 🐕 FIX 2026-05-21: Filtrar trades por símbolo específico
+# Antes: usaba trades GLOBALES (todas las monedas) para calcular racha
+# Después: usa solo trades de la moneda específica
+# Issue: SOL era pausado por pérdidas de BTC/ETH/LINK, no por las suyas
+# ════════════════════════════════════════════════════════
+symbol_trades = [t for t in df_trades if t['symbol'] == '$SYMBOL']
+
+# Trades últimas 24h (ESPECÍFICOS DE LA MONEDA)
+trades_24h = [t for t in symbol_trades if t['timestamp'] >= (now - timedelta(hours=24))]
 
 if len(trades_24h) < 3:
-    # Muy pocos trades recientes, usar ML normal
-    print("USE_ML")
-    exit(0)
+    # Muy pocos trades recientes de esta moneda, usar ML normal
+    # No imprimir nada, el bash script continuará con ML
+    exit(100)  # Código especial para "continuar con ML"
 
-# Calcular features críticas
+# Calcular features críticas (ESPECÍFICAS DE LA MONEDA)
 losses_24h = [t for t in trades_24h if t['pnl'] < 0]
 loss_rate_24h = len(losses_24h) / len(trades_24h) if trades_24h else 0
 
-# Racha de pérdidas consecutivas (últimos 10 trades)
-recent = df_trades[-10:] if len(df_trades) >= 10 else df_trades
+# Racha de pérdidas consecutivas (últimos 10 trades DE ESTA MONEDA)
+recent = symbol_trades[-10:] if len(symbol_trades) >= 10 else symbol_trades
 loss_streak = 0
 current_streak = 0
 for t in reversed(recent):
@@ -88,7 +96,7 @@ for t in reversed(recent):
     else:
         current_streak = 0
 
-# Drawdown 24h (pérdida acumulada)
+# Drawdown 24h (pérdida acumulada DE ESTA MONEDA)
 drawdown_24h = abs(sum(t['pnl'] for t in losses_24h))
 
 # ════════════════════════════════════════════════════════
@@ -130,8 +138,12 @@ PYEOF
 
 ML_RESULT=$?
 
-# Si el script Python imprimió una regla hard-coded, usarla
-if [ $ML_RESULT -eq 0 ]; then
+# Si el script Python imprimió una regla hard-coded (exit 0), usarla
+# Si el script Python devolvió 100, continuar con ML normal
+if [ $ML_RESULT -eq 100 ]; then
+    # Continuar con ML normal
+    :
+elif [ $ML_RESULT -eq 0 ]; then
     # Ya se imprimió el resultado, salir
     exit 0
 fi
@@ -148,6 +160,7 @@ if [ -f "$MODEL_FILE" ]; then
     # Ejecutar predictor histórico
     python3 << PYEOF
 import json
+import os
 import pandas as pd
 import numpy as np
 from datetime import datetime, timezone
@@ -157,8 +170,6 @@ MODEL_FILE = "$MODEL_FILE"
 METADATA_FILE = "$METADATA_FILE"
 WORKSPACE = "/home/overgon/.openclaw/workspace"
 TRADE_HISTORY = os.path.join(WORKSPACE, "crypto-bots", "trade-history.json")
-
-import os
 
 # Cargar modelo
 model = joblib.load(MODEL_FILE)
@@ -198,20 +209,27 @@ for t in trades:
 df_trades.sort(key=lambda x: x['timestamp'])
 now = datetime.now(timezone.utc)
 
-# Features 24h
-trades_24h = [t for t in df_trades if t['timestamp'] >= (now - timedelta(hours=24))]
+# ════════════════════════════════════════════════════════
+# 🐕 FIX 2026-05-21: Filtrar trades por símbolo específico
+# Antes: usaba trades GLOBALES para features ML
+# Después: usa solo trades de la moneda específica
+# ════════════════════════════════════════════════════════
+symbol_trades = [t for t in df_trades if t['symbol'] == '$SYMBOL']
+
+# Features 24h (ESPECÍFICAS DE LA MONEDA)
+trades_24h = [t for t in symbol_trades if t['timestamp'] >= (now - timedelta(hours=24))]
 losses_24h = [t for t in trades_24h if t['pnl'] < 0]
 loss_rate_24h = len(losses_24h) / len(trades_24h) if trades_24h else 0
 drawdown_24h = abs(sum(t['pnl'] for t in losses_24h))
 
-# Features 7d
-trades_7d = [t for t in df_trades if t['timestamp'] >= (now - timedelta(days=7))]
+# Features 7d (ESPECÍFICAS DE LA MONEDA)
+trades_7d = [t for t in symbol_trades if t['timestamp'] >= (now - timedelta(days=7))]
 losses_7d = [t for t in trades_7d if t['pnl'] < 0]
 loss_rate_7d = len(losses_7d) / len(trades_7d) if trades_7d else 0
 drawdown_7d = abs(sum(t['pnl'] for t in losses_7d))
 
-# Loss streak
-recent = df_trades[-10:] if len(df_trades) >= 10 else df_trades
+# Loss streak (ÚLTIMOS 10 TRADES DE ESTA MONEDA)
+recent = symbol_trades[-10:] if len(symbol_trades) >= 10 else symbol_trades
 loss_streak = 0
 current_streak = 0
 for t in reversed(recent):

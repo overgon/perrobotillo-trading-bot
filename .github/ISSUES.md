@@ -1,10 +1,29 @@
 # 📋 Issues Tracker - Perrobotillo Trading Bot
 
-**Última actualización:** 2026-05-16
+**Última actualización:** 2026-05-21
 
 ---
 
 ## 🔥 Issues Activos
+
+### #40 - 🐛 ML Risk Detector usa racha de pérdidas GLOBAL en lugar de por moneda
+**Estado:** ✅ FIXED  
+**Reportado:** 2026-05-21 11:45 CST  
+**Fixeado:** 2026-05-21 11:50 CST  
+**Labels:** `bug` `ml` `risk-detector` `fixed`  
+**Archivo:** `.github/ISSUES/issue-40-ml-risk-detector-global-streak.md`
+
+**Descripción:**
+El ML Risk Detector evaluaba el riesgo usando la racha de pérdidas global (todas las monedas) en lugar de por moneda específica. SOL fue pausado injustamente por pérdidas de BTC/ETH/LINK.
+
+**Solución:**
+Agregar filtrado por símbolo antes de calcular features de riesgo en `ml/ml-drawdown-check.sh`.
+
+**Resultado:**
+- SOL: HIGH_RISK → LOW_RISK (71.5% confianza)
+- Todas las monedas ahora evaluadas individualmente
+
+---
 
 ### #1 - 🐛 Dashboard muestra LATERAL cuando el modo real es BEAR
 **Estado:** ✅ FIXED  
@@ -35,13 +54,13 @@ Agregar `.replace('export ', '')` en el parser de `dashboard/app.py`.
 |--------|-------|
 | **Abiertos** | 0 |
 | **En Progreso** | 0 |
-| **Cerrados** | 1 |
-| **Total** | 1 |
+| **Cerrados** | 2 |
+| **Total** | 2 |
 
 ### Por Categoría
 | Categoría | Count |
 |-----------|-------|
-| **Bugs** | 1 |
+| **Bugs** | 2 |
 | **Features** | 0 |
 | **Mejoras** | 0 |
 | **Documentación** | 0 |
@@ -92,6 +111,7 @@ Reportado → Triaged → In Progress → Review → Fixed → Closed
 ## 📅 Historial de Issues
 
 ### Mayo 2026
+- **#40** - ML Risk Detector usa racha GLOBAL ✅ FIXED
 - **#1** - Dashboard MARKET_MODE incorrecto ✅ FIXED
 
 ---
