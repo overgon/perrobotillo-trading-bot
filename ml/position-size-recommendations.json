@@ -1,21 +1,21 @@
 {
-  "timestamp": "2026-05-28T11:43:17.518367",
+  "timestamp": "2026-05-28T12:25:16.733825",
   "model_accuracy": 0.5625,
   "recommendations": {
-    "SOL": {
-      "symbol": "SOL",
+    "XRP": {
+      "symbol": "XRP",
       "recommendation": "MEDIUM",
       "position_size": 40,
-      "confidence": 0.75,
+      "confidence": 0.556,
       "probabilities": {
-        "HIGH": 0.168,
-        "LOW": 0.082,
-        "MEDIUM": 0.75
+        "HIGH": 0.442,
+        "LOW": 0.002,
+        "MEDIUM": 0.556
       },
       "features_used": {
-        "win_rate_24h": 0.08333333333333333,
-        "win_rate_7d": 0.36,
-        "hour": 11
+        "win_rate_24h": 0.21428571428571427,
+        "win_rate_7d": 0.4074074074074074,
+        "hour": 12
       }
     }
   }
