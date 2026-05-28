@@ -10,12 +10,17 @@ import numpy as np
 import joblib
 import json
 import os
+import sys
 from datetime import datetime, timedelta
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import lightgbm as lgb
 import warnings
 warnings.filterwarnings('ignore')
+
+# Importar sentiment features
+sys.path.append(os.path.dirname(__file__))
+from market_sentiment_features import add_sentiment_to_training_data
 
 # Configuración
 HOME = os.path.expandvars('$HOME')
@@ -378,6 +383,14 @@ def main():
     
     # 6. Crear labels con trades reales
     df = create_labels_from_trades(df, trades)
+    
+    # 6.5. Agregar sentiment features (Fear & Greed, BTC Dominance, etc.)
+    try:
+        df = add_sentiment_to_training_data(df)
+        log("   ✅ Sentiment features agregadas")
+    except Exception as e:
+        log(f"   ⚠️  Sentiment features error: {e}")
+        log("   Continuando sin sentiment features...")
     
     # 7. Preparar features
     df_clean, feature_cols = prepare_features(df)
