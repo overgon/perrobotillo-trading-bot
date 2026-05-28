@@ -1,0 +1,104 @@
+{
+  "generated_at": "2026-05-28T18:43:14.481126+00:00",
+  "base_position_size": 15,
+  "coins": {
+    "BTC": {
+      "position_size": 15,
+      "reason": "INSUFFICIENT_DATA",
+      "stats": {
+        "trades": 8,
+        "wins": 4,
+        "losses": 4,
+        "win_rate": 50.0,
+        "total_pnl": -30.4991798586,
+        "avg_pnl": -3.812397482325,
+        "recent_wr": 50.0,
+        "recent_pnl": -30.4991798586
+      }
+    },
+    "ETH": {
+      "position_size": 9.0,
+      "reason": "WR 40.0% < 50% (bajo) + PnL negativo reciente",
+      "stats": {
+        "trades": 16,
+        "wins": 7,
+        "losses": 9,
+        "win_rate": 43.75,
+        "total_pnl": -26.24479513,
+        "avg_pnl": -1.640299695625,
+        "recent_wr": 40.0,
+        "recent_pnl": -18.94907169
+      }
+    },
+    "BNB": {
+      "position_size": 20.0,
+      "reason": "WR 80.0% >= 70% (alto)",
+      "stats": {
+        "trades": 14,
+        "wins": 12,
+        "losses": 2,
+        "win_rate": 85.71428571428571,
+        "total_pnl": 24.13337425,
+        "avg_pnl": 1.7238124464285713,
+        "recent_wr": 80.0,
+        "recent_pnl": 14.84609038
+      }
+    },
+    "SOL": {
+      "position_size": 15.0,
+      "reason": "WR 60.0% (50-70%, medio)",
+      "stats": {
+        "trades": 20,
+        "wins": 16,
+        "losses": 4,
+        "win_rate": 80.0,
+        "total_pnl": 41.491204,
+        "avg_pnl": 2.0745602,
+        "recent_wr": 60.0,
+        "recent_pnl": 14.731660660000001
+      }
+    },
+    "LINK": {
+      "position_size": 9.0,
+      "reason": "WR 30.0% < 50% (bajo) + PnL negativo reciente",
+      "stats": {
+        "trades": 23,
+        "wins": 16,
+        "losses": 7,
+        "win_rate": 69.56521739130434,
+        "total_pnl": 32.81344457,
+        "avg_pnl": 1.4266715030434782,
+        "recent_wr": 30.0,
+        "recent_pnl": -66.5616066
+      }
+    },
+    "XRP": {
+      "position_size": 15.0,
+      "reason": "WR 60.0% (50-70%, medio)",
+      "stats": {
+        "trades": 17,
+        "wins": 13,
+        "losses": 4,
+        "win_rate": 76.47058823529412,
+        "total_pnl": 24.727390970000002,
+        "avg_pnl": 1.45455241,
+        "recent_wr": 60.0,
+        "recent_pnl": 5.647376370000002
+      }
+    },
+    "AVAX": {
+      "position_size": 20.0,
+      "reason": "WR 70.0% >= 70% (alto)",
+      "stats": {
+        "trades": 23,
+        "wins": 20,
+        "losses": 3,
+        "win_rate": 86.95652173913044,
+        "total_pnl": 34.62783012,
+        "avg_pnl": 1.5055578313043478,
+        "recent_wr": 70.0,
+        "recent_pnl": 12.513709369999999
+      }
+    }
+  }
+}

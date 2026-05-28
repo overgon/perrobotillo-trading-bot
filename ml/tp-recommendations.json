@@ -1,57 +1,56 @@
 {
-  "timestamp": "2026-05-28T12:26:16.436933",
+  "timestamp": "2026-05-28T12:40:06.253516",
   "predictions": {
     "BTC": {
-      "prob_tp1": 0.2894046178177302,
+      "prob_tp1": 0.40673290377574234,
       "prediction": "TP1_UNLIKELY",
-      "confidence": "HIGH",
-      "timestamp": "2026-05-28T12:26:16.426742"
+      "confidence": "MEDIUM",
+      "timestamp": "2026-05-28T12:40:06.242769"
     },
     "ETH": {
-      "prob_tp1": 0.6527005678523923,
+      "prob_tp1": 0.6505814656422484,
       "prediction": "TP1_LIKELY",
       "confidence": "MEDIUM",
-      "timestamp": "2026-05-28T12:26:16.428707"
+      "timestamp": "2026-05-28T12:40:06.244820"
     },
     "BNB": {
       "prob_tp1": 0.0694423092819838,
       "prediction": "TP1_UNLIKELY",
       "confidence": "HIGH",
-      "timestamp": "2026-05-28T12:26:16.430353"
+      "timestamp": "2026-05-28T12:40:06.246558"
     },
     "SOL": {
-      "prob_tp1": 0.23014707165288628,
+      "prob_tp1": 0.23678036547901593,
       "prediction": "TP1_UNLIKELY",
       "confidence": "HIGH",
-      "timestamp": "2026-05-28T12:26:16.431904"
+      "timestamp": "2026-05-28T12:40:06.248208"
     },
     "LINK": {
-      "prob_tp1": 0.60005014395593,
+      "prob_tp1": 0.6613481420005078,
       "prediction": "TP1_LIKELY",
       "confidence": "MEDIUM",
-      "timestamp": "2026-05-28T12:26:16.433455"
+      "timestamp": "2026-05-28T12:40:06.249850"
     },
     "XRP": {
-      "prob_tp1": 0.766547729158173,
+      "prob_tp1": 0.6569249986295514,
       "prediction": "TP1_LIKELY",
-      "confidence": "HIGH",
-      "timestamp": "2026-05-28T12:26:16.434957"
+      "confidence": "MEDIUM",
+      "timestamp": "2026-05-28T12:40:06.251454"
     },
     "AVAX": {
-      "prob_tp1": 0.48124082044759164,
+      "prob_tp1": 0.08324813244544053,
       "prediction": "TP1_UNLIKELY",
-      "confidence": "MEDIUM",
-      "timestamp": "2026-05-28T12:26:16.436458"
+      "confidence": "HIGH",
+      "timestamp": "2026-05-28T12:40:06.253043"
     }
   },
   "recommendations": {
     "BTC": {
-      "action": "DEFENSIVE",
-      "tp1_pct": 2.0,
-      "tp2_pct": 4.0,
-      "tp3_pct": 6.0,
-      "sl_pct": 8.0,
-      "reason": "Muy baja probabilidad - reducir exposici\u00f3n"
+      "action": "CONSERVATIVE",
+      "tp1_pct": 2.5,
+      "tp2_pct": 5.0,
+      "tp3_pct": 8.0,
+      "reason": "Probabilidad baja - ser conservador"
     },
     "ETH": {
       "action": "NORMAL",
@@ -84,18 +83,19 @@
       "reason": "Probabilidad normal - mantener estrategia est\u00e1ndar"
     },
     "XRP": {
-      "action": "AGGRESSIVE",
-      "tp1_pct": 4.0,
-      "tp2_pct": 8.0,
-      "tp3_pct": 15.0,
-      "reason": "Alta probabilidad de TP - ser agresivo"
+      "action": "NORMAL",
+      "tp1_pct": 3.5,
+      "tp2_pct": 7.0,
+      "tp3_pct": 12.0,
+      "reason": "Probabilidad normal - mantener estrategia est\u00e1ndar"
     },
     "AVAX": {
-      "action": "CONSERVATIVE",
-      "tp1_pct": 2.5,
-      "tp2_pct": 5.0,
-      "tp3_pct": 8.0,
-      "reason": "Probabilidad baja - ser conservador"
+      "action": "DEFENSIVE",
+      "tp1_pct": 2.0,
+      "tp2_pct": 4.0,
+      "tp3_pct": 6.0,
+      "sl_pct": 8.0,
+      "reason": "Muy baja probabilidad - reducir exposici\u00f3n"
     }
   }
 }

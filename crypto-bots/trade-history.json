@@ -9,14 +9,28 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 120,
-  "totalWins": 87,
+  "totalTrades": 121,
+  "totalWins": 88,
   "totalLosses": 33,
-  "totalProfitUSDT": 301.92734557,
+  "totalProfitUSDT": 303.61237957,
   "totalLossUSDT": -202.56311065,
-  "netPnLUSDT": 99.36423492,
-  "winRate": 72.50,
+  "netPnLUSDT": 101.04926892,
+  "winRate": 72.73,
   "trades": [
+    {
+      "id": 121,
+      "symbol": "XRP",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 1.28530000,
+      "exitPrice": 1.33470000,
+      "quantity": 34.11000000,
+      "closeType": "TP2",
+      "pnlUSDT": 1.68503400,
+      "timestamp": "2026-05-28T12:35:03-06:00",
+      "closeTime": "2026-05-28 12:35:03",
+      "seeded": false
+    },
     {
       "id": 120,
       "symbol": "ETH",
