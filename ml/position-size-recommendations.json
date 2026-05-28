@@ -1,16 +1,16 @@
 {
-  "timestamp": "2026-05-28T12:42:08.204725",
+  "timestamp": "2026-05-28T12:44:08.088762",
   "model_accuracy": 0.5625,
   "recommendations": {
-    "BNB": {
-      "symbol": "BNB",
+    "LINK": {
+      "symbol": "LINK",
       "recommendation": "MEDIUM",
       "position_size": 40,
-      "confidence": 0.698,
+      "confidence": 0.598,
       "probabilities": {
-        "HIGH": 0.3,
-        "LOW": 0.001,
-        "MEDIUM": 0.698
+        "HIGH": 0.4,
+        "LOW": 0.002,
+        "MEDIUM": 0.598
       },
       "features_used": {
         "win_rate_24h": 0.26666666666666666,
