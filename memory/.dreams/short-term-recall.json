@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-05-14T20:34:47.402Z",
+  "updatedAt": "2026-05-18T17:36:53.607Z",
   "entries": {
     "memory:memory/2026-04-10.md:84:114": {
       "key": "memory:memory/2026-04-10.md:84:114",
@@ -64,6 +64,161 @@
         "bug-037",
         "225.68",
         "1.34"
+      ]
+    },
+    "memory:memory/2026-05-13.md:50:69": {
+      "key": "memory:memory/2026-05-13.md:50:69",
+      "path": "memory/2026-05-13.md",
+      "startLine": 50,
+      "endLine": 69,
+      "source": "memory",
+      "snippet": "- **Telegram Notifications**: parse_mode=HTML (not Markdown, emojis work correctly) - **Dashboard Access**: SSH tunnel preferred over ngrok for laptop --- ## 🐛 Bugs Fixed 1. Dashboard GPU overload (98% → 21%) 2. Auto-adjust Telegram notifications (HTTP 400 → 200) 3. Daily report portfolio $0.00 issue 4. Daily report HTML trades section code leakage --- ## 📊 System Status End of Session - Portfolio: ~$2,788 USDT - All trades operational - Dashboard optimized for GPU - Daily report: MD only - Auto-adjust: Notifications working",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-05-18T17:36:53.607Z",
+      "lastRecalledAt": "2026-05-18T17:36:53.607Z",
+      "queryHashes": [
+        "ecfeb08d6cde"
+      ],
+      "recallDays": [
+        "2026-05-18"
+      ],
+      "conceptTags": [
+        "parse-mode",
+        "auto-adjust",
+        "0.00",
+        "telegram",
+        "notifications",
+        "html",
+        "not",
+        "markdown"
+      ]
+    },
+    "memory:memory/2026-05-04.md:189:223": {
+      "key": "memory:memory/2026-05-04.md:189:223",
+      "path": "memory/2026-05-04.md",
+      "startLine": 189,
+      "endLine": 223,
+      "source": "memory",
+      "snippet": "| Estrategia | Trades | Win Rate | Retorno | Capital Final | |------------|--------|----------|---------|---------------| | Actual (FASE 1 v2.1) | 41 | 85.37% | +2,484% | $25,843 | | Optimizada Bull | 26 | 88.46% | +936% | $10,357 | | Optimizada Bear | 48 | 83.33% | +1,868% | $19,683 | | **🏆 Optimizada Lateral** | 43 | 86.05% | **+2,777%** | **$28,775** | | Dinámica (Auto-Ajuste) | 43 | 86.05% | +2,777% | $28,775 | **VS HODL:** Bot outperformed HODL (+98.61%) by **+2,678%** 🤯 ### 🎯 Key Insights 1. **Estrategia Lateral GANA** - TP3=7%, SL=5% es el balance perfecto 2. **Estrategia Actual es #2** - Muy sólida (+2,484%), solo 293% menos que la ganadora 3. **Estrategia Bull PERDIÓ** - TPs mu",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-05-18T17:36:53.607Z",
+      "lastRecalledAt": "2026-05-18T17:36:53.607Z",
+      "queryHashes": [
+        "ecfeb08d6cde"
+      ],
+      "recallDays": [
+        "2026-05-18"
+      ],
+      "conceptTags": [
+        "v2.1",
+        "85.37",
+        "88.46",
+        "83.33",
+        "86.05",
+        "auto-ajuste",
+        "98.61",
+        "estrategia"
+      ]
+    },
+    "memory:memory/2026-05-13.md:1:33": {
+      "key": "memory:memory/2026-05-13.md:1:33",
+      "path": "memory/2026-05-13.md",
+      "startLine": 1,
+      "endLine": 33,
+      "source": "memory",
+      "snippet": "# Memory Log - 2026-05-13 ## 🎯 Session Highlights ### 🚀 Dashboard GPU Optimization **Problem**: Dashboard causing 98% GPU usage, 78°C temperature on user's laptop **Root Cause**: Too many CSS animations, particles, scanlines, animated gradients, heavy box-shadows **Solution Applied**: - Removed particles canvas animation - Removed scanlines overlay - Disabled animated gradients (static only) - Reduced box-shadow glow from 30px to 10px - Disabled pulse animations on progress bars - Changed refresh interval from 30s to 60s **Result**: GPU usage dropped to 21%, temperature 62°C (safe) **Files Modified**: `dashboard/static/css/style.css`, `dashboard/templates/index.html` ### 📱 Auto-Adjust",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-05-18T17:36:53.607Z",
+      "lastRecalledAt": "2026-05-18T17:36:53.607Z",
+      "queryHashes": [
+        "ecfeb08d6cde"
+      ],
+      "recallDays": [
+        "2026-05-18"
+      ],
+      "conceptTags": [
+        "box-shadows",
+        "box-shadow",
+        "dashboard/static/css/style.css",
+        "dashboard/templates/index.html",
+        "auto-adjust",
+        "log",
+        "highlights",
+        "dashboard"
+      ]
+    },
+    "memory:memory/2026-04-10.md:42:93": {
+      "key": "memory:memory/2026-04-10.md:42:93",
+      "path": "memory/2026-04-10.md",
+      "startLine": 42,
+      "endLine": 93,
+      "source": "memory",
+      "snippet": "**Fix aplicado:** Mensajes en variables (no inline) + logs de debug antes/después de send_telegram() **Notificaciones operativas (10):** 1. ✅ APERTURA (BUY) - Fix BUG-038 2. ✅ TP1 HIT (35%) 3. ✅ TP2 HIT (30%) - Fix BUG-036 4. ✅ TP3 HIT (20%) - Fix BUG-036 5. ✅ TP2 FALLÓ (NOTIONAL error) 6. ✅ TP3 FALLÓ (NOTIONAL error) 7. ✅ STOP LOSS 8. ✅ LÍMITE DIARIO (3%) 9. ✅ NUEVO SCALP (pre-entry) - NEW BUG-039 10. ✅ RESUMEN DIARIO 9 AM - NEW BUG-040 --- ### 📝 **DOCUMENTACIÓN CREADA (~30KB)** - BUG-038-BUY-NOTIFICATIONS-MISSING.md (3.6KB) - BUG-039-NEW-SCALP-NOTIFICATION.md (2.7KB) - BUG-040-DAILY-REPORT-AUTO-SEND.md (3.3KB) - BUG-036-NOTIFICACIONES-TP2-TP3-NO-ENVIAN.md (8.7KB) - BUG-037-PNL-CALCULA",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-05-18T17:36:53.607Z",
+      "lastRecalledAt": "2026-05-18T17:36:53.607Z",
+      "queryHashes": [
+        "ecfeb08d6cde"
+      ],
+      "recallDays": [
+        "2026-05-18"
+      ],
+      "conceptTags": [
+        "antes/después",
+        "send-telegram",
+        "bug-038",
+        "bug-036",
+        "pre-entry",
+        "bug-039",
+        "bug-040",
+        "3.6kb"
+      ]
+    },
+    "memory:memory/2026-05-08.md:48:74": {
+      "key": "memory:memory/2026-05-08.md:48:74",
+      "path": "memory/2026-05-08.md",
+      "startLine": 48,
+      "endLine": 74,
+      "source": "memory",
+      "snippet": "- View More button (10 trades → 32 trades) - Slots counter (X/21) - Cache busting para Safari iOS (?v=random) - Refresh: 30 segundos ### 🎯 Trades Recientes (Top 10) ``` #1 AVAX TP1: +$0.26 - May 7 #2 AVAX TP3: +$2.64 - May 6 #3 ETH TP3: +$1.40 - May 6 #4 BTC TP3: +$1.36 - May 6 #5 LINK TP3: +$5.56 - May 6 #6 LINK TP3: +$9.27 - May 5 #7 BNB TP1: +$0.57 - May 5 #8 BNB TP1: +$0.43 - May 5 #9 ETH TP1: +$0.11 - May 5 #10 ETH TP1: +$0.18 - May 5 ``` ### 📝 Notas Importantes - **Nunca confiar, siempre verificar** - User motto - Revisar trade-state files para trades faltantes - Dashboard ordena por timestamp descendente - Estrategia dinámica desde Mayo 4 (auto-adjust cada 6 horas",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-05-18T17:36:53.607Z",
+      "lastRecalledAt": "2026-05-18T17:36:53.607Z",
+      "queryHashes": [
+        "ecfeb08d6cde"
+      ],
+      "recallDays": [
+        "2026-05-18"
+      ],
+      "conceptTags": [
+        "x/21",
+        "0.26",
+        "2.64",
+        "1.40",
+        "1.36",
+        "5.56",
+        "9.27",
+        "0.57"
       ]
     }
   }

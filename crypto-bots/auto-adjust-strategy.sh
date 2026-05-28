@@ -86,32 +86,20 @@ echo ""
 
 echo "⏳ Paso 3/3: Notificando cambios..."
 
-# Enviar resumen por Telegram
+# Enviar resumen por Telegram (formato compacto)
 if [ -f "${WORKSPACE}/lib/send-telegram.sh" ]; then
     source "${WORKSPACE}/lib/send-telegram.sh"
-    send_telegram "🧠 AUTO-ADJUST STRATEGY UPDATE
+    send_telegram "🧠 AUTO-ADJUST STRATEGY
 
 🎯 Modo: ${MARKET_MODE}
 📝 Razón: ${MARKET_REASON}
 
-📊 Nueva Configuración:
-TP1: +${TP1}%
-TP2: +${TP2}%
-TP3: +${TP3}%
-SL: -${SL}%
-Position: ${POSITION_SIZE}%
-Trailing: ${TRAILING_STOP}
+⚙️ TP1/2/3: +${TP1}/${TP2}/${TP3}% | SL: -${SL}%
+💰 Position: ${POSITION_SIZE}%
 
-🎯 Scalping Mode (Lateral):
-Target: 1.0%
-SL: 2.5%
+📊 BTC: \$${BTC_PRICE} | RSI: ${RSI} | F&G: ${FG_VALUE} (${FG_CLASS})
 
-📈 Contexto:
-BTC: \$${BTC_PRICE}
-RSI: ${RSI}
-Fear and Greed: ${FG_VALUE} (${FG_CLASS})
-
-✅ Estrategia ajustada automáticamente"
+✅ Estrategia ajustada"
 fi
 
 echo ""
@@ -160,53 +148,37 @@ if [ -f "$ML_RESULT_FILE" ]; then
         OVERRIDE="✅ ML de acuerdo"
     fi
     
-    # Notificar resultado final
+    # Notificar resultado final (formato compacto)
     if [ -f "${WORKSPACE}/lib/send-telegram.sh" ]; then
         source "${WORKSPACE}/lib/send-telegram.sh"
         send_telegram "🧠 AUTO-ADJUST + ML VALIDATION
 
-🎯 Modo Final: ${FINAL_MODE}
-${OVERRIDE}
-
+🎯 Modo: ${FINAL_MODE} | ${OVERRIDE}
 📝 Razón: ${MARKET_REASON}
 
-📊 Configuración:
-TP1: +${TP1}%
-TP2: +${TP2}%
-TP3: +${TP3}%
-SL: -${SL}%
-Position: ${POSITION_SIZE}%
+⚙️ TP1/2/3: +${TP1}/${TP2}/${TP3}% | SL: -${SL}%
+💰 Position: ${POSITION_SIZE}%
 
-📈 Contexto:
-BTC: \$${BTC_PRICE}
-RSI: ${RSI}
-F&G: ${FG_VALUE} (${FG_CLASS})
-ML Confianza: ${ML_CONFIDENCE}
+📊 BTC: \$${BTC_PRICE} | RSI: ${RSI} | F&G: ${FG_VALUE} (${FG_CLASS})
+🤖 ML: ${ML_CONFIDENCE}
 
-✅ Estrategia validada y ajustada"
+✅ Estrategia validada"
     fi
 else
-    # Fallback: notificar sin ML
+    # Fallback: notificar sin ML (formato compacto)
     if [ -f "${WORKSPACE}/lib/send-telegram.sh" ]; then
         source "${WORKSPACE}/lib/send-telegram.sh"
-        send_telegram "🧠 AUTO-ADJUST STRATEGY UPDATE
+        send_telegram "🧠 AUTO-ADJUST STRATEGY
 
 🎯 Modo: ${MARKET_MODE}
 📝 Razón: ${MARKET_REASON}
 
-📊 Configuración:
-TP1: +${TP1}%
-TP2: +${TP2}%
-TP3: +${TP3}%
-SL: -${SL}%
-Position: ${POSITION_SIZE}%
+⚙️ TP1/2/3: +${TP1}/${TP2}/${TP3}% | SL: -${SL}%
+💰 Position: ${POSITION_SIZE}%
 
-📈 Contexto:
-BTC: \$${BTC_PRICE}
-RSI: ${RSI}
-F&G: ${FG_VALUE} (${FG_CLASS})
+📊 BTC: \$${BTC_PRICE} | RSI: ${RSI} | F&G: ${FG_VALUE} (${FG_CLASS})
 
-✅ Estrategia ajustada automáticamente"
+✅ Estrategia ajustada"
     fi
 fi
 

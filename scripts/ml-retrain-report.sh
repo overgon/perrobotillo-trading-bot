@@ -78,8 +78,15 @@ if [ -f "$ML_RETRAIN_LOG" ]; then
         CURRENT_ACCURACY=$(printf "%.2f%%" "$CURR_ACC_RAW")
     fi
     # Leer trades (formato: "• Trades usados: 106")
-    TRADES_USED=$(grep "Trades usados:" "$ML_RETRAIN_LOG" | tail -1 | sed 's/.*Trades usados: //' | grep -oP '^\d+' || echo "N/A")
-    TRADES_NUEVOS=$(grep "Trades nuevos:" "$ML_RETRAIN_LOG" | tail -1 | sed 's/.*Trades nuevos: //' | grep -oP '^\d+' || echo "N/A")
+    # Fix: usar grep -oP para extraer solo números y manejar múltiples formatos
+    TRADES_USED=$(grep -E "Trades usados:|Trades usados:" "$ML_RETRAIN_LOG" | tail -1 | grep -oP '\d+' | head -1)
+    if [ -z "$TRADES_USED" ]; then
+        TRADES_USED="N/A"
+    fi
+    TRADES_NUEVOS=$(grep -E "Trades nuevos:|Trades nuevos:" "$ML_RETRAIN_LOG" | tail -1 | grep -oP '\d+' | head -1)
+    if [ -z "$TRADES_NUEVOS" ]; then
+        TRADES_NUEVOS="N/A"
+    fi
 else
     TRADES_USED="N/A"
     TRADES_NUEVOS="N/A"

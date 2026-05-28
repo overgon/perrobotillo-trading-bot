@@ -23,7 +23,8 @@
     "coin_SOL",
     "coin_XRP"
   ],
-  "accuracy": 0.9024390243902439,
-  "trained_at": "2026-05-13T13:56:14.664267",
-  "version": "1.0.0"
+  "accuracy": 0.8052121617106582,
+  "trained_at": "2026-05-28T11:12:09.569470",
+  "version": "2.0.0",
+  "retrain_count": 3
 }

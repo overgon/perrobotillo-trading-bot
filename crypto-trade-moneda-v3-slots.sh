@@ -756,7 +756,7 @@ place_buy_order_market() {
     
     # Generar timestamp inmediatamente antes de usar
     local timestamp=$(date -u +%s%3N)
-    local query_string="symbol=${symbol}USDT&side=BUY&type=MARKET&quantity=${quantity}&timestamp=${timestamp}&recvWindow=10000"
+    local query_string="symbol=${symbol}USDT&side=BUY&type=MARKET&quantity=${quantity}&timestamp=${timestamp}&recvWindow=20000"
     local signature=$(get_signature "$query_string")
     
     # Ejecutar con timeout de 15 segundos y retry
@@ -800,7 +800,7 @@ place_sell_order_market() {
     local symbol="$1" quantity="$2"
     # Generate timestamp immediately before use
     local timestamp=$(date -u +%s%3N)
-    local query_string="symbol=${symbol}USDT&side=SELL&type=MARKET&quantity=${quantity}&timestamp=${timestamp}&recvWindow=10000"
+    local query_string="symbol=${symbol}USDT&side=SELL&type=MARKET&quantity=${quantity}&timestamp=${timestamp}&recvWindow=20000"
     local signature=$(get_signature "$query_string")
     local result=$(curl -s -m 3 -X POST "${BINANCE}/api/v3/order?${query_string}&signature=${signature}" -H "X-MBX-APIKEY: ${BINANCE_API_KEY}")
     echo "$result"
@@ -1245,21 +1245,6 @@ ACUMULADO: 5% 📈
 
 Quedan 65% para TP2/TP3 🎯"
                 fi
-                
-                # Calcular P&L parcial para notificación (ya calculado arriba en ambos casos)
-                local pnl_partial=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
-                local pnl_partial=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
-                
-                # Enviar Telegram TP1
-                send_telegram "✅ TP1 HIT - $SYMBOL [35%] 🎯
-
-Slot: $slot_id / $MAX_SLOTS
-Exit: \$${current_price}
-Qty: $sell_qty_fmt (35%)
-P&L Parcial: \$${pnl_partial}
-ACUMULADO: 5% 📈
-
-Quedan 65% para TP2/TP3 🎯"
             else
                 local error=$(echo "$sell_result" | jq -r '.msg // "Unknown error"')
                 log "  ❌ TP1 venta falló: $error"
