@@ -208,19 +208,110 @@ def train_model():
             'volume_ratio', 'trend_bullish', 'bb_position', 'volatility'
         ],
         'trained_at': datetime.now().isoformat(),
-        'trades_used': len(trades)
+        'trades_used': len(trades),
+        'train_samples': len(X_train),
+        'test_samples': len(X_test),
+        'win_rate': sum(y) / len(y) * 100 if len(y) > 0 else 0
     }
     
     with open(MODEL_INFO, 'w') as f:
         json.dump(model_info, f, indent=2)
     
     log(f"📝 Info del modelo guardada")
+    
+    # Generar reporte para Telegram
+    generate_telegram_report(model_info, y)
+    
     log("")
     log("╔═══════════════════════════════════════════════════════╗")
     log("║  ✅ Training Complete - Model Ready                   ║")
     log("╚═══════════════════════════════════════════════════════╝")
     
     return True
+
+def generate_telegram_report(model_info, y_labels):
+    """Generar reporte detallado para enviar por Telegram"""
+    
+    # Calcular métricas adicionales
+    total_trades = model_info['trades_used']
+    wins = sum(y_labels)
+    losses = len(y_labels) - wins
+    win_rate = wins / len(y_labels) * 100 if len(y_labels) > 0 else 0
+    
+    # Leer modelo anterior si existe
+    old_accuracy = 0
+    if os.path.exists(MODEL_INFO):
+        try:
+            with open(MODEL_INFO, 'r') as f:
+                old_info = json.load(f)
+                old_accuracy = old_info.get('accuracy', 0)
+        except:
+            pass
+    
+    accuracy_change = (model_info['accuracy'] - old_accuracy) * 100
+    accuracy_emoji = "📈" if accuracy_change > 0 else "📉" if accuracy_change < 0 else "➡️"
+    
+    report = f"""🧠 *ML Auto-Retrain Reporte*
+
+✅ Re-entrenamiento completado
+🕐 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+📊 *Métricas del Modelo:*
+{accuracy_emoji} Accuracy: {model_info['accuracy']*100:.1f}% ({'+' if accuracy_change > 0 else ''}{accuracy_change:.1f}%)
+📈 Train samples: {model_info['train_samples']}
+🧪 Test samples: {model_info['test_samples']}
+
+💰 *Trades Históricos:*
+Total: {total_trades}
+Wins: {wins} ✅
+Losses: {losses} ❌
+Win Rate: {win_rate:.1f}%
+
+🎯 *Features Usados:*
+• RSI (14 periodos)
+• MACD (12,26,9)
+• Volume Ratio
+• Trend (SMA 20/50)
+• Bollinger Bands
+• Volatility
+
+⚙️ *Configuración:*
+Modelo: Random Forest
+Estimadores: {model_info['n_estimators']}
+Max Depth: {model_info['max_depth']}
+
+📁 *Archivos:*
+Modelo: ml-validator-model.pkl
+Info: ml-validator-model.json
+Logs: ml-retrain.log
+
+_Próximo re-entrenamiento: Domingo 3:00 AM_"""
+    
+    # Enviar a Telegram
+    TELEGRAM_ENV = f"{WORKSPACE}/secrets/telegram.env"
+    if os.path.exists(TELEGRAM_ENV):
+        try:
+            with open(TELEGRAM_ENV, 'r') as f:
+                for line in f:
+                    if line.startswith('TELEGRAM_BOT_TOKEN='):
+                        tg_token = line.strip().split('=')[1]
+                    elif line.startswith('TELEGRAM_CHAT_ID='):
+                        tg_chat_id = line.strip().split('=')[1]
+            
+            import urllib.request
+            import urllib.parse
+            
+            url = f"https://api.telegram.org/bot{tg_token}/sendMessage"
+            data = urllib.parse.urlencode({
+                'chat_id': tg_chat_id,
+                'text': report,
+                'parse_mode': 'Markdown'
+            }).encode()
+            
+            urllib.request.urlopen(url, data, timeout=10)
+            log("📱 Reporte enviado a Telegram")
+        except Exception as e:
+            log(f"⚠️ Error enviando Telegram: {e}")
 
 if __name__ == "__main__":
     success = train_model()

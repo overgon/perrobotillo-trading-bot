@@ -29,27 +29,7 @@ python3 ml-retrain.py
 
 if [ $? -eq 0 ]; then
     log "✅ Re-entrenamiento completado exitosamente"
-    
-    # Notificar por Telegram (si está configurado)
-    TELEGRAM_ENV="$WORKSPACE/secrets/telegram.env"
-    if [ -f "$TELEGRAM_ENV" ]; then
-        source "$TELEGRAM_ENV"
-        
-        message="🧠 *ML Auto-Retrain Completado*
-
-✅ Modelo re-entrenado exitosamente
-📊 Datos: Trades de la semana
-🕐 Domingo $(date '+%Y-%m-%d %H:%M')
-
-El nuevo modelo está activo y validando trades."
-        
-        curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            -d "chat_id=${TELEGRAM_CHAT_ID}" \
-            -d "text=${message}" \
-            -d "parse_mode=Markdown" > /dev/null
-        
-        log "📱 Notificación enviada a Telegram"
-    fi
+    # El reporte detallado ya se envía desde ml-retrain.py
 else
     log "❌ Error en el re-entrenamiento"
     
