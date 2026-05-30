@@ -1,21 +1,21 @@
 {
-  "timestamp": "2026-05-28T12:44:08.088762",
+  "timestamp": "2026-05-30T15:06:19.238996",
   "model_accuracy": 0.5625,
   "recommendations": {
-    "LINK": {
-      "symbol": "LINK",
+    "AVAX": {
+      "symbol": "AVAX",
       "recommendation": "MEDIUM",
       "position_size": 40,
-      "confidence": 0.598,
+      "confidence": 0.538,
       "probabilities": {
-        "HIGH": 0.4,
+        "HIGH": 0.46,
         "LOW": 0.002,
-        "MEDIUM": 0.598
+        "MEDIUM": 0.538
       },
       "features_used": {
-        "win_rate_24h": 0.26666666666666666,
-        "win_rate_7d": 0.42857142857142855,
-        "hour": 12
+        "win_rate_24h": 1.0,
+        "win_rate_7d": 0.6666666666666666,
+        "hour": 15
       }
     }
   }

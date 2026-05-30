@@ -835,6 +835,44 @@ execute_long() {
     
     log "📈 Slot $slot_id: Ejecutando LONG con ${position_percent}% posición"
     
+    # ════════════════════════════════════════════════════
+    # 🧠 ML VALIDATOR - Pre-Trade Validation
+    # ════════════════════════════════════════════════════
+    
+    ML_VALIDATOR="$WORKSPACE/ml/ml-validator.py"
+    if [ -f "$ML_VALIDATOR" ]; then
+        log "🧠 ML Validator: Consultando validación pre-trade..."
+        
+        # Ejecutar validator y capturar resultado
+        ml_result=$(python3 "$ML_VALIDATOR" "$SYMBOL" "NORMAL" "LONG" 2>/dev/null)
+        
+        # Parsear resultado
+        ml_approved=$(echo "$ml_result" | grep -o '"approved": [a-z]*' | cut -d: -f2 | tr -d ' ')
+        ml_confidence=$(echo "$ml_result" | grep -o '"confidence": [0-9]*' | cut -d: -f2 | tr -d ' ')
+        ml_position=$(echo "$ml_result" | grep -o '"position_size_percent": [0-9]*' | cut -d: -f2 | tr -d ' ')
+        ml_reason=$(echo "$ml_result" | grep -o '"reason": "[^"]*"' | cut -d: -f2 | tr -d '"')
+        
+        log "🧠 ML Result: approved=$ml_approved, confidence=${ml_confidence}%, position=${ml_position}%"
+        log "🧠 ML Reason: $ml_reason"
+        
+        # Si ML rechaza el trade, skippear
+        if [ "$ml_approved" = "false" ]; then
+            log "❌ ML Validator RECHAZÓ el trade (confianza: ${ml_confidence}%)"
+            log "   Razón: $ml_reason"
+            return 1
+        fi
+        
+        # Si ML sugiere menor posición, ajustar
+        if [ -n "$ml_position" ] && [ "$ml_position" -lt "$position_percent" ]; then
+            log "⚠️ ML sugiere reducir posición: ${position_percent}% → ${ml_position}%"
+            position_percent="$ml_position"
+        fi
+        
+        log "✅ ML Validator APROBÓ trade con ${ml_confidence}% confianza"
+    else
+        log "⚠️ ML Validator no encontrado, continuando sin validación"
+    fi
+    
     check_daily_limit || return 1
     
     local usdt_balance=$(get_balance "USDT")

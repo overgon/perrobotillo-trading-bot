@@ -1,71 +1,72 @@
 {
-  "timestamp": "2026-05-28T12:40:06.253516",
+  "timestamp": "2026-05-30T15:06:07.687002",
   "predictions": {
     "BTC": {
-      "prob_tp1": 0.40673290377574234,
+      "prob_tp1": 0.24324290100748236,
       "prediction": "TP1_UNLIKELY",
-      "confidence": "MEDIUM",
-      "timestamp": "2026-05-28T12:40:06.242769"
+      "confidence": "HIGH",
+      "timestamp": "2026-05-30T15:06:07.666264"
     },
     "ETH": {
-      "prob_tp1": 0.6505814656422484,
-      "prediction": "TP1_LIKELY",
-      "confidence": "MEDIUM",
-      "timestamp": "2026-05-28T12:40:06.244820"
+      "prob_tp1": 0.10862631988938802,
+      "prediction": "TP1_UNLIKELY",
+      "confidence": "HIGH",
+      "timestamp": "2026-05-30T15:06:07.669338"
     },
     "BNB": {
-      "prob_tp1": 0.0694423092819838,
-      "prediction": "TP1_UNLIKELY",
+      "prob_tp1": 0.9380882986754719,
+      "prediction": "TP1_LIKELY",
       "confidence": "HIGH",
-      "timestamp": "2026-05-28T12:40:06.246558"
+      "timestamp": "2026-05-30T15:06:07.672084"
     },
     "SOL": {
-      "prob_tp1": 0.23678036547901593,
+      "prob_tp1": 0.3163008734118212,
       "prediction": "TP1_UNLIKELY",
-      "confidence": "HIGH",
-      "timestamp": "2026-05-28T12:40:06.248208"
+      "confidence": "MEDIUM",
+      "timestamp": "2026-05-30T15:06:07.674773"
     },
     "LINK": {
-      "prob_tp1": 0.6613481420005078,
-      "prediction": "TP1_LIKELY",
-      "confidence": "MEDIUM",
-      "timestamp": "2026-05-28T12:40:06.249850"
-    },
-    "XRP": {
-      "prob_tp1": 0.6569249986295514,
-      "prediction": "TP1_LIKELY",
-      "confidence": "MEDIUM",
-      "timestamp": "2026-05-28T12:40:06.251454"
-    },
-    "AVAX": {
-      "prob_tp1": 0.08324813244544053,
+      "prob_tp1": 0.29198058205588673,
       "prediction": "TP1_UNLIKELY",
       "confidence": "HIGH",
-      "timestamp": "2026-05-28T12:40:06.253043"
+      "timestamp": "2026-05-30T15:06:07.678946"
+    },
+    "XRP": {
+      "prob_tp1": 0.27043510048637215,
+      "prediction": "TP1_UNLIKELY",
+      "confidence": "HIGH",
+      "timestamp": "2026-05-30T15:06:07.682965"
+    },
+    "AVAX": {
+      "prob_tp1": 0.146415080579949,
+      "prediction": "TP1_UNLIKELY",
+      "confidence": "HIGH",
+      "timestamp": "2026-05-30T15:06:07.686335"
     }
   },
   "recommendations": {
     "BTC": {
-      "action": "CONSERVATIVE",
-      "tp1_pct": 2.5,
-      "tp2_pct": 5.0,
-      "tp3_pct": 8.0,
-      "reason": "Probabilidad baja - ser conservador"
-    },
-    "ETH": {
-      "action": "NORMAL",
-      "tp1_pct": 3.5,
-      "tp2_pct": 7.0,
-      "tp3_pct": 12.0,
-      "reason": "Probabilidad normal - mantener estrategia est\u00e1ndar"
-    },
-    "BNB": {
       "action": "DEFENSIVE",
       "tp1_pct": 2.0,
       "tp2_pct": 4.0,
       "tp3_pct": 6.0,
       "sl_pct": 8.0,
       "reason": "Muy baja probabilidad - reducir exposici\u00f3n"
+    },
+    "ETH": {
+      "action": "DEFENSIVE",
+      "tp1_pct": 2.0,
+      "tp2_pct": 4.0,
+      "tp3_pct": 6.0,
+      "sl_pct": 8.0,
+      "reason": "Muy baja probabilidad - reducir exposici\u00f3n"
+    },
+    "BNB": {
+      "action": "AGGRESSIVE",
+      "tp1_pct": 4.0,
+      "tp2_pct": 8.0,
+      "tp3_pct": 15.0,
+      "reason": "Alta probabilidad de TP - ser agresivo"
     },
     "SOL": {
       "action": "DEFENSIVE",
@@ -76,18 +77,20 @@
       "reason": "Muy baja probabilidad - reducir exposici\u00f3n"
     },
     "LINK": {
-      "action": "NORMAL",
-      "tp1_pct": 3.5,
-      "tp2_pct": 7.0,
-      "tp3_pct": 12.0,
-      "reason": "Probabilidad normal - mantener estrategia est\u00e1ndar"
+      "action": "DEFENSIVE",
+      "tp1_pct": 2.0,
+      "tp2_pct": 4.0,
+      "tp3_pct": 6.0,
+      "sl_pct": 8.0,
+      "reason": "Muy baja probabilidad - reducir exposici\u00f3n"
     },
     "XRP": {
-      "action": "NORMAL",
-      "tp1_pct": 3.5,
-      "tp2_pct": 7.0,
-      "tp3_pct": 12.0,
-      "reason": "Probabilidad normal - mantener estrategia est\u00e1ndar"
+      "action": "DEFENSIVE",
+      "tp1_pct": 2.0,
+      "tp2_pct": 4.0,
+      "tp3_pct": 6.0,
+      "sl_pct": 8.0,
+      "reason": "Muy baja probabilidad - reducir exposici\u00f3n"
     },
     "AVAX": {
       "action": "DEFENSIVE",
