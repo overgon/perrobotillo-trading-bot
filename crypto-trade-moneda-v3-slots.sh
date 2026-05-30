@@ -840,6 +840,12 @@ execute_long() {
     # ════════════════════════════════════════════════════
     
     ML_VALIDATOR="$WORKSPACE/ml/ml-validator.py"
+    local ml_approved="N/A"
+    local ml_confidence="N/A"
+    local ml_position="N/A"
+    local ml_reason="N/A"
+    local ml_risk="N/A"
+    
     if [ -f "$ML_VALIDATOR" ]; then
         log "🧠 ML Validator: Consultando validación pre-trade..."
         
@@ -851,6 +857,7 @@ execute_long() {
         ml_confidence=$(echo "$ml_result" | grep -o '"confidence": [0-9]*' | cut -d: -f2 | tr -d ' ')
         ml_position=$(echo "$ml_result" | grep -o '"position_size_percent": [0-9]*' | cut -d: -f2 | tr -d ' ')
         ml_reason=$(echo "$ml_result" | grep -o '"reason": "[^"]*"' | cut -d: -f2 | tr -d '"')
+        ml_risk=$(echo "$ml_result" | grep -o '"risk_level": "[^"]*"' | cut -d: -f2 | tr -d '"')
         
         log "🧠 ML Result: approved=$ml_approved, confidence=${ml_confidence}%, position=${ml_position}%"
         log "🧠 ML Reason: $ml_reason"
@@ -1023,8 +1030,23 @@ El slot permanece disponible para próximo trade. 🛡️"
         update_slot_field "$slot_id" "tp3" "$tp3"
         update_slot_field "$slot_id" "timestamp" "\"$(date -Iseconds)\""
         
-        # BUG-038 FIX: Notificación de apertura
-        log "  📱 DEBUG: Preparando notificación de apertura..."
+        # BUG-038 FIX: Notificación de apertura con ML Decision
+        log "  📱 DEBUG: Preparando notificación de apertura con ML info..."
+        
+        # Construir sección de ML
+        local ml_section=""
+        if [ "$ml_approved" = "true" ]; then
+            ml_section="🧠 ML Validator: ✅ APROBADO
+   Confianza: ${ml_confidence}% | Riesgo: ${ml_risk}
+   Razón: $ml_reason"
+        elif [ "$ml_approved" = "false" ]; then
+            ml_section="🧠 ML Validator: ❌ RECHAZADO
+   Confianza: ${ml_confidence}%
+   Razón: $ml_reason"
+        else
+            ml_section="🧠 ML Validator: ⚠️ No disponible (trade sin validación)"
+        fi
+        
         
         local open_msg="🟢 LONG V3 SLOT $slot_id - $SYMBOL [$CURRENT_MODE]
 
@@ -1038,6 +1060,8 @@ TP2: \$${tp2} (+${TP2_PERCENT}%) 30%
 TP3: \$${tp3} (+${TP3_PERCENT}%) 20%
 
 SL: \$${sl} (-${STOP_LOSS_PERCENT}%)
+
+$ml_section
 
 🚀 Trade activo - Monitoreando TPs..."
         
