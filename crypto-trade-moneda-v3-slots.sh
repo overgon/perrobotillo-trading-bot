@@ -426,8 +426,27 @@ format_quantity() {
     # Validate quantity
     [ -z "$quantity" ] || [ "$quantity" = "0" ] && { echo "0"; return; }
     
-    local stepSize=$(curl -s "${BINANCE}/api/v3/exchangeInfo?symbol=${symbol}USDT" 2>/dev/null | jq -r '.symbols[0].filters[] | select(.filterType == "LOT_SIZE") | .stepSize')
-    [ -z "$stepSize" ] || [ "$stepSize" = "null" ] && stepSize="0.00001000"
+    # Get stepSize from Binance with timeout and fallback
+    local stepSize=""
+    local retry=0
+    while [ -z "$stepSize" ] && [ $retry -lt 3 ]; do
+        stepSize=$(curl -s -m 5 "${BINANCE}/api/v3/exchangeInfo?symbol=${symbol}USDT" 2>/dev/null | jq -r '.symbols[0].filters[] | select(.filterType == "LOT_SIZE") | .stepSize')
+        retry=$((retry + 1))
+        [ -z "$stepSize" ] || [ "$stepSize" = "null" ] && sleep 0.5
+    done
+    
+    # Fallback stepSize if API fails
+    [ -z "$stepSize" ] || [ "$stepSize" = "null" ] && {
+        # Common fallbacks by symbol
+        case "$symbol" in
+            LINK|SOL|AVAX) stepSize="0.01000000" ;;
+            BNB) stepSize="0.00100000" ;;
+            XRP) stepSize="0.10000000" ;;
+            BTC) stepSize="0.00001000" ;;
+            ETH) stepSize="0.00010000" ;;
+            *) stepSize="0.00001000" ;;
+        esac
+    }
     
     # Calculate decimals from stepSize
     local decimals=5

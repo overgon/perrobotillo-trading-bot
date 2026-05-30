@@ -15,113 +15,34 @@ let lastData = null;
 let lastPrices = {};
 let countdownInterval = null;
 let showAllTrades = false;  // Show only 10 by default
-let lastTPProgress = {};  // Track TP progress to detect 100% hits
-let soundEnabled = true;  // ✅ Sound ENABLED BY DEFAULT
-let audioUnlocked = false;  // Track if browser has unlocked audio
 
-// 🔊 UNLOCK AUDIO ON FIRST USER INTERACTION (Firefox/Chrome policy)
-function unlockAudio() {
-    if (audioUnlocked) return;  // Already unlocked
-    
-    const sound = document.getElementById('cashRegisterSound');
-    if (sound) {
-        sound.volume = 0.01;  // Very quiet
-        sound.play().then(() => {
-            sound.pause();
-            sound.currentTime = 0;
-            audioUnlocked = true;
-            console.log('✅ Audio UNLOCKED - Cash register ready 🔔');
-        }).catch(() => {
-            // Still locked, will try again later
-        });
-    }
-}
+// ════════════════════════════════════════════════════════
+// 🔊 SOUND EFFECTS
+// ════════════════════════════════════════════════════════
 
-// Listen for ANY user interaction to unlock audio
-document.addEventListener('click', unlockAudio, { once: true });
-document.addEventListener('touchstart', unlockAudio, { once: true });
-document.addEventListener('keydown', unlockAudio, { once: true });
+const cashRegisterSound = new Audio('/static/sounds/cash-register.wav');
+cashRegisterSound.preload = 'auto';
 
-// 🔊 SOUND ENABLE BANNER
-function showSoundEnableBanner() {
-    const banner = document.getElementById('soundEnableBanner');
-    if (banner) {
-        banner.style.display = 'block';
-        banner.onclick = () => {
-            enableSound();
-            banner.style.display = 'none';
-        };
-    }
-}
+const stopLossSound = new Audio('/static/sounds/stop-loss.mp3');
+stopLossSound.preload = 'auto';
 
-function enableSound() {
-    soundEnabled = true;
-    console.log('✅ Sound ENABLED - Cash register will play on TP hits');
-    // Play a short test sound to unlock audio
-    const sound = document.getElementById('cashRegisterSound');
-    if (sound) {
-        sound.volume = 0.01;  // Very quiet test
-        sound.play().then(() => {
-            sound.pause();
-            sound.currentTime = 0;
-            console.log('🔊 Audio unlocked!');
-        }).catch(e => console.log('⚠️ Test play failed:', e));
-    }
-}
-
-// Check if sound needs to be enabled after page load
-setTimeout(() => {
-    if (!audioUnlocked) {
-        console.log('⚠️ Audio not unlocked yet - showing banner');
-        showSoundEnableBanner();
-    } else {
-                    console.log("⚠️ Audio NOT unlocked - cannot play sound");
-                    console.log("⚠️ Audio NOT unlocked yet - click anywhere first");
-        console.log('✅ Audio unlocked - cash register ready 🔔');
-    }
-}, 2000);
-
-// 💰 CASH REGISTER SOUND FUNCTION
 function playCashRegister() {
-    console.log('🔊 playCashRegister() called');
-    console.log('   Sound enabled:', soundEnabled);
-    console.log('   Audio unlocked:', audioUnlocked);
-    
-    if (!soundEnabled) {
-        console.log('⚠️ Sound not enabled - skipping playback');
-        return;
+    cashRegisterSound.currentTime = 0;
+    cashRegisterSound.volume = 1.0;
+    const playPromise = cashRegisterSound.play();
+    if (playPromise) {
+        playPromise.then(() => console.log('💰 CASH REGISTER! TP HIT! 🔔'))
+            .catch(error => console.log('⚠️ Sound play failed:', error));
     }
-    
-    // Try to unlock audio if not already unlocked
-    if (!audioUnlocked) {
-        console.log('🔓 Attempting to unlock audio...');
-        unlockAudio();
-    }
-    
-    const sound = document.getElementById('cashRegisterSound');
-    console.log('   Audio element:', sound ? 'FOUND' : 'NOT FOUND');
-    
-    if (sound) {
-        sound.currentTime = 0;  // Rewind to start
-        sound.volume = 1.0;  // 100% volume 🔊
-        console.log('   Playing sound at 100% volume...');
-        
-        const playPromise = sound.play();
-        
-        if (playPromise !== undefined) {
-            playPromise
-                .then(() => console.log('✅ Sound played successfully 🔔'))
-                .catch(error => {
-                    console.log('❌ Sound play failed:', error.name, error.message);
-                    console.log('💡 User needs to click/tap anywhere on page first');
-                });
-        }
-        
-        console.log('💰 CASH REGISTER! TP HIT DETECTED!');
-    } else {
-                    console.log("⚠️ Audio NOT unlocked - cannot play sound");
-                    console.log("⚠️ Audio NOT unlocked yet - click anywhere first");
-        console.error('❌ Audio element NOT FOUND!');
+}
+
+function playStopLoss() {
+    stopLossSound.currentTime = 0;
+    stopLossSound.volume = 1.0;
+    const playPromise = stopLossSound.play();
+    if (playPromise) {
+        playPromise.then(() => console.log('🛑 STOP LOSS HIT! 💀'))
+            .catch(error => console.log('⚠️ Sound play failed:', error));
     }
 }
 
@@ -328,8 +249,6 @@ function updateSlots(data) {
                     progress = Math.min(100, ((entryPrice - currentPrice) / (entryPrice - sl)) * 100);
                 }
             } else {
-                    console.log("⚠️ Audio NOT unlocked - cannot play sound");
-                    console.log("⚠️ Audio NOT unlocked yet - click anywhere first");
                 // Positivo o neutral → mostrar TP normal
                 if (slot.tp1Done && slot.tp2Done) {
                     targetPrice = tp3;
@@ -338,8 +257,6 @@ function updateSlots(data) {
                     targetPrice = tp2;
                     targetName = 'TP2';
                 } else {
-                    console.log("⚠️ Audio NOT unlocked - cannot play sound");
-                    console.log("⚠️ Audio NOT unlocked yet - click anywhere first");
                     targetPrice = tp1;
                     targetName = 'TP1';
                 }
@@ -477,8 +394,6 @@ function updatePrices(prices) {
                 </div>
             `;
         } else {
-                    console.log("⚠️ Audio NOT unlocked - cannot play sound");
-                    console.log("⚠️ Audio NOT unlocked yet - click anywhere first");
             console.warn(`⚠️ No price data for ${coin}`);
         }
     });
@@ -519,8 +434,6 @@ function updateSystemStatus(data) {
             ipStatus.textContent = `✅ ${system.ip_whitelist}`;
             ipStatus.title = 'IP Pública Actual';
         } else {
-                    console.log("⚠️ Audio NOT unlocked - cannot play sound");
-                    console.log("⚠️ Audio NOT unlocked yet - click anywhere first");
             ipStatus.textContent = '❌ No disponible';
             ipStatus.title = 'No se pudo obtener IP';
         }
@@ -663,19 +576,13 @@ function toggleAllTrades() {
 
 
 // ════════════════════════════════════════════════════════
-// 🔔 TP NOTIFICATION SOUND
+// 🔔 TP/SL NOTIFICATION SYSTEM
 // ════════════════════════════════════════════════════════
 
+let playedNotificationIds = new Set();  // Track notification IDs already played (in-memory)
 
-// ════════════════════════════════════════════════════════
-// 🔔 TP NOTIFICATION SOUND (usa audioUnlocked existente)
-// ════════════════════════════════════════════════════════
-
-let lastNotificationId = 0;
-
-// Check for new TP notifications
+// Check for new TP/SL notifications
 async function checkTPNotifications() {
-    console.log("🔍 checkTPNotifications running...");
     try {
         const response = await fetch('/crypto-bots/tp-notifications.json?v=' + Date.now());
         if (!response.ok) return;
@@ -683,25 +590,31 @@ async function checkTPNotifications() {
         const notifications = await response.json();
         if (!Array.isArray(notifications)) return;
         
-        // Find new notifications
-        for (let i = notifications.length - 1; i >= 0; i--) {
-            const notif = notifications[i];
-            const notifId = i;
+        // Find new notifications (only play once per unique notification)
+        let hasNewNotifications = false;
+        for (let notif of notifications) {
+            // Create unique ID from coin + slot_id + tp + timestamp
+            const notifId = `${notif.coin}-${notif.slot_id}-${notif.tp}-${notif.timestamp}`;
             
-            if (notifId > lastNotificationId && !notif.played) {
-                    console.log("🎯 NEW TP NOTIFICATION FOUND:", notif.coin, notif.tp, "pnl:", notif.pnl);
-                lastNotificationId = notifId;
+            if (!playedNotificationIds.has(notifId)) {
+                console.log('🔔 TP/SL Notification:', notif.coin, 'Slot', notif.slot_id, '-', notif.tp, '| P&L:', notif.pnl);
                 
-                // Play sound (usa función existente)
-                if (audioUnlocked) {
-                    console.log("🔔 Audio unlocked, playing sound...");
-                    playCashRegister();
-                    console.log(`🔔 💰 TP HIT! ${notif.coin} Slot ${notif.slot_id} - ${notif.tp}`);
-                    showTPNotification(notif);
+                // Play appropriate sound based on TP or SL
+                if (notif.tp === 'SL') {
+                    playStopLoss();  // 🛑 Stop Loss sound
+                } else {
+                    playCashRegister();  // 💰 TP hit sound
                 }
                 
-                notif.played = true;
+                showTPNotification(notif);
+                playedNotificationIds.add(notifId);  // Mark as played in memory
+                hasNewNotifications = true;
             }
+        }
+        
+        // Optional: Log if we have old notifications still in file
+        if (!hasNewNotifications && notifications.length > 0) {
+            console.log(`📝 ${notifications.length} old notification(s) already played`);
         }
     } catch (error) {
         // Silently fail
@@ -713,12 +626,13 @@ function showTPNotification(notif) {
     const pnlClass = notif.pnl >= 0 ? 'profit' : 'loss';
     const pnlIcon = notif.pnl >= 0 ? '🟢' : '🔴';
     const pnlSign = notif.pnl >= 0 ? '+' : '';
+    const isSL = notif.tp === 'SL';
     
     const notification = document.createElement('div');
     notification.className = `tp-notification ${pnlClass}`;
     notification.innerHTML = `
         <div class="tp-notification-content">
-            <div class="tp-notification-icon">${pnlIcon} ${notif.tp}</div>
+            <div class="tp-notification-icon">${isSL ? '🛑' : pnlIcon} ${notif.tp}</div>
             <div class="tp-notification-coin">${notif.coin}</div>
             <div class="tp-notification-slot">Slot ${notif.slot_id}</div>
             <div class="tp-notification-pnl">${pnlSign}$${notif.pnl.toFixed(2)}</div>
@@ -766,4 +680,4 @@ document.head.appendChild(notificationStyle);
 
 // Check every 5 seconds
 setInterval(checkTPNotifications, 5000);
-console.log('🔔 TP Notification system initialized');
+console.log('🔔 TP/SL Notification system initialized');

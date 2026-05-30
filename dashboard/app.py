@@ -16,14 +16,58 @@ import glob
 import base64
 
 def get_mxn_rate():
-    """Obtener tasa de cambio USDT/MXN en tiempo real de Binance"""
+    """Obtener tasa de cambio USDT/MXN en tiempo real de Binance con cache"""
+    import os, time, json
+    
+    # Primero intentar leer del portfolio cache (si existe)
+    portfolio_cache = "/tmp/portfolio_cache.json"
+    if os.path.exists(portfolio_cache):
+        try:
+            with open(portfolio_cache) as f:
+                cache = json.load(f)
+                if 'mxn_rate' in cache:
+                    rate = cache['mxn_rate']
+                    print(f"💱 MXN rate from portfolio cache: ${rate:.4f}")
+                    return rate
+        except:
+            pass
+    
+    cache_file = "/tmp/mxn_rate_cache.json"
+    
+    # Try cache first (5 minutes)
+    if os.path.exists(cache_file):
+        cache_age = time.time() - os.path.getmtime(cache_file)
+        if cache_age < 300:  # 5 minutos
+            with open(cache_file) as f:
+                cached = json.load(f)
+                rate = cached.get('rate', 17.5)
+                print(f"💱 MXN rate from cache: ${rate:.4f} (age: {cache_age:.1f}s)")
+                return rate
+    
+    # Fetch from Binance
     try:
         import requests
         response = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=USDTMXN', timeout=5)
         rate = float(response.json().get('price', 17.5))
+        
+        # Save cache
+        with open(cache_file, 'w') as f:
+            json.dump({'rate': rate, 'timestamp': time.time()}, f)
+        
+        print(f"💱 MXN rate from Binance: ${rate:.4f}")
         return rate
-    except:
-        return 17.5  # Fallback
+    except Exception as e:
+        print(f"⚠️ Error getting MXN rate: {e}, using fallback")
+        # Fallback: usar ultimo cache aunque este viejo
+        try:
+            if os.path.exists(cache_file):
+                with open(cache_file) as f:
+                    cached = json.load(f)
+                    return cached.get('rate', 17.5)
+        except:
+            pass
+        return 17.5  # Fallback final
+
 
 app = Flask(__name__)
 
@@ -129,10 +173,10 @@ def get_portfolio_value():
     
     cache_file = "/tmp/portfolio_cache.json"
     
-    # 1. Try cache first (30 seconds)
+    # 1. Try cache first (10 minutes)
     if os.path.exists(cache_file):
         cache_age = time.time() - os.path.getmtime(cache_file)
-        if cache_age < 30:
+        if cache_age < 600:  # 10 minutos
             with open(cache_file) as f:
                 cached = json.load(f)
                 print(f"💰 Portfolio from cache (${cached.get('value', 0):.2f}) - age: {cache_age:.1f}s")
@@ -140,7 +184,7 @@ def get_portfolio_value():
     
     # 2. Try to fetch from Binance
     try:
-        secrets_file = "$HOME/.openclaw/secrets/binance.env"
+        secrets_file = os.path.expanduser("~/.openclaw/secrets/binance.env")
         if not os.path.exists(secrets_file):
             print("⚠️  No binance.env, using snapshot")
             snapshot_file = f"{WORKSPACE}/portfolio-snapshot.json"
@@ -364,10 +408,27 @@ def index():
 @app.route('/api/portfolio')
 def api_portfolio():
     """API endpoint para valor del portfolio"""
+    import os, json
+    
     value = get_portfolio_value()
+    
+    # Leer tasa MXN del cache si existe
+    mxn_rate = 17.5  # fallback
+    cache_file = "/tmp/portfolio_cache.json"
+    if os.path.exists(cache_file):
+        try:
+            with open(cache_file) as f:
+                cache = json.load(f)
+                mxn_rate = cache.get('mxn_rate', get_mxn_rate())
+        except:
+            mxn_rate = get_mxn_rate()
+    else:
+        mxn_rate = get_mxn_rate()
+    
     return jsonify({
         'value': value,
-        'value_mx': get_mxn_rate() * value,
+        'value_mx': round(mxn_rate * value, 2),
+        'mxn_rate': mxn_rate,
         'timestamp': datetime.now().isoformat()
     })
 
