@@ -1,6 +1,6 @@
 #!/bin/bash
 # ════════════════════════════════════════════════════════
-# 🤖 ML RETRAIN STATUS REPORT - Domingo 9 AM
+# 🧠 ML VALIDATOR STATUS REPORT - Domingo 9 AM
 # Envía reporte semanal del status del auto-retrain ML
 # ════════════════════════════════════════════════════════
 
@@ -9,8 +9,8 @@
 WORKSPACE="/home/overgon/.openclaw/workspace"
 OPENCLAW_BASE="/home/overgon/.openclaw"
 LOG_FILE="$OPENCLAW_BASE/logs/ml-retrain-report.log"
-LAST_RETRAIN_JSON="$WORKSPACE/ml/last_retrain.json"
-MODEL_METADATA="$WORKSPACE/ml/model_metadata.json"
+LAST_RETRAIN_JSON="$WORKSPACE/ml/ml-last-retrain.json"
+MODEL_METADATA="$WORKSPACE/ml/ml-validator-model.json"
 ML_RETRAIN_LOG="$OPENCLAW_BASE/logs/ml-retrain.log"
 
 log() {
@@ -52,7 +52,7 @@ if [ -f "$MODEL_METADATA" ]; then
 fi
 
 # Calcular tamaño del modelo desde el archivo .pkl
-MODEL_PKL="$WORKSPACE/ml/tp_prediction_model.pkl"
+MODEL_PKL="$WORKSPACE/ml/ml-validator-model.pkl"
 if [ -f "$MODEL_PKL" ]; then
     SIZE_BYTES=$(stat -c%s "$MODEL_PKL" 2>/dev/null || echo "0")
     SIZE_MB=$(echo "scale=2; $SIZE_BYTES / 1048576" | bc)
@@ -115,7 +115,7 @@ TODAY=$(date +%A)
 NEXT_RETRAIN="Domingo 3:00 AM"
 
 # Construir mensaje para Telegram
-MESSAGE="🤖 ML RETRAIN - REPORTE SEMANAL
+MESSAGE="🧠 ML VALIDATOR - REPORTE SEMANAL
 
 📅 **Última Ejecución:** $LAST_RETRAIN_DATE $LAST_RETRAIN_TIME
 🔄 **Días desde último retrain:** $DAYS_SINCE días
