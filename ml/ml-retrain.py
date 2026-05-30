@@ -222,12 +222,62 @@ def train_model():
     # Generar reporte para Telegram
     generate_telegram_report(model_info, y)
     
+
+    # Guardar summary para reporte de las 9 AM
+    report_summary = {
+        'last_retrain': datetime.now().isoformat(),
+        'accuracy': model_info['accuracy'],
+        'accuracy_change': accuracy_change,
+        'trade_count_at_retrain': total_trades,
+        'retrain_count': model_info.get('retrain_count', 0) + 1,
+        'train_samples': model_info['train_samples'],
+        'test_samples': model_info['test_samples'],
+        'win_rate': win_rate,
+        'model_size_mb': os.path.getsize(MODEL_FILE) / 1048576 if os.path.exists(MODEL_FILE) else 0
+    }
+    
+    summary_file = f"{WORKSPACE}/ml/ml-last-retrain.json"
+    with open(summary_file, 'w') as f:
+        json.dump(report_summary, f, indent=2)
+    
+    log(f"📝 Summary guardado en {summary_file}")
+
+
     log("")
     log("╔═══════════════════════════════════════════════════════╗")
     log("║  ✅ Training Complete - Model Ready                   ║")
     log("╚═══════════════════════════════════════════════════════╝")
     
     return True
+
+
+def send_telegram_report(report_text):
+    """Enviar reporte a Telegram"""
+    TELEGRAM_ENV = f"{WORKSPACE}/secrets/telegram.env"
+    if os.path.exists(TELEGRAM_ENV):
+        try:
+            with open(TELEGRAM_ENV, 'r') as f:
+                for line in f:
+                    if line.startswith('TELEGRAM_BOT_TOKEN='):
+                        tg_token = line.strip().split('=')[1]
+                    elif line.startswith('TELEGRAM_CHAT_ID='):
+                        tg_chat_id = line.strip().split('=')[1]
+            
+            import urllib.request
+            import urllib.parse
+            
+            url = f"https://api.telegram.org/bot{tg_token}/sendMessage"
+            data = urllib.parse.urlencode({
+                'chat_id': tg_chat_id,
+                'text': report_text,
+                'parse_mode': 'Markdown'
+            }).encode()
+            
+            urllib.request.urlopen(url, data, timeout=10)
+            return True
+        except Exception as e:
+            log(f"⚠️ Error enviando Telegram: {e}")
+    return False
 
 def generate_telegram_report(model_info, y_labels):
     """Generar reporte detallado para enviar por Telegram"""

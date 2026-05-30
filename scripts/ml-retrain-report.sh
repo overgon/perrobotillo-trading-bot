@@ -117,38 +117,16 @@ NEXT_RETRAIN="Domingo 3:00 AM"
 # Construir mensaje para Telegram
 MESSAGE="🧠 ML VALIDATOR - REPORTE SEMANAL
 
-📅 **Última Ejecución:** $LAST_RETRAIN_DATE $LAST_RETRAIN_TIME
-🔄 **Días desde último retrain:** $DAYS_SINCE días
+📅 **Última Ejecución:** $(jq -r '.last_retrain | split("T")[0]' $LAST_RETRAIN_JSON 2>/dev/null || echo "N/A") $(jq -r '.last_retrain | split("T")[1] | split(".")[0]' $LAST_RETRAIN_JSON 2>/dev/null || echo "N/A")
 
 📊 **STATS DEL MODELO:**
-├─ Accuracy: ${CURRENT_ACCURACY} $ACCURACY_CHANGE
-├─ Trades usados: $TRADES_USED
-├─ Trades nuevos: $TRADES_NUEVOS
-├─ Total retrainings: $RETRAIN_COUNT
-└─ Tamaño modelo: ${MODEL_SIZE} MB
+├─ Accuracy: $(jq -r '.accuracy * 100 | floor' $LAST_RETRAIN_JSON 2>/dev/null || echo "N/A")% $(if [ $(jq -r '.accuracy_change > 0' $LAST_RETRAIN_JSON 2>/dev/null) = "true" ]; then echo "📈 +$(jq -r '.accuracy_change | . * 100 | floor' $LAST_RETRAIN_JSON)%"; elif [ $(jq -r '.accuracy_change < 0' $LAST_RETRAIN_JSON 2>/dev/null) = "true" ]; then echo "📉 $(jq -r '.accuracy_change | . * 100 | floor' $LAST_RETRAIN_JSON)%"; else echo "➡️"; fi)
+├─ Train samples: $(jq -r '.train_samples' $LAST_RETRAIN_JSON 2>/dev/null || echo "N/A")
+├─ Test samples: $(jq -r '.test_samples' $LAST_RETRAIN_JSON 2>/dev/null || echo "N/A")
+├─ Win Rate: $(jq -r '.win_rate | floor' $LAST_RETRAIN_JSON 2>/dev/null || echo "N/A")%
+├─ Total retrainings: $(jq -r '.retrain_count' $LAST_RETRAIN_JSON 2>/dev/null || echo "N/A")
+└─ Tamaño modelo: $(jq -r '.model_size_mb | . * 100 | floor / 100' $LAST_RETRAIN_JSON 2>/dev/null || echo "N/A") MB
 
-⏰ **Próximo retrain:** $NEXT_RETRAIN
+⏰ **Próximo retrain:** Domingo 3:00 AM
 
 ✅ **Status:** OPERATIVO"
-
-# Enviar a Telegram
-log "Enviando reporte a Telegram..."
-
-# Leer configuración desde openclaw.json
-CONFIG_JSON="/home/overgon/.openclaw/openclaw.json"
-TELEGRAM_BOT_TOKEN=$(jq -r '.channels.telegram.botToken // empty' "$CONFIG_JSON" 2>/dev/null)
-TELEGRAM_CHAT_ID="7543955537"
-
-if [ -n "$TELEGRAM_BOT_TOKEN" ]; then
-    curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
-        -d "chat_id=$TELEGRAM_CHAT_ID" \
-        -d "text=$MESSAGE" \
-        -d "parse_mode=Markdown" \
-        >> "$LOG_FILE" 2>&1
-    log "✅ Reporte enviado a Telegram"
-else
-    log "⚠️ No se encontró TELEGRAM_BOT_TOKEN en openclaw.json"
-fi
-
-log "✅ Reporte completado"
-log ""
