@@ -849,8 +849,13 @@ execute_long() {
     if [ -f "$ML_VALIDATOR" ]; then
         log "🧠 ML Validator: Consultando validación pre-trade..."
         
-        # Ejecutar validator y capturar resultado
-        ml_result=$(python3 "$ML_VALIDATOR" "$SYMBOL" "NORMAL" "LONG" 2>/dev/null)
+        # Ejecutar validator y capturar resultado (2>&1 para capturar errores también)
+        log "🔍 Ejecutando: python3 $ML_VALIDATOR $SYMBOL NORMAL LONG"
+        ml_result=$(python3 "$ML_VALIDATOR" "$SYMBOL" "NORMAL" "LONG" 2>&1)
+        ml_exit_code=$?
+        log "📝 ML Exit code: $ml_exit_code"
+        log "📝 ML Resultado crudo:"
+        echo "$ml_result" | while read line; do log "   $line"; done
         
         # Parsear resultado
         ml_approved=$(echo "$ml_result" | grep -o '"approved": [a-z]*' | cut -d: -f2 | tr -d ' ')
@@ -859,8 +864,8 @@ execute_long() {
         ml_reason=$(echo "$ml_result" | grep -o '"reason": "[^"]*"' | cut -d: -f2 | tr -d '"')
         ml_risk=$(echo "$ml_result" | grep -o '"risk_level": "[^"]*"' | cut -d: -f2 | tr -d '"')
         
-        log "🧠 ML Result: approved=$ml_approved, confidence=${ml_confidence}%, position=${ml_position}%"
-        log "🧠 ML Reason: $ml_reason"
+        log "🔍 ML Parseado: approved='$ml_approved', confidence='$ml_confidence', position='$ml_position'"
+        log "🔍 ML Parseado: reason='$ml_reason', risk='$ml_risk'"
         
         # Si ML rechaza el trade, skippear
         if [ "$ml_approved" = "false" ]; then
