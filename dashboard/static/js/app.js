@@ -592,6 +592,8 @@ async function checkTPNotifications() {
         
         // Find new notifications (only play once per unique notification)
         let hasNewNotifications = false;
+        const newNotifications = [];  // Keep only unplayed notifications
+        
         for (let notif of notifications) {
             // Create unique ID from coin + slot_id + tp + timestamp
             const notifId = `${notif.coin}-${notif.slot_id}-${notif.tp}-${notif.timestamp}`;
@@ -609,12 +611,28 @@ async function checkTPNotifications() {
                 showTPNotification(notif);
                 playedNotificationIds.add(notifId);  // Mark as played in memory
                 hasNewNotifications = true;
+                
+                // Mark as played and keep temporarily
+                notif.played = true;
+                newNotifications.push(notif);
+            } else {
+                // Already played, remove from file
+                console.log(`📝 ${notif.coin} ${notif.tp} already played - removing`);
             }
         }
         
-        // Optional: Log if we have old notifications still in file
+        // Write back only unplayed notifications (cleanup old ones)
+        if (notifications.length > 0 && newNotifications.length === 0) {
+            // All notifications played, clear the file
+            await fetch('/crypto-bots/tp-notifications.json', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: '[]'
+            });
+        }
+        
         if (!hasNewNotifications && notifications.length > 0) {
-            console.log(`📝 ${notifications.length} old notification(s) already played`);
+            console.log(`📝 Cleaned up ${notifications.length} old notification(s)`);
         }
     } catch (error) {
         // Silently fail

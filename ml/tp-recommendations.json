@@ -1,47 +1,47 @@
 {
-  "timestamp": "2026-05-30T15:12:06.214679",
+  "timestamp": "2026-05-30T17:52:11.603314",
   "predictions": {
     "BTC": {
-      "prob_tp1": 0.24324290100748236,
+      "prob_tp1": 0.1758475727987246,
       "prediction": "TP1_UNLIKELY",
       "confidence": "HIGH",
-      "timestamp": "2026-05-30T15:12:06.203682"
+      "timestamp": "2026-05-30T17:52:11.584650"
     },
     "ETH": {
-      "prob_tp1": 0.10691984949992875,
+      "prob_tp1": 0.13693610734892256,
       "prediction": "TP1_UNLIKELY",
       "confidence": "HIGH",
-      "timestamp": "2026-05-30T15:12:06.205690"
+      "timestamp": "2026-05-30T17:52:11.587669"
     },
     "BNB": {
-      "prob_tp1": 0.938033164217316,
+      "prob_tp1": 0.8661357637393313,
       "prediction": "TP1_LIKELY",
       "confidence": "HIGH",
-      "timestamp": "2026-05-30T15:12:06.207420"
+      "timestamp": "2026-05-30T17:52:11.590682"
     },
     "SOL": {
-      "prob_tp1": 0.3163008734118212,
+      "prob_tp1": 0.2582876431721665,
       "prediction": "TP1_UNLIKELY",
-      "confidence": "MEDIUM",
-      "timestamp": "2026-05-30T15:12:06.209053"
+      "confidence": "HIGH",
+      "timestamp": "2026-05-30T17:52:11.593583"
     },
     "LINK": {
-      "prob_tp1": 0.26776446562277617,
+      "prob_tp1": 0.2155170595156344,
       "prediction": "TP1_UNLIKELY",
       "confidence": "HIGH",
-      "timestamp": "2026-05-30T15:12:06.210661"
+      "timestamp": "2026-05-30T17:52:11.596626"
     },
     "XRP": {
-      "prob_tp1": 0.27043510048637215,
+      "prob_tp1": 0.35686916842415245,
       "prediction": "TP1_UNLIKELY",
-      "confidence": "HIGH",
-      "timestamp": "2026-05-30T15:12:06.212439"
+      "confidence": "MEDIUM",
+      "timestamp": "2026-05-30T17:52:11.599763"
     },
     "AVAX": {
-      "prob_tp1": 0.146415080579949,
+      "prob_tp1": 0.06420324331755871,
       "prediction": "TP1_UNLIKELY",
       "confidence": "HIGH",
-      "timestamp": "2026-05-30T15:12:06.214163"
+      "timestamp": "2026-05-30T17:52:11.602673"
     }
   },
   "recommendations": {

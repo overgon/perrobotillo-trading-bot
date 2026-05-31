@@ -639,6 +639,22 @@ def notify_tp():
     
     return jsonify({'status': 'ok', 'message': f'TP {tp_type} detected for {coin} Slot {slot_id}'})
 
+@app.route('/crypto-bots/tp-notifications.json', methods=['POST'])
+def update_tp_notifications():
+    """Endpoint para limpiar/actualizar notificaciones TP"""
+    import os
+    data = request.json or []
+    
+    log_file = os.path.join(WORKSPACE, 'crypto-bots', 'tp-notifications.json')
+    
+    # Guardar solo notificaciones no jugadas (limpieza)
+    with open(log_file, 'w') as f:
+        json.dump(data, f, indent=2)
+    
+    return jsonify({'status': 'ok', 'count': len(data)})
+
+
+
 if __name__ == '__main__':
     print("╔═══════════════════════════════════════════════════════╗")
     print("║  🐕 PERROBOTILLO DASHBOARD - STARTING                 ║")
