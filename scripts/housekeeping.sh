@@ -1,210 +1,160 @@
 #!/bin/bash
 # ════════════════════════════════════════════════════════
-# 🧹 HOUSEKEEPING - Log Rotation & Cleanup
+# 🐕 PERROBOTILLO - HOUSEKEEPING SCRIPT
 # ════════════════════════════════════════════════════════
-# Corre diariamente a las 2:00 AM
-# - Rota logs grandes (>10MB)
-# - Elimina logs viejos (>30 días)
-# - Mantiene logs críticos
+# Limpieza mensual de logs + alertas de espacio
+# Ejecutar: 1ro de cada mes a las 01:00 AM
 # ════════════════════════════════════════════════════════
 
-WORKSPACE="/home/overgon/.openclaw/workspace"
-LOGS_DIR="$HOME/.openclaw/logs"
-MAX_SIZE_MB=10
-MAX_AGE_DAYS=30
+LOGS_DIR="/home/overgon/.openclaw/logs"
+LOG_FILE="/home/overgon/.openclaw/logs/housekeeping.log"
+MAX_LOGS_MB=500
+MAX_DISK_PERCENT=80
 
 log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOGS_DIR/housekeeping.log"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
+
+send_telegram() {
+    local message="$1"
+    local config_file="$HOME/.openclaw/openclaw.json"
+    
+    if [ -f "$config_file" ]; then
+        local bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)
+        local chat_id=$(jq -r '.channels.telegram.chatIds[0] // empty' "$config_file" 2>/dev/null)
+        
+        if [ -n "$bot_token" ] && [ -n "$chat_id" ]; then
+            curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
+                -d "chat_id=${chat_id}" \
+                -d "text=$message" \
+                -d "parse_mode=HTML" > /dev/null
+            return 0
+        fi
+    fi
+    return 1
+}
+
+# ════════════════════════════════════════════════════════
+# MAIN
+# ════════════════════════════════════════════════════════
 
 log "╔═══════════════════════════════════════════════════════╗"
-log "║  🧹 HOUSEKEEPING - Starting                           ║"
+log "║  🧹 HOUSEKEEPING - Limpieza Mensual                   ║"
 log "╚═══════════════════════════════════════════════════════╝"
 
-# ════════════════════════════════════════════════════════
-# LOGS CRÍTICOS (No eliminar, solo rotar)
-# ════════════════════════════════════════════════════════
+# 1. Verificar espacio actual
+log ""
+log "📊 Espacio actual de logs:"
+du -sh "$LOGS_DIR" | tee -a "$LOG_FILE"
 
-CRITICAL_LOGS=(
-    "trade-BTC.log"
-    "trade-ETH.log"
-    "trade-BNB.log"
-    "trade-SOL.log"
-    "trade-LINK.log"
-    "trade-XRP.log"
-    "trade-AVAX.log"
-    "tp-monitor.log"
-    "ml-retrain.log"
-    "auto-retrain.log"
-    "ml-validator-log.json"
-    "dashboard.log"
-    "gateway.log"
-    "commands.log"
-)
+# 2. Eliminar logs .gz mayores a 7 días
+log ""
+log "🗑️  Eliminando logs comprimidos > 7 días..."
+deleted_gz=$(find "$LOGS_DIR" -name "*.gz" -type f -mtime +7 -delete -print 2>/dev/null | wc -l)
+log "✅ Eliminados: $deleted_gz archivos .gz viejos"
 
-# ════════════════════════════════════════════════════════
-# LOGS DE AUDITORÍA (Mantener 30 días)
-# ════════════════════════════════════════════════════════
+# 3. Eliminar logs normales mayores a 30 días
+log ""
+log "🗑️  Eliminando logs > 30 días..."
+deleted_old=$(find "$LOGS_DIR" -name "*.log" -type f -mtime +30 -delete -print 2>/dev/null | wc -l)
+log "✅ Eliminados: $deleted_old archivos .log viejos"
 
-AUDIT_LOGS=(
-    "trade-history.json"
-    "cashout-history.json"
-    "daily-report-*.md"
-)
+# Eliminar logs de ML > 14 días (son más verbosos)
+log ""
+log "🗑️  Eliminando logs de ML > 14 días..."
+deleted_ml=$(find "$LOGS_DIR" -name "ml-*.log" -type f -mtime +14 -delete -print 2>/dev/null | wc -l)
+log "✅ Eliminados: $deleted_ml archivos ml-*.log viejos"
 
-# ════════════════════════════════════════════════════════
-# ROTAR LOGS GRANDES
-# ════════════════════════════════════════════════════════
+# 4. Mantener solo últimos 7 días de trade-*.log
+log ""
+log "🗑️  Limpiando trade-*.log antiguos (mantener últimos 7 días)..."
+cd "$LOGS_DIR"
+ls -t trade-*.log 2>/dev/null | tail -n +8 | xargs rm -f 2>/dev/null
+remaining=$(ls trade-*.log 2>/dev/null | wc -l)
+log "✅ Trade logs restantes: $remaining"
 
-rotate_large_logs() {
-    log "🔄 Rotando logs > ${MAX_SIZE_MB}MB..."
+# Mantener solo últimas 1000 líneas de ml-retrain.log (rotar)
+log ""
+log "🗑️  Rotando logs de ML (mantener últimas 1000 líneas)..."
+if [ -f "$LOGS_DIR/ml-retrain.log" ]; then
+    tail -1000 "$LOGS_DIR/ml-retrain.log" > "$LOGS_DIR/ml-retrain.log.tmp" 2>/dev/null
+    mv "$LOGS_DIR/ml-retrain.log.tmp" "$LOGS_DIR/ml-retrain.log" 2>/dev/null
+    log "✅ ML log rotado (últimas 1000 líneas)"
+fi
+
+# 5. Rotar logs manualmente (si logrotate está disponible)
+log ""
+if command -v logrotate &> /dev/null; then
+    log "🔄 Ejecutando logrotate..."
+    logrotate -f "$LOGS_DIR/logrotate.conf" 2>&1 | tee -a "$LOG_FILE"
+    log "✅ Logrotate completado"
+else
+    log "⚠️  logrotate no instalado - saltando rotación"
+fi
+
+# 6. Calcular espacio después de limpieza
+log ""
+log "📊 Espacio después de limpieza:"
+du -sh "$LOGS_DIR" | tee -a "$LOG_FILE"
+logs_size_mb=$(du -sm "$LOGS_DIR" | cut -f1)
+
+# 7. Verificar espacio en disco
+disk_usage=$(df -h /home | awk 'NR==2 {print $5}' | sed 's/%//')
+log ""
+log "💾 Uso de disco: ${disk_usage}%"
+
+# 8. Enviar alertas si es necesario
+if [ "$logs_size_mb" -gt "$MAX_LOGS_MB" ]; then
+    log ""
+    log "🚨 ALERTA: Logs > ${MAX_LOGS_MB}MB (actual: ${logs_size_mb}MB)"
     
-    for log_file in "$LOGS_DIR"/*.log; do
-        [ ! -f "$log_file" ] && continue
-        
-        file_size=$(stat -c%s "$log_file" 2>/dev/null || echo "0")
-        size_mb=$((file_size / 1048576))
-        
-        if [ $size_mb -gt $MAX_SIZE_MB ]; then
-            log "  📝 Rotando $(basename $log_file) (${size_mb}MB)"
-            
-            # Rotar con timestamp
-            timestamp=$(date +%Y%m%d_%H%M%S)
-            mv "$log_file" "${log_file}.${timestamp}"
-            
-            # Crear archivo vacío
-            touch "$log_file"
-            
-            # Comprimir rotado
-            gzip "${log_file}.${timestamp}" &
-        fi
-    done
-    
-    wait
-    log "  ✅ Rotación completada"
-}
+    send_telegram "<b>🚨 ALERTA: Logs Excedidos</b>
 
-# ════════════════════════════════════════════════════════
-# ELIMINAR LOGS VIEJOS
-# ════════════════════════════════════════════════════════
+📊 <b>Tamaño actual:</b> ${logs_size_mb}MB
+⚠️  <b>Límite:</b> ${MAX_LOGS_MB}MB
 
-cleanup_old_logs() {
-    log "🗑️ Eliminando logs > ${MAX_AGE_DAYS} días..."
-    
-    # Logs rotados (.gz)
-    old_count=$(find "$LOGS_DIR" -name "*.log.*.gz" -mtime +$MAX_AGE_DAYS 2>/dev/null | wc -l)
-    if [ $old_count -gt 0 ]; then
-        find "$LOGS_DIR" -name "*.log.*.gz" -mtime +$MAX_AGE_DAYS -delete
-        log "  ✅ Eliminados $old_count logs rotados viejos"
-    fi
-    
-    # Reports diarios viejos
-    old_reports=$(find "$WORKSPACE/crypto-bots" -name "daily-report-*.md" -mtime +$MAX_AGE_DAYS 2>/dev/null | wc -l)
-    if [ $old_reports -gt 0 ]; then
-        find "$WORKSPACE/crypto-bots" -name "daily-report-*.md" -mtime +$MAX_AGE_DAYS -delete
-        log "  ✅ Eliminados $old_reports reports viejos"
-    fi
-    
-    # Backups temporales
-    find /tmp -name "perrobotillo-backup-*.tar.gz" -mtime +7 -delete 2>/dev/null
-    log "  ✅ Backups temporales limpiados"
-}
+<b>Acciones tomadas:</b>
+• Eliminados logs > 30 días
+• Eliminados .gz > 7 días
+• Trade logs limitados a 7 días
 
-# ════════════════════════════════════════════════════════
-# LIMPIAR ARCHIVOS TEMPORALES
-# ════════════════════════════════════════════════════════
+<b>Recomendación:</b>
+Revisar logs más grandes:
+<code>du -sh /home/overgon/.openclaw/logs/* | sort -hr</code>
 
-cleanup_temp_files() {
-    log "🗑️ Limpiando archivos temporales..."
-    
-    # Temp files
-    rm -rf /tmp/portfolio_cache.json.old 2>/dev/null
-    rm -rf /tmp/mxn_rate_cache.json.old 2>/dev/null
-    
-    # Old state files (si existen backups)
-    find "$WORKSPACE/crypto-bots" -name "*-backup.json" -mtime +7 -delete 2>/dev/null
-    
-    log "  ✅ Temporales limpiados"
-}
+🐕 Perrobotillo Trading Bot"
+fi
 
-# ════════════════════════════════════════════════════════
-# VERIFICAR ESPACIO EN DISCO
-# ════════════════════════════════════════════════════════
-
-check_disk_space() {
-    log "💾 Verificando espacio en disco..."
+if [ "$disk_usage" -gt "$MAX_DISK_PERCENT" ]; then
+    log ""
+    log "🚨 ALERTA: Disco > ${MAX_DISK_PERCENT}% (actual: ${disk_usage}%)"
     
-    available=$(df -h "$HOME" | tail -1 | awk '{print $4}')
-    used_percent=$(df -h "$HOME" | tail -1 | awk '{print $5}')
-    
-    log "  💿 Disponible: $available"
-    log "  📊 Usado: $used_percent"
-    
-    if [ "${used_percent%\%}" -gt 80 ]; then
-        log "  ⚠️ ALERTA: Espacio en disco bajo!"
-        
-        # Notificar por Telegram
-        TELEGRAM_ENV="$WORKSPACE/secrets/telegram.env"
-        if [ -f "$TELEGRAM_ENV" ]; then
-            source "$TELEGRAM_ENV"
-            
-            message="⚠️ *Alerta de Espacio en Disco*
-            
-Espacio usado: ${used_percent}
-Disponible: ${available}
+    send_telegram "<b>🚨 ALERTA: Disco Lleno</b>
 
-Housekeeping ejecutado. Revisar logs grandes."
-            
-            curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-                -d "chat_id=${TELEGRAM_CHAT_ID}" \
-                -d "text=$message" \
-                -d "parse_mode=Markdown" > /dev/null
-        fi
-    fi
-}
+💾 <b>Uso actual:</b> ${disk_usage}%
+⚠️  <b>Límite:</b> ${MAX_DISK_PERCENT}%
 
-# ════════════════════════════════════════════════════════
-# GENERAR REPORTE DE HOUSEKEEPING
-# ════════════════════════════════════════════════════════
+<b>Acciones tomadas:</b>
+• Housekeeping ejecutado
+• Logs antiguos eliminados
 
-generate_report() {
-    log "📊 Generando reporte..."
-    
-    report_file="$LOGS_DIR/housekeeping-report-$(date +%Y-%m-%d).txt"
-    
-    {
-        echo "╔═══════════════════════════════════════════════════════╗"
-        echo "║  🧹 HOUSEKEEPING REPORT                               ║"
-        echo "╚═══════════════════════════════════════════════════════╝"
-        echo ""
-        echo "Fecha: $(date '+%Y-%m-%d %H:%M:%S')"
-        echo ""
-        echo "LOGS PRINCIPALES:"
-        echo "───────────────────────────────────────────────────────"
-        ls -lhS "$LOGS_DIR"/*.log 2>/dev/null | head -20 | awk '{printf "%-40s %s\n", $9, $5}' | sed 's|.*/||'
-        echo ""
-        echo "ESPACIO EN DISCO:"
-        echo "───────────────────────────────────────────────────────"
-        df -h "$HOME" | tail -1 | awk '{printf "Usado: %s | Disponible: %s\n", $5, $4}'
-        echo ""
-        echo "ESTADO: ✅ COMPLETADO"
-    } > "$report_file"
-    
-    log "  📝 Reporte guardado: $(basename $report_file)"
-}
+<b>Acción requerida:</b>
+Revisar archivos grandes:
+<code>du -ah /home | sort -rh | head -20</code>
 
-# ════════════════════════════════════════════════════════
-# EJECUCIÓN PRINCIPAL
-# ════════════════════════════════════════════════════════
+🐕 Perrobotillo Trading Bot"
+fi
 
-rotate_large_logs
-cleanup_old_logs
-cleanup_temp_files
-check_disk_space
-generate_report
-
+# 9. Resumen final
 log ""
 log "╔═══════════════════════════════════════════════════════╗"
 log "║  ✅ HOUSEKEEPING COMPLETED                            ║"
 log "╚═══════════════════════════════════════════════════════╝"
+log ""
+log "📊 RESUMEN:"
+log "  • Logs .gz eliminados: $deleted_gz"
+log "  • Logs viejos eliminados: $deleted_old"
+log "  • Trade logs restantes: $remaining"
+log "  • Tamaño final: ${logs_size_mb}MB"
+log "  • Uso de disco: ${disk_usage}%"
 log ""
