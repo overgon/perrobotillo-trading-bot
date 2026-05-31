@@ -129,4 +129,8 @@ MESSAGE="🧠 ML VALIDATOR - REPORTE SEMANAL
 
 ⏰ **Próximo retrain:** Domingo 3:00 AM
 
-✅ **Status:** OPERATIVO"
+✅ **ML VALIDATOR Status:** OPERATIVO
+
+───────────────────────────────
+
+🔮 **TP PREDICTION (LightGBM):**"
