@@ -25,9 +25,11 @@ fi
 
 # Ejecutar re-entrenamiento
 cd "$WORKSPACE/ml"
-python3 ml-retrain.py
+# Ejecutar con timeout de 10 minutos
+timeout 600 python3 ml-retrain.py
+exit_code=$?
 
-if [ $? -eq 0 ]; then
+if [ $exit_code -eq 0 ]; then
     log "✅ Re-entrenamiento completado exitosamente"
     # El reporte detallado ya se envía desde ml-retrain.py
 else
