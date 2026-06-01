@@ -109,16 +109,18 @@ SCALP_SL_PERCENT="2.5"
 SCALP_MIN_PROFIT="0.50"
 
 # STOP LOSS POR COIN (basado en volatilidad diaria promedio)
-# ACTUALIZADO 2026-05-02: Ajustado para mercado lateral (5-6% vs 3-4%)
-# Razón: Evitar ruido del mercado y reducir falsos positivos
+# ACTUALIZADO 2026-06-01: Reducido después de 6 SL hits consecutivos en BTC (-$93 USDT)
+# Razón: Mercado en downtrend, necesitamos protección más tight
+# Análisis: BTC perdió -$40.48 en último trade (5.94% drop), SL de 5.5% fue demasiado
+# Nuevo enfoque: SL de 3% para BTC, máximo $20 USDT por trade
 declare -A STOP_LOSS_BY_COIN=(
-    ["BTC"]="5.5"   # Antes: 3.5% (Volatilidad 2-4%)
-    ["ETH"]="6.0"   # Antes: 4.5% (Volatilidad 3-5%)
-    ["SOL"]="8.0"   # Antes: 7.0% (Volatilidad 5-8%)
-    ["LINK"]="7.0"  # Antes: 5.5% (Volatilidad 4-6%)
-    ["XRP"]="6.0"   # Antes: 4.5% (Volatilidad 3-5%)
-    ["BNB"]="5.5"   # Antes: 3.5% (Volatilidad 2-4%)
-    ["AVAX"]="7.5"  # Antes: 6.0% (Volatilidad 4-7%)
+    ["BTC"]="3.0"   # Antes: 5.5% → 3.0% (Evitar pérdidas >$20 USDT)
+    ["ETH"]="3.5"   # Antes: 6.0% → 3.5%
+    ["SOL"]="5.0"   # Antes: 8.0% → 5.0%
+    ["LINK"]="4.0"  # Antes: 7.0% → 4.0%
+    ["XRP"]="3.5"   # Antes: 6.0% → 3.5%
+    ["BNB"]="3.0"   # Antes: 5.5% → 3.0%
+    ["AVAX"]="4.5"  # Antes: 7.5% → 4.5%
 )
 
 # TAKE PROFIT OPTIMIZADOS v3 (2026-05-02) - MERCADO LATERAL
@@ -349,6 +351,76 @@ log_trade_to_history() {
        "$HISTORY_FILE" > "$temp_file" && mv "$temp_file" "$HISTORY_FILE"
     
     log "  📜 Trade logged to history: #${trade_id} ${SYMBOL} ${close_type} PnL=\$${pnl}"
+    
+    # ════════════════════════════════════════════════════════
+    # 🛑 TRACK SL HITS - Update consecutive loss counter
+    # ════════════════════════════════════════════════════════
+    if [ "$close_type" = "SL" ] || [ "$close_type" = "SCALP" ]; then
+        SL_TRACKING_FILE="${WORKSPACE}/crypto-bots/${SYMBOL}-sl-tracking.json"
+        
+        # Leer estado actual
+        local current_consecutive=0
+        local current_total_today=0
+        local today=$(date +%Y-%m-%d)
+        
+        if [ -f "$SL_TRACKING_FILE" ]; then
+            current_consecutive=$(jq -r '.consecutive_sl // 0' "$SL_TRACKING_FILE" 2>/dev/null)
+            current_total_today=$(jq -r '.total_sl_today // 0' "$SL_TRACKING_FILE" 2>/dev/null)
+            
+            # Verificar si es otro día, resetear total diario
+            local last_date=$(jq -r '.last_date // null' "$SL_TRACKING_FILE" 2>/dev/null)
+            if [ "$last_date" != "$today" ]; then
+                current_total_today=0
+                log "  📅 Nuevo día, reseteando contador diario de SLs"
+            fi
+        fi
+        
+        # Incrementar contadores
+        local new_consecutive=$((current_consecutive + 1))
+        local new_total_today=$((current_total_today + 1))
+        
+        # Actualizar archivo
+        jq -n --argjson sl "$new_consecutive" --argjson total "$new_total_today" --arg date "$today" \
+            '{consecutive_sl: $sl, last_sl_time: now, pause_until: null, total_sl_today: $total, last_date: $date}' \
+            > "$SL_TRACKING_FILE"
+        
+        log "  🛑 SL HIT registrado: $new_consecutive consecutivo(s), $new_total_today hoy"
+        
+        # Alerta si llegamos a 2 SLs consecutivos
+        if [ "$new_consecutive" -eq 2 ]; then
+            log "  ⚠️ ALERTA: 2 SL hits consecutivos - Próximo trade activará PAUSE de 4 horas"
+        fi
+        
+        # Alerta si llegamos a 5 SLs en un día
+        if [ "$new_total_today" -ge 5 ]; then
+            log "  🚨 CRÍTICO: $new_total_today SL hits hoy - Considerar pausa manual"
+            send_telegram "🚨 <b>ALERTA DE PÉRDIDAS - $SYMBOL</b>
+
+⚠️ <b>$new_total_today Stop Loss hits HOY</b>
+
+📊 Estadísticas:
+• SLs consecutivos: $new_consecutive
+• SLs totales hoy: $new_total_today
+• P&L estimado: Revisar trade-history
+
+🛡️ Recomendación:
+• Revisar condiciones de mercado
+• Considerar pausa manual
+• Verificar si hay downtrend fuerte
+
+_Jefe, revisa el bot!_ 🐕" 2>/dev/null || true
+        fi
+    elif [ "$is_win" = "1" ]; then
+        # Reset consecutive SL counter on win
+        SL_TRACKING_FILE="${WORKSPACE}/crypto-bots/${SYMBOL}-sl-tracking.json"
+        if [ -f "$SL_TRACKING_FILE" ]; then
+            local current_total=$(jq -r '.total_sl_today // 0' "$SL_TRACKING_FILE" 2>/dev/null)
+            jq -n --argjson total "$current_total" \
+                '{consecutive_sl: 0, last_sl_time: null, pause_until: null, total_sl_today: $total}' \
+                > "$SL_TRACKING_FILE"
+            log "  ✅ Win registrado - Resetear contador consecutivo de SLs"
+        fi
+    fi
 }
 
 # ============================================
@@ -1977,6 +2049,50 @@ execute_cycle() {
     log "║  🤖 CRYPTO TRADE BOT V3 - $SYMBOL [MULTI-SLOT]           ║"
     log "╚═══════════════════════════════════════════════════════╝"
     
+    # ════════════════════════════════════════════════════════
+    # 🛑 GLOBAL CIRCUIT BREAKER - OPTIMIZADO 2026-06-01
+    # ════════════════════════════════════════════════════════
+    # Verifica losses globales (todas las monedas) antes de operar
+    # Evita desastres como May 16 (11 losses en 48h)
+    
+    GLOBAL_CB_SCRIPT="${WORKSPACE}/crypto-bots/global-circuit-breaker.sh"
+    if [ -x "$GLOBAL_CB_SCRIPT" ]; then
+        global_status=$(bash "$GLOBAL_CB_SCRIPT" 2>&1)
+        global_result=$?
+        
+        if [ $global_result -ne 0 ]; then
+            # Extraer tipo de pausa y tiempo restante
+            pause_type=$(echo "$global_status" | cut -d'|' -f1)
+            pause_reason=$(echo "$global_status" | cut -d'|' -f2)
+            
+            log "🛑🛑 GLOBAL CIRCUIT BREAKER: $pause_type - $pause_reason"
+            
+            # Notificar solo si es la primera vez que se activa
+            CB_NOTIFY_FILE="${WORKSPACE}/crypto-bots/cb-last-notify.txt"
+            last_notify=$(cat "$CB_NOTIFY_FILE" 2>/dev/null || echo 0)
+            current_hour=$(date +%s)
+            hours_since_notify=$(( (current_hour - last_notify) / 3600 ))
+            
+            if [ $hours_since_notify -ge 4 ]; then
+                send_telegram "🛑 <b>GLOBAL CIRCUIT BREAKER ACTIVADO</b>
+
+⚠️ <b>$pause_type</b>
+
+📊 Razón: $pause_reason
+
+🛡️ El bot se detuvo automáticamente para proteger el capital.
+
+⏰ Reanudará cuando las condiciones mejoren.
+
+_Jefe, el bot está en pausa global._ 🐕" 2>/dev/null || true
+                
+                date +%s > "$CB_NOTIFY_FILE"
+            fi
+            
+            return 0  # Saltar este cycle
+        fi
+    fi
+    
     # ============================================
     # 🛡️ CHECK SYSTEM STATUS (BINANCE MAINTENANCE)
     # ============================================
@@ -2183,6 +2299,76 @@ Todas las monedas pueden operar normalmente.
     
     # FASE 1: Verificar TRAILING STOP en slots activos
     check_trailing_stops
+    
+    # ════════════════════════════════════════════════════════
+    # 🛑 CHECK CONSECUTIVE SL HITS - PAUSE AFTER 2 LOSSES
+    # ════════════════════════════════════════════════════════
+    SL_TRACKING_FILE="${WORKSPACE}/crypto-bots/${SYMBOL}-sl-tracking.json"
+    
+    # Inicializar archivo si no existe
+    if [ ! -f "$SL_TRACKING_FILE" ]; then
+        echo '{"consecutive_sl":0,"last_sl_time":null,"pause_until":null,"total_sl_today":0}' > "$SL_TRACKING_FILE"
+    fi
+    
+    # Leer estado actual
+    local consecutive_sl=$(jq -r '.consecutive_sl // 0' "$SL_TRACKING_FILE" 2>/dev/null)
+    local pause_until=$(jq -r '.pause_until // null' "$SL_TRACKING_FILE" 2>/dev/null)
+    
+    # Verificar si estamos en pausa
+    if [ "$pause_until" != "null" ]; then
+        local now_epoch=$(date +%s)
+        local pause_epoch=$(date -d "$pause_until" +%s 2>/dev/null || echo 0)
+        
+        if [ $now_epoch -lt $pause_epoch ]; then
+            local remaining_mins=$(( (pause_epoch - now_epoch) / 60 ))
+            log "🛑 PAUSE ACTIVO: $SYMBOL después de $consecutive_sl SL hits consecutivos"
+            log "   ⏰ Reanudar en: ${remaining_mins} minutos ($pause_until)"
+            return 0  # Saltar este cycle
+        else
+            # Pausa terminó, resetear contadores
+            log "✅ PAUSE TERMINADO: $SYMBOL reanudando operaciones"
+            echo '{"consecutive_sl":0,"last_sl_time":null,"pause_until":null,"total_sl_today":0}' > "$SL_TRACKING_FILE"
+            consecutive_sl=0
+        fi
+    fi
+    
+    # Check si tenemos 2+ SL hits consecutivos → PAUSE 4 horas
+    if [ "$consecutive_sl" -ge 2 ]; then
+        local pause_until_time=$(date -d '+4 hours' '+%Y-%m-%d %H:%M:%S')
+        
+        jq -n --arg pause "$pause_until_time" --argjson sl "$consecutive_sl" \
+            '{consecutive_sl: $sl, last_sl_time: now, pause_until: $pause, total_sl_today: .total_sl_today // 0}' \
+            > "$SL_TRACKING_FILE"
+        
+        log "🛑🛑 PAUSE FORZADO: $SYMBOL después de $consecutive_sl SL hits consecutivos"
+        log "   ⏸️ Pausa de 4 horas hasta: $pause_until_time"
+        
+        # Notificar por Telegram
+        send_telegram "🛑 <b>PAUSE AUTOMÁTICO - $SYMBOL</b>
+
+⚠️ <b>$consecutive_sl Stop Loss hits consecutivos</b>
+
+📊 Estadísticas:
+• Último SL: hace pocos minutos
+• Pausa: 4 horas
+• Reanudar: $pause_until_time
+
+🛡️ Protección activada para evitar más pérdidas.
+
+_Jefe, el bot se detuvo automáticamente._ 🐕" 2>/dev/null || true
+        
+        return 0  # Saltar este cycle
+    fi
+    
+    # ════════════════════════════════════════════════════════
+    # 📊 DYNAMIC POSITION SIZE BASED ON SL HITS
+    # ════════════════════════════════════════════════════════
+    if [ "$consecutive_sl" -eq 1 ]; then
+        # Después de 1 SL, reducir position size a 30%
+        local original_percent=$TRADE_PERCENT
+        TRADE_PERCENT=30
+        log "⚠️ Position size reducido: $original_percent% → ${TRADE_PERCENT}% (1 SL reciente)"
+    fi
     
     # Check if we can open new trades
     if [ $active_count -ge $MAX_SLOTS ]; then

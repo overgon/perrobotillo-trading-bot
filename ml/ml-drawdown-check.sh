@@ -100,36 +100,51 @@ for t in reversed(recent):
 drawdown_24h = abs(sum(t['pnl'] for t in losses_24h))
 
 # ════════════════════════════════════════════════════════
-# 🛑 UMBRALES DE EMERGENCIA
+# 🛑 UMBRALES DE EMERGENCIA - OPTIMIZADO 2026-06-01
 # ════════════════════════════════════════════════════════
+# Umbrales más agresivos después de losses de mayo-junio 2026
 
 # HIGH_RISK si:
-# - loss_rate_24h > 80% Y más de 5 trades
-# - loss_streak > 5
-# - drawdown_24h > $50
+# - loss_rate_24h > 60% Y más de 3 trades (antes: 80% y 5 trades)
+# - loss_streak > 3 (antes: > 5)
+# - drawdown_24h > $30 (antes: $50)
+# - 2+ losses en 1 hora (NEW para evitar "desastres" como May 16)
 
-if len(trades_24h) >= 5 and loss_rate_24h > 0.8:
+if len(trades_24h) >= 3 and loss_rate_24h > 0.6:
     print(f"HIGH_RISK|PAUSE|0|Racha crítica: {int(loss_rate_24h*100)}% pérdidas en 24h ({len(trades_24h)} trades)")
     exit(0)
 
-if loss_streak > 5:
+if loss_streak > 3:
     print(f"HIGH_RISK|PAUSE|0|Racha de {loss_streak} pérdidas consecutivas")
     exit(0)
 
-if drawdown_24h > 50:
-    print(f"HIGH_RISK|PAUSE|0|Drawdown 24h: ${drawdown_24h:.2f} (threshold $50)")
+if drawdown_24h > 30:
+    print(f"HIGH_RISK|PAUSE|0|Drawdown 24h: ${drawdown_24h:.2f} (threshold $30)")
+    exit(0)
+
+# NEW: Verificar 2+ losses en última hora
+from datetime import timedelta
+trades_1h = [t for t in symbol_trades if t['timestamp'] >= (now - timedelta(hours=1))]
+losses_1h = [t for t in trades_1h if t['pnl'] < 0]
+if len(losses_1h) >= 2:
+    print(f"HIGH_RISK|PAUSE|0|{len(losses_1h)} losses en última hora")
     exit(0)
 
 # MEDIUM_RISK si:
-# - loss_rate_24h > 50%
-# - drawdown_24h > $25
+# - loss_rate_24h > 40% (antes: 50%)
+# - drawdown_24h > $15 (antes: $25)
+# - loss_streak == 2 (NEW)
 
-if len(trades_24h) >= 3 and loss_rate_24h > 0.5:
+if len(trades_24h) >= 2 and loss_rate_24h > 0.4:
     print(f"MEDIUM_RISK|REDUCE|20|Alta tasa de pérdidas: {int(loss_rate_24h*100)}% en 24h")
     exit(0)
 
-if drawdown_24h > 25:
-    print(f"MEDIUM_RISK|REDUCE|20|Drawdown 24h: ${drawdown_24h:.2f} (threshold $25)")
+if drawdown_24h > 15:
+    print(f"MEDIUM_RISK|REDUCE|20|Drawdown 24h: ${drawdown_24h:.2f} (threshold $15)")
+    exit(0)
+
+if loss_streak == 2:
+    print(f"MEDIUM_RISK|REDUCE|20|2 pérdidas consecutivas - reduciendo posición")
     exit(0)
 
 # Si no dispara ninguna regla, usar ML normal

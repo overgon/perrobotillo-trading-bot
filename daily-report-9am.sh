@@ -375,7 +375,7 @@ cat >> "$report_file" << EOF
 | Componente | Status |
 |------------|--------|
 | API Binance | ✅ Conectada |
-| IP Whitelist | ✅ 187.188.230.163 |
+| IP Whitelist | ✅ $(curl -s https://api.ipify.org 2>/dev/null || echo "No disponible") |
 | Emergency Close | ✅ Protegido |
 | Drawdown Alert | ✅ Activo (cada 30 min) |
 | IP Monitor | ✅ Activo (cada hora) |
