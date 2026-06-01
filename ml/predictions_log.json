@@ -1,0 +1,119 @@
+[
+  {
+    "coin": "XRP",
+    "signal": "WAIT",
+    "confidence": 100.0,
+    "position_size_percent": 100,
+    "action": "\u23f8\ufe0f ESPERAR MEJOR OPORTUNIDAD",
+    "timestamp": "2026-05-31T18:05:54.433247",
+    "model_accuracy": 1.0
+  },
+  {
+    "coin": "BTC",
+    "signal": "WAIT",
+    "confidence": 99.0,
+    "position_size_percent": 100,
+    "action": "\u23f8\ufe0f ESPERAR MEJOR OPORTUNIDAD",
+    "timestamp": "2026-05-31T18:12:39.603416",
+    "model_accuracy": 0.9440559440559441
+  },
+  {
+    "coin": "ETH",
+    "signal": "WAIT",
+    "confidence": 96.89296220864449,
+    "position_size_percent": 100,
+    "action": "\u23f8\ufe0f ESPERAR MEJOR OPORTUNIDAD",
+    "timestamp": "2026-05-31T18:12:42.469633",
+    "model_accuracy": 0.9370629370629371
+  },
+  {
+    "coin": "BNB",
+    "signal": "WAIT",
+    "confidence": 98.0,
+    "position_size_percent": 100,
+    "action": "\u23f8\ufe0f ESPERAR MEJOR OPORTUNIDAD",
+    "timestamp": "2026-05-31T18:12:45.157932",
+    "model_accuracy": 0.972027972027972
+  },
+  {
+    "coin": "SOL",
+    "signal": "WAIT",
+    "confidence": 93.0189413115844,
+    "position_size_percent": 100,
+    "action": "\u23f8\ufe0f ESPERAR MEJOR OPORTUNIDAD",
+    "timestamp": "2026-05-31T18:12:48.045071",
+    "model_accuracy": 0.9300699300699301
+  },
+  {
+    "coin": "LINK",
+    "signal": "WAIT",
+    "confidence": 92.03235294117647,
+    "position_size_percent": 100,
+    "action": "\u23f8\ufe0f ESPERAR MEJOR OPORTUNIDAD",
+    "timestamp": "2026-05-31T18:12:51.074571",
+    "model_accuracy": 0.9020979020979021
+  },
+  {
+    "coin": "XRP",
+    "signal": "WAIT",
+    "confidence": 99.0,
+    "position_size_percent": 100,
+    "action": "\u23f8\ufe0f ESPERAR MEJOR OPORTUNIDAD",
+    "timestamp": "2026-05-31T18:12:53.787792",
+    "model_accuracy": 0.9440559440559441
+  },
+  {
+    "coin": "AVAX",
+    "signal": "WAIT",
+    "confidence": 92.66716467684918,
+    "position_size_percent": 100,
+    "action": "\u23f8\ufe0f ESPERAR MEJOR OPORTUNIDAD",
+    "timestamp": "2026-05-31T18:12:56.632839",
+    "model_accuracy": 0.9230769230769231
+  },
+  {
+    "coin": "BNB",
+    "signal": "WAIT",
+    "confidence": 98.0,
+    "position_size_percent": 100,
+    "action": "\u23f8\ufe0f ESPERAR MEJOR OPORTUNIDAD",
+    "timestamp": "2026-05-31T18:20:01.260981",
+    "model_accuracy": 0.972027972027972
+  },
+  {
+    "coin": "BTC",
+    "signal": "WAIT",
+    "confidence": 99.0,
+    "position_size_percent": 100,
+    "action": "\u23f8\ufe0f ESPERAR MEJOR OPORTUNIDAD",
+    "timestamp": "2026-05-31T18:20:06.282437",
+    "model_accuracy": 0.9440559440559441
+  },
+  {
+    "coin": "ETH",
+    "signal": "WAIT",
+    "confidence": 96.89296220864449,
+    "position_size_percent": 100,
+    "action": "\u23f8\ufe0f ESPERAR MEJOR OPORTUNIDAD",
+    "timestamp": "2026-05-31T18:20:08.117993",
+    "model_accuracy": 0.9370629370629371
+  },
+  {
+    "coin": "SOL",
+    "signal": "WAIT",
+    "confidence": 93.0189413115844,
+    "position_size_percent": 100,
+    "action": "\u23f8\ufe0f ESPERAR MEJOR OPORTUNIDAD",
+    "timestamp": "2026-05-31T18:20:09.846808",
+    "model_accuracy": 0.9300699300699301
+  },
+  {
+    "coin": "BNB",
+    "signal": "WAIT",
+    "confidence": 98.0,
+    "position_size_percent": 100,
+    "action": "\u23f8\ufe0f ESPERAR MEJOR OPORTUNIDAD",
+    "timestamp": "2026-05-31T20:42:01.310720",
+    "model_accuracy": 0.972027972027972
+  }
+]

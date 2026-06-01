@@ -1,0 +1,69 @@
+{
+  "coin": "AVAX",
+  "n_splits": 5,
+  "splits_completed": 5,
+  "metrics_by_split": [
+    {
+      "split": 1,
+      "train_samples": 118,
+      "test_samples": 118,
+      "accuracy": 0.940677966101695,
+      "precision": 0.8848750359092216,
+      "recall": 0.940677966101695,
+      "f1": 0.9119236177929095
+    },
+    {
+      "split": 2,
+      "train_samples": 236,
+      "test_samples": 118,
+      "accuracy": 0.788135593220339,
+      "precision": 0.6211577133007756,
+      "recall": 0.788135593220339,
+      "f1": 0.6947545987629529
+    },
+    {
+      "split": 3,
+      "train_samples": 354,
+      "test_samples": 118,
+      "accuracy": 0.6779661016949152,
+      "precision": 0.45963803504740014,
+      "recall": 0.6779661016949152,
+      "f1": 0.5478513953090225
+    },
+    {
+      "split": 4,
+      "train_samples": 472,
+      "test_samples": 118,
+      "accuracy": 0.7542372881355932,
+      "precision": 0.5801825293350716,
+      "recall": 0.7542372881355932,
+      "f1": 0.655858511422255
+    },
+    {
+      "split": 5,
+      "train_samples": 590,
+      "test_samples": 118,
+      "accuracy": 0.923728813559322,
+      "precision": 0.9248385794995966,
+      "recall": 0.923728813559322,
+      "f1": 0.9217433414043583
+    }
+  ],
+  "summary": {
+    "accuracy_mean": 0.8169491525423729,
+    "accuracy_std": 0.11268318738030281,
+    "precision_mean": 0.6941383786184131,
+    "precision_std": 0.20180781659298128,
+    "recall_mean": 0.8169491525423729,
+    "recall_std": 0.11268318738030281,
+    "f1_mean": 0.7464262929382997,
+    "f1_std": 0.1646434853046493
+  },
+  "consistency_score": {
+    "accuracy_consistency": 43.658406309848594,
+    "f1_consistency": 17.67825734767534,
+    "overall_consistency": 30.668331828761968,
+    "is_overfitting": true,
+    "interpretation": "\u26a0\ufe0f POSIBLE OVERFITTING - El modelo var\u00eda mucho entre ventanas"
+  }
+}

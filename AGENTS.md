@@ -212,3 +212,32 @@ The goal: Be helpful without being annoying. Check in a few times a day, do usef
 ## Make It Yours
 
 This is a starting point. Add your own conventions, style, and rules as you figure out what works.
+
+---
+
+## 📊 Reportes Automáticos - Perrobotillo Trading Bot
+
+### Diario (9:00 AM)
+- **Portfolio total** (USDT + MXN)
+- **P&L 24h** por moneda
+- **Trades del día anterior** (win rate, P&L)
+- **Trades activos** con status actual
+- **Estado del sistema** (API, IP, alertas)
+
+### Semanal - ML Validator (Domingos 9:00 AM)
+- **Accuracy del modelo** ML Validator
+- **Trades usados** en entrenamiento
+- **Comparación** vs retrain anterior
+- **Próximo retrain** programado
+
+### Mensual - Día 1 (9:00 AM) ✨ NUEVO
+- **🏆 Top performance**: mejor y peor moneda del mes
+- **📊 Rendimientos por moneda**: P&L, trades, win rate
+- **📈 Resumen del mes**: P&L total, wins/losses, win rate global
+- **🎯 Destacados**: mejor y peor trade por moneda
+
+### Housekeeping
+- **Mensual** (1ro de cada mes, 1 AM): Limpieza de logs
+- **Semanal** (Domingos, 2 AM): Logrotate
+
+---

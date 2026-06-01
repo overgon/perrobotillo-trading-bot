@@ -836,53 +836,57 @@ execute_long() {
     log "📈 Slot $slot_id: Ejecutando LONG con ${position_percent}% posición"
     
     # ════════════════════════════════════════════════════
-    # 🧠 ML VALIDATOR - Pre-Trade Validation
+    # 🧠 ML VALIDATOR - Pre-Trade Validation (Jesse AI Style)
     # ════════════════════════════════════════════════════
     
-    ML_VALIDATOR="$WORKSPACE/ml/ml-validator.py"
+    ML_VALIDATOR="$WORKSPACE/ml/ml_validator_wrapper.py"
     local ml_approved="N/A"
     local ml_confidence="N/A"
     local ml_position="N/A"
     local ml_reason="N/A"
-    local ml_risk="N/A"
+    local ml_signal="N/A"
     
     if [ -f "$ML_VALIDATOR" ]; then
-        log "🧠 ML Validator: Consultando validación pre-trade..."
+        log "🧠 ML Validator: Consultando validación pre-trade (Jesse AI Pipeline)..."
         
-        # Ejecutar validator y capturar resultado (2>&1 para capturar errores también)
-        log "🔍 Ejecutando: python3 $ML_VALIDATOR $SYMBOL NORMAL LONG"
-        ml_result=$(python3 "$ML_VALIDATOR" "$SYMBOL" "NORMAL" "LONG" 2>&1)
+        # Ejecutar validator y capturar resultado
+        ml_result=$(python3 "$ML_VALIDATOR" "$SYMBOL" "LONG" "NORMAL" 2>&1)
         ml_exit_code=$?
+        
         log "📝 ML Exit code: $ml_exit_code"
-        log "📝 ML Resultado crudo:"
-        echo "$ml_result" | while read line; do log "   $line"; done
         
-        # Parsear resultado
-        ml_approved=$(echo "$ml_result" | grep -o '"approved": [a-z]*' | cut -d: -f2 | tr -d ' ')
-        ml_confidence=$(echo "$ml_result" | grep -o '"confidence": [0-9]*' | cut -d: -f2 | tr -d ' ')
-        ml_position=$(echo "$ml_result" | grep -o '"position_size_percent": [0-9]*' | cut -d: -f2 | tr -d ' ')
-        ml_reason=$(echo "$ml_result" | grep -o '"reason": "[^"]*"' | cut -d: -f2 | tr -d '"')
-        ml_risk=$(echo "$ml_result" | grep -o '"risk_level": "[^"]*"' | cut -d: -f2 | tr -d '"')
+        # Parsear resultado del nuevo wrapper
+        ml_approved=$(echo "$ml_result" | grep "Aprobado:" | awk '{print $2}')
+        ml_confidence=$(echo "$ml_result" | grep "Confianza:" | awk '{print $2}' | sed 's/%//')
+        ml_signal=$(echo "$ml_result" | grep "Señal ML:" | awk '{print $3}')
+        ml_position=$(echo "$ml_result" | grep "Position size:" | awk '{print $2}' | sed 's/%//')
+        ml_reason=$(echo "$ml_result" | grep "Razón:" | cut -d: -f2- | sed 's/^ //')
         
-        log "🔍 ML Parseado: approved='$ml_approved', confidence='$ml_confidence', position='$ml_position'"
-        log "🔍 ML Parseado: reason='$ml_reason', risk='$ml_risk'"
+        log "🔍 ML Parseado: approved='$ml_approved', confidence='$ml_confidence}%', signal='$ml_signal'"
+        log "🔍 ML Position size: ${ml_position}%, Razón: $ml_reason"
         
         # Si ML rechaza el trade, skippear
-        if [ "$ml_approved" = "false" ]; then
-            log "❌ ML Validator RECHAZÓ el trade (confianza: ${ml_confidence}%)"
+        if [ "$ml_approved" = "❌" ] || [ "$ml_approved" = "NO" ]; then
+            log "❌ ML Validator RECHAZÓ el trade"
+            log "   Señal: $ml_signal"
+            log "   Confianza: ${ml_confidence}%"
             log "   Razón: $ml_reason"
+            
+            # Log a archivo de rechazos
+            echo "$(date -Iseconds),$SYMBOL,LONG,$ml_signal,$ml_confidence,$ml_reason" >> "$WORKSPACE/logs/ml-rejections.csv"
+            
             return 1
         fi
         
-        # Si ML sugiere menor posición, ajustar
-        if [ -n "$ml_position" ] && [ "$ml_position" -lt "$position_percent" ]; then
+        # Si ML aprueba pero sugiere menor posición, ajustar
+        if [ -n "$ml_position" ] && [ "$ml_position" != "N/A" ] && [ "$ml_position" -lt "$position_percent" ] 2>/dev/null; then
             log "⚠️ ML sugiere reducir posición: ${position_percent}% → ${ml_position}%"
             position_percent="$ml_position"
         fi
         
-        log "✅ ML Validator APROBÓ trade con ${ml_confidence}% confianza"
+        log "✅ ML Validator APROBÓ trade (${ml_signal}, ${ml_confidence}% confianza, ${position_percent}% position)"
     else
-        log "⚠️ ML Validator no encontrado, continuando sin validación"
+        log "⚠️ ML Validator no encontrado en $ML_VALIDATOR, continuando sin validación"
     fi
     
     check_daily_limit || return 1
@@ -1177,17 +1181,32 @@ Target: ${SCALP_TARGET_PERCENT}%
         local trailing_active=$(echo "$slot_data" | jq -r '.trailingStop // false')
         if [ "$trailing_active" = "true" ]; then
             local highest_price=$(echo "$slot_data" | jq -r '.highestPrice // 'null'')
+            
+            # 🎯 TRAILING STOP DINÁMICO CON ATR (Jesse AI Style)
+            # Obtener trailing stop desde cache (calculado por trailing-stop-atr.py)
             local trailing_percent
+            
             if [ "$tp2_done" = "true" ]; then
-                trailing_percent="2.0"
+                # Después de TP2, usar ATR dinámico
+                CACHE_FILE="$WORKSPACE/cache/trailing_stop_${SYMBOL}.json"
+                if [ -f "$CACHE_FILE" ]; then
+                    trailing_percent=$(jq -r '.trailing_stop_percent' "$CACHE_FILE" 2>/dev/null)
+                    if [ -z "$trailing_percent" ] || [ "$trailing_percent" = "null" ]; then
+                        trailing_percent="2.5"  # Fallback
+                    fi
+                    log "🎯 Trailing stop ATR para $SYMBOL: ${trailing_percent}% (TP2 done)"
+                else
+                    trailing_percent="2.5"  # Default si no hay cache
+                fi
             else
+                # Antes de TP2, trailing más tight
                 trailing_percent="0.2"
             fi
             
             if [ "$highest_price" != "null" ]; then
                 local trailing_stop_level=$(echo "scale=8; $highest_price * (1 - $trailing_percent / 100)" | bc)
                 if (( $(echo "$current_price <= $trailing_stop_level" | bc -l) )); then
-                    log "🛡️ Slot $slot_id: TRAILING STOP HIT - \$${current_price} <= \$${trailing_stop_level}"
+                    log "🛡️ Slot $slot_id: TRAILING STOP HIT - \$${current_price} <= \$${trailing_stop_level} (${trailing_percent}%)"
                     execute_trailing_stop "$slot_id" "$quantity"
                     return 0  # Slot cerrado, salir
                 fi
@@ -1392,12 +1411,25 @@ Quedan 65% para TP2/TP3 🎯"
                 log "  ✅ TP2 marcado como completado"
                 update_slot_field "$slot_id" "tp2Done" "true"
                 
-                # FASE 1: TRAILING STOP - Activar trailing stop 2% después de TP2
+                # FASE 1: TRAILING STOP - Activar trailing stop ATR después de TP2
                 if [ "$TRAILING_STOP_ENABLED" = "true" ]; then
-                    log "  🛡️ TP2 done - Activando trailing stop 2%"
+                    log "  🛡️ TP2 done - Activando trailing stop ATR dinámico"
                     update_slot_field "$slot_id" "trailingStop" "true"
-                    update_slot_field "$slot_id" "trailingPercent" "2.0"
-                    log "  ✅ Trailing stop 2% activado"
+                    
+                    # Obtener trailing stop recomendado desde cache
+                    CACHE_FILE="$WORKSPACE/cache/trailing_stop_${SYMBOL}.json"
+                    if [ -f "$CACHE_FILE" ]; then
+                        trailing_percent=$(jq -r '.trailing_stop_percent' "$CACHE_FILE" 2>/dev/null)
+                        if [ -n "$trailing_percent" ] && [ "$trailing_percent" != "null" ]; then
+                            log "  🎯 Trailing stop ATR: ${trailing_percent}% para $SYMBOL"
+                        else
+                            trailing_percent="2.5"
+                        fi
+                    else
+                        trailing_percent="2.5"  # Default
+                    fi
+                    update_slot_field "$slot_id" "trailingPercent" "$trailing_percent"
+                    log "  ✅ Trailing stop ATR activado (${trailing_percent}%)"
                 fi
                 
                 # Calcular P&L parcial para notificación

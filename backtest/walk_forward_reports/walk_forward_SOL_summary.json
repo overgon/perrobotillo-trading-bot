@@ -1,0 +1,69 @@
+{
+  "coin": "SOL",
+  "n_splits": 5,
+  "splits_completed": 5,
+  "metrics_by_split": [
+    {
+      "split": 1,
+      "train_samples": 118,
+      "test_samples": 118,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    {
+      "split": 2,
+      "train_samples": 236,
+      "test_samples": 118,
+      "accuracy": 0.864406779661017,
+      "precision": 0.7471990807239299,
+      "recall": 0.864406779661017,
+      "f1": 0.8015408320493066
+    },
+    {
+      "split": 3,
+      "train_samples": 354,
+      "test_samples": 118,
+      "accuracy": 0.7627118644067796,
+      "precision": 0.7062146892655368,
+      "recall": 0.7627118644067796,
+      "f1": 0.7333767926988267
+    },
+    {
+      "split": 4,
+      "train_samples": 472,
+      "test_samples": 118,
+      "accuracy": 0.8813559322033898,
+      "precision": 0.85885447106955,
+      "recall": 0.8813559322033898,
+      "f1": 0.8405238828967643
+    },
+    {
+      "split": 5,
+      "train_samples": 590,
+      "test_samples": 118,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    }
+  ],
+  "summary": {
+    "accuracy_mean": 0.9016949152542374,
+    "accuracy_std": 0.10055862355383952,
+    "precision_mean": 0.8624536482118034,
+    "precision_std": 0.1374274167297195,
+    "recall_mean": 0.9016949152542374,
+    "recall_std": 0.10055862355383952,
+    "f1_mean": 0.8750883015289794,
+    "f1_std": 0.12030372590551301
+  },
+  "consistency_score": {
+    "accuracy_consistency": 49.720688223080245,
+    "f1_consistency": 39.84813704724349,
+    "overall_consistency": 44.78441263516187,
+    "is_overfitting": true,
+    "interpretation": "\u26a0\ufe0f POSIBLE OVERFITTING - El modelo var\u00eda mucho entre ventanas"
+  }
+}

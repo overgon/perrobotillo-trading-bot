@@ -1,0 +1,16 @@
+{
+  "symbol": "LINKUSDT",
+  "timeframe": "1h",
+  "timestamp": "2026-05-31T20:06:29.490836",
+  "current_price": 9.068,
+  "atr": 0.07707142857142861,
+  "atr_percent": 0.8499275316655117,
+  "volatility_ratio": 1.0,
+  "volatility_status": "BAJA",
+  "multiplier": 2.0,
+  "trailing_stop_percent": 2.0,
+  "trailing_stop_value": 0.18136,
+  "min_trailing": 2.0,
+  "max_trailing": 15.0,
+  "recommendation": "Usar trailing stop de 2.0% (BAJA volatilidad)"
+}

@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-05-31T18:12:56.634024",
+  "days": 60,
+  "model_type": "random_forest",
+  "results": {
+    "BTC": {
+      "accuracy": 0.9440559440559441,
+      "signal": "WAIT",
+      "confidence": 99.0
+    },
+    "ETH": {
+      "accuracy": 0.9370629370629371,
+      "signal": "WAIT",
+      "confidence": 96.89296220864449
+    },
+    "BNB": {
+      "accuracy": 0.972027972027972,
+      "signal": "WAIT",
+      "confidence": 98.0
+    },
+    "SOL": {
+      "accuracy": 0.9300699300699301,
+      "signal": "WAIT",
+      "confidence": 93.0189413115844
+    },
+    "LINK": {
+      "accuracy": 0.9020979020979021,
+      "signal": "WAIT",
+      "confidence": 92.03235294117647
+    },
+    "XRP": {
+      "accuracy": 0.9440559440559441,
+      "signal": "WAIT",
+      "confidence": 99.0
+    },
+    "AVAX": {
+      "accuracy": 0.9230769230769231,
+      "signal": "WAIT",
+      "confidence": 92.66716467684918
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "coin": "SOL",
+  "period_days": 30,
+  "total_trades": 38,
+  "winning_trades": 23,
+  "losing_trades": 15,
+  "win_rate": 60.53,
+  "tp1_count": 7,
+  "tp2_count": 4,
+  "tp3_count": 12,
+  "sl_count": 15,
+  "total_pnl_usdt": 40.5,
+  "total_pnl_percent": 2.13,
+  "max_drawdown_percent": 39.68,
+  "profit_factor": 2.54,
+  "avg_trade_pnl": 1.07
+}

@@ -1,0 +1,23 @@
+{
+  "targets": {
+    "BTC": 20.0,
+    "ETH": 20.0,
+    "BNB": 20.0,
+    "SOL": 20.0,
+    "XRP": 20.0
+  },
+  "rebalance_threshold_percent": 5.0,
+  "min_trade_usdt": 10.0,
+  "created_at": "2026-05-31T19:30:00",
+  "description": "Portfolio diversificado 5 monedas - 20% cada una",
+  "rebalance_schedule": {
+    "frequency": "weekly",
+    "day": "sunday",
+    "time": "23:00"
+  },
+  "notes": [
+    "Rebalancear semanalmente o cuando una moneda se desvíe >5% del target",
+    "Ejemplo: Si BTC sube a 26% (target 20%), vender 6% y comprar las otras",
+    "Esto fuerza 'vender caro, comprar barato' automáticamente"
+  ]
+}

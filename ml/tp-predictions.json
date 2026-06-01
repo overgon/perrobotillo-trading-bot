@@ -1,44 +1,44 @@
 {
   "BTC": {
-    "prob_tp1": 0.1758475727987246,
+    "prob_tp1": 0.21527441680082304,
     "prediction": "TP1_UNLIKELY",
     "confidence": "HIGH",
-    "timestamp": "2026-05-30T17:52:11.584650"
+    "timestamp": "2026-05-31T21:12:11.750325"
   },
   "ETH": {
-    "prob_tp1": 0.13693610734892256,
+    "prob_tp1": 0.0817924545218622,
     "prediction": "TP1_UNLIKELY",
     "confidence": "HIGH",
-    "timestamp": "2026-05-30T17:52:11.587669"
+    "timestamp": "2026-05-31T21:12:11.752414"
   },
   "BNB": {
-    "prob_tp1": 0.8661357637393313,
-    "prediction": "TP1_LIKELY",
+    "prob_tp1": 0.09628874542519748,
+    "prediction": "TP1_UNLIKELY",
     "confidence": "HIGH",
-    "timestamp": "2026-05-30T17:52:11.590682"
+    "timestamp": "2026-05-31T21:12:11.754177"
   },
   "SOL": {
-    "prob_tp1": 0.2582876431721665,
+    "prob_tp1": 0.2407047227183873,
     "prediction": "TP1_UNLIKELY",
     "confidence": "HIGH",
-    "timestamp": "2026-05-30T17:52:11.593583"
+    "timestamp": "2026-05-31T21:12:11.755884"
   },
   "LINK": {
-    "prob_tp1": 0.2155170595156344,
+    "prob_tp1": 0.24608130483665416,
     "prediction": "TP1_UNLIKELY",
     "confidence": "HIGH",
-    "timestamp": "2026-05-30T17:52:11.596626"
+    "timestamp": "2026-05-31T21:12:11.757525"
   },
   "XRP": {
     "prob_tp1": 0.35686916842415245,
     "prediction": "TP1_UNLIKELY",
     "confidence": "MEDIUM",
-    "timestamp": "2026-05-30T17:52:11.599763"
+    "timestamp": "2026-05-31T21:12:11.759158"
   },
   "AVAX": {
-    "prob_tp1": 0.06420324331755871,
+    "prob_tp1": 0.06815253262997148,
     "prediction": "TP1_UNLIKELY",
     "confidence": "HIGH",
-    "timestamp": "2026-05-30T17:52:11.602673"
+    "timestamp": "2026-05-31T21:12:11.760743"
   }
 }

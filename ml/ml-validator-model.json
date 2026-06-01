@@ -1,0 +1,22 @@
+{
+  "type": "RandomForest",
+  "n_estimators": 100,
+  "max_depth": 10,
+  "accuracy": 0.8275862068965517,
+  "samples": 142,
+  "features": [
+    "rsi",
+    "macd",
+    "signal",
+    "macd_hist",
+    "volume_ratio",
+    "trend_bullish",
+    "bb_position",
+    "volatility"
+  ],
+  "trained_at": "2026-05-31T03:54:37.178923",
+  "trades_used": 142,
+  "train_samples": 113,
+  "test_samples": 29,
+  "win_rate": 76.05633802816901
+}

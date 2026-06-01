@@ -1,0 +1,17 @@
+{
+  "coin": "ETH",
+  "period_days": 30,
+  "total_trades": 29,
+  "winning_trades": 14,
+  "losing_trades": 15,
+  "win_rate": 48.28,
+  "tp1_count": 5,
+  "tp2_count": 5,
+  "tp3_count": 4,
+  "sl_count": 15,
+  "total_pnl_usdt": 8.5,
+  "total_pnl_percent": 0.59,
+  "max_drawdown_percent": 204.88,
+  "profit_factor": 1.32,
+  "avg_trade_pnl": 0.29
+}

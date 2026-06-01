@@ -1,0 +1,45 @@
+{
+  "coin": "BTC",
+  "base_params": {
+    "stoploss": -0.035,
+    "take_profit_1": 0.025,
+    "take_profit_2": 0.05,
+    "take_profit_3": 0.08
+  },
+  "optimized_params": {
+    "stoploss": -0.05,
+    "take_profit_1": 0.035,
+    "take_profit_2": 0.055,
+    "take_profit_3": 0.09
+  },
+  "base_metrics": {
+    "coin": "BTC",
+    "period_days": 30,
+    "total_trades": 10,
+    "winning_trades": 5,
+    "losing_trades": 5,
+    "win_rate": 50.0,
+    "tp1_count": 2,
+    "tp2_count": 2,
+    "tp3_count": 1,
+    "sl_count": 5,
+    "total_pnl_usdt": 2.75,
+    "total_pnl_percent": 0.55,
+    "max_drawdown_percent": 76.09,
+    "profit_factor": 1.31,
+    "avg_trade_pnl": 0.27
+  },
+  "optimized_metrics": {
+    "win_rate": 56.43,
+    "profit_factor": 1.58,
+    "total_pnl_usdt": 3.63,
+    "max_drawdown_percent": 100,
+    "score": 39.845
+  },
+  "improvement": {
+    "win_rate_change": 6.43,
+    "pnl_change": 0.8799999999999999,
+    "pf_change": 0.27
+  },
+  "generated_at": "2026-05-31T14:16:24.389712"
+}

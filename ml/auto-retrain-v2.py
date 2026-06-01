@@ -1,0 +1,214 @@
+#!/usr/bin/env python3
+# ════════════════════════════════════════════════════════
+# 🐕 PERROBOTILLO - AUTO RETRAIN V2 (ML PIPELINE)
+# ════════════════════════════════════════════════════════
+# Re-entrenamiento automático semanal usando ML Pipeline
+# Inspirado en Jesse AI auto-retrain
+# ════════════════════════════════════════════════════════
+
+import sys
+import json
+from pathlib import Path
+from datetime import datetime
+import logging
+
+# Agregar path al workspace
+sys.path.append('/home/overgon/.openclaw/workspace/ml')
+
+from ml_pipeline import run_pipeline_all_coins
+
+# ════════════════════════════════════════════════════════
+# CONFIGURACIÓN
+# ════════════════════════════════════════════════════════
+
+WORKSPACE = Path("/home/overgon/.openclaw/workspace")
+LOGS_DIR = WORKSPACE / "logs"
+MODELS_DIR = WORKSPACE / "ml" / "models"
+
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Configurar logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(LOGS_DIR / 'ml-auto-retrain.log'),
+        logging.StreamHandler()
+    ]
+)
+
+logger = logging.getLogger(__name__)
+
+# Parámetros de entrenamiento
+DAYS_HISTORICAL = 60  # 60 días de datos
+MODEL_TYPE = "random_forest"  # random_forest, gradient_boosting, logistic_regression
+USE_SMOTE = True  # Balancear clases automáticamente
+
+COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+
+# ════════════════════════════════════════════════════════
+# AUTO RETRAIN
+# ════════════════════════════════════════════════════════
+
+def check_if_retrain_needed(coin: str) -> bool:
+    """
+    Verificar si es necesario re-entrenar
+    
+    Criterios:
+    1. Modelo no existe → re-entrenar
+    2. Modelo > 7 días → re-entrenar
+    3. Accuracy < 85% → re-entrenar urgente
+    """
+    
+    metadata_path = MODELS_DIR / f"{coin}_ml_metadata.json"
+    
+    # 1. Modelo no existe
+    if not metadata_path.exists():
+        logger.info(f"{coin}: Modelo no existe, re-entrenando")
+        return True
+    
+    # Cargar metadata
+    with open(metadata_path, 'r') as f:
+        metadata = json.load(f)
+    
+    # 2. Verificar edad del modelo
+    trained_at = datetime.fromisoformat(metadata['trained_at'])
+    days_old = (datetime.now() - trained_at).days
+    
+    if days_old > 7:
+        logger.info(f"{coin}: Modelo tiene {days_old} días, re-entrenando")
+        return True
+    
+    # 3. Verificar accuracy
+    accuracy = metadata.get('metrics', {}).get('accuracy', 0)
+    
+    if accuracy < 0.85:
+        logger.warning(f"{coin}: Accuracy muy baja ({accuracy:.2%}), re-entrenando urgente")
+        return True
+    
+    logger.info(f"{coin}: Modelo OK (accuracy: {accuracy:.2%}, edad: {days_old} días)")
+    return False
+
+
+def run_auto_retrain():
+    """Ejecutar re-entrenamiento automático"""
+    
+    logger.info("="*60)
+    logger.info("🧠 AUTO RETRAIN INICIADO (Modelos Optimizados)")
+    logger.info(f"Días históricos: {DAYS_HISTORICAL}")
+    logger.info(f"Modelo: {MODEL_TYPE}")
+    logger.info(f"SMOTE: {USE_SMOTE}")
+    logger.info("="*60)
+    
+    results = {}
+    
+    for coin in COINS:
+        try:
+            # Verificar si necesita re-entrenar
+            needs_retrain = check_if_retrain_needed(coin)
+            
+            if not needs_retrain:
+                logger.info(f"⏭️  {coin}: Saltando (modelo reciente y preciso)")
+                results[coin] = {'status': 'skipped', 'reason': 'modelo_ok'}
+                continue
+            
+            # Re-entrenar
+            logger.info(f"\n🚀 {coin}: Iniciando re-entrenamiento...")
+            
+            from ml_pipeline_optimized import OptimizedMLPipeline  # ✅ VERSIÓN OPTIMIZADA
+            
+            pipeline = OptimizedMLPipeline(coin, use_feature_selection=True)  # ✅ Pipeline optimizado
+            
+            # Fase 1: Gather
+            df = pipeline.gather_phase(DAYS_HISTORICAL)
+            
+            if df is None or len(df) == 0:
+                logger.error(f"{coin}: No hay datos para entrenar")
+                results[coin] = {'status': 'failed', 'reason': 'no_data'}
+                continue
+            
+            # Fase 2: Train (con SMOTE si está activado)
+            metrics = pipeline.train_phase(df, use_smote=USE_SMOTE)
+            
+            if not metrics:
+                logger.error(f"{coin}: Error en training")
+                results[coin] = {'status': 'failed', 'reason': 'train_error'}
+                continue
+            
+            # Fase 3: Deploy (test prediction)
+            prediction = pipeline.deploy_phase()
+            
+            if not prediction:
+                logger.error(f"{coin}: Error en deploy")
+                results[coin] = {'status': 'failed', 'reason': 'deploy_error'}
+                continue
+            
+            # Éxito
+            logger.info(f"✅ {coin}: Re-entrenamiento completado")
+            logger.info(f"   Accuracy: {metrics['accuracy']:.2%}")
+            logger.info(f"   Señal actual: {prediction['signal']}")
+            logger.info(f"   Confianza: {prediction['confidence']:.1f}%")
+            
+            results[coin] = {
+                'status': 'success',
+                'accuracy': metrics['accuracy'],
+                'signal': prediction['signal'],
+                'confidence': prediction['confidence']
+            }
+            
+        except Exception as e:
+            logger.error(f"{coin}: Error inesperado - {str(e)}")
+            results[coin] = {'status': 'failed', 'reason': str(e)}
+    
+    # Resumen final
+    logger.info("\n" + "="*60)
+    logger.info("🏆 RESUMEN AUTO RETRAIN")
+    logger.info("="*60)
+    
+    success_count = sum(1 for r in results.values() if r['status'] == 'success')
+    skipped_count = sum(1 for r in results.values() if r['status'] == 'skipped')
+    failed_count = sum(1 for r in results.values() if r['status'] == 'failed')
+    
+    logger.info(f"Exitosos: {success_count}")
+    logger.info(f"Saltados: {skipped_count}")
+    logger.info(f"Fallidos: {failed_count}")
+    logger.info("="*60)
+    
+    # Guardar resumen
+    summary_file = LOGS_DIR / f"auto-retrain-summary-{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    
+    with open(summary_file, 'w') as f:
+        json.dump({
+            'timestamp': datetime.now().isoformat(),
+            'days_historical': DAYS_HISTORICAL,
+            'model_type': MODEL_TYPE,
+            'use_smote': USE_SMOTE,
+            'results': results
+        }, f, indent=2)
+    
+    logger.info(f"📝 Resumen guardado en: {summary_file}")
+    
+    return results
+
+
+# ════════════════════════════════════════════════════════
+# MAIN
+# ════════════════════════════════════════════════════════
+
+if __name__ == "__main__":
+    logger.info("\n" + "="*60)
+    logger.info(f"🐕 Perrobotillo Auto-Retrain v2")
+    logger.info(f"Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info("="*60 + "\n")
+    
+    results = run_auto_retrain()
+    
+    # Exit code según resultados
+    failed = sum(1 for r in results.values() if r['status'] == 'failed')
+    
+    if failed > 0:
+        logger.warning(f"\n⚠️  {failed} monedas fallaron en re-entrenamiento")
+        sys.exit(1)
+    else:
+        logger.info("\n✅ Todas las monedas re-entrenadas exitosamente")
+        sys.exit(0)

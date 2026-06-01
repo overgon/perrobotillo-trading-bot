@@ -1,0 +1,16 @@
+{
+  "symbol": "ETHUSDT",
+  "timeframe": "1h",
+  "timestamp": "2026-05-31T20:06:21.701405",
+  "current_price": 1999.87,
+  "atr": 12.780000000000038,
+  "atr_percent": 0.6390415376999524,
+  "volatility_ratio": 1.0,
+  "volatility_status": "BAJA",
+  "multiplier": 2.0,
+  "trailing_stop_percent": 2.0,
+  "trailing_stop_value": 39.9974,
+  "min_trailing": 2.0,
+  "max_trailing": 15.0,
+  "recommendation": "Usar trailing stop de 2.0% (BAJA volatilidad)"
+}

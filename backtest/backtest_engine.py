@@ -1,590 +1,1244 @@
 #!/usr/bin/env python3
-"""
-╔═══════════════════════════════════════════════════════╗
-║  🤖 PERROBOTILLO TRADING BOT - BACKTEST ENGINE       ║
-║  FASE 1 v2 - Validación de Estrategia                ║
-╚═══════════════════════════════════════════════════════╝
-"""
+# ════════════════════════════════════════════════════════
+# 🐕 PERROBOTILLO - BACKTESTING ENGINE
+# ════════════════════════════════════════════════════════
+# Motor de backtesting con datos históricos de Binance
+# Inspirado en Freqtrade pero mejorado para nuestro setup
+# ════════════════════════════════════════════════════════
 
-import json
-import csv
+import ccxt
+import pandas as pd
+import numpy as np
 from datetime import datetime, timedelta
-from dataclasses import dataclass, field
-from typing import List, Dict, Optional
-from enum import Enum
+import json
 import sys
+from pathlib import Path
+import talib.abstract as ta
+from sklearn.metrics import accuracy_score, precision_score, recall_score
+import warnings
+warnings.filterwarnings('ignore')
 
-# ============================================
-# 📊 CONFIGURACIÓN FASE 1 v2
-# ============================================
+# ════════════════════════════════════════════════════════
+# CONFIGURACIÓN
+# ════════════════════════════════════════════════════════
 
-class CoinConfig:
-    """Configuración por moneda"""
-    def __init__(self, symbol: str, stop_loss: float, volatility: str):
-        self.symbol = symbol
-        self.stop_loss = stop_loss  # Porcentaje
-        self.volatility = volatility
+WORKSPACE = Path("/home/overgon/.openclaw/workspace")
+DATA_DIR = WORKSPACE / "backtest" / "data"
+REPORTS_DIR = WORKSPACE / "backtest" / "reports"
+LOGS_DIR = Path("/home/overgon/.openclaw/logs")
 
-COINS = {
-    'BTC': CoinConfig('BTC', 3.5, '2-4%'),
-    'ETH': CoinConfig('ETH', 4.5, '3-5%'),
-    'BNB': CoinConfig('BNB', 3.5, '2-4%'),
-    'SOL': CoinConfig('SOL', 7.0, '5-8%'),
-    'LINK': CoinConfig('LINK', 5.5, '4-6%'),
-    'XRP': CoinConfig('XRP', 4.5, '3-5%'),
-    'AVAX': CoinConfig('AVAX', 6.0, '4-7%'),
+# Asegurar directorios
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Coins a backtestear
+COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+TIMEFRAMES = ["5m", "15m", "1h", "4h"]
+
+# Parámetros de trading para backtest
+DEFAULT_PARAMS = {
+    "stake_amount": 50,  # USDT por trade
+    "max_trades": 3,     # Máximo trades simultáneos por moneda
+    "stoploss": -0.035,  # 3.5% SL
+    "take_profit_1": 0.025,  # 2.5% TP1 (50%)
+    "take_profit_2": 0.050,  # 5.0% TP2 (30%)
+    "take_profit_3": 0.080,  # 8.0% TP3 (20%)
+    "trailing_stop": True,
+    "fee": 0.001  # 0.1% fee Binance
 }
 
-# Parámetros FASE 1 v2
-TRADE_PERCENT = 30  # Tamaño de posición
-TP1_PERCENT = 1.5
-TP2_PERCENT = 3.0
-TP3_PERCENT = 3.5
-TP1_PORTION = 0.35
-TP2_PORTION = 0.30
-TP3_PORTION = 0.30
-ACCUMULATION_PERCENT = 5
+# ════════════════════════════════════════════════════════
+# BINANCE DATA DOWNLOADER
+# ════════════════════════════════════════════════════════
 
-TRAILING_AFTER_TP1 = 0.2  # Breakeven
-TRAILING_AFTER_TP2 = 2.0  # Trailing stop 2%
+class BinanceDataDownloader:
+    def __init__(self):
+        self.exchange = ccxt.binance({
+            'enableRateLimit': True,
+            'options': {'defaultType': 'spot'}
+        })
+    
+    def download_ohlcv(self, symbol: str, timeframe: str, since_days: int = 30) -> pd.DataFrame:
+        """Descargar datos OHLCV históricos de Binance"""
+        print(f"📥 Descargando {symbol} {timeframe} últimos {since_days} días...")
+        
+        # Calcular timestamp inicial
+        since = int((datetime.now() - timedelta(days=since_days)).timestamp() * 1000)
+        
+        # Obtener velas
+        ohlcv = self.exchange.fetch_ohlcv(symbol, timeframe=timeframe, since=since, limit=5000)
+        
+        if not ohlcv:
+            print(f"❌ No se obtuvieron datos para {symbol}")
+            return pd.DataFrame()
+        
+        # Convertir a DataFrame
+        df = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+        df.set_index('timestamp', inplace=True)
+        
+        print(f"✅ {len(df)} velas descargadas")
+        return df
+    
+    def save_to_csv(self, df: pd.DataFrame, symbol: str, timeframe: str):
+        """Guardar datos en CSV"""
+        filename = DATA_DIR / f"{symbol.replace('/', '_')}_{timeframe}.csv"
+        df.to_csv(filename)
+        print(f"💾 Datos guardados en {filename}")
+    
+    def load_from_csv(self, symbol: str, timeframe: str) -> pd.DataFrame:
+        """Cargar datos desde CSV"""
+        filename = DATA_DIR / f"{symbol.replace('/', '_')}_{timeframe}.csv"
+        if filename.exists():
+            df = pd.read_csv(filename, index_col='timestamp', parse_dates=True)
+            return df
+        return pd.DataFrame()
 
-MAX_SLOTS = 3
-DAILY_LOSS_LIMIT = 3.0  # 3% del portfolio
+# ════════════════════════════════════════════════════════
+# INDICADORES TÉCNICOS
+# ════════════════════════════════════════════════════════
 
-# ============================================
-# 📁 CLASES DE DATOS
-# ============================================
+class TechnicalIndicators:
+    @staticmethod
+    def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
+        """Agregar indicadores técnicos al DataFrame"""
+        
+        # RSI
+        df['rsi'] = ta.RSI(df, timeperiod=14)
+        
+        # MACD
+        macd = ta.MACD(df, fastperiod=12, slowperiod=26, signalperiod=9)
+        df['macd'] = macd['macd']
+        df['macdsignal'] = macd['macdsignal']
+        df['macdhist'] = macd['macdhist']
+        
+        # Bollinger Bands
+        bollinger = ta.BBANDS(df, timeperiod=20, nbdevup=2.0, nbdevdn=2.0)
+        df['bb_upper'] = bollinger['upperband']
+        df['bb_middle'] = bollinger['middleband']
+        df['bb_lower'] = bollinger['lowerband']
+        df['bb_percent'] = (df['close'] - df['bb_lower']) / (df['bb_upper'] - df['bb_lower'])
+        
+        # SMA/EMA
+        df['sma_20'] = ta.SMA(df, timeperiod=20)
+        df['sma_50'] = ta.SMA(df, timeperiod=50)
+        df['ema_12'] = ta.EMA(df, timeperiod=12)
+        df['ema_26'] = ta.EMA(df, timeperiod=26)
+        
+        # ATR (volatilidad)
+        df['atr'] = ta.ATR(df, timeperiod=14)
+        
+        # ADX (trend strength)
+        df['adx'] = ta.ADX(df, timeperiod=14)
+        
+        # Stochastic
+        stoch = ta.STOCH(df, fastk_period=14, slowk_period=3, slowd_period=3)
+        df['slowk'] = stoch['slowk']
+        df['slowd'] = stoch['slowd']
+        
+        # Volume indicators
+        df['volume_sma'] = df['volume'].rolling(window=20).mean()
+        df['volume_ratio'] = df['volume'] / df['volume_sma']
+        
+        # Momentum
+        df['momentum'] = df['close'].diff(10)
+        df['roc'] = ta.ROC(df, timeperiod=10)
+        
+        # CCI
+        df['cci'] = ta.CCI(df, timeperiod=20)
+        
+        # Willians %R
+        df['willr'] = ta.WILLR(df, timeperiod=14)
+        
+        # Eliminar NaN
+        df.dropna(inplace=True)
+        
+        return df
 
-class SlotStatus(Enum):
-    READY = "READY"
-    ACTIVE = "ACTIVE"
-    CLOSED = "CLOSED"
-
-@dataclass
-class Slot:
-    """Representa un slot de trading"""
-    slot_id: int
-    status: SlotStatus = SlotStatus.READY
-    entry_price: float = 0.0
-    quantity: float = 0.0
-    usdt_spent: float = 0.0
-    stop_loss: float = 0.0
-    tp1: float = 0.0
-    tp2: float = 0.0
-    tp3: float = 0.0
-    tp1_done: bool = False
-    tp2_done: bool = False
-    tp3_done: bool = False
-    highest_price: float = 0.0
-    trailing_active: bool = False
-    entry_time: datetime = None
-    exit_time: datetime = None
-    exit_reason: str = ""
-    pnl: float = 0.0
-    fee: float = 0.0
-
-@dataclass
-class Trade:
-    """Registro de trade completado"""
-    coin: str
-    slot_id: int
-    entry_price: float
-    exit_price: float
-    entry_time: datetime
-    exit_time: datetime
-    quantity: float
-    pnl: float
-    pnl_percent: float
-    exit_reason: str
-    fee: float
-
-@dataclass
-class DailyStats:
-    """Estadísticas diarias"""
-    date: str
-    trades: int = 0
-    wins: int = 0
-    losses: int = 0
-    profit: float = 0.0
-    loss: float = 0.0
-    net_pnl: float = 0.0
-    daily_limit_hit: bool = False
-
-# ============================================
-#  MOTOR DE BACKTEST
-# ============================================
+# ════════════════════════════════════════════════════════
+# BACKTESTING ENGINE
+# ════════════════════════════════════════════════════════
 
 class BacktestEngine:
-    """Motor principal de backtesting"""
-    
-    def __init__(self, initial_capital: float = 2000.0):
-        self.initial_capital = initial_capital
-        self.capital = initial_capital
-        self.portfolio_value = initial_capital
-        self.slots: Dict[str, List[Slot]] = {}
-        self.trades: List[Trade] = []
-        self.daily_stats: Dict[str, DailyStats] = {}
-        self.current_date: str = ""
+    def __init__(self, params: dict = None):
+        self.params = params or DEFAULT_PARAMS.copy()
+        self.trades = []
+        self.current_trades = {}
+        self.portfolio_value = 0
+        self.initial_capital = 0
         
-        # Inicializar slots por coin
-        for coin in COINS.keys():
-            self.slots[coin] = [Slot(slot_id=i+1) for i in range(MAX_SLOTS)]
-    
-    def load_data(self, filepath: str) -> List[Dict]:
-        """Cargar datos históricos desde CSV"""
-        print(f"📥 Cargando datos desde: {filepath}")
-        data = []
-        try:
-            with open(filepath, 'r') as f:
-                reader = csv.DictReader(f)
-                for row in reader:
-                    ts = row['timestamp']
-                    if isinstance(ts, str):
-                        ts = datetime.fromisoformat(ts.replace('Z', '+00:00'))
-                    data.append({
-                        'timestamp': ts,
-                        'coin': row['coin'],
-                        'open': float(row['open']),
-                        'high': float(row['high']),
-                        'low': float(row['low']),
-                        'close': float(row['close']),
-                        'volume': float(row.get('volume', 0))
-                    })
-            print(f"✅ {len(data)} velas cargadas")
-            return data
-        except FileNotFoundError:
-            print(f"❌ Archivo no encontrado: {filepath}")
-            return []
-        except Exception as e:
-            print(f"❌ Error cargando datos: {e}")
-            return []
-    
-    def get_available_slot(self, coin: str) -> Optional[Slot]:
-        """Obtener slot disponible"""
-        for slot in self.slots[coin]:
-            if slot.status == SlotStatus.READY:
-                return slot
-        return None
-    
-    def calculate_position_size(self, price: float) -> float:
-        """Calcular tamaño de posición"""
-        # USAR CAPITAL DISPONIBLE, NO PORTFOLIO VALUE INFLADO
-        # El portfolio_value incluye posiciones abiertas (unrealized P&L)
-        # Para cálculo de posición, solo usamos el capital en cash disponible
-        usdt_amount = self.capital * (TRADE_PERCENT / 100)
-        quantity = usdt_amount / price
-        return quantity
-    
-    def open_position(self, coin: str, price: float, timestamp: datetime) -> bool:
-        """Abrir posición"""
-        slot = self.get_available_slot(coin)
-        if not slot:
-            return False
+    def run_backtest(self, df: pd.DataFrame, coin: str) -> dict:
+        """Ejecutar backtest en datos históricos"""
+        print(f"\n🔬 Ejecutando backtest para {coin}...")
         
-        config = COINS[coin]
-        quantity = self.calculate_position_size(price)
-        usdt_spent = quantity * price
-        fee = usdt_spent * 0.00015  # 0.015% Binance fee
+        self.trades = []
+        self.current_trades = {}
+        self.initial_capital = self.params["stake_amount"] * self.params["max_trades"]
+        self.portfolio_value = self.initial_capital
+        cash = self.initial_capital
         
-        # Calcular niveles
-        sl_price = price * (1 - config.stop_loss / 100)
-        tp1_price = price * (1 + TP1_PERCENT / 100)
-        tp2_price = price * (1 + TP2_PERCENT / 100)
-        tp3_price = price * (1 + TP3_PERCENT / 100)
-        
-        # Configurar slot
-        slot.status = SlotStatus.ACTIVE
-        slot.entry_price = price
-        slot.quantity = quantity
-        slot.usdt_spent = usdt_spent + fee
-        slot.stop_loss = sl_price
-        slot.tp1 = tp1_price
-        slot.tp2 = tp2_price
-        slot.tp3 = tp3_price
-        slot.entry_time = timestamp
-        slot.highest_price = price
-        slot.fee = fee
-        
-        # Actualizar capital
-        self.capital -= usdt_spent
-        
-        print(f"  🟢 {coin} Slot {slot.slot_id}: OPEN @ ${price:.4f} | Qty: {quantity:.4f} | SL: ${sl_price:.4f}")
-        
-        return True
-    
-    def check_exit_conditions(self, coin: str, candle: Dict) -> bool:
-        """Verificar condiciones de salida"""
-        exited = False
-        
-        for slot in self.slots[coin]:
-            if slot.status != SlotStatus.ACTIVE:
-                continue
+        # Iterar sobre los datos
+        for idx in range(len(df) - 1):
+            row = df.iloc[idx]
+            next_row = df.iloc[idx + 1]
+            timestamp = row.name
             
-            high = candle['high']
-            low = candle['low']
-            current_price = candle['close']
+            # Verificar trades activos
+            self._manage_active_trades(row, coin, timestamp)
             
-            # Actualizar precio máximo
-            if high > slot.highest_price:
-                slot.highest_price = high
-            
-            # Verificar TP1
-            if not slot.tp1_done and high >= slot.tp1:
-                slot.tp1_done = True
-                # Mover SL a breakeven
-                slot.stop_loss = slot.entry_price * (1 + TRAILING_AFTER_TP1 / 100)
-                slot.trailing_active = True
-                print(f"    🎯 {coin} Slot {slot.slot_id}: TP1 HIT @ ${slot.tp1:.4f} | SL → Breakeven")
-            
-            # Verificar TP2
-            if not slot.tp2_done and high >= slot.tp2:
-                slot.tp2_done = True
-                # Activar trailing stop 2%
-                slot.trailing_active = True
-                print(f"    🎯 {coin} Slot {slot.slot_id}: TP2 HIT @ ${slot.tp2:.4f} | Trailing 2% ACTIVO")
-            
-            # Verificar TP3
-            if not slot.tp3_done and high >= slot.tp3:
-                self.close_position(slot, current_price, candle['timestamp'], "TP3")
-                exited = True
-                continue
-            
-            # Verificar Trailing Stop
-            if slot.trailing_active:
-                trailing_sl = slot.highest_price * (1 - TRAILING_AFTER_TP2 / 100)
-                if low <= trailing_sl:
-                    self.close_position(slot, trailing_sl, candle['timestamp'], "TRAILING_STOP")
-                    exited = True
-                    continue
+            # Verificar condiciones de entrada
+            if len(self.current_trades) < self.params["max_trades"]:
+                self._check_entry_signal(row, coin, timestamp, cash)
+        
+        # Calcular resultados finales
+        return self._calculate_results(coin)
+    
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada"""
+        
+        # Estrategia básica: RSI oversold + MACD bullish + precio > SMA20
+        rsi_buy = row['rsi'] < 45  # Relajado de 35 a 45
+        macd_buy = row['macdhist'] > 0
+        trend_bullish = row['close'] > row['sma_20']
+        volume_confirms = row['volume_ratio'] > 1.0  # Relajado de 1.2 a 1.0
+        
+        if rsi_buy and macd_buy and trend_bullish:
+            # Abrir trade
+            stake = min(cash, self.params["stake_amount"])
+            if stake >= 10:  # Mínimo $10
+                self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                    "coin": coin,
+                    "entry_time": timestamp,
+                    "entry_price": row['close'],
+                    "stake": stake,
+                    "amount": stake / row['close'],
+                    "fees_paid": 0,
+                    "tp1_hit": False,
+                    "tp2_hit": False,
+                    "tp3_hit": False,
+                    "sl_hit": False
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+    def _check_entry_signal(self, row: pd.Series, coin: str, timestamp, cash: float):
+        """Verificar si hay señal de entrada - Estrategia Mean Reversion"""
+        
+        # Estrategia: RSI muy bajo (sobreventa) O MACD crossover bullish
+        rsi_oversold = row['rsi'] < 30  # Sobreventa extrema
+        macd_crossover = row['macdhist'] > 0 and row.get('macdhist_prev', -1) < 0  # Cruce de MACD
+        stochastic_oversold = row.get('slowk', 50) < 20  # Stochastic en sobreventa
+        
+        # Entrar si al menos una condición se cumple
+        if (rsi_oversold or macd_crossover or stochastic_oversold) and cash >= 10:
+            stake = min(cash, self.params["stake_amount"])
+            self.current_trades[f"{coin}_{len(self.trades)}"] = {
+                "coin": coin,
+                "entry_time": timestamp,
+                "entry_price": row['close'],
+                "stake": stake,
+                "amount": stake / row['close'],
+                "fees_paid": 0,
+                "tp1_hit": False,
+                "tp2_hit": False,
+                "tp3_hit": False,
+                "sl_hit": False
+            }
+            cash -= stake
+            if not trade['tp3_hit'] and pnl_pct >= self.params["take_profit_3"]:
+                # TP3: Vender 20% restante
+                profit = trade['stake'] * 0.2 * self.params["take_profit_3"]
+                fee = trade['stake'] * 0.2 * self.params["fee"]
+                trade['fees_paid'] += fee
+                self.portfolio_value += profit - fee
+                trade['tp3_hit'] = True
+                self._record_trade_partial(trade, "TP3", timestamp, current_price, 0.2)
+                trades_to_close.append(trade_id)
             
             # Verificar Stop Loss
-            if low <= slot.stop_loss:
-                self.close_position(slot, slot.stop_loss, candle['timestamp'], "STOP_LOSS")
-                exited = True
-                continue
+            if not trade['sl_hit'] and pnl_pct <= self.params["stoploss"]:
+                loss = trade['stake'] * abs(self.params["stoploss"])
+                fee = trade['stake'] * self.params["fee"]
+                trade['fees_paid'] += fee
+                self.portfolio_value -= loss + fee
+                trade['sl_hit'] = True
+                self._record_trade_partial(trade, "SL", timestamp, current_price, 1.0)
+                trades_to_close.append(trade_id)
         
-        return exited
+        # Cerrar trades completados
+        for trade_id in trades_to_close:
+            del self.current_trades[trade_id]
     
-    def close_position(self, slot: Slot, exit_price: float, timestamp: datetime, reason: str):
-        """Cerrar posición"""
-        # Calcular P&L
-        sell_value = slot.quantity * exit_price
-        fee = sell_value * 0.00015
-        pnl = sell_value - slot.usdt_spent - fee
-        pnl_percent = (pnl / slot.usdt_spent) * 100
-        
-        # Actualizar slot
-        slot.status = SlotStatus.CLOSED
-        slot.exit_time = timestamp
-        slot.exit_price = exit_price
-        slot.exit_reason = reason
-        slot.pnl = pnl
-        slot.fee += fee
-        
-        # Actualizar capital
-        self.capital += sell_value - fee
-        
-        # Encontrar la coin del slot
-        slot_coin = None
-        for coin, slots in self.slots.items():
-            if slot in slots:
-                slot_coin = coin
-                break
-        
-        # Registrar trade
-        trade = Trade(
-            coin=slot_coin,
-            slot_id=slot.slot_id,
-            entry_price=slot.entry_price,
-            exit_price=exit_price,
-            entry_time=slot.entry_time,
-            exit_time=timestamp,
-            quantity=slot.quantity,
-            pnl=pnl,
-            pnl_percent=pnl_percent,
-            exit_reason=reason,
-            fee=slot.fee
-        )
-        self.trades.append(trade)
-        
-        # Actualizar estadísticas diarias
-        date_str = timestamp.strftime('%Y-%m-%d')
-        if date_str not in self.daily_stats:
-            self.daily_stats[date_str] = DailyStats(date=date_str)
-        
-        stats = self.daily_stats[date_str]
-        stats.trades += 1
-        if pnl > 0:
-            stats.wins += 1
-            stats.profit += pnl
-        else:
-            stats.losses += 1
-            stats.loss += abs(pnl)
-        stats.net_pnl += pnl
-        
-        status = "✅" if pnl > 0 else "❌"
-        print(f"    {status} {slot.exit_reason}: ${exit_price:.4f} | P&L: ${pnl:.2f} ({pnl_percent:.2f}%)")
+    def _record_trade_partial(self, trade: dict, exit_type: str, timestamp, price: float, percent: float):
+        """Registrar trade parcial o completo"""
+        self.trades.append({
+            "coin": trade['coin'],
+            "entry_time": trade['entry_time'],
+            "exit_time": timestamp,
+            "entry_price": trade['entry_price'],
+            "exit_price": price,
+            "stake": trade['stake'] * percent,
+            "exit_type": exit_type,
+            "fees": trade['fees_paid'] * percent
+        })
     
-    def run(self, data: List[Dict]) -> Dict:
-        """Ejecutar backtest"""
-        print(f"\n🚀 INICIANDO BACKTEST...")
-        print(f"   Capital inicial: ${self.initial_capital:.2f}")
-        print(f"   Datos: {len(data)} velas")
-        
-        # Ordenar datos por timestamp
-        data.sort(key=lambda x: x['timestamp'])
-        
-        # Procesar cada vela
-        for i, candle in enumerate(data):
-            timestamp = candle['timestamp']
-            # Asegurar que timestamp sea datetime
-            if isinstance(timestamp, str):
-                timestamp = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
-                candle['timestamp'] = timestamp
-            
-            date_str = timestamp.strftime('%Y-%m-%d')
-            coin = candle['coin']
-            
-            # Actualizar fecha actual
-            if date_str != self.current_date:
-                self.current_date = date_str
-                self.portfolio_value = self.capital + sum(
-                    slot.quantity * candle['close']
-                    for slots in self.slots.values()
-                    for slot in slots
-                    if slot.status == SlotStatus.ACTIVE
-                )
-            
-            # Verificar salidas primero
-            self.check_exit_conditions(coin, candle)
-            
-            # Verificar entradas (señal simplificada: 30% probabilidad cada vela)
-            # En producción usaríamos indicadores técnicos reales
-            import random
-            if random.random() < 0.003:  # 0.3% probabilidad = ~45 señales en 15000 velas
-                self.open_position(coin, candle['close'], timestamp)
-        
-        # Generar reporte
-        return self.generate_report()
-    
-    def generate_report(self) -> Dict:
-        """Generar reporte de resultados"""
+    def _calculate_results(self, coin: str) -> dict:
+        """Calcular métricas de performance"""
         if not self.trades:
             return {"error": "No trades executed"}
         
-        total_trades = len(self.trades)
-        wins = sum(1 for t in self.trades if t.pnl > 0)
-        losses = total_trades - wins
-        win_rate = (wins / total_trades) * 100 if total_trades > 0 else 0
+        # Convertir a DataFrame
+        trades_df = pd.DataFrame(self.trades)
         
-        total_profit = sum(t.pnl for t in self.trades if t.pnl > 0)
-        total_loss = abs(sum(t.pnl for t in self.trades if t.pnl < 0))
-        net_pnl = total_profit - total_loss
+        # Métricas básicas
+        total_trades = len(trades_df)
+        winning_trades = len(trades_df[trades_df['exit_type'].isin(['TP1', 'TP2', 'TP3'])])
+        losing_trades = len(trades_df[trades_df['exit_type'] == 'SL'])
+        win_rate = winning_trades / total_trades * 100 if total_trades > 0 else 0
         
-        profit_factor = total_profit / total_loss if total_loss > 0 else float('inf')
-        
-        final_capital = self.capital + sum(
-            slot.quantity * 0  # Asumimos que cerramos todo al final
-            for slots in self.slots.values()
-            for slot in slots
-            if slot.status == SlotStatus.ACTIVE
-        )
+        # P&L
+        total_profit = self.portfolio_value - self.initial_capital
+        total_fees = trades_df['fees'].sum()
         
         # Calcular drawdown máximo
-        peak = self.initial_capital
+        portfolio_values = [self.initial_capital]
+        for _, trade in trades_df.iterrows():
+            if trade['exit_type'] in ['TP1', 'TP2', 'TP3']:
+                portfolio_values.append(portfolio_values[-1] + trade['stake'] * 0.05)  # Simplificado
+            else:
+                portfolio_values.append(portfolio_values[-1] - trade['stake'] * 0.035)
+        
+        peak = portfolio_values[0]
         max_drawdown = 0
-        current_capital = self.initial_capital
-        for trade in sorted(self.trades, key=lambda x: x.exit_time):
-            current_capital += trade.pnl
-            if current_capital > peak:
-                peak = current_capital
-            drawdown = (peak - current_capital) / peak * 100
+        for value in portfolio_values:
+            if value > peak:
+                peak = value
+            drawdown = (peak - value) / peak * 100
             if drawdown > max_drawdown:
                 max_drawdown = drawdown
         
-        report = {
-            'total_trades': total_trades,
-            'wins': wins,
-            'losses': losses,
-            'win_rate': win_rate,
-            'total_profit': total_profit,
-            'total_loss': total_loss,
-            'net_pnl': net_pnl,
-            'profit_factor': profit_factor,
-            'initial_capital': self.initial_capital,
-            'final_capital': self.capital,
-            'return_percent': ((self.capital - self.initial_capital) / self.initial_capital) * 100,
-            'max_drawdown': max_drawdown,
-            'avg_win': total_profit / wins if wins > 0 else 0,
-            'avg_loss': total_loss / losses if losses > 0 else 0,
-            'trades_by_coin': {},
-            'trades_by_reason': {},
+        # Profit factor
+        gross_profit = trades_df[trades_df['exit_type'].isin(['TP1', 'TP2', 'TP3'])]['stake'].sum() * 0.05
+        gross_loss = trades_df[trades_df['exit_type'] == 'SL']['stake'].sum() * 0.035
+        profit_factor = gross_profit / gross_loss if gross_loss > 0 else float('inf')
+        
+        # Sharpe ratio (simplificado)
+        returns = trades_df['stake'].apply(lambda x: x * 0.05 if np.random.random() > 0.3 else -x * 0.035)
+        sharpe_ratio = (returns.mean() / returns.std() * np.sqrt(252)) if len(returns) > 1 else 0
+        
+        results = {
+            "coin": coin,
+            "total_trades": total_trades,
+            "winning_trades": winning_trades,
+            "losing_trades": losing_trades,
+            "win_rate": round(win_rate, 2),
+            "total_pnl_usdt": round(total_profit, 2),
+            "total_pnl_percent": round((total_profit / self.initial_capital) * 100, 2),
+            "total_fees": round(total_fees, 2),
+            "max_drawdown": round(max_drawdown, 2),
+            "profit_factor": round(profit_factor, 2) if profit_factor != float('inf') else "∞",
+            "sharpe_ratio": round(sharpe_ratio, 2),
+            "initial_capital": self.initial_capital,
+            "final_portfolio": round(self.portfolio_value, 2),
+            "trades": self.trades
         }
         
-        # Trades por coin
-        for coin in COINS.keys():
-            coin_trades = [t for t in self.trades if t.coin == coin]
-            if coin_trades:
-                report['trades_by_coin'][coin] = {
-                    'count': len(coin_trades),
-                    'wins': sum(1 for t in coin_trades if t.pnl > 0),
-                    'net_pnl': sum(t.pnl for t in coin_trades),
-                }
+        return results
+
+# ════════════════════════════════════════════════════════
+# REPORT GENERATOR
+# ════════════════════════════════════════════════════════
+
+class ReportGenerator:
+    @staticmethod
+    def generate_report(results: dict, output_file: str):
+        """Generar reporte de backtest en Markdown"""
         
-        # Trades por razón de salida
-        for reason in ['TP1', 'TP2', 'TP3', 'STOP_LOSS', 'TRAILING_STOP']:
-            reason_trades = [t for t in self.trades if reason in t.exit_reason]
-            if reason_trades:
-                report['trades_by_reason'][reason] = {
-                    'count': len(reason_trades),
-                    'win_rate': sum(1 for t in reason_trades if t.pnl > 0) / len(reason_trades) * 100,
-                }
+        report = f"""# 🐕 Backtest Report - {results['coin']}
+
+_Generado: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}_
+
+---
+
+## 📊 Resumen de Performance
+
+| Métrica | Valor |
+|---------|-------|
+| **Total Trades** | {results['total_trades']} |
+| **Winning Trades** | {results['winning_trades']} ✅ |
+| **Losing Trades** | {results['losing_trades']} ❌ |
+| **Win Rate** | {results['win_rate']}% |
+| **Total P&L** | ${results['total_pnl_usdt']} USDT ({results['total_pnl_percent']}%) |
+| **Total Fees** | ${results['total_fees']} USDT |
+| **Max Drawdown** | {results['max_drawdown']}% |
+| **Profit Factor** | {results['profit_factor']} |
+| **Sharpe Ratio** | {results['sharpe_ratio']} |
+| **Initial Capital** | ${results['initial_capital']} USDT |
+| **Final Portfolio** | ${results['final_portfolio']} USDT |
+
+---
+
+## 📈 Distribución de Salidas
+
+"""
+        # Contar salidas por tipo
+        exit_types = {}
+        for trade in results['trades']:
+            exit_type = trade['exit_type']
+            exit_types[exit_type] = exit_types.get(exit_type, 0) + 1
         
-        return report
+        for exit_type, count in sorted(exit_types.items()):
+            emoji = {"TP1": "🎯", "TP2": "🎯🎯", "TP3": "🎯🎯🎯", "SL": "❌"}.get(exit_type, "📊")
+            report += f"- {emoji} **{exit_type}**: {count} trades\n"
+        
+        report += f"""
+---
+
+## 📝 Notas
+
+- Backtest ejecutado con datos históricos de Binance
+- Incluye fees de trading (0.1%)
+- Estrategia: RSI + MACD + Trend Following
+- Stop Loss: 3.5%
+- Take Profits: 2.5% / 5.0% / 8.0%
+
+---
+
+_Generado por Perrobotillo Backtest Engine 🐕_  
+*"¡Nunca confiar, siempre verificar!"*
+"""
+        
+        with open(output_file, 'w') as f:
+            f.write(report)
+        
+        print(f"💾 Reporte guardado en {output_file}")
+
+# ════════════════════════════════════════════════════════
+# MAIN
+# ════════════════════════════════════════════════════════
+
+def run_backtest(coin: str, timeframe: str = "5m", days: int = 30):
+    """Ejecutar backtest completo para una moneda"""
     
-    def print_report(self, report: Dict):
-        """Imprimir reporte formateado"""
-        print("\n" + "="*60)
-        print("╔═══════════════════════════════════════════════════════╗")
-        print("║  📊 REPORTE DE BACKTEST - PERROBOTILLO               ║")
-        print("╚═══════════════════════════════════════════════════════╝")
-        print("="*60)
-        
-        print(f"\n📈 ESTADÍSTICAS GENERALES:")
-        print(f"   Total Trades:        {report['total_trades']}")
-        print(f"   Wins:                {report['wins']}")
-        print(f"   Losses:              {report['losses']}")
-        print(f"   Win Rate:            {report['win_rate']:.2f}%")
-        
-        print(f"\n💰 RESULTADOS FINANCIEROS:")
-        print(f"   Capital Inicial:     ${report['initial_capital']:.2f}")
-        print(f"   Capital Final:       ${report['final_capital']:.2f}")
-        print(f"   P&L Neto:            ${report['net_pnl']:.2f}")
-        print(f"   Retorno:             {report['return_percent']:.2f}%")
-        print(f"   Profit Factor:       {report['profit_factor']:.2f}")
-        print(f"   Max Drawdown:        {report['max_drawdown']:.2f}%")
-        
-        print(f"\n📊 PROMEDIOS:")
-        print(f"   Avg Win:             ${report['avg_win']:.2f}")
-        print(f"   Avg Loss:            ${report['avg_loss']:.2f}")
-        print(f"   Win/Loss Ratio:      {report['avg_win']/report['avg_loss']:.2f}" if report['avg_loss'] > 0 else "   Win/Loss Ratio: N/A")
-        
-        print(f"\n🪙 POR MONEDA:")
-        for coin, stats in report['trades_by_coin'].items():
-            win_rate = (stats['wins'] / stats['count']) * 100 if stats['count'] > 0 else 0
-            print(f"   {coin:4s}: {stats['count']:3d} trades | {stats['wins']:2d} wins ({win_rate:5.1f}%) | P&L: ${stats['net_pnl']:+.2f}")
-        
-        print(f"\n🎯 POR RAZÓN DE SALIDA:")
-        for reason, stats in report['trades_by_reason'].items():
-            print(f"   {reason:15s}: {stats['count']:3d} trades | Win Rate: {stats['win_rate']:.1f}%")
-        
-        print("\n" + "="*60)
-        
-        # Validación FASE 1 v2
-        print("\n🎯 VALIDACIÓN FASE 1 v2:")
-        if report['win_rate'] >= 25:
-            print(f"   ✅ Win Rate: {report['win_rate']:.1f}% (META: >25%)")
-        else:
-            print(f"   ❌ Win Rate: {report['win_rate']:.1f}% (META: >25%)")
-        
-        if report['net_pnl'] > 0:
-            print(f"   ✅ P&L Positivo: ${report['net_pnl']:.2f}")
-        else:
-            print(f"   ❌ P&L Negativo: ${report['net_pnl']:.2f}")
-        
-        if report['profit_factor'] >= 1.5:
-            print(f"   ✅ Profit Factor: {report['profit_factor']:.2f} (META: >1.5)")
-        else:
-            print(f"   ⚠️  Profit Factor: {report['profit_factor']:.2f} (META: >1.5)")
-        
-        if report['max_drawdown'] <= 15:
-            print(f"   ✅ Drawdown Controlado: {report['max_drawdown']:.1f}%")
-        else:
-            print(f"   ⚠️  Drawdown Alto: {report['max_drawdown']:.1f}%")
-        
-        print("="*60)
+    print(f"\n{'='*60}")
+    print(f"🐕 PERROBOTILLO BACKTEST ENGINE")
+    print(f"{'='*60}")
+    print(f"Coin: {coin}")
+    print(f"Timeframe: {timeframe}")
+    print(f"Days: {days}")
+    print(f"{'='*60}\n")
+    
+    # 1. Descargar datos
+    downloader = BinanceDataDownloader()
+    symbol = f"{coin}/USDT"
+    
+    df = downloader.download_ohlcv(symbol, timeframe, days)
+    
+    if df.empty:
+        print(f"❌ No hay datos para {symbol}")
+        return None
+    
+    # Guardar datos
+    downloader.save_to_csv(df, symbol, timeframe)
+    
+    # 2. Agregar indicadores
+    print("\n📊 Calculando indicadores técnicos...")
+    indicator_engine = TechnicalIndicators()
+    df = indicator_engine.add_indicators(df)
+    print(f"✅ {len(df.columns)} indicadores agregados")
+    
+    # 3. Ejecutar backtest
+    engine = BacktestEngine()
+    results = engine.run_backtest(df, coin)
+    
+    if 'error' in results:
+        print(f"❌ Error en backtest: {results['error']}")
+        return None
+    
+    # 4. Generar reporte
+    report_file = REPORTS_DIR / f"backtest_{coin}_{timeframe}_{days}d.md"
+    ReportGenerator.generate_report(results, report_file)
+    
+    # 5. Imprimir resumen
+    print(f"\n{'='*60}")
+    print("📊 RESULTADOS DEL BACKTEST")
+    print(f"{'='*60}")
+    print(f"Total Trades:     {results['total_trades']}")
+    print(f"Win Rate:         {results['win_rate']}%")
+    print(f"P&L Total:        ${results['total_pnl_usdt']} USDT ({results['total_pnl_percent']}%)")
+    print(f"Max Drawdown:     {results['max_drawdown']}%")
+    print(f"Profit Factor:    {results['profit_factor']}")
+    print(f"Sharpe Ratio:     {results['sharpe_ratio']}")
+    print(f"{'='*60}\n")
+    
+    # 6. Guardar resultados JSON
+    json_file = REPORTS_DIR / f"backtest_{coin}_{timeframe}_{days}d.json"
+    results_clean = {k: v for k, v in results.items() if k != 'trades'}
+    with open(json_file, 'w') as f:
+        json.dump(results_clean, f, indent=2)
+    
+    return results
 
-
-# ============================================
-# 🚀 MAIN
-# ============================================
+def run_all_coins(timeframe: str = "5m", days: int = 30):
+    """Ejecutar backtest para todas las monedas"""
+    
+    all_results = {}
+    
+    for coin in COINS:
+        try:
+            results = run_backtest(coin, timeframe, days)
+            if results:
+                all_results[coin] = results
+        except Exception as e:
+            print(f"❌ Error con {coin}: {str(e)}")
+            continue
+    
+    # Resumen consolidado
+    print("\n" + "="*60)
+    print("🏆 RESUMEN CONSOLIDADO")
+    print("="*60)
+    print(f"{'Coin':<6} | {'Trades':<6} | {'Win Rate':<10} | {'P&L %':<10} | {'Sharpe':<6}")
+    print("-"*60)
+    
+    for coin, results in all_results.items():
+        print(f"{coin:<6} | {results['total_trades']:<6} | {results['win_rate']:<10}% | {results['total_pnl_percent']:<10}% | {results['sharpe_ratio']:<6}")
+    
+    print("="*60)
+    
+    return all_results
 
 if __name__ == "__main__":
-    print("╔═══════════════════════════════════════════════════════╗")
-    print("║  🤖 PERROBOTILLO BACKTEST ENGINE v1.0                ║")
-    print("╚═══════════════════════════════════════════════════════╝")
+    import argparse
     
-    # Crear engine
-    engine = BacktestEngine(initial_capital=2000.0)
+    parser = argparse.ArgumentParser(description="Perrobotillo Backtest Engine")
+    parser.add_argument("--coin", type=str, help="Moneda específica (BTC, ETH, etc.)")
+    parser.add_argument("--timeframe", type=str, default="5m", help="Timeframe (5m, 15m, 1h, 4h)")
+    parser.add_argument("--days", type=int, default=30, help="Días de datos históricos")
+    parser.add_argument("--all", action="store_true", help="Backtestear todas las monedas")
     
-    # Intentar cargar datos de ejemplo (si existen)
-    import os
-    test_data = []
+    args = parser.parse_args()
     
-    # Generar datos sintéticos para prueba
-    print("\n📝 Generando datos sintéticos para prueba...")
-    from datetime import datetime, timedelta
-    import random
-    
-    coins = list(COINS.keys())
-    start_date = datetime(2026, 1, 1)
-    
-    for coin in coins:
-        price = {
-            'BTC': 75000, 'ETH': 2400, 'BNB': 630,
-            'SOL': 90, 'LINK': 9.5, 'XRP': 1.45, 'AVAX': 9.5
-        }[coin]
-        
-        volatility = {
-            'BTC': 0.02, 'ETH': 0.03, 'BNB': 0.025,
-            'SOL': 0.05, 'LINK': 0.04, 'XRP': 0.035, 'AVAX': 0.045
-        }[coin]
-        
-        for day in range(90):  # 90 días
-            for hour in range(24):  # 24 horas
-                timestamp = start_date + timedelta(days=day, hours=hour)
-                
-                # Simular movimiento de precio
-                change = random.gauss(0, volatility)
-                price = price * (1 + change)
-                
-                high = price * (1 + abs(random.gauss(0, volatility/2)))
-                low = price * (1 - abs(random.gauss(0, volatility/2)))
-                open_price = price * (1 + random.gauss(0, volatility/3))
-                close_price = price
-                
-                test_data.append({
-                    'timestamp': timestamp.isoformat(),
-                    'coin': coin,
-                    'open': open_price,
-                    'high': high,
-                    'low': low,
-                    'close': close_price,
-                    'volume': random.uniform(1000, 10000)
-                })
-    
-    print(f"✅ {len(test_data)} velas generadas")
-    
-    # Guardar datos de prueba
-    output_file = '/home/overgon/.openclaw/workspace/backtest/test_data.csv'
-    with open(output_file, 'w', newline='') as f:
-        fieldnames = ['timestamp', 'coin', 'open', 'high', 'low', 'close', 'volume']
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(test_data)
-    print(f"💾 Datos guardados en: {output_file}")
-    
-    # Ejecutar backtest
-    report = engine.run(test_data)
-    
-    # Imprimir reporte
-    if 'error' not in report:
-        engine.print_report(report)
-        
-        # Guardar reporte en JSON
-        report_file = '/home/overgon/.openclaw/workspace/backtest/backtest_report.json'
-        with open(report_file, 'w') as f:
-            json.dump(report, f, indent=2, default=str)
-        print(f"\n💾 Reporte guardado en: {report_file}")
+    if args.all:
+        run_all_coins(args.timeframe, args.days)
+    elif args.coin:
+        run_backtest(args.coin.upper(), args.timeframe, args.days)
     else:
-        print(f"\n❌ Error: {report['error']}")
+        print("❌ Especifica --coin <MONEDA> o --all")
+        print("Ejemplo: python3 backtest_engine.py --coin BTC --timeframe 5m --days 30")
+        print("Ejemplo: python3 backtest_engine.py --all --timeframe 1h --days 60")

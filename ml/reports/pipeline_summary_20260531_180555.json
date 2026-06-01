@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-05-31T18:05:55.131360",
+  "days": 30,
+  "model_type": "random_forest",
+  "results": {
+    "XRP": {
+      "accuracy": 1.0,
+      "signal": "WAIT",
+      "confidence": 100.0
+    }
+  }
+}

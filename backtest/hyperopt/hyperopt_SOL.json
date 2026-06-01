@@ -1,0 +1,45 @@
+{
+  "coin": "SOL",
+  "base_params": {
+    "stoploss": -0.035,
+    "take_profit_1": 0.025,
+    "take_profit_2": 0.05,
+    "take_profit_3": 0.08
+  },
+  "optimized_params": {
+    "stoploss": -0.025,
+    "take_profit_1": 0.035,
+    "take_profit_2": 0.055,
+    "take_profit_3": 0.09
+  },
+  "base_metrics": {
+    "coin": "SOL",
+    "period_days": 30,
+    "total_trades": 38,
+    "winning_trades": 23,
+    "losing_trades": 15,
+    "win_rate": 60.53,
+    "tp1_count": 7,
+    "tp2_count": 4,
+    "tp3_count": 12,
+    "sl_count": 15,
+    "total_pnl_usdt": 40.5,
+    "total_pnl_percent": 2.13,
+    "max_drawdown_percent": 39.68,
+    "profit_factor": 2.54,
+    "avg_trade_pnl": 1.07
+  },
+  "optimized_metrics": {
+    "win_rate": 55.34,
+    "profit_factor": 3.07,
+    "total_pnl_usdt": 38.93,
+    "max_drawdown_percent": 28.34,
+    "score": 107.86500000000001
+  },
+  "improvement": {
+    "win_rate_change": -5.189999999999998,
+    "pnl_change": -1.5700000000000003,
+    "pf_change": 0.5299999999999998
+  },
+  "generated_at": "2026-05-31T14:16:24.392949"
+}

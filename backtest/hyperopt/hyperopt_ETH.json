@@ -1,0 +1,45 @@
+{
+  "coin": "ETH",
+  "base_params": {
+    "stoploss": -0.035,
+    "take_profit_1": 0.025,
+    "take_profit_2": 0.05,
+    "take_profit_3": 0.08
+  },
+  "optimized_params": {
+    "stoploss": -0.05,
+    "take_profit_1": 0.035,
+    "take_profit_2": 0.055,
+    "take_profit_3": 0.08
+  },
+  "base_metrics": {
+    "coin": "ETH",
+    "period_days": 30,
+    "total_trades": 29,
+    "winning_trades": 14,
+    "losing_trades": 15,
+    "win_rate": 48.28,
+    "tp1_count": 5,
+    "tp2_count": 5,
+    "tp3_count": 4,
+    "sl_count": 15,
+    "total_pnl_usdt": 8.5,
+    "total_pnl_percent": 0.59,
+    "max_drawdown_percent": 204.88,
+    "profit_factor": 1.32,
+    "avg_trade_pnl": 0.29
+  },
+  "optimized_metrics": {
+    "win_rate": 54.49,
+    "profit_factor": 1.54,
+    "total_pnl_usdt": 11.03,
+    "max_drawdown_percent": 100,
+    "score": 40.80500000000001
+  },
+  "improvement": {
+    "win_rate_change": 6.210000000000001,
+    "pnl_change": 2.5299999999999994,
+    "pf_change": 0.21999999999999997
+  },
+  "generated_at": "2026-05-31T14:16:24.390891"
+}

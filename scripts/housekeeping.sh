@@ -65,6 +65,12 @@ log "🗑️  Eliminando logs de ML > 14 días..."
 deleted_ml=$(find "$LOGS_DIR" -name "ml-*.log" -type f -mtime +14 -delete -print 2>/dev/null | wc -l)
 log "✅ Eliminados: $deleted_ml archivos ml-*.log viejos"
 
+# Eliminar auto-retrain.log > 14 días
+log ""
+log "🗑️  Eliminando auto-retrain.log > 14 días..."
+deleted_auto_retrain=$(find "$LOGS_DIR" -name "auto-retrain.log" -type f -mtime +14 -delete -print 2>/dev/null | wc -l)
+log "✅ Eliminados: $deleted_auto_retrain archivos auto-retrain.log viejos"
+
 # 4. Mantener solo últimos 7 días de trade-*.log
 log ""
 log "🗑️  Limpiando trade-*.log antiguos (mantener últimos 7 días)..."
@@ -79,7 +85,34 @@ log "🗑️  Rotando logs de ML (mantener últimas 1000 líneas)..."
 if [ -f "$LOGS_DIR/ml-retrain.log" ]; then
     tail -1000 "$LOGS_DIR/ml-retrain.log" > "$LOGS_DIR/ml-retrain.log.tmp" 2>/dev/null
     mv "$LOGS_DIR/ml-retrain.log.tmp" "$LOGS_DIR/ml-retrain.log" 2>/dev/null
-    log "✅ ML log rotado (últimas 1000 líneas)"
+    log "✅ ML retrain log rotado (últimas 1000 líneas)"
+fi
+
+# Rotar ml-retrain-cron.log (mantener últimas 500 líneas)
+log ""
+log "🗑️  Rotando ml-retrain-cron.log (mantener últimas 500 líneas)..."
+if [ -f "$LOGS_DIR/ml-retrain-cron.log" ]; then
+    tail -500 "$LOGS_DIR/ml-retrain-cron.log" > "$LOGS_DIR/ml-retrain-cron.log.tmp" 2>/dev/null
+    mv "$LOGS_DIR/ml-retrain-cron.log.tmp" "$LOGS_DIR/ml-retrain-cron.log" 2>/dev/null
+    log "✅ ML retrain cron log rotado (últimas 500 líneas)"
+fi
+
+# Rotar ml-integration.log (mantener últimas 2000 líneas - más crítico)
+log ""
+log "🗑️  Rotando ml-integration.log (mantener últimas 2000 líneas)..."
+if [ -f "$LOGS_DIR/ml-integration.log" ]; then
+    tail -2000 "$LOGS_DIR/ml-integration.log" > "$LOGS_DIR/ml-integration.log.tmp" 2>/dev/null
+    mv "$LOGS_DIR/ml-integration.log.tmp" "$LOGS_DIR/ml-integration.log" 2>/dev/null
+    log "✅ ML integration log rotado (últimas 2000 líneas)"
+fi
+
+# Rotar auto-retrain.log (mantener últimas 500 líneas)
+log ""
+log "🗑️  Rotando auto-retrain.log (mantener últimas 500 líneas)..."
+if [ -f "$LOGS_DIR/auto-retrain.log" ]; then
+    tail -500 "$LOGS_DIR/auto-retrain.log" > "$LOGS_DIR/auto-retrain.log.tmp" 2>/dev/null
+    mv "$LOGS_DIR/auto-retrain.log.tmp" "$LOGS_DIR/auto-retrain.log" 2>/dev/null
+    log "✅ Auto retrain log rotado (últimas 500 líneas)"
 fi
 
 # 5. Rotar logs manualmente (si logrotate está disponible)
@@ -154,7 +187,15 @@ log ""
 log "📊 RESUMEN:"
 log "  • Logs .gz eliminados: $deleted_gz"
 log "  • Logs viejos eliminados: $deleted_old"
+log "  • Logs ML eliminados: $deleted_ml"
+log "  • Auto-retrain eliminados: $deleted_auto_retrain"
 log "  • Trade logs restantes: $remaining"
 log "  • Tamaño final: ${logs_size_mb}MB"
 log "  • Uso de disco: ${disk_usage}%"
+log ""
+log "📝 LOGS ROTADOS:"
+log "  • ml-retrain.log → últimas 1000 líneas"
+log "  • ml-retrain-cron.log → últimas 500 líneas"
+log "  • ml-integration.log → últimas 2000 líneas"
+log "  • auto-retrain.log → últimas 500 líneas"
 log ""
