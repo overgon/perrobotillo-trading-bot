@@ -2074,9 +2074,9 @@ execute_cycle() {
             hours_since_notify=$(( (current_hour - last_notify) / 3600 ))
             
             if [ $hours_since_notify -ge 4 ]; then
-                send_telegram "🛑 <b>GLOBAL CIRCUIT BREAKER ACTIVADO</b>
+                send_telegram "🛑 GLOBAL CIRCUIT BREAKER ACTIVADO
 
-⚠️ <b>$pause_type</b>
+⚠️ $pause_type
 
 📊 Razón: $pause_reason
 
