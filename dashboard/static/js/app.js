@@ -245,8 +245,14 @@ function updateSlots(data) {
                 targetPrice = sl;
                 targetName = 'SL';
                 // Progreso hacia SL (0% = entry, 100% = SL hit)
+                // Si el precio ya cruzó el SL, mostrar 100% pero con indicador visual
                 if (entryPrice > 0 && sl > 0 && sl !== entryPrice) {
-                    progress = Math.min(100, ((entryPrice - currentPrice) / (entryPrice - sl)) * 100);
+                    progress = ((entryPrice - currentPrice) / (entryPrice - sl)) * 100;
+                    // Clamp entre 0-100 para display, pero mantener valor real para lógica
+                    if (progress >= 100) {
+                        progress = 100;
+                        targetName = 'SL HIT ⚠️';
+                    }
                 }
             } else {
                 // Positivo o neutral → mostrar TP normal
@@ -303,10 +309,10 @@ function updateSlots(data) {
                     <div class="tp-progress-container">
                         <div class="tp-label">
                             <span>${isLossMode ? '⚠️ Distance to SL' : `Progress to ${targetName}`}</span>
-                            <span>${Math.min(100, Math.max(0, progress)).toFixed(1)}%</span>
+                            <span>${Math.max(0, progress).toFixed(1)}%</span>
                         </div>
                         <div class="tp-bar ${isLossMode ? 'danger' : (pnl >= 0 ? 'profit' : 'loss')}">
-                            <div class="tp-fill ${isLossMode ? 'danger-fill' : ''}" style="width: ${Math.min(100, Math.max(0, progress)).toFixed(1)}%"></div>
+                            <div class="tp-fill ${isLossMode ? 'danger-fill' : ''}" style="width: ${Math.max(0, progress).toFixed(1)}%"></div>
                         </div>
                     </div>
                 </div>

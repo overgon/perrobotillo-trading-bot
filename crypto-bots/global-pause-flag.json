@@ -1,0 +1,6 @@
+{
+  "pause_until": "2026-06-03 00:20:02",
+  "triggered_by": "losses_count",
+  "losses_24h": 8,
+  "total_loss": "-31.322679159999996"
+}

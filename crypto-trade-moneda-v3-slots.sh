@@ -2110,8 +2110,8 @@ _Jefe, el bot está en pausa global._ 🐕" 2>/dev/null || true
             now_epoch=$(date +%s)
             minutes_since_sl=$(( (now_epoch - last_sl_epoch) / 60 ))
             
-            if [ $minutes_since_sl -lt 30 ]; then
-                log "⚠️ ${SYMBOL}: SL hace ${minutes_since_sl} minutos - Esperar 30 min mínimo"
+            if [ $minutes_since_sl -lt 60 ]; then
+                log "⚠️ ${SYMBOL}: SL hace ${minutes_since_sl} minutos - Esperar 60 min mínimo (FIX 2026-06-02)"
                 return 0  # Saltar entrada por ahora
             fi
         fi

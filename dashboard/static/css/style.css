@@ -564,6 +564,24 @@ body::before {
     color: var(--dark-bg);
 }
 
+.slot-status.in-trade {
+    background: rgba(0, 212, 255, 0.1);
+    color: var(--neon-blue);
+    border: 1px solid var(--neon-blue);
+}
+
+.slot-status.in-trade.profit {
+    background: rgba(0, 255, 136, 0.1);
+    color: var(--neon-green);
+    border: 1px solid var(--neon-green);
+}
+
+.slot-status.in-trade.loss {
+    background: rgba(255, 0, 60, 0.1);
+    color: var(--neon-red);
+    border: 1px solid var(--neon-red);
+}
+
 .slot-status.loss {
     background: var(--neon-red);
     color: var(--dark-bg);
