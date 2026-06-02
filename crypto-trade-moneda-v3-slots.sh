@@ -394,9 +394,9 @@ log_trade_to_history() {
         # Alerta si llegamos a 5 SLs en un día
         if [ "$new_total_today" -ge 5 ]; then
             log "  🚨 CRÍTICO: $new_total_today SL hits hoy - Considerar pausa manual"
-            send_telegram "🚨 <b>ALERTA DE PÉRDIDAS - $SYMBOL</b>
+            send_telegram "🚨 ALERTA DE PÉRDIDAS - $SYMBOL
 
-⚠️ <b>$new_total_today Stop Loss hits HOY</b>
+⚠️ $new_total_today Stop Loss hits HOY
 
 📊 Estadísticas:
 • SLs consecutivos: $new_consecutive
@@ -2368,9 +2368,9 @@ Todas las monedas pueden operar normalmente.
         log "   ⏸️ Pausa de 4 horas hasta: $pause_until_time"
         
         # Notificar por Telegram
-        send_telegram "🛑 <b>PAUSE AUTOMÁTICO - $SYMBOL</b>
+        send_telegram "🛑 PAUSE AUTOMÁTICO - $SYMBOL
 
-⚠️ <b>$consecutive_sl Stop Loss hits consecutivos</b>
+⚠️ $consecutive_sl Stop Loss hits consecutivos
 
 📊 Estadísticas:
 • Último SL: hace pocos minutos
