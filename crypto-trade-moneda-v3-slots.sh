@@ -2093,6 +2093,30 @@ _Jefe, el bot está en pausa global._ 🐕" 2>/dev/null || true
         fi
     fi
     
+    # ════════════════════════════════════════════════════════
+    # 🛑 CHECK INDIVIDUAL SL TRACKING - PREVENT DOUBLE-CHECK
+    # ════════════════════════════════════════════════════════
+    # Verificar SI ESTA MONEDA tiene SL reciente antes de entrar
+    # Esto previene entradas como XRP Jun 02 00:06 (entró 11 min después de SL)
+    
+    SL_TRACKING_FILE="${WORKSPACE}/crypto-bots/${SYMBOL}-sl-tracking.json"
+    if [ -f "$SL_TRACKING_FILE" ]; then
+        consecutive_sl=$(jq -r '.consecutive_sl // 0' "$SL_TRACKING_FILE")
+        last_sl_time=$(jq -r '.last_sl_time // null' "$SL_TRACKING_FILE")
+        
+        if [ "$consecutive_sl" -gt 0 ] && [ "$last_sl_time" != "null" ]; then
+            # Verificar cuándo fue el último SL
+            last_sl_epoch=$(date -d "$last_sl_time" +%s 2>/dev/null || echo 0)
+            now_epoch=$(date +%s)
+            minutes_since_sl=$(( (now_epoch - last_sl_epoch) / 60 ))
+            
+            if [ $minutes_since_sl -lt 30 ]; then
+                log "⚠️ ${SYMBOL}: SL hace ${minutes_since_sl} minutos - Esperar 30 min mínimo"
+                return 0  # Saltar entrada por ahora
+            fi
+        fi
+    fi
+    
     # ============================================
     # 🛡️ CHECK SYSTEM STATUS (BINANCE MAINTENANCE)
     # ============================================

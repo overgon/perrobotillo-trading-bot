@@ -41,23 +41,51 @@ if [ ! -f "$TRADE_HISTORY" ]; then
     exit 0
 fi
 
-current_time=$(date +%s)
-cutoff_time=$((current_time - 86400))  # 24 horas atrás
+# Usar Python para parsing correcto de timestamps (bash jq tiene problemas con timezones)
+losses_data=$(python3 << 'PYEOF'
+import json
+from datetime import datetime, timezone, timedelta
+import sys
 
-# Contar losses en últimas 24h (todas las monedas)
-losses_24h=$(jq --argjson cutoff "$cutoff_time" \
-    '[.trades[] | select(.timestamp | fromdateiso8601 > $cutoff) | select(.pnlUSDT < 0)] | length' \
-    "$TRADE_HISTORY" 2>/dev/null || echo 0)
+with open("/home/overgon/.openclaw/workspace/crypto-bots/trade-history.json", 'r') as f:
+    data = json.load(f)
 
-# Calcular pérdida total en 24h
-total_loss_24h=$(jq --argjson cutoff "$cutoff_time" \
-    '[.trades[] | select(.timestamp | fromdateiso8601 > $cutoff) | select(.pnlUSDT < 0) | .pnlUSDT] | add // 0' \
-    "$TRADE_HISTORY" 2>/dev/null || echo 0)
+now = datetime.now(timezone.utc)
+cutoff_24h = now - timedelta(hours=24)
+one_hour_ago = now - timedelta(hours=1)
 
-# Contar trades totales en 24h
-trades_24h=$(jq --argjson cutoff "$cutoff_time" \
-    '[.trades[] | select(.timestamp | fromdateiso8601 > $cutoff)] | length' \
-    "$TRADE_HISTORY" 2>/dev/null || echo 0)
+losses_24h = 0
+total_loss_24h = 0
+trades_24h = 0
+losses_1h = 0
+
+for t in data.get('trades', []):
+    ts_str = t['timestamp']
+    try:
+        if '+' not in ts_str and 'Z' not in ts_str:
+            ts = datetime.fromisoformat(ts_str)
+            ts = ts.replace(tzinfo=timezone.utc)
+        else:
+            ts = datetime.fromisoformat(ts_str.replace('Z', '+00:00'))
+        
+        if ts >= cutoff_24h:
+            trades_24h += 1
+            if t['pnlUSDT'] < 0:
+                losses_24h += 1
+                total_loss_24h += t['pnlUSDT']
+                if ts >= one_hour_ago:
+                    losses_1h += 1
+    except Exception as e:
+        print(f"# Error parsing {t.get('timestamp', 'unknown')}: {e}", file=sys.stderr)
+
+print(f"{losses_24h}|{total_loss_24h}|{trades_24h}|{losses_1h}")
+PYEOF
+)
+
+losses_24h=$(echo "$losses_data" | cut -d'|' -f1)
+total_loss_24h=$(echo "$losses_data" | cut -d'|' -f2)
+trades_24h=$(echo "$losses_data" | cut -d'|' -f3)
+losses_1h=$(echo "$losses_data" | cut -d'|' -f4)
 
 echo "# Global 24h: $losses_24h losses, $trades_24h trades, \$${total_loss_24h}" >&2
 
@@ -88,11 +116,7 @@ if (( $(echo "$total_loss_24h < -50" | bc -l) )); then
 fi
 
 # Regla 3: 2+ losses en última hora → PAUSE 4h (evita "desastres" como May 16)
-one_hour_ago=$((current_time - 3600))
-losses_1h=$(jq --argjson cutoff "$one_hour_ago" \
-    '[.trades[] | select(.timestamp | fromdateiso8601 > $cutoff) | select(.pnlUSDT < 0)] | length' \
-    "$TRADE_HISTORY" 2>/dev/null || echo 0)
-
+# losses_1h ya calculado arriba con Python
 if [ "$losses_1h" -ge 2 ]; then
     pause_until=$(date -d '+4 hours' '+%Y-%m-%d %H:%M:%S')
     jq -n --arg pause "$pause_until" --argjson losses "$losses_1h" \
