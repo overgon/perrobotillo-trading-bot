@@ -65,8 +65,25 @@ def clean_slot_data(slot):
             del slot[field]
 
 def has_active_position(slot):
-    """Verifica si un slot tiene una posición activa (orderId + entryPrice)."""
-    return slot.get("orderId") is not None and slot.get("entryPrice") is not None
+    """Verifica si un slot tiene una posición activa basada en campos de cierre."""
+    order_id = slot.get("orderId")
+    entry_price = slot.get("entryPrice")
+    
+    # Sin orderId o entryPrice = no hay posición
+    if order_id is None or entry_price is None:
+        return False
+    
+    # Verificar si tiene información de cierre
+    closed_fields = ['closedAt', 'closeType', 'exitPrice', 'exitReason', 'exitTimestamp']
+    has_close_info = any(slot.get(f) for f in closed_fields if f in slot and slot.get(f) is not None)
+    
+    # Si tiene info de cierre, la posición ya no existe
+    if has_close_info:
+        return False
+    
+    # Tiene orderId, entryPrice, y NO tiene info de cierre = posición activa
+    return True
+
 
 def repair_slot(slot, coin, slot_id):
     """Repara un slot con estado inválido o inconsistente."""
