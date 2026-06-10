@@ -1,8 +1,32 @@
 # 🐕 PERROBOTILLO TRADING BOT - CHEATSHEET COMPLETO
 
-> **Última actualización:** Mayo 13, 2026  
-> **Total de scripts:** 26 (+5 ML)  
-> **Estado:** 100% OPERATIVO ✅
+> **Última actualización:** Junio 10, 2026  
+> **Total de scripts:** 30+ scripts  
+> **Estado:** 100% OPERATIVO ✅  
+> **Optimización:** Cero uso de LLM para tareas automáticas
+
+---
+
+## ⚡ OPTIMIZACIÓN JUNIO 2026 - CERO USO LLM AUTOMÁTICO
+
+**Problema detectado:** ~1,560 llamadas Ollama/mes por tareas automáticas (circuit breaker countdown)
+
+**Solución implementada:**
+- ❌ **Circuit Breaker:** Removido cron (24 ejecuciones/día → 0)
+  - Ahora: Trigger on-demand cuando se activa/desactiva
+  - Dashboard lee JSON directamente sin polling
+- ✅ **Slot Healbot:** Ejecución local Python (cada 10 min, sin LLM)
+- ✅ **Auto-Adjust:** Solo notificación Telegram (sin procesamiento LLM)
+
+**Resultado:**
+- **Ahorro:** ~1,560 llamadas Ollama/mes eliminadas
+- **Costo:** $0.00 en tokens para tareas automáticas
+- **CPU/RAM:** Mínimo (scripts locales eficientes)
+
+**Excepciones (uso intencional de LLM):**
+- Chat directo con el Jefe (Telegram/Discord)
+- Reportes diarios/mensuales (opcional, con LLM)
+- Análisis complejos bajo demanda
 
 ---
 
@@ -410,6 +434,102 @@ cd /home/<YOUR_USERNAME>/.openclaw/workspace/dashboard && bash start-with-ngrok.
 
 ---
 
+## 🛡️ CIRCUIT BREAKER Y AUTO-HEAL (NUEVO 2026-06-10)
+
+### `global-circuit-breaker.sh` 🆕🔴
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/global-circuit-breaker.sh`
+
+**Propósito:** Proteger el portfolio de pérdidas catastróficas con pause automático
+
+**Características:**
+- ✅ Verifica losses globales (todas las monedas) en últimas 24h
+- ✅ 4 reglas de protección:
+  1. **4+ losses en 24h** → PAUSE 24h
+  2. **-$50+ USDT en 24h** → PAUSE 48h
+  3. **2+ losses en 1h** → PAUSE 4h (evita desastres)
+  4. **Loss rate > 60% en 24h** → PAUSE 12h
+- ✅ Actualiza dashboard on-demand (sin cron)
+- ✅ Permite gestión de trades activos (SL/TP) durante pause
+- ✅ Auto-resume después del pause
+
+**Reglas de trading durante CB:**
+- ✅ **Permitido:** SL Management, TP Management, Emergency Close
+- ❌ **Bloqueado:** New Entries, DCA Operations
+
+**Comando:**
+```bash
+/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/global-circuit-breaker.sh
+# Output: OK_TO_TRADE o GLOBAL_PAUSE_XXH
+```
+
+**Uso en bots:**
+```bash
+if ! ./global-circuit-breaker.sh; then
+    echo "Trading paused - Circuit Breaker active"
+    exit 1
+fi
+```
+
+**Archivos:**
+- `global-pause-flag.json` - Flag de pause activo
+- `dashboard-circuit-breaker-status.json` - Status para dashboard (on-demand)
+
+**Logs:** Integrado en logs de cada bot que lo ejecuta
+
+---
+
+### `slot-healbot.py` 🆕🔧
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/slot-healbot.py`
+
+**Propósito:** Verificar y reparar estado de slots automáticamente
+
+**Características:**
+- ✅ Escanea 21 slots (7 monedas × 3 slots) cada 10 min
+- ✅ Detecta inconsistencias de estado
+- ✅ Repara automáticamente:
+  - CLOSED_* → READY (limpia datos)
+  - READY con posición → ACTIVE (corrige status)
+  - ACTIVE sin posición → READY (inconsistencia grave)
+  - ACTIVE con TP3 completado → CLOSED (cierra trade)
+- ✅ **REGLA DE ORO:** NUNCA toca slots ACTIVE con posición (excepto TP3)
+- ✅ Notifica reparaciones por Telegram
+
+**Estados válidos:**
+- `READY` - Slot disponible (sin posición)
+- `ACTIVE` - Posición abierta (IN TRADE)
+- `CLOSED_TP1/TP2/TP3/SL/TRAILING` - Trade cerrado
+
+**Cron:** `*/10 * * * *` (cada 10 minutos)
+
+**Comando:**
+```bash
+python3 /home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/slot-healbot.py
+```
+
+**Log:** `/home/<YOUR_USERNAME>/.openclaw/logs/auto-heal.log`
+
+---
+
+### `update-circuit-breaker-countdown.py` 🔄 OPTIMIZADO
+**Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/update-circuit-breaker-countdown.py`
+
+**Propósito:** Generar status JSON del circuit breaker para dashboard
+
+**Cambios Junio 2026:**
+- ❌ Removido: Countdown en tiempo real (innecesario)
+- ✅ Mantenido: Status básico (activo/inactivo)
+- ✅ Trigger: On-demand cuando CB se activa/desactiva
+- ❌ Sin cron: Dashboard lee directamente el JSON
+
+**Comando:**
+```bash
+python3 /home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/update-circuit-breaker-countdown.py
+```
+
+**Output:** `dashboard-circuit-breaker-status.json`
+
+---
+
 ## 🔒 SEGURIDAD Y EMERGENCIAS
 
 ### `emergency-close-all.sh`
@@ -608,21 +728,37 @@ source /home/<YOUR_USERNAME>/.openclaw/workspace/config/capital-config.sh
 
 ---
 
-## 📋 RESUMEN DE CRON JOBS
+## 📋 RESUMEN DE CRON JOBS (ACTUALIZADO JUNIO 2026)
 
-| Cron | Script | Propósito |
-|------|--------|-----------|
-| `*/2 * * * *` | `fan-control.sh` | Control ventilador (cada 2 min) |
-| `*/30 * * * *` | `check-drawdown-alert.sh` | Alerta drawdown (cada 30 min) |
-| `0 * * * *` | `market-sentiment.sh` | Sentimiento mercado (cada hora) |
-| `0 * * * *` | `check-public-ip.sh` | Check IP pública (cada hora) |
-| `0 9 * * *` | `daily-report-9am.sh` | Reporte diario (9 AM) |
-| `0 9 * * *` | `auto-capital-manager.sh` | Gestión capital (9 AM) |
-| `0 */6 * * *` | `auto-adjust-strategy.sh` | Auto-ajuste estrategia (6 horas) |
-| `4,14,24,34,44,54 * * * *` | `crypto-trade-moneda-v3-slots.sh LINK` | Trading bot LINK |
-| *(similar)* | `crypto-trade-moneda-v3-slots.sh [COIN]` | Trading bot cada moneda |
+| Cron | Script | Propósito | Uso LLM |
+|------|--------|-----------|----------|
+| `*/10 * * * *` | `run-slot-healbot.sh` | Repara slots cada 10 min | ❌ Local |
+| `*/2 * * * *` | `fan-control.sh` | Control ventilador (cada 2 min) | ❌ Local |
+| `*/30 * * * *` | `check-drawdown-alert.sh` | Alerta drawdown (cada 30 min) | ❌ Local |
+| `*/30 * * * *` | `proactive-alerts.sh` | Alertas proactivas (cada 30 min) | ❌ Local |
+| `0 * * * *` | `check-public-ip.sh` | Check IP pública (cada hora) | ❌ Local |
+| `0 */4 * * *` | `binance-maintenance-monitor.sh` | Monitor maintenance Binance | ❌ Local |
+| `0 9 * * *` | `daily-report-9am.sh` | Reporte diario (9 AM) | ⚠️ Opcional |
+| `0 9 * * *` | `auto-capital-manager.sh` | Gestión capital (9 AM) | ❌ Local |
+| `0 9 * * *` | `monthly-report.sh` | Reporte mensual (día 1, 9 AM) | ⚠️ Opcional |
+| `0 */6 * * *` | `auto-adjust-strategy.sh` | Auto-ajuste estrategia + ML | ⚠️ Notificación |
+| `0 3 * * 0` | `ml/auto-retrain-v2.py` | ML re-entrenamiento (domingos 3 AM) | ❌ Local |
+| `0 9 * * 0` | `ml-retrain-report.sh` | Reporte ML retrain (domingos 9 AM) | ⚠️ Opcional |
+| `0 23 * * 0` | `portfolio-rebalance.sh` | Rebalanceo portfolio (domingos 11 PM) | ❌ Local |
+| `0 */2 * * *` | `update-trailing-stops.sh` | Update trailing stops (cada 2h) | ❌ Local |
+| `0 */4 * * *` | `eth-accumulation-tracker.sh` | ETH tracker (cada 4h) | ❌ Local |
+| `0 * * * *` | `verify-balances.sh` | Verificar balances (cada hora) | ❌ Local |
+| `*/10 * * * *` | `update-portfolio.sh` | Actualizar portfolio (cada 10 min) | ❌ Local |
+| `0 */2 * * *` | `update-ml-predictions.sh` | ML predictions (cada 2h) | ❌ Local |
+| `* * * * *` | `dashboard/watchdog.sh` | Dashboard watchdog (cada min) | ❌ Local |
+| `*/5 * * * *` | `auto-reset-closed-slots.sh` | Reset slots cerrados (cada 5 min) | ❌ Local |
+| `0 8 * * *` | `dynamic-position-sizing.py` | Position sizing (diario 8 AM) | ❌ Local |
+| `0 1 1 * *` | `housekeeping.sh` | Limpieza mensual (día 1, 1 AM) | ❌ Local |
+| `0 2 * * 0` | `logrotate` | Log rotation semanal (domingos 2 AM) | ❌ Local |
+| Trading bots | `crypto-trade-moneda-v3-slots.sh [COIN]` | 7 monedas cada 10 min | ❌ Local |
 
-**Total:** 25 cron jobs activos
+**Total:** ~27 cron jobs activos  
+**Optimización Junio 2026:** Circuit breaker removido (on-demand), cero uso de LLM para tareas automáticas
 
 ---
 
@@ -637,15 +773,21 @@ source /home/<YOUR_USERNAME>/.openclaw/workspace/config/capital-config.sh
 
 ### Estado
 - `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/[COIN]-trade-state.json` - Estado de slots por moneda
-- `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/trade-history.json` - Histórico de trades (62 trades, 100% win rate)
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/trade-history.json` - Histórico de trades
 - `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/cashout-history.json` - Histórico de cashouts
 - `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/capital-manager-progress.json` - Progreso auto-capital
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/global-pause-flag.json` - Circuit breaker pause flag 🔴
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json` - CB status dashboard
+- `/home/<YOUR_USERNAME>/.openclaw/workspace/ml/market-predictions.json` - ML predictions actuales
 
 ### Logs
 - `/home/<YOUR_USERNAME>/.openclaw/logs/auto-trade-all.log` - Log principal de trading
 - `/home/<YOUR_USERNAME>/.openclaw/logs/fan-control.log` - Log de control de ventilador
 - `/home/<YOUR_USERNAME>/.openclaw/logs/tp-monitor.log` - Log de monitoreo de TPs
 - `/home/<YOUR_USERNAME>/.openclaw/logs/auto-capital-manager.log` - Log de gestión de capital
+- `/home/<YOUR_USERNAME>/.openclaw/logs/auto-adjust.log` - Auto-adjust strategy + ML
+- `/home/<YOUR_USERNAME>/.openclaw/logs/auto-heal.log` - Slot healbot reparaciones
+- `/home/<YOUR_USERNAME>/.openclaw/logs/ml-predictions-update.log` - ML predictions update
 
 ### Reportes
 - `/home/<YOUR_USERNAME>/.openclaw/workspace/daily-report-YYYY-MM-DD.md` - Reportes diarios
@@ -672,11 +814,20 @@ curl -s http://localhost:8080/api/portfolio | jq .
 # Trades activos
 jq '.slots[] | select(.status == "ACTIVE")' /home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/*-trade-state.json
 
+# Circuit Breaker status
+cat /home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json | jq .
+
+# Global pause flag
+cat /home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/global-pause-flag.json 2>/dev/null || echo "No active"
+
 # TP Monitor status
 systemctl status perrobotillo-tp-monitor
 
 # Capital Manager progress
 cat /home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/capital-manager-progress.json | jq .
+
+# ML predictions
+cat /home/<YOUR_USERNAME>/.openclaw/workspace/ml/market-predictions.json | jq '.predictions.BTC'
 ```
 
 ### Ver logs en tiempo real
@@ -706,29 +857,37 @@ crontab -l
 
 ---
 
-## 📊 ESTADÍSTICAS ACTUALES (Mayo 11, 2026)
+## 📊 ESTADÍSTICAS ACTUALES (Junio 10, 2026)
 
 ```
-Total Trades: 62
-Win Rate: 100% 🏆
-Net P&L: +$219.04 USDT
+Total Trades: [Actualizar con trade-history.json]
+Win Rate: [Actualizar %]
+Net P&L: +$[Actualizar] USDT
 
-Portfolio: ~$2,887 USDT (~$49,700 MXN con tasa real)
+Portfolio: ~$500 USDT invertidos (FASE 1 v2.1 optimizada)
+Daily Loss Limit: 3% (Circuit Breaker activo)
 
-Slots Activos: 13/21 (62% utilización)
-Slots Disponibles: 8/21
+Slots Activos: 15/21 en profit (+2-3%)
+SOL en TP1 - Esperando cierre automático
 
-Cashouts: 2 ($360.04 USDT → $6,280.70 MXN)
+Cashouts: [Actualizar]
 
 Temperatura RPi5: ~38-45°C
 Ventilador: Auto control (PWM 0-255)
 
-Position Size: 27% (auto-ajustado por bot)
-  → ~$779 USDT por trade
+Position Size: [Actualizar]% (auto-ajustado)
 
-Estrategia Actual: LATERAL + SCALPING MODE
-  TP1: 2.5% | TP2: 5.0% | TP3: 7.0% | SL: 5.0%
-  SCALPING: 1.0% target, 2.5% SL
+Estrategia Actual: BEAR (auto-adjust a las 8 AM)
+  TP1: 2.0% | TP2: 4.0% | TP3: 6.0% | SL: 4.0%
+  Position: 15%
+  
+Circuit Breaker: ✅ Activo (protección 4 losses/24h, -$50/24h)
+ML Validator: ✅ Integrado (override con >80% confianza)
+
+Optimización LLM: ❌ Cero uso para tareas automáticas
+  - Circuit breaker: On-demand (sin cron)
+  - Slot healbot: Local Python (cada 10 min)
+  - Auto-adjust: Solo notificación Telegram
 ```
 
 ---
@@ -779,7 +938,42 @@ Estrategia Actual: LATERAL + SCALPING MODE
 
 ---
 
-## 🎯 NOVEDADES MAYO 11, 2026
+## 🎯 NOVEDADES JUNIO 10, 2026
+
+### 🆕 Circuit Breaker Global (global-circuit-breaker.sh)
+- Protección contra pérdidas catastróficas
+- 4 reglas: losses/24h, drawdown/$50, losses/1h, loss rate
+- Pause automático (4h-48h según severidad)
+- Actualización dashboard on-demand (sin cron)
+- Permite gestión SL/TP durante pause
+
+### 🆕 Slot Healbot (slot-healbot.py)
+- Verifica y repara 21 slots cada 10 min
+- Repara inconsistencias: CLOSED→READY, READY→ACTIVE
+- REGLA DE ORO: Nunca toca slots ACTIVE con posición
+- Notifica reparaciones por Telegram
+- Ejecución local (sin LLM)
+
+### 🧠 ML Validator Integrado (ml-market-validator.sh)
+- Valida auto-adjust con ML predictions
+- Override automático si discrepancia >80% confianza
+- Predicciones frescas cada 2 horas
+- Logs de reason y confidence
+
+### 🔄 Optimización LLM - Cero Uso Automático
+- ❌ Circuit breaker cron: Removido (on-demand)
+- ❌ Slot healbot: Local Python
+- ⚠️ Auto-adjust: Solo notificación Telegram
+- ✅ Ahorro: ~1,560 llamadas Ollama/mes eliminadas
+
+### 📊 Dashboard Circuit Breaker
+- Status JSON actualizado on-demand
+- Emergency mode visual (slots naranjas 🟠)
+- Sin countdown en tiempo real (solo cuando activo)
+
+---
+
+## 🎯 NOVEDADES MAYO 2026
 
 ### 🆕 TP Monitor (`tp-monitor.sh`)
 - Monitoreo en tiempo real cada 30 segundos

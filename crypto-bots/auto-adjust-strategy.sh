@@ -10,6 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORKSPACE="${SCRIPT_DIR}/.."
 CONFIG_FILE="${SCRIPT_DIR}/market-mode.conf"
 BOT_SCRIPT="${SCRIPT_DIR}/crypto-trade-moneda-v3-slots.sh"
+ML_VALIDATOR="${SCRIPT_DIR}/ml-market-validator.sh"
 
 echo "╔═══════════════════════════════════════════════════════╗"
 echo "║  🧠 AUTO-ADJUST STRATEGY ENGINE                       ║"
@@ -117,7 +118,30 @@ echo ""
 # ════════════════════════════════════════════════════════
 
 echo "⏳ Paso 4/4: Ejecutando ML validation..."
-"${SCRIPT_DIR}/ml-market-validator.sh"
+
+# FIX: Verificar edad de ML predictions antes de validar
+ML_RESULT_FILE="${SCRIPT_DIR}/../ml/market-predictions.json"
+MAX_AGE_MINUTES=120  # 2 horas máximo
+
+if [ -f "$ML_RESULT_FILE" ]; then
+    ML_AGE_MIN=$(python3 -c "
+import json, datetime
+d = json.load(open('$ML_RESULT_FILE'))
+ts = datetime.datetime.fromisoformat(d['timestamp'])
+age = (datetime.datetime.now() - ts).total_seconds() / 60
+print(int(age))
+" 2>/dev/null || echo "999")
+    
+    if [ "$ML_AGE_MIN" -gt "$MAX_AGE_MINUTES" ]; then
+        echo "⚠️  ML predictions tienen ${ML_AGE_MIN} min (> ${MAX_AGE_MINUTES} min)"
+        echo "   Actualizando predicciones primero..."
+        "${SCRIPT_DIR}/update-ml-predictions.sh"
+    else
+        echo "✅ ML predictions frescas (${ML_AGE_MIN} min)"
+    fi
+fi
+
+"${ML_VALIDATOR}"  # ML validator en crypto-bots/
 
 # ════════════════════════════════════════════════════════
 # PASO 5: NOTIFICAR + APLICAR OVERRIDE (DESPUÉS DE ML VALIDATION)
@@ -144,7 +168,7 @@ if [ -f "$ML_RESULT_FILE" ]; then
             echo "# ML Confidence: $ML_CONFIDENCE" >> "$DYNAMIC_CONFIG"
         fi
     else
-        FINAL_MODE="$AUTO_MODE"
+        FINAL_MODE="$MARKET_MODE"  # FIX: Usar MARKET_MODE en lugar de AUTO_MODE (no definida)
         OVERRIDE="✅ ML de acuerdo"
     fi
     

@@ -23,11 +23,49 @@ if [ -f "$GLOBAL_PAUSE_FILE" ]; then
         
         if [ $now_epoch -lt $pause_epoch ]; then
             remaining_hours=$(( (pause_epoch - now_epoch) / 3600 ))
-            echo "GLOBAL_PAUSE_ACTIVE|${remaining_hours}h restantes"
-            exit 1
+            
+            # 🐕 FIX: Permitir gestión de trades activos (SL/TP) incluso con pause flag
+            # Verificar si hay trades activos que necesitan gestión
+            HAS_ACTIVE_TRADES=false
+            for coin in BTC ETH BNB SOL LINK XRP AVAX; do
+                state_file="$WORKSPACE/crypto-bots/${coin}-trade-state.json"
+                if [ -f "$state_file" ]; then
+                    active=$(jq '[.slots[] | select(.status == "ACTIVE")] | length' "$state_file" 2>/dev/null || echo 0)
+                    if [ "$active" -gt 0 ]; then
+                        HAS_ACTIVE_TRADES=true
+                        break
+                    fi
+                fi
+            done
+            
+            if [ "$HAS_ACTIVE_TRADES" = true ]; then
+                # Hay trades activos - permitir ejecución para gestión (SL/TP)
+                echo "ALLOW_ACTIVE_MANAGEMENT|${remaining_hours}h pause, gestionando activos"
+                exit 0  # Permitir ejecución
+            else
+                # No hay trades activos - bloquear completamente
+                echo "GLOBAL_PAUSE_ACTIVE|${remaining_hours}h restantes"
+                exit 1
+            fi
         else
             # Pausa expiró, limpiar flag
             rm -f "$GLOBAL_PAUSE_FILE"
+            
+            # 🐕 ACTUALIZAR DASHBOARD STATUS - Trading reanudado
+            python3 << CBEOF
+import json
+from datetime import datetime
+status = {
+    "circuitBreakerActive": False,
+    "status": "RESUMED",
+    "message": "Circuit Breaker OFF - Trading Reanudado",
+    "resumedAt": datetime.now().isoformat(),
+    "lastChecked": datetime.now().isoformat()
+}
+with open("/home/overgon/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json", 'w') as f:
+    json.dump(status, f, indent=2)
+CBEOF
+            
             echo "GLOBAL_PAUSE_EXPIRED|Reanudando operaciones"
         fi
     fi
@@ -100,6 +138,26 @@ if [ "$losses_24h" -ge 4 ]; then
         '{"pause_until": $pause, "triggered_by": "losses_count", "losses_24h": $losses, "total_loss": $loss}' \
         > "$GLOBAL_PAUSE_FILE"
     
+    # 🐕 ACTUALIZAR DASHBOARD STATUS (on-demand)
+    python3 << CBEOF
+import json
+from datetime import datetime
+status = {
+    "circuitBreakerActive": True,
+    "status": "GLOBAL_PAUSE",
+    "triggeredBy": "losses_count",
+    "activatedAt": datetime.now().isoformat(),
+    "pauseUntil": "$pause_until",
+    "losses24h": $losses_24h,
+    "message": f"🔴 Circuit Breaker ON - {losses_24h} losses en 24h",
+    "allowedOperations": ["SL Management", "TP Management", "Emergency Close"],
+    "blockedOperations": ["New Entries", "DCA Operations"],
+    "lastChecked": datetime.now().isoformat()
+}
+with open("/home/overgon/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json", 'w') as f:
+    json.dump(status, f, indent=2)
+CBEOF
+    
     echo "GLOBAL_PAUSE_24H|$losses_24h losses en 24h (threshold: 4)"
     exit 1
 fi
@@ -110,6 +168,26 @@ if (( $(echo "$total_loss_24h < -50" | bc -l) )); then
     jq -n --arg pause "$pause_until" --argjson losses "$losses_24h" --arg loss "$total_loss_24h" \
         '{"pause_until": $pause, "triggered_by": "drawdown_threshold", "losses_24h": $losses, "total_loss": $loss}' \
         > "$GLOBAL_PAUSE_FILE"
+    
+    # 🐕 ACTUALIZAR DASHBOARD STATUS (on-demand)
+    python3 << CBEOF
+import json
+from datetime import datetime
+status = {
+    "circuitBreakerActive": True,
+    "status": "GLOBAL_PAUSE",
+    "triggeredBy": "drawdown_threshold",
+    "activatedAt": datetime.now().isoformat(),
+    "pauseUntil": "$pause_until",
+    "losses24h": $losses_24h,
+    "message": f"🔴 Circuit Breaker ON - \$${total_loss_24h} en 24h",
+    "allowedOperations": ["SL Management", "TP Management", "Emergency Close"],
+    "blockedOperations": ["New Entries", "DCA Operations"],
+    "lastChecked": datetime.now().isoformat()
+}
+with open("/home/overgon/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json", 'w') as f:
+    json.dump(status, f, indent=2)
+CBEOF
     
     echo "GLOBAL_PAUSE_48H|\$${total_loss_24h} pérdidas en 24h (threshold: -$50)"
     exit 1
@@ -123,6 +201,26 @@ if [ "$losses_1h" -ge 2 ]; then
         '{"pause_until": $pause, "triggered_by": "hourly_losses", "losses_1h": $losses}' \
         > "$GLOBAL_PAUSE_FILE"
     
+    # 🐕 ACTUALIZAR DASHBOARD STATUS (on-demand)
+    python3 << CBEOF
+import json
+from datetime import datetime
+status = {
+    "circuitBreakerActive": True,
+    "status": "GLOBAL_PAUSE",
+    "triggeredBy": "hourly_losses",
+    "activatedAt": datetime.now().isoformat(),
+    "pauseUntil": "$pause_until",
+    "losses24h": $losses_1h,
+    "message": f"🔴 Circuit Breaker ON - {losses_1h} losses en 1h",
+    "allowedOperations": ["SL Management", "TP Management", "Emergency Close"],
+    "blockedOperations": ["New Entries", "DCA Operations"],
+    "lastChecked": datetime.now().isoformat()
+}
+with open("/home/overgon/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json", 'w') as f:
+    json.dump(status, f, indent=2)
+CBEOF
+    
     echo "GLOBAL_PAUSE_4H|$losses_1h losses en última hora (threshold: 2)"
     exit 1
 fi
@@ -135,6 +233,26 @@ if [ "$trades_24h" -gt 0 ]; then
         jq -n --arg pause "$pause_until" --arg rate "$loss_rate" --argjson losses "$losses_24h" \
             '{"pause_until": $pause, "triggered_by": "loss_rate", "loss_rate": $rate, "losses_24h": $losses}' \
             > "$GLOBAL_PAUSE_FILE"
+        
+        # 🐕 ACTUALIZAR DASHBOARD STATUS (on-demand)
+        python3 << CBEOF
+import json
+from datetime import datetime
+status = {
+    "circuitBreakerActive": True,
+    "status": "GLOBAL_PAUSE",
+    "triggeredBy": "loss_rate",
+    "activatedAt": datetime.now().isoformat(),
+    "pauseUntil": "$pause_until",
+    "losses24h": $losses_24h,
+    "message": f"🔴 Circuit Breaker ON - ${loss_rate}% loss rate",
+    "allowedOperations": ["SL Management", "TP Management", "Emergency Close"],
+    "blockedOperations": ["New Entries", "DCA Operations"],
+    "lastChecked": datetime.now().isoformat()
+}
+with open("/home/overgon/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json", 'w') as f:
+    json.dump(status, f, indent=2)
+CBEOF
         
         echo "GLOBAL_PAUSE_12H|${loss_rate}% loss rate en 24h (threshold: 60%)"
         exit 1

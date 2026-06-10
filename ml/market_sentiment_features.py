@@ -180,9 +180,27 @@ def add_sentiment_to_training_data(df):
     fg_df['date'] = pd.to_datetime(fg_df['date'])
     fg_df = fg_df.rename(columns={'value': 'fear_greed'})
     
-    # Merge con datos históricos
-    df['date'] = pd.to_datetime(df['date'])
-    df = df.merge(fg_df[['date', 'fear_greed']], on='date', how='left')
+    # Determinar nombre de columna de fecha en el dataset
+    date_col = None
+    if 'date' in df.columns:
+        date_col = 'date'
+    elif 'timestamp' in df.columns:
+        date_col = 'timestamp'
+    else:
+        raise KeyError("No se encontró columna 'date' ni 'timestamp' en el DataFrame")
+    
+    # Convertir columna de fecha a datetime
+    df[date_col] = pd.to_datetime(df[date_col])
+    
+    # Extraer solo la fecha (YYYY-MM-DD) para match con F&G data
+    df['date_only'] = df[date_col].dt.date
+    fg_df['date_only'] = fg_df['date'].dt.date
+    
+    # Merge con datos históricos usando date_only
+    df = df.merge(fg_df[['date_only', 'fear_greed']], on='date_only', how='left')
+    
+    # Eliminar columna temporal
+    df = df.drop(columns=['date_only'])
     
     # Forward fill para días sin datos
     df['fear_greed'] = df['fear_greed'].ffill().bfill()
