@@ -574,6 +574,30 @@ EOF
 }
 
 get_available_slot() {
+    # 🛑 FIX: Verificar GLOBAL PAUSE FLAG antes de abrir NUEVOS trades
+    # PERMITIR gestión de trades activos (TP/SL) incluso con pause flag
+    GLOBAL_PAUSE_FILE="${WORKSPACE}/crypto-bots/global-pause-flag.json"
+    if [ -f "$GLOBAL_PAUSE_FILE" ]; then
+        local pause_until=$(jq -r '.pause_until // null' "$GLOBAL_PAUSE_FILE" 2>/dev/null)
+        if [ "$pause_until" != "null" ]; then
+            local pause_epoch=$(date -d "$pause_until" +%s 2>/dev/null || echo 0)
+            local now_epoch=$(date +%s)
+            if [ $now_epoch -lt $pause_epoch ]; then
+                local remaining_mins=$(( (pause_epoch - now_epoch) / 60 ))
+                log "🛑 PAUSE FLAG ACTIVO - No abrir NUEVOS trades (restan ${remaining_mins} min)"
+                log "   Trigger: $(jq -r '.triggered_by // "unknown"' "$GLOBAL_PAUSE_FILE")"
+                log "   ⚠️  Trades activos SIGUEN gestionándose (TP/SL sí se ejecutan)"
+                # 🛑 FIX: Retornar 0 para indicar NO slot disponible (evita abrir nuevos trades)
+                echo "0"
+                return
+            else
+                log "✅ Pause flag expirado, reanudando trading"
+                # Limpiar pause flag expirado
+                echo '{}' > "$GLOBAL_PAUSE_FILE"
+            fi
+        fi
+    fi
+    
     local slot_id=$(jq -r '.slots[] | select(.status == "READY") | .slotId' "$STATE_FILE" | head -1)
     echo "${slot_id:-0}"
 }
@@ -912,6 +936,7 @@ execute_long() {
     # ════════════════════════════════════════════════════
     
     ML_VALIDATOR="$WORKSPACE/ml/ml_validator_wrapper.py"
+    PYTHON_VENV="$WORKSPACE/venv/bin/python3"
     local ml_approved="N/A"
     local ml_confidence="N/A"
     local ml_position="N/A"
@@ -921,8 +946,8 @@ execute_long() {
     if [ -f "$ML_VALIDATOR" ]; then
         log "🧠 ML Validator: Consultando validación pre-trade (Jesse AI Pipeline)..."
         
-        # Ejecutar validator y capturar resultado
-        ml_result=$(python3 "$ML_VALIDATOR" "$SYMBOL" "LONG" "NORMAL" 2>&1)
+        # Ejecutar validator con venv y capturar resultado
+        ml_result=$($PYTHON_VENV "$ML_VALIDATOR" "$SYMBOL" "LONG" "NORMAL" 2>&1)
         ml_exit_code=$?
         
         log "📝 ML Exit code: $ml_exit_code"
@@ -1116,11 +1141,11 @@ El slot permanece disponible para próximo trade. 🛡️"
         
         # Construir sección de ML
         local ml_section=""
-        if [ "$ml_approved" = "true" ]; then
+        if [ "$ml_approved" = "✅" ] || [ "$ml_approved" = "SÍ" ] || [ "$ml_approved" = "SI" ]; then
             ml_section="🧠 ML Validator: ✅ APROBADO
    Confianza: ${ml_confidence}% | Riesgo: ${ml_risk}
    Razón: $ml_reason"
-        elif [ "$ml_approved" = "false" ]; then
+        elif [ "$ml_approved" = "❌" ] || [ "$ml_approved" = "NO" ]; then
             ml_section="🧠 ML Validator: ❌ RECHAZADO
    Confianza: ${ml_confidence}%
    Razón: $ml_reason"
@@ -1332,13 +1357,17 @@ Target: ${SCALP_TARGET_PERCENT}%
             local sell_status=$(echo "$sell_result" | jq -r '.status // "ERROR"')
             if [ "$sell_status" = "FILLED" ]; then
                 log "  ✅ TP1 ejecutado exitosamente ($sell_qty_fmt)"
-                update_slot_field "$slot_id" "tp1Done" "true"
                 
                 # Calcular P&L ANTES de guardar en histórico
                 local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
                 
                 # LOG TRADE TO HISTORY
                 log_trade_to_history "$slot_id" "TP1" "$entry" "$current_price" "$sell_qty" "$pnl"
+                
+                # 🐕 FIX: Actualizar quantity restante después de TP1
+                local remaining_qty=$(awk -v orig="$quantity" -v sold="$sell_qty" 'BEGIN {printf "%.8f", orig - sold}')
+                log "  🔄 Quantity: $quantity - $sell_qty = $remaining_qty (restante)"
+                update_slot_field "$slot_id" "quantity" "$remaining_qty"
                 
                 # Marcar TP1 como completado
                 log "  ✅ TP1 marcado como completado"
@@ -1471,13 +1500,17 @@ Quedan 65% para TP2/TP3 🎯"
             local sell_status=$(echo "$sell_result" | jq -r '.status // "ERROR"')
             if [ "$sell_status" = "FILLED" ]; then
                 log "  ✅ TP2 ejecutado exitosamente ($sell_qty_fmt)"
-                update_slot_field "$slot_id" "tp2Done" "true"
                 
                 # Calcular P&L ANTES de guardar en histórico
                 local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
                 
                 # LOG TRADE TO HISTORY
                 log_trade_to_history "$slot_id" "TP2" "$entry" "$current_price" "$sell_qty" "$pnl"
+                
+                # 🐕 FIX: Actualizar quantity restante después de TP2
+                local remaining_qty=$(awk -v orig="$quantity" -v sold="$sell_qty" 'BEGIN {printf "%.8f", orig - sold}')
+                log "  🔄 Quantity: $quantity - $sell_qty = $remaining_qty (restante)"
+                update_slot_field "$slot_id" "quantity" "$remaining_qty"
                 
                 # Marcar TP2 como completado
                 log "  ✅ TP2 marcado como completado"
@@ -1626,15 +1659,22 @@ El slot permanece activo."
             local sell_status=$(echo "$sell_result" | jq -r '.status // "ERROR"')
             if [ "$sell_status" = "FILLED" ]; then
                 log "  ✅ TP3 ejecutado exitosamente ($sell_qty_fmt) - CIERRE TOTAL 📈"
-                update_slot_field "$slot_id" "tp3Done" "true"
-                update_slot_field "$slot_id" "status" "CLOSED_TP3"
-                log "  ✅ Slot cerrado - TP3 completado (5% acumulado en Binance)"
                 
                 # Calcular P&L ANTES de guardar en histórico
                 local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$quantity" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
                 
                 # LOG TRADE TO HISTORY
                 log_trade_to_history "$slot_id" "TP3" "$entry" "$current_price" "$quantity" "$pnl"
+                
+                # 🐕 FIX: Actualizar quantity a 0 (o el 5% acumulado) después de TP3
+                # En modo acumulación, 5% se queda en Binance, pero el slot se cierra
+                local remaining_qty=$(awk -v orig="$quantity" 'BEGIN {printf "%.8f", orig * 0.05}')
+                log "  🔄 Quantity restante (5% acumulado): $remaining_qty"
+                # NO actualizamos quantity porque el slot se cierra, pero lo logueamos para tracking
+                
+                # Marcar slot como cerrado
+                update_slot_field "$slot_id" "status" "CLOSED_TP3"
+                log "  ✅ Slot cerrado - TP3 completado (5% acumulado en Binance)"
                 
                 # Marcar TP3 como completado
                 log "  ✅ TP3 marcado como completado"
