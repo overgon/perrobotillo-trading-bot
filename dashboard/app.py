@@ -448,10 +448,12 @@ def api_status():
     
     for coin, state in trade_states.items():
         slots = state.get('slots', [])
-        if len(slots) == 0:
-            ready_slots += 1
-        else:
-            active_slots += len(slots)
+        for slot in slots:
+            status = slot.get('status', 'READY')
+            if status == 'ACTIVE':
+                active_slots += 1
+            else:
+                ready_slots += 1
     
     total_slots = active_slots + ready_slots
     
