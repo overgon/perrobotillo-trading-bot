@@ -259,8 +259,45 @@ body {
 }
 
 .slot-card.ready {
+    border-color: var(--neon-yellow);
+    background: linear-gradient(135deg, rgba(252, 238, 10, 0.15), var(--bg-card));
+    box-shadow: 0 0 15px rgba(252, 238, 10, 0.3);
+}
+
+.slot-card.pause {
+    border-color: var(--text-secondary);
+    background: linear-gradient(135deg, rgba(128, 128, 128, 0.1), var(--bg-card));
+    box-shadow: 0 0 10px rgba(128, 128, 128, 0.2);
+    opacity: 0.8;
+}
+
+/* 🟠 EMERGENCY MODE - Naranja Metálico cuando Circuit Breaker está activo */
+.slot-card.emergency-pause {
+    border-color: #FF6B35;
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), var(--bg-card));
+    box-shadow: 0 0 25px rgba(255, 107, 53, 0.4), inset 0 0 10px rgba(255, 107, 53, 0.1);
+    animation: emergency-pulse 2s ease-in-out infinite;
+}
+
+@keyframes emergency-pulse {
+    0%, 100% {
+        box-shadow: 0 0 25px rgba(255, 107, 53, 0.4), inset 0 0 10px rgba(255, 107, 53, 0.1);
+    }
+    50% {
+        box-shadow: 0 0 35px rgba(255, 107, 53, 0.6), inset 0 0 15px rgba(255, 107, 53, 0.2);
+    }
+}
+
+.slot-card.profit {
     border-color: var(--neon-green);
-    background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), var(--bg-card));
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.15), var(--bg-card));
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+}
+
+.slot-card.loss {
+    border-color: var(--neon-red);
+    background: linear-gradient(135deg, rgba(255, 51, 102, 0.15), var(--bg-card));
+    box-shadow: 0 0 15px rgba(255, 51, 102, 0.3);
 }
 
 .slot-header {
@@ -304,6 +341,24 @@ body {
     background: rgba(0, 255, 136, 0.1);
     color: var(--neon-green);
     border: 1px solid var(--neon-green);
+}
+
+/* 🟠 EMERGENCY MODE - Status badge naranja metálico */
+.slot-status.emergency-pause {
+    background: linear-gradient(135deg, #FF6B35, #FF8C42);
+    color: #0a0a1a;
+    font-weight: 900;
+    box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+    animation: emergency-badge-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes emergency-badge-pulse {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(255, 107, 53, 0.8);
+    }
 }
 
 .slot-grid-info {

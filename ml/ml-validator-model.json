@@ -2,8 +2,8 @@
   "type": "RandomForest",
   "n_estimators": 100,
   "max_depth": 10,
-  "accuracy": 0.8275862068965517,
-  "samples": 142,
+  "accuracy": 0.75,
+  "samples": 159,
   "features": [
     "rsi",
     "macd",
@@ -14,9 +14,9 @@
     "bb_position",
     "volatility"
   ],
-  "trained_at": "2026-05-31T03:54:37.178923",
-  "trades_used": 142,
-  "train_samples": 113,
-  "test_samples": 29,
-  "win_rate": 76.05633802816901
+  "trained_at": "2026-06-03T13:09:06.228167",
+  "trades_used": 159,
+  "train_samples": 127,
+  "test_samples": 32,
+  "win_rate": 67.9245283018868
 }

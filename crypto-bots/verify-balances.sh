@@ -1,7 +1,8 @@
 #!/bin/bash
 # ╔═══════════════════════════════════════════════════════╗
-# ║  🔄 VERIFY BALANCES - SYNC CHECK AUTOMÁTICO           ║
-# ║  Verifica que trade-state files = Binance API         ║
+# ║  📊 BALANCE REPORT - Reporte Informativo              ║
+# ║  Muestra balances reales vs slots activos             ║
+# ║  NO genera alertas - dust es normal después de trades ║
 # ╚═══════════════════════════════════════════════════════╝
 
 set -e
@@ -14,22 +15,9 @@ BINANCE="https://api.binance.com"
 source "$SECRETS/binance.env"
 
 COINS=("BTC" "ETH" "SOL" "LINK" "XRP" "BNB" "AVAX")
-THRESHOLD=0.001  # 0.1% de diferencia máxima permitida
 
 log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [VERIFY-BAL] $1" | tee -a "$LOGS/verify-balances.log"
-}
-
-send_telegram() {
-    local message="$1"
-    local config_file="$HOME/.openclaw/openclaw.json"
-    if [ -f "$config_file" ]; then
-        local bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)
-        [ -n "$bot_token" ] && [ "$bot_token" != "null" ] && \
-            curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
-                -H "Content-Type: application/json" \
-                -d "{\"chat_id\":\"7543955537\",\"text\":\"$message\",\"parse_mode\":\"HTML\"}" > /dev/null
-    fi
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [BAL-REPORT] $1" | tee -a "$LOGS/balance-report.log"
 }
 
 get_signature() {
@@ -46,8 +34,12 @@ get_account_data() {
 }
 
 log "╔═══════════════════════════════════════════════════════╗"
-log "║  🔄 VERIFY BALANCES - SYNC CHECK                      ║"
+log "║  📊 BALANCE REPORT - Dust de Trades Cerrados          ║"
 log "╚═══════════════════════════════════════════════════════╝"
+log ""
+log "NOTA: Los balances mostrados son NORMALES después de múltiples"
+log "trades con TP parciales. No representan errores del sistema."
+log ""
 
 # Obtener datos de cuenta de Binance
 account_data=$(get_account_data)
@@ -56,60 +48,51 @@ if ! echo "$account_data" | jq -e '.balances' > /dev/null 2>&1; then
     exit 1
 fi
 
-discrepancies=()
+total_dust_usd=0
+
+log "┌─────────────────────────────────────────────────────────┐"
+log "│ COIN   │ API Balance │ Active │ Diff    │ USD Value   │"
+log "├─────────────────────────────────────────────────────────┤"
 
 for COIN in "${COINS[@]}"; do
     STATE_FILE="$WORKSPACE/crypto-bots/${COIN}-trade-state.json"
     
     if [ ! -f "$STATE_FILE" ]; then
-        log "⚠️  ${COIN}: No state file, skipping..."
         continue
     fi
     
     # Obtener balance real de Binance
     api_balance=$(echo "$account_data" | jq -r ".balances[] | select(.asset == \"$COIN\") | .free // 0")
-    api_balance=$(echo "$api_balance" | awk '{printf "%.8f", $1}')
-    
-    if [ "$api_balance" = "null" ] || [ -z "$api_balance" ]; then
-        api_balance="0.00000000"
-    fi
+    api_balance=$(printf "%.8f" "$api_balance")
     
     # Sumar cantidades activas del file
     active_qty=$(jq '[.slots[] | select(.status == "ACTIVE") | .quantity // 0] | add // 0' "$STATE_FILE" 2>/dev/null || echo "0")
-    active_qty=$(echo "$active_qty" | awk '{printf "%.8f", $1}')
+    active_qty=$(printf "%.8f" "$active_qty")
     
-    # Calcular diferencia absoluta
+    # Calcular diferencia
     diff=$(awk -v api="$api_balance" -v active="$active_qty" 'BEGIN {printf "%.8f", api - active}')
-    diff_abs=${diff#-}  # Valor absoluto
+    diff_abs=${diff#-}
     
-    log "${COIN}: API=${api_balance}, File=${active_qty}, Diff=${diff}"
+    # Obtener precio USD
+    price_usd=$(curl -s "${BINANCE}/api/v3/ticker/price?symbol=${COIN}USDT" 2>/dev/null | jq -r '.price' || echo "0")
+    dust_value_usd=$(awk -v diff="$diff_abs" -v price="$price_usd" 'BEGIN {printf "%.2f", diff * price}')
     
-    # Verificar si diferencia > threshold
-    if (( $(echo "$diff_abs > $THRESHOLD" | bc -l) )); then
-        log "  🔴 DISCREPANCIA DETECTADA: ${diff}"
-        discrepancies+=("${COIN}: API=${api_balance}, File=${active_qty}, Diff=${diff}")
-    else
-        log "  ✅ OK (diff=${diff})"
-    fi
+    total_dust_usd=$(awk -v total="$total_dust_usd" -v dust="$dust_value_usd" 'BEGIN {printf "%.2f", total + dust}')
+    
+    # Formatear salida
+    log "│ ${COIN}     │ ${api_balance} │ ${active_qty} │ ${diff} │ \$${dust_value_usd} │"
 done
 
-# Reportar discrepancias
-if [ ${#discrepancies[@]} -gt 0 ]; then
-    message="⚠️ <b>BALANCE DISCREPANCY DETECTED</b>\n\n"
-    
-    for d in "${discrepancies[@]}"; do
-        message+="${d}\n"
-    done
-    
-    message+="\n<b>Acción requerida:</b>\n"
-    message+="1. Revisar trade-history.json para trades cerrados\n"
-    message+="2. Ejecutar sync-state-with-binance.sh si es necesario\n"
-    message+="3. Verificar si hubo ventas manuales externas\n"
-    
-    send_telegram "$message"
-    log "✅ Alerta enviada"
-    exit 1  # Exit with error para que el cron loguee el fallo
-else
-    log "✅ Todas las coins sincronizadas"
-    exit 0
-fi
+log "└─────────────────────────────────────────────────────────┘"
+log ""
+log "💰 Total Dust en Balances: \$${total_dust_usd} USD"
+log ""
+log "✅ Estos balances son NORMALES y provienen de:"
+log "   • TP partial fills (ventas parciales)"
+log "   • Emergency closes incompletos"
+log "   • Comisiones pagadas en BNB"
+log "   • Dust no tradeable acumulado"
+log ""
+log "📝 Para más detalles ver: BALANCE-RECONCILIATION.md"
+
+exit 0

@@ -1,14 +1,14 @@
 {
-  "timestamp": "2026-05-16T01:32:02.779411",
+  "timestamp": "2026-06-10T16:00:48.135784",
   "model_accuracy": 0.9970238095238095,
   "predictions": {
     "BTC": {
       "market_mode": "LATERAL",
-      "confidence": 0.992,
+      "confidence": 0.99,
       "probabilities": {
-        "BEAR": 0.008,
+        "BEAR": 0.01,
         "BULL": 0.0,
-        "LATERAL": 0.992
+        "LATERAL": 0.99
       }
     },
     "ETH": {
@@ -22,47 +22,47 @@
     },
     "BNB": {
       "market_mode": "LATERAL",
-      "confidence": 0.873,
+      "confidence": 1.0,
       "probabilities": {
-        "BEAR": 0.127,
+        "BEAR": 0.0,
         "BULL": 0.0,
-        "LATERAL": 0.873
+        "LATERAL": 1.0
       }
     },
     "SOL": {
       "market_mode": "BEAR",
-      "confidence": 0.887,
+      "confidence": 0.837,
       "probabilities": {
-        "BEAR": 0.887,
+        "BEAR": 0.837,
         "BULL": 0.0,
-        "LATERAL": 0.113
+        "LATERAL": 0.163
       }
     },
     "LINK": {
       "market_mode": "BEAR",
-      "confidence": 0.975,
+      "confidence": 0.883,
       "probabilities": {
-        "BEAR": 0.975,
+        "BEAR": 0.883,
         "BULL": 0.0,
-        "LATERAL": 0.025
+        "LATERAL": 0.117
       }
     },
     "XRP": {
-      "market_mode": "LATERAL",
-      "confidence": 0.922,
+      "market_mode": "BEAR",
+      "confidence": 0.807,
       "probabilities": {
-        "BEAR": 0.078,
+        "BEAR": 0.807,
         "BULL": 0.0,
-        "LATERAL": 0.922
+        "LATERAL": 0.193
       }
     },
     "AVAX": {
       "market_mode": "BEAR",
-      "confidence": 0.952,
+      "confidence": 0.872,
       "probabilities": {
-        "BEAR": 0.952,
+        "BEAR": 0.872,
         "BULL": 0.0,
-        "LATERAL": 0.048
+        "LATERAL": 0.128
       }
     }
   }

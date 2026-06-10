@@ -7,7 +7,8 @@ const CONFIG = {
     API_URL: '/api/status',
     PRICES_URL: '/api/prices',
     REFRESH_INTERVAL: 60000,
-    PRICES_INTERVAL: 60000
+    PRICES_INTERVAL: 60000,
+    CACHE_BUSTER: true  // Force fresh API calls
 };
 
 let lastData = null;
@@ -80,7 +81,14 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadData() {
     try {
         console.log('📡 Loading data...');
-        const response = await fetch(CONFIG.API_URL);
+        // Add cache buster to force fresh data
+        const url = CONFIG.CACHE_BUSTER 
+            ? `${CONFIG.API_URL}?t=${Date.now()}` 
+            : CONFIG.API_URL;
+        const response = await fetch(url, {
+            cache: 'no-cache',
+            headers: { 'Cache-Control': 'no-cache' }
+        });
         const data = await response.json();
         lastData = data;
         
@@ -100,7 +108,14 @@ async function loadData() {
 async function loadPrices() {
     try {
         console.log('📊 Loading prices...');
-        const response = await fetch(CONFIG.PRICES_URL);
+        // Add cache buster to force fresh data
+        const url = CONFIG.CACHE_BUSTER 
+            ? `${CONFIG.PRICES_URL}?t=${Date.now()}` 
+            : CONFIG.PRICES_URL;
+        const response = await fetch(url, {
+            cache: 'no-cache',
+            headers: { 'Cache-Control': 'no-cache' }
+        });
         const prices = await response.json();
         lastPrices = prices;
         console.log('✅ Prices loaded:', Object.keys(prices).length, 'coins');
@@ -167,6 +182,15 @@ function updateSlots(data) {
     
     console.log('🔧 Updating slots, tradeStates:', Object.keys(tradeStates).length, 'coins');
     
+    // 🟠 VERIFICAR CIRCUIT BREAKER STATUS
+    const circuitBreakerActive = data.circuitBreakerActive || false;
+    const circuitStatus = data.circuitStatus || 'NORMAL';
+    const isEmergencyMode = circuitBreakerActive && (circuitStatus === 'GLOBAL_PAUSE' || circuitStatus === 'EMERGENCY_CONSERVATIVE');
+    
+    if (isEmergencyMode) {
+        console.log('🟠 EMERGENCY MODE ACTIVE - Circuit Breaker:', circuitStatus);
+    }
+    
     if (!tradeStates || Object.keys(tradeStates).length === 0) return;
     
     let html = '';
@@ -189,13 +213,16 @@ function updateSlots(data) {
         });
         
         if (slots.length === 0) {
+            const slotClass = isEmergencyMode ? 'emergency-pause' : 'ready';
+            const statusIcon = isEmergencyMode ? '🟠' : '🟡';
+            const statusText = isEmergencyMode ? 'PAUSED (CB)' : 'READY';
             html += `
-                <div class="slot-card ready">
+                <div class="slot-card ${slotClass}">
                     <div class="slot-header">
                         <div class="slot-coin">${coin}</div>
                         <div class="slot-id">Slot 1</div>
                     </div>
-                    <div class="slot-status ready">READY</div>
+                    <div class="slot-status ${slotClass}">${statusText} ${statusIcon}</div>
                 </div>
             `;
             return;
@@ -204,15 +231,35 @@ function updateSlots(data) {
         slots.forEach(slot => {
             const status = slot.status || 'ACTIVE';
             
-            // Si el slot está READY, mostrar tarjeta READY
+            // Si el slot está READY, mostrar tarjeta READY (amarillo o naranja si emergency)
             if (status === 'READY') {
+                const slotClass = isEmergencyMode ? 'emergency-pause' : 'ready';
+                const statusIcon = isEmergencyMode ? '🟠' : '🟡';
+                const statusText = isEmergencyMode ? 'PAUSED (CB)' : 'READY';
                 html += `
-                    <div class="slot-card ready">
+                    <div class="slot-card ${slotClass}">
                         <div class="slot-header">
                             <div class="slot-coin">${coin}</div>
                             <div class="slot-id">Slot ${slot.slotId}</div>
                         </div>
-                        <div class="slot-status ready">READY</div>
+                        <div class="slot-status ${slotClass}">${statusText} ${statusIcon}</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Slots cerrados → mostrar como PAUSE (gris o naranja si emergency)
+            if (status.startsWith('CLOSED')) {
+                const closeReason = status.replace('CLOSED_', '') || 'CLOSED';
+                const slotClass = isEmergencyMode ? 'emergency-pause' : 'pause';
+                const statusText = isEmergencyMode ? `EMERGENCY PAUSE 🟠 (${closeReason})` : `PAUSE ⏸️ (${closeReason})`;
+                html += `
+                    <div class="slot-card ${slotClass}">
+                        <div class="slot-header">
+                            <div class="slot-coin">${coin}</div>
+                            <div class="slot-id">Slot ${slot.slotId}</div>
+                        </div>
+                        <div class="slot-status ${slotClass}">${statusText}</div>
                     </div>
                 `;
                 return;

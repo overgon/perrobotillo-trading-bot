@@ -1,0 +1,121 @@
+{
+  "generated_at": "2026-06-03T20:00:00-06:00",
+  "mode": "EMERGENCY_CONSERVATIVE",
+  "base_position_size": 9.0,
+  "reduction_applied": 0.40,
+  "original_base": 15.0,
+  "coins": {
+    "BTC": {
+      "position_size": 5.4,
+      "status": "PAUSED",
+      "reason": "WR 40% + BTC en caída libre - pausa hasta estabilización",
+      "stats": {
+        "trades": 10,
+        "wins": 4,
+        "losses": 6,
+        "win_rate": 40.0,
+        "total_pnl": -93.52,
+        "recent_wr": 0.0,
+        "recent_pnl": -40.48
+      }
+    },
+    "ETH": {
+      "position_size": 5.4,
+      "status": "PAUSED",
+      "reason": "WR 43.75% + 3 pérdidas consecutivas hoy - pausa temporal",
+      "stats": {
+        "trades": 16,
+        "wins": 7,
+        "losses": 9,
+        "win_rate": 43.75,
+        "total_pnl": -26.24,
+        "recent_wr": 0.0,
+        "recent_pnl": -28.49
+      }
+    },
+    "BNB": {
+      "position_size": 12.0,
+      "status": "ACTIVE_CONSERVATIVE",
+      "reason": "ÚNICA moneda rentable - WR 84.37% + PnL +$55.88 - mantener con size reducido",
+      "stats": {
+        "trades": 32,
+        "wins": 27,
+        "losses": 5,
+        "win_rate": 84.375,
+        "total_pnl": 55.88,
+        "recent_wr": 80.0,
+        "recent_pnl": 27.54
+      }
+    },
+    "SOL": {
+      "position_size": 5.4,
+      "status": "PAUSED",
+      "reason": "WR 30% últimos 10 trades + 7 SLs - pausa temporal hasta estabilización",
+      "stats": {
+        "trades": 21,
+        "wins": 16,
+        "losses": 5,
+        "win_rate": 76.19,
+        "total_pnl": 31.76,
+        "recent_wr": 30.0,
+        "recent_pnl": -31.97
+      }
+    },
+    "LINK": {
+      "position_size": 5.4,
+      "status": "PAUSED",
+      "reason": "Emergency close -$39.21 + SL muy ajustado - pausa hasta nuevo aviso",
+      "stats": {
+        "trades": 27,
+        "wins": 20,
+        "losses": 7,
+        "win_rate": 74.07,
+        "total_pnl": 34.37,
+        "recent_wr": 40.0,
+        "recent_pnl": -46.22
+      }
+    },
+    "XRP": {
+      "position_size": 5.4,
+      "status": "PAUSED",
+      "reason": "3 pérdidas consecutivas hoy (-$13) - whipsaw en SL - pausa temporal",
+      "stats": {
+        "trades": 20,
+        "wins": 14,
+        "losses": 6,
+        "win_rate": 70.0,
+        "total_pnl": 28.36,
+        "recent_wr": 0.0,
+        "recent_pnl": -13.00
+      }
+    },
+    "AVAX": {
+      "position_size": 9.0,
+      "status": "ACTIVE_CONSERVATIVE",
+      "reason": "WR 70% últimos 10 trades + PnL positivo +$12.51 - mantener con size reducido",
+      "stats": {
+        "trades": 26,
+        "wins": 20,
+        "losses": 6,
+        "win_rate": 76.92,
+        "total_pnl": 26.33,
+        "recent_wr": 70.0,
+        "recent_pnl": 12.51
+      }
+    }
+  },
+  "emergency_rules": {
+    "max_active_slots": 6,
+    "max_daily_loss": 0.02,
+    "stop_loss_override": 0.08,
+    "take_profit_override": {
+      "tp1": 0.02,
+      "tp2": 0.04,
+      "tp3": 0.07
+    },
+    "trailing_stop_activation": 0.03
+  },
+  "active_coins": ["BNB", "AVAX"],
+  "paused_coins": ["BTC", "ETH", "SOL", "LINK", "XRP"],
+  "review_at": "2026-06-04T08:00:00-06:00"
+}

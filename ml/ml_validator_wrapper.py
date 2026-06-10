@@ -7,12 +7,17 @@
 # ════════════════════════════════════════════════════════
 
 import sys
+import os
 import json
 from pathlib import Path
 
-# Agregar path al workspace
-sys.path.append('/home/overgon/.openclaw/workspace/ml')
+# Agregar path al workspace y venv
+WORKSPACE = Path('/home/overgon/.openclaw/workspace')
+sys.path.insert(0, str(WORKSPACE))
+sys.path.insert(0, str(WORKSPACE / 'ml'))
+sys.path.insert(0, str(WORKSPACE / 'venv' / 'lib' / 'python3.13' / 'site-packages'))
 
+# Importar ML Pipeline
 from ml_pipeline import MLPipeline
 
 # ════════════════════════════════════════════════════════

@@ -1,47 +1,47 @@
 {
-  "timestamp": "2026-05-31T21:12:11.761226",
+  "timestamp": "2026-06-10T17:46:06.828413",
   "predictions": {
     "BTC": {
-      "prob_tp1": 0.21527441680082304,
+      "prob_tp1": 0.14251764759005334,
       "prediction": "TP1_UNLIKELY",
       "confidence": "HIGH",
-      "timestamp": "2026-05-31T21:12:11.750325"
+      "timestamp": "2026-06-10T17:46:06.815781"
     },
     "ETH": {
-      "prob_tp1": 0.0817924545218622,
+      "prob_tp1": 0.05300516639178036,
       "prediction": "TP1_UNLIKELY",
       "confidence": "HIGH",
-      "timestamp": "2026-05-31T21:12:11.752414"
+      "timestamp": "2026-06-10T17:46:06.818007"
     },
     "BNB": {
-      "prob_tp1": 0.09628874542519748,
+      "prob_tp1": 0.08190863019833561,
       "prediction": "TP1_UNLIKELY",
       "confidence": "HIGH",
-      "timestamp": "2026-05-31T21:12:11.754177"
+      "timestamp": "2026-06-10T17:46:06.820040"
     },
     "SOL": {
-      "prob_tp1": 0.2407047227183873,
-      "prediction": "TP1_UNLIKELY",
-      "confidence": "HIGH",
-      "timestamp": "2026-05-31T21:12:11.755884"
+      "prob_tp1": 0.6290491437141658,
+      "prediction": "TP1_LIKELY",
+      "confidence": "MEDIUM",
+      "timestamp": "2026-06-10T17:46:06.822026"
     },
     "LINK": {
-      "prob_tp1": 0.24608130483665416,
-      "prediction": "TP1_UNLIKELY",
+      "prob_tp1": 0.7049389544043446,
+      "prediction": "TP1_LIKELY",
       "confidence": "HIGH",
-      "timestamp": "2026-05-31T21:12:11.757525"
+      "timestamp": "2026-06-10T17:46:06.823974"
     },
     "XRP": {
-      "prob_tp1": 0.35686916842415245,
-      "prediction": "TP1_UNLIKELY",
-      "confidence": "MEDIUM",
-      "timestamp": "2026-05-31T21:12:11.759158"
-    },
-    "AVAX": {
-      "prob_tp1": 0.06815253262997148,
+      "prob_tp1": 0.20029788531108625,
       "prediction": "TP1_UNLIKELY",
       "confidence": "HIGH",
-      "timestamp": "2026-05-31T21:12:11.760743"
+      "timestamp": "2026-06-10T17:46:06.825911"
+    },
+    "AVAX": {
+      "prob_tp1": 0.38570101246145755,
+      "prediction": "TP1_UNLIKELY",
+      "confidence": "MEDIUM",
+      "timestamp": "2026-06-10T17:46:06.827939"
     }
   },
   "recommendations": {
@@ -70,20 +70,18 @@
       "reason": "Muy baja probabilidad - reducir exposici\u00f3n"
     },
     "SOL": {
-      "action": "DEFENSIVE",
-      "tp1_pct": 2.0,
-      "tp2_pct": 4.0,
-      "tp3_pct": 6.0,
-      "sl_pct": 8.0,
-      "reason": "Muy baja probabilidad - reducir exposici\u00f3n"
+      "action": "NORMAL",
+      "tp1_pct": 3.5,
+      "tp2_pct": 7.0,
+      "tp3_pct": 12.0,
+      "reason": "Probabilidad normal - mantener estrategia est\u00e1ndar"
     },
     "LINK": {
-      "action": "DEFENSIVE",
-      "tp1_pct": 2.0,
-      "tp2_pct": 4.0,
-      "tp3_pct": 6.0,
-      "sl_pct": 8.0,
-      "reason": "Muy baja probabilidad - reducir exposici\u00f3n"
+      "action": "NORMAL",
+      "tp1_pct": 3.5,
+      "tp2_pct": 7.0,
+      "tp3_pct": 12.0,
+      "reason": "Probabilidad normal - mantener estrategia est\u00e1ndar"
     },
     "XRP": {
       "action": "DEFENSIVE",

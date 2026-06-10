@@ -2,7 +2,6 @@
 // 🐕 PERROBOTILLO DASHBOARD - CYBERPUNK EDITION
 // JavaScript App - Real-time Updates
 // ════════════════════════════════════════════════════════
-
 const CONFIG = {
     API_URL: '/api/status',
     PRICES_URL: '/api/prices',
@@ -166,6 +165,15 @@ function updateSlots(data) {
     
     console.log('🔧 Updating slots, tradeStates:', Object.keys(tradeStates).length, 'coins');
     
+    // 🟠 VERIFICAR CIRCUIT BREAKER STATUS
+    const circuitBreakerActive = data.circuitBreakerActive || false;
+    const circuitStatus = data.circuitStatus || 'NORMAL';
+    const isEmergencyMode = circuitBreakerActive && (circuitStatus === 'GLOBAL_PAUSE' || circuitStatus === 'EMERGENCY_CONSERVATIVE');
+    
+    if (isEmergencyMode) {
+        console.log('🟠 EMERGENCY MODE ACTIVE - Circuit Breaker:', circuitStatus);
+    }
+    
     if (!tradeStates || Object.keys(tradeStates).length === 0) return;
     
     let html = '';
@@ -203,15 +211,36 @@ function updateSlots(data) {
         slots.forEach(slot => {
             const status = slot.status || 'ACTIVE';
             
-            // Si el slot está READY, mostrar tarjeta READY
+            // Si el slot está READY o CLOSED, mostrar tarjeta READY/PAUSE
             if (status === 'READY') {
+                // 🟠 EMERGENCY MODE: READY slots también muestran naranja metálico
+                const slotClass = isEmergencyMode ? 'emergency-pause' : 'ready';
+                const statusIcon = isEmergencyMode ? '🟠' : '🟡';
+                const statusText = isEmergencyMode ? 'PAUSED (CB)' : 'READY';
                 html += `
-                    <div class="slot-card ready">
+                    <div class="slot-card ${slotClass}">
                         <div class="slot-header">
                             <div class="slot-coin">${coin}</div>
                             <div class="slot-id">Slot ${slot.slotId}</div>
                         </div>
-                        <div class="slot-status ready">READY</div>
+                        <div class="slot-status ${slotClass}">${statusText} ${statusIcon}</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Slots cerrados → mostrar como PAUSE (gris o naranja si emergency)
+            if (status.startsWith('CLOSED')) {
+                const closeReason = status.replace('CLOSED_', '') || 'CLOSED';
+                const slotClass = isEmergencyMode ? 'emergency-pause' : 'pause';
+                const statusText = isEmergencyMode ? `EMERGENCY PAUSE 🟠 (${closeReason})` : `PAUSE ⏸️ (${closeReason})`;
+                html += `
+                    <div class="slot-card ${slotClass}">
+                        <div class="slot-header">
+                            <div class="slot-coin">${coin}</div>
+                            <div class="slot-id">Slot ${slot.slotId}</div>
+                        </div>
+                        <div class="slot-status ${slotClass}">${statusText}</div>
                     </div>
                 `;
                 return;
@@ -274,6 +303,7 @@ function updateSlots(data) {
             
             // Determinar clase según P&L (rojo para negativos, verde para positivos)
             const pnlClass = pnl >= 0 ? 'profit' : 'loss';
+            const pnlIcon = pnl >= 0 ? '🟢' : '🔴';
             
             html += `
                 <div class="slot-card active ${pnlClass}">
@@ -281,7 +311,7 @@ function updateSlots(data) {
                         <div class="slot-coin">${coin}</div>
                         <div class="slot-id">Slot ${slot.slotId}</div>
                     </div>
-                    <div class="slot-status in-trade ${pnlClass}">${pnl >= 0 ? 'IN TRADE 🟢' : 'IN TRADE 🔴'}</div>
+                    <div class="slot-status in-trade ${pnlClass}">IN TRADE ${pnlIcon}</div>
                     
                     <div class="slot-grid-info">
                         <div class="slot-info-item">
@@ -497,6 +527,10 @@ function updateAutoAdjust(data) {
         }, 1000);
     }
 }
+
+// ═══════════════════════════════════════════════════════
+// TRADES HISTORY TABLE
+// ═══════════════════════════════════════════════════════
 
 function updateTradesTable(data) {
     const history = data.history || {};

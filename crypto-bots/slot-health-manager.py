@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """
-Slot Healbot - Perrobotillo Trading Bot
-Verifica y repara el estado de los slots cada 10 minutos.
+🐕 Slot Health Manager - Unificado
+Reemplaza: slot-healbot.py + auto-reset-closed-slots.sh
+
+Propósito: Verificar y reparar el estado de los slots cada 10 minutos.
 
 REGLAS DE SEGURIDAD:
 - NUNCA limpiar slots con orderId + entryPrice (posición activa)
 - Si status es READY pero tiene posición → corregir a ACTIVE
 - Solo limpiar slots CLOSED_* o AVAILABLE
+- Estados CLOSED_TRAILING, CLOSED_TP1/2/3, CLOSED_SL → READY limpio
 
 Estados válidos:
 - READY: Slot disponible (sin posición)
@@ -22,7 +25,6 @@ from pathlib import Path
 # Configuración
 CRYPTO_BOTS = Path("/home/overgon/.openclaw/workspace/crypto-bots")
 COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
-VALID_STATES = ["READY", "ACTIVE"]
 TELEGRAM_CHAT_ID = "7543955537"  # Rull Ox
 
 def load_trade_state(coin):
@@ -84,7 +86,6 @@ def has_active_position(slot):
     # Tiene orderId, entryPrice, y NO tiene info de cierre = posición activa
     return True
 
-
 def repair_slot(slot, coin, slot_id):
     """Repara un slot con estado inválido o inconsistente."""
     repairs = []
@@ -92,6 +93,14 @@ def repair_slot(slot, coin, slot_id):
     current_status = slot.get("status", "UNKNOWN")
     has_position = has_active_position(slot)
     tp3_done = slot.get("tp3Done", False)
+    
+    # Caso 0: Estados CLOSED_* → Siempre limpiar y poner READY
+    # Esto incluye: CLOSED_TRAILING, CLOSED_TP1, CLOSED_TP2, CLOSED_TP3, CLOSED_SL
+    if current_status.startswith("CLOSED_"):
+        repairs.append(f"Estado '{current_status}' → 'READY'")
+        slot["status"] = "READY"
+        clean_slot_data(slot)
+        return slot, repairs
     
     # Caso 1: Status ACTIVE con TP3 completado → trade terminado, cerrar
     if current_status == "ACTIVE" and has_position and tp3_done:
@@ -102,21 +111,21 @@ def repair_slot(slot, coin, slot_id):
         slot["closedAt"] = datetime.now().isoformat()
         return slot, repairs
     
-    # ⚠️ REGLA DE ORO: NUNCA tocar slots ACTIVE con posición (excepto TP3 completado)
+    # ⚠️ REGLA DE ORO: NUNCA tocar slots ACTIVE con posición REAL (excepto TP3 completado)
     if current_status == "ACTIVE" and has_position:
         return None, []  # Todo bien, no hacer nada
     
-    # Caso 2: Estado CLOSED_* o AVAILABLE → convertir a READY limpio
-    if current_status.startswith("CLOSED") or current_status == "AVAILABLE":
-        repairs.append(f"Estado '{current_status}' → 'READY'")
+    # Caso 2: Estado AVAILABLE → convertir a READY limpio
+    if current_status == "AVAILABLE":
+        repairs.append(f"Estado 'AVAILABLE' → 'READY'")
         slot["status"] = "READY"
         clean_slot_data(slot)
         return slot, repairs
     
-    # Caso 3: Status READY pero tiene posición activa → CORREGIR A ACTIVE (NO LIMPIAR)
+    # Caso 3: Status READY pero tenía posición que YA NO EXISTE → LIMPIAR
     if current_status == "READY" and has_position:
-        repairs.append(f"Status READY incorrecto con posición → corrigiendo a ACTIVE")
-        slot["status"] = "ACTIVE"
+        repairs.append(f"READY con posición cerrada → limpiando datos")
+        clean_slot_data(slot)
         return slot, repairs
     
     # Caso 4: Status READY sin posición → está bien
@@ -126,7 +135,7 @@ def repair_slot(slot, coin, slot_id):
     # Caso 5: Status ACTIVE sin posición → inconsistencia grave
     if current_status == "ACTIVE" and not has_position:
         repairs.append(f"ACTIVE sin posición - marcando como READY")
-        slot["status"] = "READY"
+        clean_slot_data(slot)
         return slot, repairs
     
     return None, repairs
@@ -156,9 +165,9 @@ def send_telegram_notification(message):
         escaped_message = message.replace("'", "'\\''").replace('"', '\\"')
         
         cmd = f"""
-curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
-  -d chat_id="{TELEGRAM_CHAT_ID}" \
-  -d text='{escaped_message}' \
+curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \\
+  -d chat_id="{TELEGRAM_CHAT_ID}" \\
+  -d text='{escaped_message}' \\
   -d parse_mode="HTML"
 """
         env = os.environ.copy()
@@ -174,10 +183,11 @@ curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
         return False
 
 def main():
-    """Función principal del healbot."""
+    """Función principal del health manager."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{timestamp}] 🐕 Slot Healbot iniciado")
+    print(f"[{timestamp}] 🐕 Slot Health Manager iniciado")
     print(f"🔒 Modo SEGURO: No se borrarán posiciones activas")
+    print(f"📋 Reemplaza: slot-healbot.py + auto-reset-closed-slots.sh")
     
     total_slots = 0
     repaired_slots = []
@@ -244,11 +254,11 @@ def main():
     if inconsistent_slots:
         print(f"⚠️ {len(inconsistent_slots)} slots con inconsistencias")
     
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 🐕 Slot Healbot completado")
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 🐕 Slot Health Manager completado")
 
 def build_telegram_notification(repaired_slots, inconsistent_slots):
     """Construye mensaje HTML para Telegram."""
-    msg = "🐕 <b>Slot Healbot - Reporte</b>\n\n"
+    msg = "🐕 <b>Slot Health Manager - Reporte</b>\n\n"
     
     if repaired_slots:
         msg += "🔧 <b>Reparaciones:</b>\n"

@@ -24,7 +24,7 @@
     "coin_XRP"
   ],
   "accuracy": 0.8052121617106582,
-  "trained_at": "2026-05-28T11:12:09.569470",
+  "trained_at": "2026-06-10T15:22:07.864421",
   "version": "2.0.0",
-  "retrain_count": 3
+  "retrain_count": 6
 }
