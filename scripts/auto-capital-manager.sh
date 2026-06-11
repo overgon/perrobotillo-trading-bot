@@ -55,7 +55,8 @@ ENDPYTHON
     fi
 }
 
-get_total_capital() {
+get_usdt_balance() {
+    # Obtener SOLO el balance disponible en USDT (no el portfolio total)
     python3 << ENDPYTHON
 import requests
 import hmac, hashlib, time
@@ -78,29 +79,14 @@ params = {'timestamp': timestamp, 'signature': signature}
 response = requests.get('https://api.binance.com/api/v3/account', headers=headers, params=params)
 account = response.json()
 
-# Obtener precios actuales
-prices_response = requests.get('https://api.binance.com/api/v3/ticker/price')
-prices = {p['symbol']: float(p['price']) for p in prices_response.json()}
-
-# Calcular valor total en USDT
-total_usdt = 0
-coins_to_check = ['USDT', 'BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX', 'BUSD', 'USDC']
-
+# Buscar SOLO USDT disponible (free + locked)
+usdt_balance = 0
 for balance in account['balances']:
-    coin = balance['asset']
-    if coin in coins_to_check:
-        free = float(balance['free'])
-        locked = float(balance['locked'])
-        total = free + locked
-        
-        if total > 0:
-            if coin == 'USDT' or coin == 'BUSD' or coin == 'USDC':
-                total_usdt += total
-            else:
-                price = prices.get(f'{coin}USDT', 0)
-                total_usdt += total * price
+    if balance['asset'] == 'USDT':
+        usdt_balance = float(balance['free']) + float(balance['locked'])
+        break
 
-print(round(total_usdt, 2))
+print(round(usdt_balance, 2))
 ENDPYTHON
 }
 
@@ -207,17 +193,17 @@ log "╚════════════════════════
 # Obtener métricas actuales
 CURRENT_POSITION=$(get_current_position)
 WINRATE=$(get_win_rate)
-TOTAL_CAPITAL=$(get_total_capital)
+USDT_BALANCE=$(get_usdt_balance)
 
 log ""
 log "=== MÉTRICAS ACTUALES ==="
 log "Position Size: ${CURRENT_POSITION}%"
 log "Win Rate: ${WINRATE}%"
-log "Capital Total: \$${TOTAL_CAPITAL} USDT"
+log "Balance USDT Disponible: \$${USDT_BALANCE} USDT"
 log ""
 
-# Calcular position óptimo
-OPTIMAL_POSITION=$(calculate_optimal_position $TOTAL_CAPITAL $WINRATE)
+# Calcular position óptimo basado en USDT disponible
+OPTIMAL_POSITION=$(calculate_optimal_position $USDT_BALANCE $WINRATE)
 
 log "=== ANÁLISIS DEL BOT ==="
 log "Position ÓPTIMO calculado: ${OPTIMAL_POSITION}%"
@@ -234,28 +220,28 @@ if [ $DIFF -gt 5 ]; then
     # Position actual mucho mayor que óptimo → REDUCIR
     NEW_POSITION=$OPTIMAL_POSITION
     ACTION="DECREASE"
-    REASON="Position actual (${CURRENT_POSITION}%) muy alto para capital de \$${TOTAL_CAPITAL}"
+    REASON="Position actual (${CURRENT_POSITION}%) muy alto para USDT disponible de \$${USDT_BALANCE}"
     log "⚠️  REDUCIR: Position actual (${CURRENT_POSITION}%) > Óptimo (${OPTIMAL_POSITION}%)"
 elif [ $DIFF -lt -5 ]; then
     # Position actual mucho menor que óptimo → AUMENTAR
     NEW_POSITION=$OPTIMAL_POSITION
     ACTION="INCREASE"
-    REASON="Position actual (${CURRENT_POSITION}%) bajo para capital de \$${TOTAL_CAPITAL}"
+    REASON="Position actual (${CURRENT_POSITION}%) bajo para USDT disponible de \$${USDT_BALANCE}"
     log "✅ AUMENTAR: Position actual (${CURRENT_POSITION}%) < Óptimo (${OPTIMAL_POSITION}%)"
 elif [ $DIFF -gt 0 ]; then
     # Ligera reducción
     NEW_POSITION=$OPTIMAL_POSITION
     ACTION="DECREASE_SMALL"
-    REASON="Ajuste menor a la baja"
+    REASON="Ajuste menor a la baja (USDT: \$${USDT_BALANCE})"
     log "📉 Reducción menor: ${CURRENT_POSITION}% → ${OPTIMAL_POSITION}%"
 elif [ $DIFF -lt 0 ]; then
     # Ligero aumento
     NEW_POSITION=$OPTIMAL_POSITION
     ACTION="INCREASE_SMALL"
-    REASON="Ajuste menor al alza"
+    REASON="Ajuste menor al alza (USDT: \$${USDT_BALANCE})"
     log "📈 Aumento menor: ${CURRENT_POSITION}% → ${OPTIMAL_POSITION}%"
 else
-    log "✅ Position óptimo ya configurado"
+    log "✅ Position óptimo ya configurado (USDT disponible: \$${USDT_BALANCE})"
 fi
 
 log ""
@@ -280,7 +266,7 @@ if [ "$ACTION" != "MAINTAIN" ]; then
 
 🤖 El bot analizó tu capital y decidió aumentar:
 
-💵 Capital Total: \$${TOTAL_CAPITAL} USDT
+💵 USDT Disponible: \$${USDT_BALANCE} USDT
 📊 Win Rate: ${WINRATE}%
 
 🎯 Position Size:
@@ -294,7 +280,7 @@ if [ "$ACTION" != "MAINTAIN" ]; then
 
 🤖 El bot analizó tu capital y decidió reducir:
 
-💵 Capital Total: \$${TOTAL_CAPITAL} USDT
+💵 USDT Disponible: \$${USDT_BALANCE} USDT
 📊 Win Rate: ${WINRATE}%
 
 🎯 Position Size:
@@ -312,7 +298,7 @@ fi
 # 💾 GUARDAR PROGRESO
 # ════════════════════════════════════════════════════════
 
-save_progress $NEW_POSITION $WINRATE $TOTAL_CAPITAL $ACTION "$REASON"
+save_progress $NEW_POSITION $WINRATE $USDT_BALANCE $ACTION "$REASON"
 
 log ""
 log "✅ Progreso guardado en $PROGRESS_FILE"
@@ -329,7 +315,7 @@ echo "╚═══════════════════════�
 echo ""
 echo "  Position Size: ${NEW_POSITION}%"
 echo "  Win Rate: ${WINRATE}%"
-echo "  Capital Total: \$${TOTAL_CAPITAL} USDT"
+echo "  USDT Disponible: \$${USDT_BALANCE} USDT"
 echo "  Acción: ${ACTION}"
 echo "  Razón: ${REASON}"
 echo ""
