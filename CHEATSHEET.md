@@ -478,6 +478,36 @@ fi
 
 ---
 
+### 🛑 DESACTIVAR CIRCUIT BREAKER MANUALMENTE
+
+**Opción 1: Comando directo (más rápido)**
+```bash
+rm -f /home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/global-pause-flag.json
+```
+
+**Opción 2: Verificar primero y luego eliminar**
+```bash
+# 1. Verificar si hay pause activo
+cat /home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/global-pause-flag.json
+
+# 2. Eliminar el flag
+rm -f /home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/global-pause-flag.json
+
+# 3. Confirmar que está OK
+cd /home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots && ./global-circuit-breaker.sh
+# Debe mostrar: OK_TO_TRADE
+```
+
+**Opción 3: Pedirle a Perrobotillo**
+Solo di en Telegram:
+- *"Desactiva circuit breaker"*
+- *"Reanuda los trades"*
+- *"Quita el pause global"*
+
+**⚠️ IMPORTANTE:** Antes de desactivar manualmente, verifica que el mercado esté favorable para evitar más losses seguidos.
+
+---
+
 ### `slot-healbot.py` 🆕🔧
 **Ubicación:** `/home/<YOUR_USERNAME>/.openclaw/workspace/crypto-bots/slot-healbot.py`
 
