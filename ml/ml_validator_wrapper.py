@@ -26,6 +26,7 @@ from ml_pipeline import MLPipeline
 
 MIN_CONFIDENCE = 60  # Mínimo % para aprobar trade
 MODEL_DIR = Path("/home/overgon/.openclaw/workspace/ml/models_optimized")  # ✅ MODELOS OPTIMIZADOS
+FALLBACK_POSITION_PERCENT = 25
 
 # ════════════════════════════════════════════════════════
 # VALIDADOR
@@ -95,41 +96,132 @@ def validate_trade(coin: str, direction: str = "LONG", trade_type: str = "NORMAL
         'overfitting_gap': metadata['metrics'].get('overfitting_gap', 'N/A')
     }
     
+    ml_pass = True
+    
     # Check 1: Señal WAIT
     if prediction.get('signal') == 'WAIT':
         result['reason'] = 'ML recomienda esperar - oportunidad no óptima'
-        return result
+        ml_pass = False
     
     # Check 2: Confianza mínima
-    if prediction.get('confidence', 0) < min_conf:
+    if ml_pass and prediction.get('confidence', 0) < min_conf:
         result['reason'] = f"Confianza muy baja ({prediction['confidence']:.1f}% < {min_conf}%)"
-        return result
+        ml_pass = False
     
     # Check 3: Dirección coincide
-    if direction == 'LONG' and prediction.get('signal') != 'LONG':
-        result['reason'] = f"Señal ML no coincide (ML: {prediction['signal']}, Trade: {direction})"
-        return result
+    if ml_pass:
+        if direction == 'LONG' and prediction.get('signal') != 'LONG':
+            result['reason'] = f"Señal ML no coincide (ML: {prediction['signal']}, Trade: {direction})"
+            ml_pass = False
+        if direction == 'SHORT' and prediction.get('signal') != 'SHORT':
+            result['reason'] = f"Señal ML no coincide (ML: {prediction['signal']}, Trade: {direction})"
+            ml_pass = False
     
-    if direction == 'SHORT' and prediction.get('signal') != 'SHORT':
-        result['reason'] = f"Señal ML no coincide (ML: {prediction['signal']}, Trade: {direction})"
-        return result
-    
-    # ✅ APROBADO
-    result['approved'] = True
-    result['reason'] = f"ML aprobado ({prediction['confidence']:.1f}% confianza)"
-    
-    # Ajustar position size según confianza
-    confidence = prediction['confidence']
-    if confidence >= 80:
-        result['position_size'] = 100  # Full position
-    elif confidence >= 70:
-        result['position_size'] = 75   # 75% position
-    elif confidence >= 60:
-        result['position_size'] = 50   # Half position
+    if ml_pass:
+        # ✅ APROBADO
+        result['approved'] = True
+        result['reason'] = f"ML aprobado ({prediction['confidence']:.1f}% confianza)"
+        result['source'] = 'ML'
+        result['base_position_size'] = result['position_size']
+        
+        # Ajustar position size según confianza
+        confidence = prediction['confidence']
+        if confidence >= 80:
+            result['position_size'] = 100  # Full position
+        elif confidence >= 70:
+            result['position_size'] = 75   # 75% position
+        elif confidence >= 60:
+            result['position_size'] = 50   # Half position
+        else:
+            result['position_size'] = 25   # Minimal position
     else:
-        result['position_size'] = 25   # Minimal position
+        # Fallback explícito
+        fallback = _technical_fallback(coin, direction)
+        if fallback.get('approved'):
+            result['approved'] = True
+            result['reason'] = f"FALLBACK activado: {fallback['reason']}"
+            result['signal'] = fallback.get('signal', result['signal'])
+            result['confidence'] = fallback.get('confidence', 0.0)
+            result['base_position_size'] = result['position_size']
+            result['position_size'] = FALLBACK_POSITION_PERCENT
+            result['source'] = 'FALLBACK'
+        else:
+            result['reason'] = f"{result['reason']} | Fallback: {fallback.get('reason', 'sin datos')}"
+            result['source'] = 'ML_BLOCKED'
+            result['base_position_size'] = result['position_size']
     
     return result
+
+
+def _technical_fallback(coin: str, direction: str = "LONG") -> dict:
+    """
+    Fallback explícito cuando ML no aprueba:
+    revisa condiciones mínimas y reduce exposición.
+    """
+    try:
+        import ccxt
+        import numpy as np
+    except Exception as e:
+        return {
+            'approved': False,
+            'reason': f'Fallback unavailable: {e}',
+            'confidence': 0,
+            'position_size': 0,
+            'signal': 'WAIT',
+        }
+
+    approved = False
+    reason = 'Fallback: condiciones técnicas no cumplidas'
+
+    try:
+        exchange = ccxt.binance({'options': {'defaultType': 'spot'}})
+        symbol = f'{coin}/USDT'
+        ohlcv = exchange.fetch_ohlcv(symbol, timeframe='1h', limit=50)
+        if not ohlcv:
+            raise RuntimeError('OHLCV vacío')
+
+        closes = np.array([c[4] for c in ohlcv], dtype=float)
+        volumes = np.array([c[5] for c in ohlcv], dtype=float)
+
+        sma20 = np.mean(closes[-20:])
+        sma50 = np.mean(closes[-50:])
+        current = closes[-1]
+
+        delta = np.diff(closes)
+        gain = np.where(delta > 0, delta, 0.0)
+        loss = np.where(delta < 0, -delta, 0.0)
+        avg_gain = np.mean(gain[-14:]) if len(gain) >= 14 else 0.0
+        avg_loss = np.mean(loss[-14:]) if len(loss) >= 14 and np.mean(loss[-14:]) != 0 else 1e-9
+        rsi = 100 - (100 / (1 + (avg_gain / avg_loss))) if avg_loss else 50.0
+
+        bullish_trend = current > sma20 > sma50
+        oversold = rsi < 45
+        volume_ok = volumes[-1] >= np.mean(volumes[-20:]) if len(volumes) >= 20 else True
+
+        if direction == 'LONG':
+            if bullish_trend and oversold and volume_ok:
+                approved = True
+                reason = f'Fallback LONG aprobado (RSI={rsi:.1f}, sma20={sma20:.2f}, sma50={sma50:.2f})'
+            else:
+                reason = f'Fallback LONG rechazado (RSI={rsi:.1f}, trend={bullish_trend}, vol={volume_ok})'
+        elif direction == 'SHORT':
+            not_bullish = current < sma20 < sma50
+            overbought = rsi > 55
+            if not_bullish and overbought and volume_ok:
+                approved = True
+                reason = f'Fallback SHORT aprobado (RSI={rsi:.1f})'
+            else:
+                reason = f'Fallback SHORT rechazado (RSI={rsi:.1f}, trend={not_bullish})'
+    except Exception as e:
+        reason = f'Fallback error: {e}'
+
+    return {
+        'approved': approved,
+        'reason': reason,
+        'confidence': 40.0 if approved else 0.0,
+        'position_size': 25,
+        'signal': direction if approved else 'WAIT',
+    }
 
 
 def print_validation(result: dict, coin: str):

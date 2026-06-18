@@ -189,7 +189,7 @@ class BNBFeeDetector:
                 'message': f'⚠️  BNB insuficiente. Necesitas {bnb_needed:.4f} BNB más (~${cost_usdt:.2f} USDT)',
                 'bnb_needed': bnb_needed,
                 'cost_usdt': cost_usdt,
-                'payback_months': 2-3 if cost_usdt > 0 else 0
+                'payback_months': '2-3' if cost_usdt > 0 else '0'
             }
     
     def save_status(self, status):

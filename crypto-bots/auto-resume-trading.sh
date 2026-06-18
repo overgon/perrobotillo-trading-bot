@@ -109,68 +109,72 @@ PYTHON_EOF
 }
 
 # ════════════════════════════════════════════════════════
-# 📈 CRITERIO 2: CONDICIONES DE MERCADO
+# 📈 CRITERIO 2: CONDICIONES DE MERCADO (BTC TREND)
 # ════════════════════════════════════════════════════════
+# Aprobación estricta: BTC debe estar en tendencia alcista confirmada
+# (precio > EMA50 y EMA12 > EMA50) y volumen no deprimido.
+# Se usa la propia API de Binance para historial 1h + pandas local.
 
-check_market_conditions() {
+check_btc_market_trend() {
     python3 << 'PYTHON_EOF'
 import json
 import urllib.request
 import os
+import sys
 
 workspace = "/home/overgon/.openclaw/workspace"
-dynamic_config = f"{workspace}/crypto-bots/dynamic-config.env"
 
 try:
-    # Obtener precio actual de BTC
-    req = urllib.request.urlopen("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT")
+    # 1. Precio actual de BTC
+    req = urllib.request.urlopen("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT", timeout=10)
     btc_price = float(json.loads(req.read())['price'])
-    
-    # Calcular EMA20 (simplificado - obtener de datos históricos)
-    import pandas as pd
-    historical_file = f"{workspace}/backtest/data/BTCUSDT_historical.csv"
-    
-    if os.path.exists(historical_file):
-        df = pd.read_csv(historical_file).tail(30)
-        df['ema20'] = df['close'].ewm(span=20, adjust=False).mean()
-        ema20 = df['ema20'].iloc[-1]
-    else:
-        ema20 = 0
-    
-    # Leer Fear & Greed del config dinámico
-    fg_value = 22  # Default
-    try:
-        with open(dynamic_config, 'r') as f:
-            for line in f:
-                if 'FG_VALUE=' in line:
-                    fg_value = int(line.split('=')[1].strip().strip('"'))
-                    break
-    except:
-        pass
-    
-    # Criterios de aprobación
-    approved = False
+
+    # 2. Datos históricos últimos ~110 velas 1h
+    req_hist = urllib.request.urlopen(
+        "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1h&limit=110",
+        timeout=10
+    )
+    raw = json.loads(req_hist.read())
+    closes = [float(k[4]) for k in raw]
+    volumes = [float(k[5]) for k in raw]
+
+    if len(closes) < 52:
+        raise RuntimeError(f"Datos insuficientes: {len(closes)} velas")
+
+    # 3. Medias móviles
+    def ema(arr, span):
+        m = 2.0 / (span + 1)
+        out = [arr[0]]
+        for i in range(1, len(arr)):
+            out.append(arr[i] * m + out[-1] * (1 - m))
+        return out[-1]
+
+    ema12 = ema(closes, 12)
+    ema26 = ema(closes, 26)
+    ema50 = ema(closes, 50)
+    avg_vol_20 = sum(volumes[-20:]) / 20.0
+    last_vol = volumes[-1]
+
+    # 4. Criterios estrictos
+    bull_trend = btc_price > ema12 > ema50
+    volume_ok = last_vol >= avg_vol_20 * 0.8
+    ema12_cross = ema12 > ema50
+    price_vs_ema50_pct = (btc_price - ema50) / ema50 * 100
+
     reasons = []
-    
-    # BTC > EMA20
-    if btc_price > ema20:
-        reasons.append(f"BTC ${btc_price:.0f} > EMA20 ${ema20:.0f}")
-    else:
-        reasons.append(f"BTC ${btc_price:.0f} < EMA20 ${ema20:.0f}")
-    
-    # Fear & Greed > 40
-    if fg_value > 40:
-        reasons.append(f"F&G {fg_value} > 40 (optimismo)")
-    else:
-        reasons.append(f"F&G {fg_value} < 40 (miedo)")
-    
-    # Aprobado si AMBOS criterios se cumplen
-    if btc_price > ema20 and fg_value > 40:
-        approved = True
+    reasons.append(f"BTC ${btc_price:,.2f} vs EMA50 ${ema50:,.2f} ({price_vs_ema50_pct:+.2f}%)")
+    reasons.append(f"EMA12=${ema12:,.2f} EMA50=${ema50:,.2f} cross={ema12_cross}")
+    reasons.append(f"Volumen vs avg20: {last_vol/avg_vol_20:.2f}x (ok={volume_ok})")
+
+    approved = bool(bull_trend and volume_ok and ema12_cross)
+
+    if approved:
         status = "APPROVED"
+        reasons.append("BTC en tendencia alcista confirmada + volumen aceptable")
     else:
         status = "PENDING"
-    
+        reasons.append("Falta confirmación de tendencia/volumen para reanudar")
+
     print(f"{status}|{' | '.join(reasons)}")
 
 except Exception as e:
@@ -201,22 +205,22 @@ check_and_resume_coin() {
     
     log "⏸️ $coin: Verificando criterios de reactivación..."
     
-    # CRITERIO 1: Performance
+    # CRITERIO 1: Performance (WIN_RATE/racha)
     local perf_result=$(check_performance_criteria "$coin")
     local perf_status=$(echo "$perf_result" | cut -d'|' -f1)
     local perf_msg=$(echo "$perf_result" | cut -d'|' -f2-)
     
     log "   📊 Performance: $perf_msg"
     
-    # CRITERIO 2: Mercado
-    local market_result=$(check_market_conditions)
+    # CRITERIO 2: Mercado (tendencia BTC) - AHORA REQUERIDO
+    local market_result=$(check_btc_market_trend)
     local market_status=$(echo "$market_result" | cut -d'|' -f1)
     local market_msg=$(echo "$market_result" | cut -d'|' -f2-)
     
     log "   📈 Mercado: $market_msg"
     
-    # Decisión: Al menos UN criterio debe aprobarse
-    if [ "$perf_status" = "APPROVED" ] || [ "$market_status" = "APPROVED" ]; then
+    # Decisión: AMBOS criterios deben aprobarse
+    if [ "$perf_status" = "APPROVED" ] && [ "$market_status" = "APPROVED" ]; then
         log "✅ $coin: CRITERIOS CUMPLIDOS - Reanudando trading"
         
         # Remover pause flag
@@ -224,15 +228,15 @@ check_and_resume_coin() {
         
         # Notificar
         send_telegram "✅ TRADING REANUDADO - $coin
-
+|
 📊 Performance: $perf_msg
 📈 Mercado: $market_msg
-
+|
 🚀 Bot reactivado automáticamente - Monitoreando TPs...
 
-*Nota:* La reactivación fue automática porque al menos uno de los criterios se cumplió:
+*Criterios:*
 • Win Rate últimos 10 trades ≥ 50% O 5+ wins consecutivos
-• O BTC > EMA20 Y Fear & Greed > 40
+• BTC en tendencia alcista (precio > EMA12 > EMA50) y volumen aceptable
 
 ¡Nunca confiar, siempre verificar! 🐕"
         
