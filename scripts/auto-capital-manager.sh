@@ -34,7 +34,13 @@ log() {
 }
 
 get_current_position() {
-    grep "TRADE_POSITION_PERCENT=" "$CONFIG_FILE" 2>/dev/null | cut -d'=' -f2 | awk '{print $1}' | tr -d '"' || echo "20"
+    local pos=$(grep "TRADE_POSITION_PERCENT=" "$CONFIG_FILE" 2>/dev/null | cut -d'=' -f2 | awk '{print $1}' | tr -d '"' | tr -d '#')
+    # Si está vacío o es inválido, usar default 15
+    if [ -z "$pos" ] || ! [[ "$pos" =~ ^[0-9]+$ ]]; then
+        echo "15"
+    else
+        echo "$pos"
+    fi
 }
 
 get_win_rate() {
@@ -57,36 +63,39 @@ ENDPYTHON
 
 get_usdt_balance() {
     # Obtener SOLO el balance disponible en USDT (no el portfolio total)
-    python3 << ENDPYTHON
+    python3 << ENDPYTHON 2>/dev/null || echo "0"
 import requests
 import hmac, hashlib, time
 import json
 
-# Leer API keys
-with open('$HOME/.openclaw/secrets/binance.env', 'r') as f:
-    for line in f:
-        if line.startswith('BINANCE_API_KEY'):
-            api_key = line.split('=')[1].strip()
-        elif line.startswith('BINANCE_API_SECRET'):
-            api_secret = line.split('=')[1].strip()
+try:
+    # Leer API keys
+    with open('$HOME/.openclaw/secrets/binance.env', 'r') as f:
+        for line in f:
+            if line.startswith('BINANCE_API_KEY'):
+                api_key = line.split('=')[1].strip()
+            elif line.startswith('BINANCE_API_SECRET'):
+                api_secret = line.split('=')[1].strip()
 
-timestamp = int(time.time() * 1000)
-signature = hmac.new(api_secret.encode(), f'timestamp={timestamp}'.encode(), hashlib.sha256).hexdigest()
-headers = {'X-MBX-APIKEY': api_key}
-params = {'timestamp': timestamp, 'signature': signature}
+    timestamp = int(time.time() * 1000)
+    signature = hmac.new(api_secret.encode(), f'timestamp={timestamp}'.encode(), hashlib.sha256).hexdigest()
+    headers = {'X-MBX-APIKEY': api_key}
+    params = {'timestamp': timestamp, 'signature': signature}
 
-# Obtener account balance
-response = requests.get('https://api.binance.com/api/v3/account', headers=headers, params=params)
-account = response.json()
+    # Obtener account balance
+    response = requests.get('https://api.binance.com/api/v3/account', headers=headers, params=params)
+    account = response.json()
 
-# Buscar SOLO USDT disponible (free + locked)
-usdt_balance = 0
-for balance in account['balances']:
-    if balance['asset'] == 'USDT':
-        usdt_balance = float(balance['free']) + float(balance['locked'])
-        break
+    # Buscar SOLO USDT disponible (free + locked)
+    usdt_balance = 0
+    for balance in account['balances']:
+        if balance['asset'] == 'USDT':
+            usdt_balance = float(balance['free']) + float(balance['locked'])
+            break
 
-print(round(usdt_balance, 2))
+    print(round(usdt_balance, 2))
+except Exception as e:
+    print("0")
 ENDPYTHON
 }
 
@@ -169,14 +178,18 @@ save_progress() {
     local action=$4
     local reason=$5
     
+    # Escapar comillas y caracteres especiales para JSON
+    local reason_escaped=$(echo "$reason" | sed 's/"/\\"/g' | tr -d '\n')
+    local action_escaped=$(echo "$action" | sed 's/"/\\"/g')
+    
     cat > "$PROGRESS_FILE" << EOF
 {
     "timestamp": "$(date -Iseconds)",
-    "position_size": $position,
-    "win_rate": $winrate,
-    "total_capital": $capital,
-    "last_action": "$action",
-    "reason": "$reason",
+    "position_size": ${position},
+    "win_rate": ${winrate},
+    "total_capital": ${capital},
+    "last_action": "${action_escaped}",
+    "reason": "${reason_escaped}",
     "history": []
 }
 EOF
@@ -213,6 +226,17 @@ log ""
 ACTION="MAINTAIN"
 NEW_POSITION=$CURRENT_POSITION
 REASON="Mantener posición actual"
+
+# Validar que CURRENT_POSITION y OPTIMAL_POSITION sean números
+if ! [[ "$CURRENT_POSITION" =~ ^[0-9]+$ ]]; then
+    log "⚠️  WARNING: CURRENT_POSITION inválido ($CURRENT_POSITION), usando default 15"
+    CURRENT_POSITION=15
+fi
+
+if ! [[ "$OPTIMAL_POSITION" =~ ^[0-9]+$ ]]; then
+    log "⚠️  WARNING: OPTIMAL_POSITION inválido ($OPTIMAL_POSITION), usando default 15"
+    OPTIMAL_POSITION=15
+fi
 
 DIFF=$((CURRENT_POSITION - OPTIMAL_POSITION))
 

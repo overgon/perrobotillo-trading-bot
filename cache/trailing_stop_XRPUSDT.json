@@ -1,16 +1,16 @@
 {
   "symbol": "XRPUSDT",
   "timeframe": "1h",
-  "timestamp": "2026-06-10T16:00:23.039473",
-  "current_price": 1.0924,
-  "atr": 0.012892857142857104,
-  "atr_percent": 1.1802322540147476,
+  "timestamp": "2026-06-18T16:00:39.192155",
+  "current_price": 1.1444,
+  "atr": 0.011400000000000061,
+  "atr_percent": 0.9961551904928398,
   "volatility_ratio": 1.0,
   "volatility_status": "BAJA",
   "multiplier": 2.0,
-  "trailing_stop_percent": 2.3604645080294953,
-  "trailing_stop_value": 0.025785714285714207,
+  "trailing_stop_percent": 2.0,
+  "trailing_stop_value": 0.022888000000000002,
   "min_trailing": 2.0,
   "max_trailing": 15.0,
-  "recommendation": "Usar trailing stop de 2.4% (BAJA volatilidad)"
+  "recommendation": "Usar trailing stop de 2.0% (BAJA volatilidad)"
 }

@@ -44,10 +44,18 @@ _Learn about the person you're helping. Update this as you go._
 - Que el bot no verifique antes de actuar
 
 ### 📊 Status Actual
-- **15 trades activos** - Todos en profit (+2-3%)
-- **SOL en TP1** - Esperando cierre automático
-- **Portfolio:** ~$500 USDT invertidos
-- **P&L:** +$10.50 USDT (+2.14%)
+- **Sistema:** GRID TRADING BOT (7 monedas)
+- **Portfolio:** ~$2,500+ USDT (después del rebalanceo)
+- **Grid bots:** 7/7 operativos (BTC, ETH, BNB, SOL, LINK, XRP, AVAX)
+- **Órdenes activas:** ~44 órdenes grid distribuidas
+- **P&L Hoy:** Variable (monitoreo continuo)
+- **Último rebalanceo:** 2026-06-16 00:19 AM (+$1,335 invertidos en ETH/BNB/SOL)
+
+### 🎯 Sistema Actual
+- **Grid Trading:** Operativo 24/7 con órdenes automáticas buy/sell
+- **Memory Search:** Automático cada 6 horas (solo alertas críticas)
+- **Dashboard:** http://192.168.3.215:8080 con animaciones cyberpunk
+- **API quota:** Optimizada (mínimo gasto innecesario)
 
 ### 🏠 Setup
 - **Hardware:** Raspberry Pi 5 (192.168.3.215)

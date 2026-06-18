@@ -298,6 +298,23 @@ def get_trade_history():
         "trades": []
     }
 
+def get_grid_status():
+    """🆕 Obtener status del Grid Trading Bot"""
+    grid_status_file = f"{WORKSPACE}/dashboard/grid-status.json"
+    if os.path.exists(grid_status_file):
+        try:
+            with open(grid_status_file, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Error reading grid status: {e}")
+    
+    return {
+        "status": "inactive",
+        "totalBots": 0,
+        "totalOrders": 0,
+        "bots": {}
+    }
+
 def get_daily_pnl():
     """Calcular P&L de las últimas 24 horas + P&L por moneda desde trade-history.json"""
     try:
@@ -441,6 +458,7 @@ def api_status():
     daily_pnl, pnl_by_coin = get_daily_pnl()
     cashout_history = get_cashout_history()
     market_mode = get_market_mode()
+    grid_status = get_grid_status()  # 🆕 Grid Trading Status
     
     # Calcular slots activos
     active_slots = 0
@@ -513,6 +531,14 @@ def api_status():
             'active': active_slots,
             'ready': ready_slots,
             'percentage': round((active_slots / total_slots * 100) if total_slots > 0 else 0, 1)
+        },
+        'grid': {  # 🆕 Grid Trading Status
+            'status': grid_status.get('status', 'inactive'),
+            'totalBots': grid_status.get('totalBots', 0),
+            'totalOrders': grid_status.get('totalOrders', 0),
+            'bots': grid_status.get('bots', {}),
+            'tradesExecuted': grid_status.get('tradesExecuted', 0),
+            'totalPnL': grid_status.get('totalPnL', 0.00)
         },
         'pnl': {
             '24h': daily_pnl,

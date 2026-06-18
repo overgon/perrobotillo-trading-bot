@@ -3,22 +3,70 @@
 # ║  🤖 CRYPTO TRADE BOT V3 - MULTI-SLOT SYSTEM           ║
 # ║  Soporta hasta 3 trades simultáneos por moneda        ║
 # ╚═══════════════════════════════════════════════════════╝
+#
+# Uso:
+#   $0 <SYMBOL>
+#
+# Ejemplos:
+#   ./crypto-trade-moneda-v3-slots.sh BTC
+#   ./crypto-trade-moneda-v3-slots.sh ETH
+#
+# Variables que consume (por orden de carga):
+#  - secrets/binance.env -> BINANCE_API_KEY / BINANCE_API_SECRET
+#  - config/capital-config.sh -> estrategia 20/80 (opcional)
+#  - crypto-bots/dynamic-config.env -> TPs/SL/mode generado por auto-adjust (opcional)
+#
+# Comportamiento principal:
+#  - Carga configs y ejecuta execute_cycle()
+#  - Ante errores no críticos retorna 0; fallos relevantes detienen el flujo
+#    por condiciones específicas, no por set -e global
+#
+# Archivos asociados:
+#  - crypto-bots/<SYMBOL>-trade-state.json -> estado de slots
+#  - crypto-bots/trade-history.json       -> histórico global
+#  - crypto-bots/global-circuit-breaker.sh -> pause global cross-moneda
+#  - ml/ml-drawdown-check.sh              -> risk check por moneda
+#
 
 # BUG-041 FIX: set -e causa exit prematuro cuando auto_reset_slots retorna 1
 # set -e  # REMOVIDO - funciones pueden retornar 1 normalmente sin ser error fatal
 
-SYMBOL="$1"
+# ════════════════════════════════════════════════════════
+# 📌 BOOTSTRAP Y VALIDACIONES INICIALES
+# ════════════════════════════════════════════════════════
+
+required_binaries=(curl jq awk date)
+for b in "${required_binaries[@]}"; do
+    command -v "$b" >/dev/null 2>&1 || { echo "❌ Requiere '$b'"; exit 127; }
+done
+
+SYMBOL="${1:-}"
+SYMBOL="${SYMBOL^^}"
+
 if [ -z "$SYMBOL" ]; then
     echo "❌ Uso: $0 <SYMBOL> (ej: BTC, ETH, BNB, SOL, LINK, XRP)"
     exit 1
 fi
 
+case "$SYMBOL" in
+    BTC|ETH|BNB|SOL|LINK|XRP|AVAX) ;;
+    *) echo "❌ SYMBOL no soportado: $SYMBOL"; exit 1 ;;
+esac
+
 WORKSPACE="$HOME/.openclaw/workspace"
 SECRETS="$HOME/.openclaw/secrets"
 LOGS="$HOME/.openclaw/logs"
 BINANCE="https://api.binance.com"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+if [ ! -f "$SECRETS/binance.env" ]; then
+    echo "❌ secrets/binance.env no encontrado"; exit 1
+fi
 source "$SECRETS/binance.env"
+
+if [ -z "${BINANCE_API_KEY:-}" ] || [ -z "${BINANCE_API_SECRET:-}" ]; then
+    echo "❌ BINANCE_API_KEY / BINANCE_API_SECRET vacíos"; exit 1
+fi
 
 # ════════════════════════════════════════════════════════
 # 🎯 CONFIGURACIÓN OPTIMIZADA - FASE 1 v2.1 + 20/80
@@ -45,7 +93,7 @@ fi
 # 🧠 CARGAR CONFIGURACIÓN DINÁMICA (Auto-Adjust)
 # ════════════════════════════════════════════════════════
 
-DYNAMIC_CONFIG="${SCRIPT_DIR}/dynamic-config.env"
+DYNAMIC_CONFIG="$WORKSPACE/crypto-bots/dynamic-config.env"
 if [ -f "$DYNAMIC_CONFIG" ]; then
     source "$DYNAMIC_CONFIG"
     
@@ -2088,9 +2136,10 @@ execute_cycle() {
     log "╔═══════════════════════════════════════════════════════╗"
     log "║  🤖 CRYPTO TRADE BOT V3 - $SYMBOL [MULTI-SLOT]           ║"
     log "╚═══════════════════════════════════════════════════════╝"
-    
+
     # ════════════════════════════════════════════════════════
     # 🛑 GLOBAL CIRCUIT BREAKER - OPTIMIZADO 2026-06-01
+    # SKIP CYCLE: pause global activo, no se abren nuevas entradas
     # ════════════════════════════════════════════════════════
     # Verifica losses globales (todas las monedas) antes de operar
     # Evita desastres como May 16 (11 losses en 48h)
@@ -2135,6 +2184,7 @@ _Jefe, el bot está en pausa global._ 🐕" 2>/dev/null || true
     
     # ════════════════════════════════════════════════════════
     # 🛑 CHECK INDIVIDUAL SL TRACKING - PREVENT DOUBLE-CHECK
+    # SKIP CYCLE:SL reciente < 60 min, esperar enfriamiento
     # ════════════════════════════════════════════════════════
     # Verificar SI ESTA MONEDA tiene SL reciente antes de entrar
     # Esto previene entradas como XRP Jun 02 00:06 (entró 11 min después de SL)
@@ -2159,6 +2209,7 @@ _Jefe, el bot está en pausa global._ 🐕" 2>/dev/null || true
     
     # ============================================
     # 🛡️ CHECK SYSTEM STATUS (BINANCE MAINTENANCE)
+    # SKIP CYCLE: Binance en mantenimiento
     # ============================================
     check_binance_system_status || {
         log "⚠️ Binance en mantenimiento, saltando este cycle"
@@ -2366,6 +2417,7 @@ Todas las monedas pueden operar normalmente.
     
     # ════════════════════════════════════════════════════════
     # 🛑 CHECK CONSECUTIVE SL HITS - PAUSE AFTER 2 LOSSES
+    # SKIP CYCLE: pausa por racha de SL activa por tiempo definido
     # ════════════════════════════════════════════════════════
     SL_TRACKING_FILE="${WORKSPACE}/crypto-bots/${SYMBOL}-sl-tracking.json"
     

@@ -1436,6 +1436,118 @@ body::before {
     border-bottom: none;
 }
 
+/* ════════════════════════════════════════════════════════
+   🤖 GRID TRADING SECTION
+   ════════════════════════════════════════════════════════ */
+
+.grid-section {
+    margin-top: 24px;
+}
+
+.grid-status-badge {
+    font-size: 14px;
+    font-weight: 700;
+    color: #00ff00;
+    margin-left: 12px;
+    animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.grid-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(0, 243, 255, 0.05), rgba(188, 19, 254, 0.05));
+    border-radius: 8px;
+    border: 1px solid rgba(0, 243, 255, 0.2);
+}
+
+.grid-stat {
+    text-align: center;
+}
+
+.grid-stat-label {
+    display: block;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 6px;
+}
+
+.grid-stat-value {
+    display: block;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #00f3ff;
+}
+
+.grid-stat-value.pnl {
+    font-size: 20px;
+}
+
+.grid-stat-value.pnl.profit {
+    color: #00ff00;
+}
+
+.grid-stat-value.pnl.loss {
+    color: #ff4444;
+}
+
+.grid-bots-table-container {
+    overflow-x: auto;
+}
+
+/* ════════════════════════════════════════════════════════
+   GRID TRADING MOBILE RESPONSIVE
+   ════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .grid-section {
+        margin-top: 16px;
+        padding: 12px;
+    }
+    
+    .grid-status-badge {
+        font-size: 12px;
+    }
+    
+    .grid-summary {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 12px;
+    }
+    
+    .grid-stat-label {
+        font-size: 11px;
+    }
+    
+    .grid-stat-value {
+        font-size: 16px;
+    }
+    
+    .grid-bots-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .cyber-table {
+        font-size: 12px;
+        min-width: 600px; /* Force horizontal scroll on mobile */
+    }
+    
+    .cyber-table th,
+    .cyber-table td {
+        padding: 6px 4px;
+        white-space: nowrap;
+    }
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .circuit-breaker-section {

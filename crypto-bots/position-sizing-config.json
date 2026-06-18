@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-06-10T14:00:01.995213+00:00",
+  "generated_at": "2026-06-18T14:00:01.638000+00:00",
   "base_position_size": 15,
   "coins": {
     "BTC": {
       "position_size": 9.0,
       "reason": "WR 40.0% < 50% (bajo) + PnL negativo reciente",
       "stats": {
-        "trades": 11,
-        "wins": 5,
+        "trades": 12,
+        "wins": 6,
         "losses": 6,
-        "win_rate": 45.45454545454545,
-        "total_pnl": -91.1134734386,
-        "avg_pnl": -8.283043039872727,
+        "win_rate": 50.0,
+        "total_pnl": -90.8511606086,
+        "avg_pnl": -7.570930050716666,
         "recent_wr": 40.0,
-        "recent_pnl": -92.83481343860001
+        "recent_pnl": -95.9204526086
       }
     },
     "ETH": {
@@ -31,73 +31,73 @@
       }
     },
     "BNB": {
-      "position_size": 20.0,
-      "reason": "WR 70.0% >= 70% (alto)",
+      "position_size": 13.5,
+      "reason": "WR 50.0% (50-70%, medio) + PnL negativo reciente",
       "stats": {
-        "trades": 32,
+        "trades": 34,
         "wins": 27,
-        "losses": 5,
-        "win_rate": 84.375,
-        "total_pnl": 55.878751210000004,
-        "avg_pnl": 1.7462109753125001,
-        "recent_wr": 70.0,
-        "recent_pnl": 15.081516960000002
+        "losses": 7,
+        "win_rate": 79.41176470588235,
+        "total_pnl": 52.558751210000004,
+        "avg_pnl": 1.5458456238235296,
+        "recent_wr": 50.0,
+        "recent_pnl": -1.7428330399999994
       }
     },
     "SOL": {
       "position_size": 9.0,
-      "reason": "WR 30.0% < 50% (bajo) + PnL negativo reciente",
+      "reason": "WR 40.0% < 50% (bajo) + PnL negativo reciente",
       "stats": {
-        "trades": 25,
-        "wins": 17,
-        "losses": 8,
-        "win_rate": 68.0,
-        "total_pnl": -3.274564259999998,
-        "avg_pnl": -0.13098257039999991,
-        "recent_wr": 30.0,
-        "recent_pnl": -50.1587583
+        "trades": 28,
+        "wins": 19,
+        "losses": 9,
+        "win_rate": 67.85714285714286,
+        "total_pnl": 26.56133574,
+        "avg_pnl": 0.9486191335714286,
+        "recent_wr": 40.0,
+        "recent_pnl": -17.22853584
       }
     },
     "LINK": {
-      "position_size": 18.0,
-      "reason": "WR 70.0% >= 70% (alto) + PnL negativo reciente",
+      "position_size": 13.5,
+      "reason": "WR 50.0% (50-70%, medio) + PnL negativo reciente",
       "stats": {
-        "trades": 33,
+        "trades": 35,
         "wins": 23,
-        "losses": 10,
-        "win_rate": 69.6969696969697,
+        "losses": 12,
+        "win_rate": 65.71428571428571,
         "total_pnl": -9.432566649999998,
-        "avg_pnl": -0.285835353030303,
-        "recent_wr": 70.0,
-        "recent_pnl": -42.24601122
+        "avg_pnl": -0.26950190428571424,
+        "recent_wr": 50.0,
+        "recent_pnl": -42.88137477
       }
     },
     "XRP": {
-      "position_size": 20.0,
-      "reason": "WR 70.0% >= 70% (alto)",
+      "position_size": 10.1,
+      "reason": "WR 30.0% < 50% (bajo)",
       "stats": {
-        "trades": 25,
-        "wins": 18,
-        "losses": 7,
-        "win_rate": 72.0,
-        "total_pnl": 22.58971409,
-        "avg_pnl": 0.9035885636000001,
-        "recent_wr": 70.0,
-        "recent_pnl": 0.5263141200000002
+        "trades": 47,
+        "wins": 21,
+        "losses": 26,
+        "win_rate": 44.680851063829785,
+        "total_pnl": 18.21098698,
+        "avg_pnl": 0.3874678080851064,
+        "recent_wr": 30.0,
+        "recent_pnl": 2.4438971499999997
       }
     },
     "AVAX": {
       "position_size": 13.5,
       "reason": "WR 50.0% (50-70%, medio) + PnL negativo reciente",
       "stats": {
-        "trades": 27,
+        "trades": 28,
         "wins": 21,
-        "losses": 6,
-        "win_rate": 77.77777777777779,
-        "total_pnl": 26.72366612,
-        "avg_pnl": 0.9897654118518519,
+        "losses": 7,
+        "win_rate": 75.0,
+        "total_pnl": 24.99057106,
+        "avg_pnl": 0.892520395,
         "recent_wr": 50.0,
-        "recent_pnl": -11.37034986
+        "recent_pnl": -9.77503331
       }
     }
   }

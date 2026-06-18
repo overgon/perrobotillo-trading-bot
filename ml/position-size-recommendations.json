@@ -1,21 +1,21 @@
 {
-  "timestamp": "2026-06-10T17:50:03.158120",
+  "timestamp": "2026-06-18T16:46:03.256064",
   "model_accuracy": 0.5625,
   "recommendations": {
-    "BTC": {
-      "symbol": "BTC",
-      "recommendation": "HIGH",
-      "position_size": 50,
-      "confidence": 0.663,
+    "AVAX": {
+      "symbol": "AVAX",
+      "recommendation": "MEDIUM",
+      "position_size": 40,
+      "confidence": 0.538,
       "probabilities": {
-        "HIGH": 0.663,
+        "HIGH": 0.46,
         "LOW": 0.002,
-        "MEDIUM": 0.335
+        "MEDIUM": 0.538
       },
       "features_used": {
-        "win_rate_24h": 0.0,
-        "win_rate_7d": 0.4117647058823529,
-        "hour": 17
+        "win_rate_24h": 0,
+        "win_rate_7d": 0.5,
+        "hour": 16
       }
     }
   }

@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perrobotillo Dashboard - Cyberpunk Edition</title>
-    <!-- CACHE-BUST: 2026-06-03-CB-FIX -->
+    <!-- CACHE-BUST: 2026-06-16-ANIME-JS -->
+    <!-- ANIME.JS ANIMATION LIBRARY -->
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
     
     <!-- FAVICON - Todos los formatos -->
     <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='avatars/favicon-32x32.png') }}">
@@ -178,6 +180,7 @@
     </div>
 
     <script src="{{ url_for('static', filename='js/app.js') }}?v={{ range(1000, 9999) | random }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}?v={{ range(1000, 9999) | random }}"></script>
 
 
 

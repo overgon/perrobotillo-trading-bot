@@ -62,10 +62,16 @@ async function loadData() {
         
         updatePortfolio({ portfolio: data.portfolio, history: data.history, pnl: data.pnl });
         updateSlots({ tradeStates: data.tradeStates || {}, prices: lastPrices });
+        updateGrid(data);  // 🆕 Update Grid Trading section
         updateSystemStatus({ market_mode: data.market_mode, system: data.system });
         updateAutoAdjust({ auto_adjust: data.auto_adjust, market_mode: data.market_mode });
         updateTradesTable({ history: data.history });
         updateTimestamp(data.timestamp);
+        
+        // 🆕 Trigger animations after data update
+        if (window.onDashboardDataUpdated) {
+            window.onDashboardDataUpdated();
+        }
         
         console.log('✅ Data updated:', new Date(data.timestamp).toLocaleTimeString());
     } catch (error) {
@@ -359,6 +365,80 @@ function updateSlots(data) {
     }
     
     console.log('✅ Slots updated:', `${activeCount}/21`);
+}
+
+// 🆕 GRID TRADING UPDATE FUNCTION
+function updateGrid(data) {
+    const gridData = data.grid;
+    if (!gridData) return;
+    
+    // Update status badge
+    const statusBadge = document.getElementById('gridStatusBadge');
+    if (statusBadge) {
+        const status = gridData.status || 'inactive';
+        if (status === 'active') {
+            statusBadge.textContent = '● ACTIVE';
+            statusBadge.style.color = '#00ff00';
+            statusBadge.style.background = '';
+        } else if (status === 'disabled') {
+            statusBadge.textContent = '● DESACTIVADO';
+            statusBadge.style.color = '#ffffff';
+            statusBadge.style.background = '#666';
+        } else {
+            statusBadge.textContent = '○ INACTIVE';
+            statusBadge.style.color = '#ff4444';
+            statusBadge.style.background = '';
+        }
+    }
+    
+    // 🆕 Count actual Grid trades from history
+    const history = data.history || {};
+    const allTrades = history.trades || [];
+    const gridTrades = allTrades.filter(t => t.slotId === 99);
+    const gridPnL = gridTrades.reduce((sum, t) => sum + (t.pnlUSDT || 0), 0);
+    
+    // Update summary stats with REAL data from trade-history
+    const totalBots = document.getElementById('gridTotalBots');
+    const totalOrders = document.getElementById('gridTotalOrders');
+    const tradesExecuted = document.getElementById('gridTradesExecuted');
+    const totalPnL = document.getElementById('gridTotalPnL');
+    
+    if (totalBots) totalBots.textContent = gridData.totalBots || 7;
+    if (totalOrders) totalOrders.textContent = gridData.totalOrders || 0;
+    if (tradesExecuted) tradesExecuted.textContent = gridTrades.length;  // 🆕 Real count
+    if (totalPnL) {
+        const pnl = gridPnL;  // 🆕 Real P&L from trades
+        totalPnL.textContent = `$${pnl.toFixed(2)}`;
+        totalPnL.className = `grid-stat-value pnl ${pnl >= 0 ? 'profit' : 'loss'}`;
+    }
+    
+    // Update bots table
+    const tbody = document.getElementById('gridBotsTableBody');
+    if (!tbody || !gridData.bots) return;
+    
+    const coins = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX'];
+    let html = '';
+    
+    coins.forEach(coin => {
+        const bot = gridData.bots[coin];
+        if (bot && bot.active) {
+            const range = bot.range || {};
+            html += `
+                <tr>
+                    <td><strong>${coin}</strong></td>
+                    <td><span style="color: #00ff00;">● Active</span></td>
+                    <td>$${bot.price ? bot.price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00'}</td>
+                    <td>${bot.orders || 0}</td>
+                    <td>$${range.low ? range.low.toLocaleString() : '0'} - $${range.high ? range.high.toLocaleString() : '0'}</td>
+                    <td>$${(bot.balanceUSDT || 0).toFixed(2)}</td>
+                </tr>
+            `;
+        }
+    });
+    
+    tbody.innerHTML = html || '<tr><td colspan="6" class="loading-row">No bots active</td></tr>';
+    
+    console.log('✅ Grid Trading updated:', `${gridTrades.length} trades executed, $${gridPnL.toFixed(2)} P&L`);
 }
 
 function updatePnlByCoin(pnlByCoin) {

@@ -23,7 +23,7 @@ warnings.filterwarnings('ignore')
 # ════════════════════════════════════════════════════════
 
 WORKSPACE = Path("/home/overgon/.openclaw/workspace")
-SECRETS = Path("/home/overgon/.secrets")
+SECRETS = Path("/home/overgon/.openclaw/secrets")
 LOGS_DIR = Path("/home/overgon/.openclaw/logs")
 CONFIG_DIR = WORKSPACE / "config" / "grid"
 
@@ -32,104 +32,97 @@ CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 # Configuración por defecto para cada moneda
 DEFAULT_GRID_CONFIG = {
     "BTC": {
-        "enabled": True,
-        "low_price": 70000,      # Límite inferior del rango
-        "high_price": 80000,     # Límite superior del rango
+        "enabled": False  # Desactivado en migración a Slots,
+        "low_price": 57904,      # ✅ ACTUALIZADO: BTC ~$65,754 (Jun 2026)
+        "high_price": 73696,     # Rango: $56k-$76k (±15% del precio actual)
         "grid_levels": 10,       # Número de niveles
-        "quantity_per_grid": 0.001,  # Cantidad BTC por nivel
+        "quantity_per_grid": 0.000628,  # Cantidad BTC por nivel
         "max_investment": 500,   # Máximo USDT invertidos
         "stop_loss": 0.95,       # SL si precio cae 5% debajo del rango
         "take_profit": 1.05,     # TP si precio sube 5% encima del rango
     },
     "ETH": {
-        "enabled": True,
-        "low_price": 2800,
-        "high_price": 3500,
+        "enabled": False  # Desactivado en migración a Slots,
+        "low_price": 1575,       # ✅ ACTUALIZADO: ETH ~$1,783 (Jun 2026)
+        "high_price": 2005,      # Rango: $1.5k-$2k (±15% del precio actual)
         "grid_levels": 12,
-        "quantity_per_grid": 0.01,
+        "quantity_per_grid": 0.023,
         "max_investment": 400,
         "stop_loss": 0.95,
         "take_profit": 1.05,
     },
     "BNB": {
-        "enabled": True,
-        "low_price": 650,
-        "high_price": 800,
+        "enabled": False  # Desactivado en migración a Slots,
+        "low_price": 534,
+        "high_price": 680,
         "grid_levels": 15,
-        "quantity_per_grid": 0.05,
+        "quantity_per_grid": 0.068,
         "max_investment": 300,
-        "stop_loss": 0.95,
-        "take_profit": 1.05,
+        "stop_loss": 0.92,
+        "take_profit": 1.10,
     },
     "SOL": {
-        "enabled": False,  # Asignado al Bot Principal (Trend + ML)
-        "low_price": 75,
-        "high_price": 95,
+        "enabled": False  # Desactivado en migración a Slots,  # ✅ Habilitado para Grid Trading
+        "low_price": 64.59,    # Actualizado: SOL ~$73.88
+        "high_price": 82.21,
         "grid_levels": 10,
         "quantity_per_grid": 0.5,
         "max_investment": 200,
-        "stop_loss": 0.90,
-        "take_profit": 1.10,
-        "note": "Operado por Bot Principal - evitar duplicación"
+        "stop_loss": 0.88,
+        "take_profit": 1.12,
     },
     "LINK": {
-        "enabled": False,  # Asignado al Bot Principal (Trend + ML)
-        "low_price": 8,
-        "high_price": 12,
+        "enabled": False  # Desactivado en migración a Slots,  # ✅ Habilitado para Grid Trading
+        "low_price": 7.23,   # Actualizado: LINK ~$8.46
+        "high_price": 9.21,
         "grid_levels": 10,
         "quantity_per_grid": 5,
         "max_investment": 200,
-        "stop_loss": 0.90,
-        "take_profit": 1.10,
-        "note": "Operado por Bot Principal - evitar duplicación"
+        "stop_loss": 0.88,
+        "take_profit": 1.12,
     },
     "XRP": {
-        "enabled": True,
-        "low_price": 1.20,
-        "high_price": 1.50,
+        "enabled": False  # Desactivado en migración a Slots,
+        "low_price": 1.07,   # ⚠️ AJUSTADO: Antes $1.20 (-5%), ahora $1.15 (-8%)
+        "high_price": 1.37,
         "grid_levels": 12,
         "quantity_per_grid": 50,
         "max_investment": 200,
-        "stop_loss": 0.95,
+        "stop_loss": 0.88,   # ⚠️ AJUSTADO: Antes 0.95 (-5%), ahora 0.88 (-12%)
         "take_profit": 1.05,
     },
     "AVAX": {
-        "enabled": True,  # ✅ Habilitado para Grid Trading
-        "low_price": 8,
-        "high_price": 10,
+        "enabled": False  # Desactivado en migración a Slots,  # ✅ Habilitado para Grid Trading
+        "low_price": 6.0,     # Actualizado: AVAX ~$6.95
+        "high_price": 7.64,
         "grid_levels": 15,
         "quantity_per_grid": 3,
         "max_investment": 100,
-        "stop_loss": 0.92,
-        "take_profit": 1.08,
+        "stop_loss": 0.88,
+        "take_profit": 1.12,
         "monte_carlo_verified": True,
         "skill_confirmed": True
     },
     "BTC": {
-        "enabled": False,  # Asignado al Bot Principal (Trend + ML)
-        "low_price": 70000,
-        "high_price": 80000,
+        "enabled": False  # Desactivado en migración a Slots,  # ✅ Habilitado para Grid Trading
+        "low_price": 57904,   # Actualizado: BTC ~$66,660
+        "high_price": 73696,
         "grid_levels": 10,
         "quantity_per_grid": 0.001,
         "max_investment": 500,
-        "stop_loss": 0.95,
-        "take_profit": 1.05,
-        "note": "Operado por Bot Principal - evitar duplicación"
+        "stop_loss": 0.92,
+        "take_profit": 1.08,
     },
     "ETH": {
-        "enabled": False,  # Asignado al Bot Principal (Trend + ML)
-        "low_price": 2800,
-        "high_price": 3500,
+        "enabled": False  # Desactivado en migración a Slots,  # ✅ Habilitado para Grid Trading
+        "low_price": 1575,   # Actualizado: ETH ~$1,816
+        "high_price": 2005,
         "grid_levels": 12,
         "quantity_per_grid": 0.01,
         "max_investment": 400,
-        "stop_loss": 0.95,
-        "take_profit": 1.05,
-        "note": "Operado por Bot Principal - evitar duplicación"
-    },
         "stop_loss": 0.90,
         "take_profit": 1.10,
-    }
+    },
 }
 
 # ════════════════════════════════════════════════════════
@@ -224,6 +217,9 @@ class GridTradingBot:
         self.total_invested = 0
         self.total_profit = 0
         self.trades_count = 0
+        
+        # 🆕 Track buy prices for accurate P&L calculation
+        self.filled_buy_orders = {}  # order_id -> {price, amount}
         
         # Log file
         self.log_file = LOGS_DIR / f"grid-{coin}.log"
@@ -346,6 +342,13 @@ class GridTradingBot:
                 })
                 
                 self.log(f"  {'✅' if level['type'] == 'buy' else '✅'} {side.upper()} {level['amount']} {self.coin} @ ${level['price']}")
+                
+                # 🆕 Track buy orders for P&L calculation
+                if level['type'] == 'buy':
+                    self.filled_buy_orders[order['id']] = {
+                        'price': level['price'],
+                        'amount': level['amount']
+                    }
             
             time.sleep(0.1)  # Rate limit
         
@@ -370,14 +373,35 @@ class GridTradingBot:
                 filled_orders.append(order)
                 self.active_orders.remove(order)
                 
-                # Calcular profit/loss
+                # 🆕 Calcular profit/loss REAL basado en precio de compra
                 if order['type'] == 'sell':
-                    profit = (order['price'] - (order['price'] * 0.99)) * order['amount']  # Simplificado
+                    # Buscar el buy order correspondiente (mismo amount)
+                    buy_order = None
+                    for buy_id, buy_info in self.filled_buy_orders.items():
+                        if abs(buy_info['amount'] - order['amount']) < 0.0001:
+                            buy_order = buy_info
+                            del self.filled_buy_orders[buy_id]
+                            break
+                    
+                    if buy_order:
+                        # P&L real = (sell_price - buy_price) * quantity - fees
+                        sell_value = order['price'] * order['amount']
+                        buy_value = buy_order['price'] * order['amount']
+                        fees = sell_value * 0.001  # 0.1% Binance fee
+                        profit = sell_value - buy_value - fees
+                    else:
+                        # Fallback si no encontramos el buy order
+                        profit = (order['price'] * 0.01) * order['amount']
+                    
                     self.total_profit += profit
                     self.trades_count += 1
                     
                     self.log(f"🎯 Orden {order['type'].upper()} ejecutada: {order['amount']} @ ${order['price']}")
                     self.log(f"   Profit: ${profit:.4f} | Total trades: {self.trades_count}")
+                    
+                    # Registrar en historial con datos reales
+                    entry_price = buy_order['price'] if buy_order else order['price'] * 0.99
+                    self.save_grid_trade(order['amount'], order['price'], profit, entry_price)
                 
                 # Re-colocar orden en el lado opuesto
                 self._replenish_order(order)
@@ -497,9 +521,13 @@ class GridTradingBot:
         
         # Vender todo el coin restante
         coin_balance = self.client.get_balance(self.coin)
+        exit_price = self.client.get_ticker(self.symbol) * 0.99
         if coin_balance > 0.001:  # Mínimo tradeable
-            self.client.place_order(self.symbol, 'sell', coin_balance, self.client.get_ticker(self.symbol) * 0.99)
-            self.log(f"  💰 Vendidos {coin_balance} {self.coin} restantes")
+            order = self.client.place_order(self.symbol, 'sell', coin_balance, exit_price)
+            self.log(f"  💰 Vendidos {coin_balance} {self.coin} restantes @ ${exit_price:.2f}")
+            
+            # Registrar trade en historial
+            self.save_grid_trade(coin_balance, exit_price, 0)
         
         # Calcular P&L final
         usdt_balance = self.client.get_balance('USDT')
@@ -509,6 +537,68 @@ class GridTradingBot:
         self.log(f"  Profit total: ${self.total_profit:.2f}")
         self.log(f"  Balance USDT final: ${usdt_balance:.2f}")
         self.log("╔═══════════════════════════════════════════════════════╗")
+    
+    def save_grid_trade(self, quantity: float, exit_price: float, profit: float, entry_price: float = None):
+        """Guardar trade de grid en trade-history.json"""
+        history_file = WORKSPACE / "crypto-bots" / "trade-history.json"
+        
+        try:
+            # Calcular P&L real
+            pnl = profit
+            close_type = "GRID_TP" if pnl > 0 else "GRID_SL"
+            
+            # Cargar historial existente
+            if history_file.exists():
+                with open(history_file, 'r') as f:
+                    data = json.load(f)
+            else:
+                data = {
+                    "version": "1.0",
+                    "created": datetime.now().isoformat(),
+                    "strategy": "Grid Trading",
+                    "totalTrades": 0,
+                    "totalWins": 0,
+                    "totalLosses": 0,
+                    "netPnLUSDT": 0,
+                    "winRate": 0,
+                    "trades": []
+                }
+            
+            # Crear nuevo trade
+            new_trade = {
+                "id": data.get('totalTrades', 0) + 1,
+                "symbol": self.coin,
+                "slotId": 99,  # Grid Bot usa slot 99
+                "type": "LONG",
+                "entryPrice": round(entry_price if entry_price else exit_price * 0.99, 8),
+                "exitPrice": round(exit_price, 2),
+                "quantity": round(quantity, 8),
+                "closeType": close_type,
+                "pnlUSDT": round(pnl, 8),
+                "timestamp": datetime.now().isoformat(),
+                "closeTime": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                "seeded": False,
+                "note": f"Grid Bot - Auto {close_type.replace('_', '/')}"
+            }
+            
+            # Actualizar stats
+            data['trades'].insert(0, new_trade)
+            data['totalTrades'] += 1
+            if pnl > 0:
+                data['totalWins'] += 1
+            else:
+                data['totalLosses'] += 1
+            data['netPnLUSDT'] += pnl
+            data['winRate'] = round((data['totalWins'] / data['totalTrades']) * 100, 2) if data['totalTrades'] > 0 else 0
+            
+            # Guardar
+            with open(history_file, 'w') as f:
+                json.dump(data, f, indent=2)
+            
+            self.log(f"  📝 Trade #{new_trade['id']} guardado en historial | PnL: ${pnl:.4f}")
+            
+        except Exception as e:
+            self.log(f"  ⚠️ Error guardando trade: {e}")
 
 # ════════════════════════════════════════════════════════
 # MAIN
