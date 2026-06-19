@@ -442,7 +442,7 @@ log_trade_to_history() {
         # Alerta si llegamos a 5 SLs en un día
         if [ "$new_total_today" -ge 5 ]; then
             log "  🚨 CRÍTICO: $new_total_today SL hits hoy - Considerar pausa manual"
-            send_telegram "🚨 ALERTA DE PÉRDIDAS - $SYMBOL
+            notify "ALERT_LOSSES|$SYMBOL" "🚨 ALERTA DE PÉRDIDAS - $SYMBOL
 
 ⚠️ $new_total_today Stop Loss hits HOY
 
@@ -875,7 +875,7 @@ check_daily_limit() {
         
         # Solo enviar alerta UNA VEZ por día
         if [ "$last_alert" != "$today" ]; then
-            send_telegram "⚠️ LÍMITE DIARIO - $SYMBOL
+            notify "DAILY_LIMIT|$SYMBOL" "⚠️ LÍMITE DIARIO - $SYMBOL
 
 Pérdida: \$${daily_loss} | Límite (3% de \$${portfolio_value}): \$${max_loss}
 
@@ -1089,7 +1089,7 @@ execute_long() {
     # Verificar mínimo de Binance ANTES de enviar orden
     if (( $(awk -v val="$order_value" -v min="10" 'BEGIN {print (val < min) ? 1 : 0}') )); then
         log "❌ Orden rechazada: \$${order_value} < \$10 mínimo de Binance"
-        send_telegram "❌ ORDEN FALLÓ - $SYMBOL
+        notify "ORDER_FAIL|$SYMBOL|$slot_id|BEFORE" "❌ ORDEN FALLÓ - $SYMBOL
 
 Slot: $slot_id / $MAX_SLOTS
 Razón: Order value \$${order_value} es menor al mínimo de Binance (\$10)
@@ -1108,7 +1108,7 @@ Ajusta position_size o espera más capital. 🛡️"
     # Validar quantity antes de enviar orden
     if [ -z "$quantity" ] || [ "$quantity" = "0" ] || [ "$quantity" = "0.00000000" ]; then
         log "❌ Quantity inválida: '$quantity'"
-        send_telegram "❌ ORDEN FALLÓ - $SYMBOL
+        notify "ORDER_FAIL|$SYMBOL|$slot_id|QUANTITY" "❌ ORDEN FALLÓ - $SYMBOL
 
 Slot: $slot_id / $MAX_SLOTS
 Razón: Quantity calculada es inválida ($quantity)
@@ -1138,9 +1138,9 @@ Revisa configuración del bot. 🛡️"
         
         # Obtener balance actual para debugging
         local current_balance=$(get_balance "USDT")
-        
+
         # Notificar falla por Telegram con más contexto
-        send_telegram "❌ ORDEN FALLÓ - $SYMBOL
+        notify "BINANCE_ORDER_FAIL|$SYMBOL|$slot_id" "❌ ORDEN FALLÓ - $SYMBOL
 
 Slot: $slot_id / $MAX_SLOTS
 Razón: $error_msg
@@ -1219,8 +1219,8 @@ $ml_section
 
 🚀 Trade activo - Monitoreando TPs..."
         
-        send_telegram "$open_msg"
-        log "  📱 DEBUG: Notificación de apertura enviada"
+        notify "OPEN|LONG|$SYMBOL|$slot_id" "$open_msg"
+        log "  📱 DEBUG: Notificación de apertura enviada por notify"
         log "✅ Slot $slot_id LONG abierto: Order $order_id"
         return 0
     else
@@ -1299,8 +1299,8 @@ check_slot_tp_sl() {
                     local pnl_icon="🟢"
                     [ $(echo "$pnl < 0" | bc -l) -eq 1 ] && pnl_icon="🔴"
                     
-                    # Telegram
-                    send_telegram "${pnl_icon} SCALP HIT - $SYMBOL 🎯
+                    # Enviar Telegram TP2 con nota de scalping
+                    notify "SCALP_TP_HIT|$SYMBOL|$slot_id" "${pnl_icon} SCALP HIT - $SYMBOL 🎯
 
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${exit_price}
@@ -1456,7 +1456,7 @@ Target: ${SCALP_TARGET_PERCENT}%
                         log "  ✅ Slot #$slot_id listo para nueva entrada en próximo ciclo"
                         
                         # Enviar Telegram TP1 con nota de reciclaje
-                        send_telegram "✅ TP1 HIT - $SYMBOL [35%] 🎯
+                        notify "TP1_HIT|$SYMBOL|$slot_id" "✅ TP1 HIT - $SYMBOL [35%] 🎯
 
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${current_price}
@@ -1473,7 +1473,7 @@ El slot buscará nueva entrada 🚀"
                         local pnl_partial=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
                         
                         # Enviar Telegram TP1 (versión piramidal)
-                        send_telegram "✅ TP1 HIT - $SYMBOL [35%] 🎯
+                        notify "TP1_HIT|$SYMBOL|$slot_id" "✅ TP1 HIT - $SYMBOL [35%] 🎯
 
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${current_price}
@@ -1489,7 +1489,7 @@ Quedan 65% para TP2/TP3 🎯"
                     local pnl_partial=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
                     
                     # Enviar Telegram TP1 (versión piramidal)
-                    send_telegram "✅ TP1 HIT - $SYMBOL [35%] 🎯
+                    notify "TP1_HIT|$SYMBOL|$slot_id" "✅ TP1 HIT - $SYMBOL [35%] 🎯
 
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${current_price}
@@ -1502,6 +1502,12 @@ Quedan 65% para TP2/TP3 🎯"
             else
                 local error=$(echo "$sell_result" | jq -r '.msg // "Unknown error"')
                 log "  ❌ TP1 venta falló: $error"
+                notify "TP1_FAIL|$SYMBOL|$slot_id" "⚠️ TP1 FALLÓ - $SYMBOL
+
+Slot: $slot_id
+Error: $error
+
+El slot sigue activo y reintentará en próximos ciclos."
             fi
         fi
         
@@ -1601,8 +1607,8 @@ ACUMULADO: 5% 📈
 
 Queda 35% para TP3 🎯"
                 
-                send_telegram "$tp2_msg"
-                log "  📱 DEBUG: send_telegram TP2 completado"
+                notify "TP2_HIT|$SYMBOL|$slot_id" "$tp2_msg"
+                log "  📱 DEBUG: notify TP2 completado"
             else
                 local error=$(echo "$sell_result" | jq -r '.msg // "Unknown error"')
                 log "  ❌ TP2 venta falló: $error"
@@ -1621,7 +1627,7 @@ Queda 35% para TP3 🎯"
                         log "  ⚠️ Resto < \$5 (\$${remaining_value}) - Slot marcado como CLOSED_TP2"
                         log "  💡 Resto se queda como 'dust' en Binance (convertible a BNB)"
                         
-                        send_telegram "⚠️ TP2 FALLÓ - $SYMBOL [BUG-047 FIX]
+                        notify "TP2_FAIL|$SYMBOL|$slot_id|BUG-047" "⚠️ TP2 FALLÓ - $SYMBOL [BUG-047 FIX]
 
 Slot: $slot_id
 Error: $error
@@ -1634,7 +1640,7 @@ Resto: \$${remaining_value} (< \$5)
 🛡️ Auto-Heal v2.0"
                     else
                         # Resto >= $5 - mantener slot activo
-                        send_telegram "⚠️ TP2 FALLÓ - $SYMBOL
+                        notify "TP2_FAIL|$SYMBOL|$slot_id" "⚠️ TP2 FALLÓ - $SYMBOL
 
 Slot: $slot_id
 Error: $error
@@ -1772,8 +1778,8 @@ P&L Total: \$${pnl_total}
 
 ✅ Slot cerrado y disponible 🎯"
                 
-                send_telegram "$tp3_msg"
-                log "  📱 DEBUG: send_telegram completado"
+                notify "TP3_HIT|$SYMBOL|$slot_id" "$tp3_msg"
+                log "  📱 DEBUG: notify completado TP3"
             else
                 local error=$(echo "$sell_result" | jq -r '.msg // "Unknown error"')
                 log "  ❌ TP3 venta falló: $error"
@@ -1781,7 +1787,7 @@ P&L Total: \$${pnl_total}
                 # BUG-036 FIX: Notificar incluso si falla por NOTIONAL
                 if echo "$error" | grep -q "NOTIONAL\|minimum"; then
                     log "  📱 Enviando notificación de falla NOTIONAL..."
-                    send_telegram "⚠️ TP3 FALLÓ - $SYMBOL
+                    notify "TP3_FAIL|$SYMBOL|$slot_id|NOTIONAL" "⚠️ TP3 FALLÓ - $SYMBOL
 
 Slot: $slot_id
 Error: $error
@@ -1831,7 +1837,7 @@ ACUMULADO: 5% se queda HODL 📈
                 [ $(echo "$pnl > 0" | bc -l) -eq 1 ] && pnl_icon="🟢"
                 
                 # Enviar Telegram
-                send_telegram "${pnl_icon} SL HIT - $SYMBOL
+                notify "SL_HIT|$SYMBOL|$slot_id" "${pnl_icon} SL HIT - $SYMBOL
 
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${exit_price}
@@ -1865,8 +1871,31 @@ execute_trailing_stop() {
     local sell_result=$(place_sell_order_market "$SYMBOL" "$quantity")
     log "  Resultado venta trailing: $sell_result"
     local sell_status=$(echo "$sell_result" | jq -r '.status // "ERROR"')
-    
+
     if [ "$sell_status" = "FILLED" ]; then
+
+        # Calcular P&L antes de update de estado para armar la alerta
+        local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
+        local fee_bnb=$(echo "$sell_result" | jq -r '.fills[0].commission // 0')
+        local fee_asset=$(echo "$sell_result" | jq -r '.fills[0].commissionAsset // "USDT"')
+        local fee_usd=$fee_bnb
+        if [ "$fee_asset" = "BNB" ]; then
+            fee_usd=$(awk -v b="$fee_bnb" -v p="$exit_price" 'BEGIN {printf "%.8f", b * p}')
+        fi
+        local trailing_pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
+        local trailing_exit_display=$(awk -v p="$exit_price" 'BEGIN {printf "%.2f", p}')
+        local trailing_pnl_display=$(awk -v p="$trailing_pnl" 'BEGIN {printf "%.2f", p}')
+        local trailing_pnl_icon="🟢"
+        [ $(echo "$trailing_pnl > 0" | bc -l) -eq 1 ] || trailing_pnl_icon="🔴"
+
+        notify "TRAILING_STOP|$SYMBOL|$slot_id|PRECHECK_OK" "${trailing_pnl_icon} TRAILING STOP - $SYMBOL
+
+    Slot: $slot_id / $MAX_SLOTS
+    Exit: \$${trailing_exit_display}
+    P&L: \$${trailing_pnl_display}
+    Razón: $reason
+
+    ✅ Ganancias aseguradas 🛡️"
         log "  ✅ Trailing stop ejecutado exitosamente - Slot cerrado"
         update_slot_status "$slot_id" "CLOSED_TRAILING"
         
@@ -1902,7 +1931,7 @@ execute_trailing_stop() {
         fi
         
         # Enviar Telegram
-        send_telegram "${pnl_icon} TRAILING STOP - $SYMBOL
+        notify "TRAILING_STOP|$SYMBOL|$slot_id" "${pnl_icon} TRAILING STOP - $SYMBOL
 
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${exit_price}
@@ -2162,8 +2191,8 @@ execute_cycle() {
             current_hour=$(date +%s)
             hours_since_notify=$(( (current_hour - last_notify) / 3600 ))
             
-            if [ $hours_since_notify -ge 4 ]; then
-                send_telegram "🛑 GLOBAL CIRCUIT BREAKER ACTIVADO
+            if [ "$hours_since_notify" -ge 4 ]; then
+                notify "GLOBAL_CB|ACTIVATED|${pause_type}" "🛑 GLOBAL CIRCUIT BREAKER ACTIVADO
 
 ⚠️ $pause_type
 
@@ -2350,7 +2379,7 @@ _Jefe, el bot está en pausa global._ 🐕" 2>/dev/null || true
                 
                 if [ "$ALREADY_PAUSED" = false ]; then
                     log "🛑 ML: Riesgo ALTO - Pausando trading para $SYMBOL"
-                    send_telegram "🛑 TRADING PAUSADO - $SYMBOL
+                    notify "ML_PAUSE|$SYMBOL|HIGH_RISK" "🛑 TRADING PAUSADO - $SYMBOL
 
 🛡️ ML Risk Detector: Riesgo ALTO
 ${ML_RISK_MSG}

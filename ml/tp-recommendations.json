@@ -1,47 +1,47 @@
 {
-  "timestamp": "2026-06-18T16:46:06.817839",
+  "timestamp": "2026-06-18T18:00:09.347675",
   "predictions": {
     "BTC": {
-      "prob_tp1": 0.34275120047848023,
+      "prob_tp1": 0.3954534367910468,
       "prediction": "TP1_UNLIKELY",
       "confidence": "MEDIUM",
-      "timestamp": "2026-06-18T16:46:06.802974"
+      "timestamp": "2026-06-18T18:00:09.336659"
     },
     "ETH": {
-      "prob_tp1": 0.9465358676555821,
+      "prob_tp1": 0.9424419169359857,
       "prediction": "TP1_LIKELY",
       "confidence": "HIGH",
-      "timestamp": "2026-06-18T16:46:06.805696"
+      "timestamp": "2026-06-18T18:00:09.338754"
     },
     "BNB": {
-      "prob_tp1": 0.5227176652176485,
+      "prob_tp1": 0.14396321084874908,
       "prediction": "TP1_UNLIKELY",
-      "confidence": "MEDIUM",
-      "timestamp": "2026-06-18T16:46:06.808256"
+      "confidence": "HIGH",
+      "timestamp": "2026-06-18T18:00:09.340529"
     },
     "SOL": {
-      "prob_tp1": 0.8608229321401308,
+      "prob_tp1": 0.9063208482081684,
       "prediction": "TP1_LIKELY",
       "confidence": "HIGH",
-      "timestamp": "2026-06-18T16:46:06.810596"
+      "timestamp": "2026-06-18T18:00:09.342233"
     },
     "LINK": {
-      "prob_tp1": 0.361356920746123,
+      "prob_tp1": 0.4119130653472129,
       "prediction": "TP1_UNLIKELY",
       "confidence": "MEDIUM",
-      "timestamp": "2026-06-18T16:46:06.812999"
+      "timestamp": "2026-06-18T18:00:09.343945"
     },
     "XRP": {
-      "prob_tp1": 0.7453148285198675,
+      "prob_tp1": 0.8828327983169809,
       "prediction": "TP1_LIKELY",
       "confidence": "HIGH",
-      "timestamp": "2026-06-18T16:46:06.815185"
+      "timestamp": "2026-06-18T18:00:09.345582"
     },
     "AVAX": {
-      "prob_tp1": 0.47467595811356705,
-      "prediction": "TP1_UNLIKELY",
+      "prob_tp1": 0.6899971103861783,
+      "prediction": "TP1_LIKELY",
       "confidence": "MEDIUM",
-      "timestamp": "2026-06-18T16:46:06.817311"
+      "timestamp": "2026-06-18T18:00:09.347197"
     }
   },
   "recommendations": {
@@ -61,11 +61,12 @@
       "reason": "Alta probabilidad de TP - ser agresivo"
     },
     "BNB": {
-      "action": "CONSERVATIVE",
-      "tp1_pct": 2.5,
-      "tp2_pct": 5.0,
-      "tp3_pct": 8.0,
-      "reason": "Probabilidad baja - ser conservador"
+      "action": "DEFENSIVE",
+      "tp1_pct": 2.0,
+      "tp2_pct": 4.0,
+      "tp3_pct": 6.0,
+      "sl_pct": 8.0,
+      "reason": "Muy baja probabilidad - reducir exposici\u00f3n"
     },
     "SOL": {
       "action": "AGGRESSIVE",
@@ -75,26 +76,25 @@
       "reason": "Alta probabilidad de TP - ser agresivo"
     },
     "LINK": {
-      "action": "DEFENSIVE",
-      "tp1_pct": 2.0,
-      "tp2_pct": 4.0,
-      "tp3_pct": 6.0,
-      "sl_pct": 8.0,
-      "reason": "Muy baja probabilidad - reducir exposici\u00f3n"
-    },
-    "XRP": {
-      "action": "NORMAL",
-      "tp1_pct": 3.5,
-      "tp2_pct": 7.0,
-      "tp3_pct": 12.0,
-      "reason": "Probabilidad normal - mantener estrategia est\u00e1ndar"
-    },
-    "AVAX": {
       "action": "CONSERVATIVE",
       "tp1_pct": 2.5,
       "tp2_pct": 5.0,
       "tp3_pct": 8.0,
       "reason": "Probabilidad baja - ser conservador"
+    },
+    "XRP": {
+      "action": "AGGRESSIVE",
+      "tp1_pct": 4.0,
+      "tp2_pct": 8.0,
+      "tp3_pct": 15.0,
+      "reason": "Alta probabilidad de TP - ser agresivo"
+    },
+    "AVAX": {
+      "action": "NORMAL",
+      "tp1_pct": 3.5,
+      "tp2_pct": 7.0,
+      "tp3_pct": 12.0,
+      "reason": "Probabilidad normal - mantener estrategia est\u00e1ndar"
     }
   }
 }

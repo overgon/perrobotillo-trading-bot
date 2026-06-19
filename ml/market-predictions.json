@@ -1,41 +1,41 @@
 {
-  "timestamp": "2026-06-18T16:00:39.136730",
+  "timestamp": "2026-06-18T18:00:46.537267",
   "model_accuracy": 0.9970238095238095,
   "predictions": {
     "BTC": {
-      "market_mode": "BEAR",
-      "confidence": 0.679,
+      "market_mode": "LATERAL",
+      "confidence": 0.97,
       "probabilities": {
-        "BEAR": 0.679,
+        "BEAR": 0.03,
         "BULL": 0.0,
-        "LATERAL": 0.321
+        "LATERAL": 0.97
       }
     },
     "ETH": {
-      "market_mode": "BEAR",
-      "confidence": 0.519,
+      "market_mode": "LATERAL",
+      "confidence": 1.0,
       "probabilities": {
-        "BEAR": 0.519,
+        "BEAR": 0.0,
         "BULL": 0.0,
-        "LATERAL": 0.481
+        "LATERAL": 1.0
       }
     },
     "BNB": {
-      "market_mode": "BEAR",
-      "confidence": 0.654,
+      "market_mode": "LATERAL",
+      "confidence": 0.955,
       "probabilities": {
-        "BEAR": 0.654,
+        "BEAR": 0.045,
         "BULL": 0.0,
-        "LATERAL": 0.346
+        "LATERAL": 0.955
       }
     },
     "SOL": {
-      "market_mode": "BEAR",
-      "confidence": 0.611,
+      "market_mode": "LATERAL",
+      "confidence": 0.991,
       "probabilities": {
-        "BEAR": 0.611,
+        "BEAR": 0.009,
         "BULL": 0.0,
-        "LATERAL": 0.389
+        "LATERAL": 0.991
       }
     },
     "LINK": {
@@ -48,22 +48,25 @@
       }
     },
     "XRP": {
-      "market_mode": "BEAR",
-      "confidence": 0.826,
+      "market_mode": "LATERAL",
+      "confidence": 0.981,
       "probabilities": {
-        "BEAR": 0.826,
+        "BEAR": 0.019,
         "BULL": 0.0,
-        "LATERAL": 0.174
+        "LATERAL": 0.981
       }
     },
     "AVAX": {
       "market_mode": "BEAR",
-      "confidence": 0.811,
+      "confidence": 0.76,
       "probabilities": {
-        "BEAR": 0.811,
+        "BEAR": 0.76,
         "BULL": 0.0,
-        "LATERAL": 0.189
+        "LATERAL": 0.24
       }
     }
-  }
+  },
+  "recommended_mode": "LATERAL",
+  "discrepancy": true,
+  "reason": "ML LATERAL vs Auto-Adjust BEAR"
 }

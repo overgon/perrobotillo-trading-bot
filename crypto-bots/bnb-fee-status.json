@@ -1,12 +1,12 @@
 {
   "success": true,
-  "timestamp": 1781806808.7934628,
-  "timestamp_iso": "2026-06-18T12:20:08.793475",
+  "timestamp": 1781823593.462793,
+  "timestamp_iso": "2026-06-18T16:59:53.462804",
   "bnb_free": 2.004e-05,
   "bnb_locked": 0.0,
   "bnb_total": 2.004e-05,
-  "bnb_price_usdt": 576.81,
-  "bnb_value_usdt": 0.011559272399999999,
+  "bnb_price_usdt": 578.23,
+  "bnb_value_usdt": 0.0115877292,
   "has_enough_bnb": false,
   "min_recommended": 0.1,
   "discount_likely_active": false,
@@ -19,10 +19,10 @@
   "estimated_annual_savings_usdt": 0.0,
   "recommendation": {
     "action": "BUY_BNB",
-    "message": "\u26a0\ufe0f  BNB insuficiente. Necesitas 0.1000 BNB m\u00e1s (~$57.67 USDT)",
+    "message": "\u26a0\ufe0f  BNB insuficiente. Necesitas 0.1000 BNB m\u00e1s (~$57.81 USDT)",
     "bnb_needed": 0.09997996,
-    "cost_usdt": 57.6694407276,
-    "payback_months": -1
+    "cost_usdt": 57.811412270800005,
+    "payback_months": "2-3"
   },
   "account_balances_count": 765
 }
