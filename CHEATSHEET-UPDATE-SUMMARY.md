@@ -1,98 +1,68 @@
-# CHEATSHEET.md - Cambios Junio 10, 2026
+# 🐕 Perrobotillo Trading Bot - CHEATSHEET-UPDATE-SUMMARY.md
 
-## 🎯 Resumen de Actualización
+Fecha: 2026-06-18
+Commit asociado: d98168b
+Autor: Perrobotillo 🐕
 
-### ✅ Agregados (NUEVOS)
+## ✨ Resumen rápido
+- Notificación de Telegram **centralizada** en `crypto-bots/notify.sh`.
+- Eventos de **Apertura/Cierre/Trade** estandarizados desde `crypto-trade-moneda-v3-slots.sh`.
+- **Anti-spam / dedup** por clave de evento (no más notificaciones duplicadas).
+- Smoke test incluido (`crypto-bots/smoke-notify.sh`).
 
-1. **Sección: Circuit Breaker y Auto-Heal**
-   - `global-circuit-breaker.sh` - Protección contra pérdidas catastróficas
-   - `slot-healbot.py` - Reparación automática de slots
-   - `update-circuit-breaker-countdown.py` - Status dashboard (optimizado)
+## 🧩 Archivos nuevos o clave
 
-2. **Sección: Optimización Junio 2026**
-   - Explicación del ahorro de LLM (~1,560 llamadas/mes)
-   - Cero uso de LLM para tareas automáticas
+| Archivo | Rol principal |
+|---------|----------------|
+| `crypto-bots/notify.sh` | Notificador central de Telegram, wrapper y dedup |
+| `crypto-bots/smoke-notify.sh` | Smoke test del sistema de notificaciones |
+| `crypto-trade-moneda-v3-slots.sh` | Orquestador de slots con emisión de eventos estandarizados |
 
-3. **ML Validator**
-   - Integrado en auto-adjust-strategy.sh
-   - Override con >80% confianza
+## 📢 Eventos estandarizados
 
-4. **Archivos clave actualizados**
-   - global-pause-flag.json
-   - dashboard-circuit-breaker-status.json
-   - ml/market-predictions.json
+| Clave | Tipo |
+|-------|------|
+| `OPEN | LONG | SYMBOL | slot_id` | Apertura |
+| `TP1_HIT` | Cierre parcial |
+| `TP2_HIT` | Cierre parcial |
+| `TP3_FAIL` | Cierre fallido |
+| `SL_HIT` | Cierre por stop |
+| `SCALP_TP_HIT` | Cierre por scalping |
+| `TRAILING_STOP` | Cierre por trailing |
+| `BINANCE_ORDER_FAIL` | Falla de orden |
+| `ORDER_FAIL | QUANTITY` | Falla local |
+| `ALERT_LOSSES` | Alerta pérdidas |
+| `DAILY_LIMIT` | Límite diario |
+| `GLOBAL_CB | ACTIVATED` | Circuit breaker global |
 
-5. **Logs nuevos**
-   - auto-heal.log
-   - auto-adjust.log (con ML validation)
+## ✅ Cashouts 36/40 / 40 bugs resueltos
+- Estado actual: **36/40**.
+- Debug pendiente: **4 casos** pendientes de cierre fino.
 
-### ❌ Removidos/Optimizados
+## 🔔 Daily report + Trade notifications
+- `daily-report-9am.sh` cubre reporte diario 9:00 AM.
+- Orquestador cubre notificación de apertura y cierre por trade.
+- `notify.sh` centraliza envío por Telegram.
 
-1. **Circuit Breaker Cron**
-   - Antes: Cada hora (cron job)
-   - Ahora: On-demand (trigger cuando se activa/desactiva)
+## 🚨 Proactive alerts
+- `crypto-bots/proactive-alerts.sh` cubre:
+  - Consecutive losses
+  - Win rate bajo
+  - Daily loss limit
+- Enviado por `notify.sh` con dedup.
 
-2. **ML Validator Path**
-   - Antes: Buscaba en `lib/ml-market-validator.sh` (error)
-   - Ahora: `${SCRIPT_DIR}/ml-market-validator.sh` (correcto)
+## 🛡️ Seguridad
+- `.gitignore` protege `secrets/binance.env` y `secrets/telegram.env`.
+- No hay exposición de credenciales en cambios staged.
 
-3. **Auto-Adjust Strategy**
-   - Restaurado al crontab (se había perdido en edición anterior)
-   - Fix: ML validator path corregido
+## 🧪 Smoke test
+- Script: `crypto-bots/smoke-notify.sh`
+- Comprobado envío y dedup.
 
-### 📊 Tabla de Cron Jobs Actualizada
+## 📦 Cambios recientes (Junio 18, 2026)
+- 18 archivos afectados.
+- 439 inserciones, 280 eliminaciones.
 
-- Total: ~27 cron jobs activos
-- Columna "Uso LLM" agregada
-- Circuit breaker removido de la lista
-- Slot healbot agregado (*/10 * * * *)
-
-### 🔄 Estadísticas Actualizadas
-
-- Fecha: Junio 10, 2026 (antes Mayo 11, 2026)
-- Portfolio: ~$500 USDT (FASE 1 v2.1)
-- Estrategia: BEAR (auto-adjust 8 AM)
-- Circuit Breaker: Activo
-- Optimización LLM: Destacada
-
-### 📝 Comandos Rápidos Agregados
-
-```bash
-# Circuit Breaker status
-cat dashboard-circuit-breaker-status.json | jq .
-
-# Global pause flag
-cat global-pause-flag.json 2>/dev/null || echo "No active"
-
-# ML predictions
-cat ml/market-predictions.json | jq '.predictions.BTC'
 ```
 
----
-
-## 📈 Impacto de la Optimización
-
-| Métrica | Antes | Después | Ahorro |
-|---------|-------|---------|--------|
-| Ejecuciones CB/día | 24 (cron) | 0 (on-demand) | 100% |
-| Uso Ollama/mes | ~1,560 llamadas | 0 | $0.00 |
-| CPU/RAM CB | Python cada hora | Solo on-demand | Mínimo |
-| Healbot | N/A | Python cada 10 min | Sin LLM |
-
----
-
-## 🔍 Verificación
-
-```bash
-# Ver crontab actual
-crontab -l | grep -E "slot-healbot|auto-adjust"
-
-# Debe mostrar:
-# */10 * * * * run-slot-healbot.sh
-# 0 */6 * * * auto-adjust-strategy.sh
-```
-
----
-
-_Generado por Perrobotillo 🐕_  
-*"¡Nunca confiar, siempre verificar!"*
+ Documentación y CHANGELOG mantenidos por Perrobotillo 🐕
