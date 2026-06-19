@@ -2,296 +2,335 @@
 # ════════════════════════════════════════════════════════
 # 🤖 AUTO CAPITAL MANAGER - GESTIÓN AUTOMÁTICA DE CAPITAL
 # ════════════════════════════════════════════════════════
-# El bot analiza capital y decide position size óptimo
-# Autor: Perrobotillo 🐕
+# Optimizado: menos subprocesos, lock file, fallback venv,
+# timeout en API, dry-run y manejo de errores robusto.
 # ════════════════════════════════════════════════════════
 
-WORKSPACE="$HOME/.openclaw/workspace"
-CONFIG_FILE="$WORKSPACE/config/capital-config.sh"
-LOG_FILE="$HOME/.openclaw/logs/auto-capital-manager.log"
-PROGRESS_FILE="$WORKSPACE/crypto-bots/capital-manager-progress.json"
-TRADE_HISTORY="$WORKSPACE/crypto-bots/trade-history.json"
+set -euo pipefail
+
+WORKSPACE="${HOME}/.openclaw/workspace"
+CONFIG_FILE="${WORKSPACE}/config/capital-config.sh"
+LOG_FILE="${HOME}/.openclaw/logs/auto-capital-manager.log"
+PROGRESS_FILE="${WORKSPACE}/crypto-bots/capital-manager-progress.json"
+TRADE_HISTORY="${WORKSPACE}/crypto-bots/trade-history.json"
+LOCK_FILE="${WORKSPACE}/crypto-bots/.auto-capital-manager.lock"
+DRY_RUN="${DRY_RUN:-0}"
+
+# Timeout para llamadas HTTP
+HTTP_TIMEOUT="${HTTP_TIMEOUT:-8}"
 
 # ════════════════════════════════════════════════════════
 # ⚙️ CONFIGURACIÓN INTELIGENTE
 # ════════════════════════════════════════════════════════
 
-# Rangos de capital vs position size recomendado
-# El bot decide automáticamente según capital total
+WINRATE_EXCELLENT=95
+WINRATE_GOOD=85
+WINRATE_REGULAR=75
+WINRATE_BAD=70
 
-# Umbrales de win rate
-WINRATE_EXCELLENT=95  # Mantener o subir ligeramente
-WINRATE_GOOD=85       # Mantener
-WINRATE_REGULAR=75    # Reducir ligeramente
-WINRATE_BAD=70        # Reducir urgentemente
+# ────────────────────────────────────────────────────────
+# Helpers
+# ────────────────────────────────────────────────────────
 
-# ════════════════════════════════════════════════════════
-# 🔧 FUNCIONES
-# ════════════════════════════════════════════════════════
+_python() {
+  if [ -x "${WORKSPACE}/venv/bin/python3" ]; then
+    "${WORKSPACE}/venv/bin/python3" "$@"
+  else
+    python3 "$@"
+  fi
+}
 
 log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+  local ts
+  ts="$(date '+%Y-%m-%d %H:%M:%S')"
+  echo "[${ts}] $1" | tee -a "${LOG_FILE}"
 }
+
+require_config() {
+  if [ ! -f "${CONFIG_FILE}" ]; then
+    log "❌ CONFIG_FILE no existe: ${CONFIG_FILE}"
+    return 1
+  fi
+  return 0
+}
+
+acquire_lock() {
+  if [ -f "${LOCK_FILE}" ]; then
+    local pid
+    pid="$(cat "${LOCK_FILE}" 2>/dev/null || true)"
+    if [ -n "${pid}" ] && kill -0 "${pid}" 2>/dev/null; then
+      log "⏳ Lock activo (PID ${pid}), abortando para evitar corrida concurrente"
+      return 1
+    else
+      log "🧹 Lock huérfano detectado, limpiando"
+      rm -f "${LOCK_FILE}"
+    fi
+  fi
+  echo $$ > "${LOCK_FILE}"
+  return 0
+}
+
+release_lock() {
+  rm -f "${LOCK_FILE}"
+}
+
+# ────────────────────────────────────────────────────────
+# IO / parsing
+# ────────────────────────────────────────────────────────
 
 get_current_position() {
-    local pos=$(grep "TRADE_POSITION_PERCENT=" "$CONFIG_FILE" 2>/dev/null | cut -d'=' -f2 | awk '{print $1}' | tr -d '"' | tr -d '#')
-    # Si está vacío o es inválido, usar default 15
-    if [ -z "$pos" ] || ! [[ "$pos" =~ ^[0-9]+$ ]]; then
-        echo "15"
-    else
-        echo "$pos"
-    fi
+  require_config || { echo "15"; return; }
+  local pos
+  pos="$(grep -E '^TRADE_POSITION_PERCENT=' "${CONFIG_FILE}" 2>/dev/null | head -n1 | cut -d'=' -f2- | tr -d '"' | tr -d '#' | awk '{print $1}')" || true
+  if [[ ! "${pos}" =~ ^[0-9]+$ ]]; then
+    echo "15"
+  else
+    echo "${pos}"
+  fi
 }
 
-get_win_rate() {
-    if [ -f "$TRADE_HISTORY" ]; then
-        python3 << ENDPYTHON
-import json
-with open('$TRADE_HISTORY', 'r') as f:
-    data = json.load(f)
-total = data.get('totalTrades', 0)
-wins = data.get('totalWins', 0)
-if total > 0:
-    print(round((wins / total) * 100, 2))
-else:
-    print(0)
-ENDPYTHON
-    else
-        echo "0"
-    fi
-}
+# Single Python call: winrate + usdt balance
+get_win_rate_and_balance() {
+  _python - <<'PY'
+import json, os, sys, time, hmac, hashlib
+from urllib.request import Request, urlopen
+from urllib.error import URLError
 
-get_usdt_balance() {
-    # Obtener SOLO el balance disponible en USDT (no el portfolio total)
-    python3 << ENDPYTHON 2>/dev/null || echo "0"
-import requests
-import hmac, hashlib, time
-import json
+trade_history = os.environ.get("TRADE_HISTORY", "")
+http_timeout = int(os.environ.get("HTTP_TIMEOUT", "8"))
 
-try:
-    # Leer API keys
-    with open('$HOME/.openclaw/secrets/binance.env', 'r') as f:
-        for line in f:
-            if line.startswith('BINANCE_API_KEY'):
-                api_key = line.split('=')[1].strip()
-            elif line.startswith('BINANCE_API_SECRET'):
-                api_secret = line.split('=')[1].strip()
+def read_json(path):
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return None
 
-    timestamp = int(time.time() * 1000)
-    signature = hmac.new(api_secret.encode(), f'timestamp={timestamp}'.encode(), hashlib.sha256).hexdigest()
-    headers = {'X-MBX-APIKEY': api_key}
-    params = {'timestamp': timestamp, 'signature': signature}
+total = wins = 0
+if trade_history and os.path.exists(trade_history):
+    data = read_json(trade_history)
+    if isinstance(data, dict):
+        total = int(data.get("totalTrades", 0) or 0)
+        wins = int(data.get("totalWins", 0) or 0)
+winrate = round((wins / total) * 100, 2) if total > 0 else 0.0
 
-    # Obtener account balance
-    response = requests.get('https://api.binance.com/api/v3/account', headers=headers, params=params)
-    account = response.json()
-
-    # Buscar SOLO USDT disponible (free + locked)
-    usdt_balance = 0
-    for balance in account['balances']:
-        if balance['asset'] == 'USDT':
-            usdt_balance = float(balance['free']) + float(balance['locked'])
-            break
-
-    print(round(usdt_balance, 2))
-except Exception as e:
-    print("0")
-ENDPYTHON
+usdt = 0.0
+key_path = os.path.expanduser("~/.openclaw/secrets/binance.env")
+if os.path.exists(key_path):
+    api_key = api_secret = ""
+    try:
+        with open(key_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("BINANCE_API_KEY="):
+                    api_key = line.split("=", 1)[1].strip()
+                elif line.startswith("BINANCE_API_SECRET="):
+                    api_secret = line.split("=", 1)[1].strip()
+    except Exception:
+        pass
+    if api_key and api_secret:
+        try:
+            timestamp = int(time.time() * 1000)
+            params = f"timestamp={timestamp}"
+            signature = hmac.new(api_secret.encode(), params.encode(), hashlib.sha256).hexdigest()
+            req = Request(
+                f"https://api.binance.com/api/v3/account?{params}&signature={signature}",
+                headers={"X-MBX-APIKEY": api_key},
+            )
+            with urlopen(req, timeout=http_timeout) as resp:
+                account = json.loads(resp.read().decode("utf-8", errors="replace"))
+            for bal in account.get("balances", []):
+                if bal.get("asset") == "USDT":
+                    usdt = float(bal.get("free", 0)) + float(bal.get("locked", 0))
+                    break
+        except Exception:
+            usdt = 0.0
+print(f"{winrate}|{round(usdt, 2)}")
+PY
 }
 
 calculate_optimal_position() {
-    local capital=$1
-    local winrate=$2
-    
-    python3 << ENDPYTHON
-capital = $capital
-winrate = $winrate
+  local capital="$1"
+  local winrate="${2:-0}"
 
-# Reglas inteligentes del bot:
-# 1. Capital < $1000 → Position 15% (conservador)
-# 2. Capital $1000-$2000 → Position 20-25% (moderado)
-# 3. Capital $2000-$3000 → Position 25-30% (crecimiento)
-# 4. Capital > $3000 → Position 30% (máximo recomendado)
-# 5. Win rate < 70% → Reducir 5% siempre
-# 6. Win rate > 95% → Mantener o subir 2-5%
+  # Bash-native calculation (no subprocess)
+  local optimal=20
+  if (( capital < 1000 )); then
+    optimal=15
+  elif (( capital < 2000 )); then
+    optimal=22
+  elif (( capital < 3000 )); then
+    optimal=25
+  elif (( capital < 5000 )); then
+    optimal=28
+  else
+    optimal=30
+  fi
 
-optimal = 20  # Default
+  # Adjust by winrate
+  if awk -v w="${winrate}" 'BEGIN{exit !(w < 70)}'; then
+    if (( optimal > 15 )); then optimal=$((optimal - 5)); fi
+  elif awk -v w="${winrate}" 'BEGIN{exit !(w > 95)}'; then
+    if (( optimal < 30 )); then optimal=$((optimal + 2)); fi
+  fi
 
-# Regla por capital
-if capital < 1000:
-    optimal = 15
-elif capital < 2000:
-    optimal = 22
-elif capital < 3000:
-    optimal = 25
-elif capital < 5000:
-    optimal = 28
-else:
-    optimal = 30
+  # Clamp
+  if (( optimal < 15 )); then optimal=15; fi
+  if (( optimal > 30 )); then optimal=30; fi
 
-# Ajuste por win rate
-if winrate < 70:
-    optimal = max(15, optimal - 5)  # Reducir si win rate bajo
-elif winrate > 95:
-    optimal = min(30, optimal + 2)  # Subir ligeramente si excelente
-
-# Límites absolutos
-optimal = max(15, min(30, optimal))
-
-print(int(optimal))
-ENDPYTHON
+  echo "${optimal}"
 }
 
 update_config() {
-    local new_position=$1
-    
-    # Actualizar TRADE_POSITION_PERCENT en capital-config.sh
-    sed -i "s/TRADE_POSITION_PERCENT=[0-9]*/TRADE_POSITION_PERCENT=$new_position/" "$CONFIG_FILE"
-    
-    # Actualizar dynamic-config.env también
-    local dynamic_config="$WORKSPACE/crypto-bots/dynamic-config.env"
-    if [ -f "$dynamic_config" ]; then
-        sed -i "s/export POSITION_SIZE=[0-9]*/export POSITION_SIZE=$new_position/" "$dynamic_config"
-    fi
-    
-    log "✅ Position size actualizado: ${new_position}%"
+  local new_position="$1"
+  local action="${2:-UPDATE}"
+
+  if [[ "${DRY_RUN}" == "1" ]]; then
+    log "🧪 dry-run: no se actualiza ${CONFIG_FILE} -> ${new_position}% (${action})"
+    return 0
+  fi
+
+  if [ ! -f "${CONFIG_FILE}" ]; then
+    log "❌ No se actualiza config: falta ${CONFIG_FILE}"
+    return 1
+  fi
+
+  sed -i.bak -E "s/^TRADE_POSITION_PERCENT=[0-9]+/TRADE_POSITION_PERCENT=${new_position}/" "${CONFIG_FILE}"
+
+  local dynamic_config="${WORKSPACE}/crypto-bots/dynamic-config.env"
+  if [ -f "${dynamic_config}" ]; then
+    sed -i.bak -E "s/^export POSITION_SIZE=[0-9]+/export POSITION_SIZE=${new_position}/" "${dynamic_config}"
+  fi
+
+  log "✅ Position size actualizado: ${new_position}% (${action})"
 }
 
 send_telegram() {
-    local message="$1"
-    local config_file="$HOME/.openclaw/openclaw.json"
-    
-    if [ -f "$config_file" ]; then
-        local bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)
-        if [ -n "$bot_token" ] && [ "$bot_token" != "null" ]; then
-            curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
-                -H "Content-Type: application/json" \
-                -d "{\"chat_id\":\"7543955537\",\"text\":\"$message\",\"parse_mode=HTML\"}" > /dev/null
-        fi
-    fi
+  local message="$1"
+  local config_file="${HOME}/.openclaw/openclaw.json"
+  if [ ! -f "${config_file}" ]; then
+    return 0
+  fi
+  local bot_token
+  bot_token="$(jq -r '.channels.telegram.botToken // empty' "${config_file}" 2>/dev/null || true)"
+  if [ -z "${bot_token}" ] || [ "${bot_token}" = "null" ]; then
+    return 0
+  fi
+  curl -s --max-time "${HTTP_TIMEOUT}" -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
+    -H "Content-Type: application/json" \
+    -d "{\"chat_id\":\"7543955537\",\"text\":${message}}" > /dev/null 2>&1 || true
 }
 
 save_progress() {
-    local position=$1
-    local winrate=$2
-    local capital=$3
-    local action=$4
-    local reason=$5
-    
-    # Escapar comillas y caracteres especiales para JSON
-    local reason_escaped=$(echo "$reason" | sed 's/"/\\"/g' | tr -d '\n')
-    local action_escaped=$(echo "$action" | sed 's/"/\\"/g')
-    
-    cat > "$PROGRESS_FILE" << EOF
+  local position="$1"
+  local winrate="$2"
+  local capital="$3"
+  local action="$4"
+  local reason="$5"
+
+  local reason_escaped action_escaped
+  reason_escaped="$(printf '%s' "${reason}" | sed 's/"/\\\"/g' | tr -d '\n')"
+  action_escaped="$(printf '%s' "${action}" | sed 's/"/\\\"/g')"
+
+  cat > "${PROGRESS_FILE}" <<EOF
 {
-    "timestamp": "$(date -Iseconds)",
-    "position_size": ${position},
-    "win_rate": ${winrate},
-    "total_capital": ${capital},
-    "last_action": "${action_escaped}",
-    "reason": "${reason_escaped}",
-    "history": []
+  "timestamp": "$(date -Iseconds)",
+  "position_size": ${position},
+  "win_rate": ${winrate},
+  "total_capital": ${capital},
+  "last_action": "${action_escaped}",
+  "reason": "${reason_escaped}",
+  "history": []
 }
 EOF
 }
 
-# ════════════════════════════════════════════════════════
-# 🤖 ANÁLISIS AUTOMÁTICO DEL BOT
-# ════════════════════════════════════════════════════════
+# ────────────────────────────────────────────────────────
+# Recomendación con memoria
+# ────────────────────────────────────────────────────────
 
-log "╔═══════════════════════════════════════════════════════╗"
-log "║  🤖 AUTO CAPITAL MANAGER - ANÁLISIS AUTOMÁTICO      ║"
-log "╚═══════════════════════════════════════════════════════╝"
+decide_position() {
+  local current="$1"
+  local optimal="$2"
+  local diff=$((current - optimal))
 
-# Obtener métricas actuales
-CURRENT_POSITION=$(get_current_position)
-WINRATE=$(get_win_rate)
-USDT_BALANCE=$(get_usdt_balance)
+  if (( diff > 5 )); then
+    local reason="Position actual (${current}%) muy alto para capital/USDT disponible"
+    echo "DECREASE|${optimal}|${reason}"
+  elif (( diff < -5 )); then
+    local reason="Position actual (${current}%) bajo para capital/USDT disponible"
+    echo "INCREASE|${optimal}|${reason}"
+  elif (( diff > 0 )); then
+    echo "DECREASE_SMALL|${optimal}|Ajuste menor a la baja"
+  elif (( diff < 0 )); then
+    echo "INCREASE_SMALL|${optimal}|Ajuste menor al alza"
+  else
+    echo "MAINTAIN|${current}|Position óptimo ya configurado"
+  fi
+}
 
-log ""
-log "=== MÉTRICAS ACTUALES ==="
-log "Position Size: ${CURRENT_POSITION}%"
-log "Win Rate: ${WINRATE}%"
-log "Balance USDT Disponible: \$${USDT_BALANCE} USDT"
-log ""
+# ────────────────────────────────────────────────────────
+# MAIN
+# ────────────────────────────────────────────────────────
 
-# Calcular position óptimo basado en USDT disponible
-OPTIMAL_POSITION=$(calculate_optimal_position $USDT_BALANCE $WINRATE)
+main() {
+  log "╔═══════════════════════════════════════════════════════╗"
+  log "║  🤖 AUTO CAPITAL MANAGER - ANÁLISIS AUTOMÁTICO       ║"
+  log "╚═══════════════════════════════════════════════════════╝"
 
-log "=== ANÁLISIS DEL BOT ==="
-log "Position ÓPTIMO calculado: ${OPTIMAL_POSITION}%"
-log ""
+  if ! acquire_lock; then
+    exit 1
+  fi
+  trap release_lock EXIT
 
-# Determinar acción
-ACTION="MAINTAIN"
-NEW_POSITION=$CURRENT_POSITION
-REASON="Mantener posición actual"
+  current_win_rate=""
+  usdt_balance=""
+  IFS='|' read -r current_win_rate usdt_balance < <(get_win_rate_and_balance)
+  current_win_rate="${current_win_rate:-0}"
+  usdt_balance="${usdt_balance:-0}"
 
-# Validar que CURRENT_POSITION y OPTIMAL_POSITION sean números
-if ! [[ "$CURRENT_POSITION" =~ ^[0-9]+$ ]]; then
-    log "⚠️  WARNING: CURRENT_POSITION inválido ($CURRENT_POSITION), usando default 15"
-    CURRENT_POSITION=15
-fi
+  CURRENT_POSITION="$(get_current_position)"
 
-if ! [[ "$OPTIMAL_POSITION" =~ ^[0-9]+$ ]]; then
-    log "⚠️  WARNING: OPTIMAL_POSITION inválido ($OPTIMAL_POSITION), usando default 15"
-    OPTIMAL_POSITION=15
-fi
+  log ""
+  log "=== MÉTRICAS ACTUALES ==="
+  log "Position Size: ${CURRENT_POSITION}%"
+  log "Win Rate: ${current_win_rate}%"
+  log "Balance USDT Disponible: ${usdt_balance} USDT"
+  log ""
 
-DIFF=$((CURRENT_POSITION - OPTIMAL_POSITION))
+  optimal_position="$(calculate_optimal_position "$(printf "%.0f" "${usdt_balance}")" "$(printf "%.0f" "${current_win_rate}")")"
 
-if [ $DIFF -gt 5 ]; then
-    # Position actual mucho mayor que óptimo → REDUCIR
-    NEW_POSITION=$OPTIMAL_POSITION
-    ACTION="DECREASE"
-    REASON="Position actual (${CURRENT_POSITION}%) muy alto para USDT disponible de \$${USDT_BALANCE}"
-    log "⚠️  REDUCIR: Position actual (${CURRENT_POSITION}%) > Óptimo (${OPTIMAL_POSITION}%)"
-elif [ $DIFF -lt -5 ]; then
-    # Position actual mucho menor que óptimo → AUMENTAR
-    NEW_POSITION=$OPTIMAL_POSITION
-    ACTION="INCREASE"
-    REASON="Position actual (${CURRENT_POSITION}%) bajo para USDT disponible de \$${USDT_BALANCE}"
-    log "✅ AUMENTAR: Position actual (${CURRENT_POSITION}%) < Óptimo (${OPTIMAL_POSITION}%)"
-elif [ $DIFF -gt 0 ]; then
-    # Ligera reducción
-    NEW_POSITION=$OPTIMAL_POSITION
-    ACTION="DECREASE_SMALL"
-    REASON="Ajuste menor a la baja (USDT: \$${USDT_BALANCE})"
-    log "📉 Reducción menor: ${CURRENT_POSITION}% → ${OPTIMAL_POSITION}%"
-elif [ $DIFF -lt 0 ]; then
-    # Ligero aumento
-    NEW_POSITION=$OPTIMAL_POSITION
-    ACTION="INCREASE_SMALL"
-    REASON="Ajuste menor al alza (USDT: \$${USDT_BALANCE})"
-    log "📈 Aumento menor: ${CURRENT_POSITION}% → ${OPTIMAL_POSITION}%"
-else
-    log "✅ Position óptimo ya configurado (USDT disponible: \$${USDT_BALANCE})"
-fi
+  log "=== ANÁLISIS DEL BOT ==="
+  log "Position ÓPTIMO calculado: ${optimal_position}%"
+  log ""
 
-log ""
-log "=== DECISIÓN DEL BOT ==="
-log "Acción: ${ACTION}"
-log "Position anterior: ${CURRENT_POSITION}%"
-log "Position nuevo: ${NEW_POSITION}%"
-log "Razón: ${REASON}"
-log ""
+  decision_line="$(decide_position "${CURRENT_POSITION}" "${optimal_position}")"
+  ACTION="$(printf '%s' "${decision_line}" | cut -d'|' -f1)"
+  NEW_POSITION="$(printf '%s' "${decision_line}" | cut -d'|' -f2)"
+  REASON="$(printf '%s' "${decision_line}" | cut -d'|' -f3-)"
 
-# ════════════════════════════════════════════════════════
-# 🎯 EJECUTAR CAMBIO
-# ════════════════════════════════════════════════════════
+  log "=== DECISIÓN DEL BOT ==="
+  log "Acción: ${ACTION}"
+  log "Position anterior: ${CURRENT_POSITION}%"
+  log "Position nuevo: ${NEW_POSITION}%"
+  log "Razón: ${REASON}"
+  log ""
 
-if [ "$ACTION" != "MAINTAIN" ]; then
-    log "🔄 Ejecutando cambio de position size..."
-    update_config $NEW_POSITION
-    
-    # Notificar por Telegram
-    if [ "$ACTION" = "INCREASE" ] || [ "$ACTION" = "INCREASE_SMALL" ]; then
+  if [[ "${DRY_RUN}" == "1" ]]; then
+    log "🧪 DRY-RUN: no se ejecuta update_config ni se envían alertas"
+  fi
+
+  if [ "${ACTION}" != "MAINTAIN" ]; then
+    update_config "${NEW_POSITION}" "${ACTION}"
+
+    if [[ "${DRY_RUN}" != "1" ]]; then
+      if [[ "${ACTION}" == INCREASE* ]]; then
         send_telegram "📈 AUTO CAPITAL MANAGER - AUMENTO AUTOMÁTICO
 
 🤖 El bot analizó tu capital y decidió aumentar:
 
-💵 USDT Disponible: \$${USDT_BALANCE} USDT
-📊 Win Rate: ${WINRATE}%
+💵 USDT Disponible: ${usdt_balance} USDT
+📊 Win Rate: ${current_win_rate}%
 
 🎯 Position Size:
    Antes: ${CURRENT_POSITION}%
@@ -299,13 +338,13 @@ if [ "$ACTION" != "MAINTAIN" ]; then
 
 ✅ Aumento automático completado
 📈 Monitoreando win rate..."
-    else
+      else
         send_telegram "📉 AUTO CAPITAL MANAGER - REDUCCIÓN AUTOMÁTICA
 
 🤖 El bot analizó tu capital y decidió reducir:
 
-💵 USDT Disponible: \$${USDT_BALANCE} USDT
-📊 Win Rate: ${WINRATE}%
+💵 USDT Disponible: ${usdt_balance} USDT
+📊 Win Rate: ${current_win_rate}%
 
 🎯 Position Size:
    Antes: ${CURRENT_POSITION}%
@@ -313,36 +352,32 @@ if [ "$ACTION" != "MAINTAIN" ]; then
 
 ✅ Reducción automática completada
 🛡️  Riesgo controlado"
+      fi
     fi
-else
-    log "✅ Manteniendo position size actual (óptimo)"
-fi
+  else
+    log "✅ Position óptimo ya configurado (USDT disponible: ${usdt_balance})"
+  fi
 
-# ════════════════════════════════════════════════════════
-# 💾 GUARDAR PROGRESO
-# ════════════════════════════════════════════════════════
+  save_progress "${NEW_POSITION}" "${current_win_rate}" "${usdt_balance}" "${ACTION}" "${REASON}"
 
-save_progress $NEW_POSITION $WINRATE $USDT_BALANCE $ACTION "$REASON"
+  log ""
+  log "✅ Progreso guardado en ${PROGRESS_FILE}"
+  log ""
 
-log ""
-log "✅ Progreso guardado en $PROGRESS_FILE"
-log ""
+  echo ""
+  echo "╔═══════════════════════════════════════════════════════╗"
+  echo "║  📋 RESUMEN FINAL                                     ║"
+  echo "╚═══════════════════════════════════════════════════════╝"
+  echo ""
+  echo "  Position Size: ${NEW_POSITION}%"
+  echo "  Win Rate: ${current_win_rate}%"
+  echo "  USDT Disponible: ${usdt_balance} USDT"
+  echo "  Acción: ${ACTION}"
+  echo "  Razón: ${REASON}"
+  echo ""
+  echo "╔═══════════════════════════════════════════════════════╗"
+  echo "║  ✅ ANÁLISIS AUTOMÁTICO COMPLETADO                   ║"
+  echo "╚═══════════════════════════════════════════════════════╝"
+}
 
-# ════════════════════════════════════════════════════════
-# 📋 RESUMEN FINAL
-# ════════════════════════════════════════════════════════
-
-echo ""
-echo "╔═══════════════════════════════════════════════════════╗"
-echo "║  📋 RESUMEN FINAL                                     ║"
-echo "╚═══════════════════════════════════════════════════════╝"
-echo ""
-echo "  Position Size: ${NEW_POSITION}%"
-echo "  Win Rate: ${WINRATE}%"
-echo "  USDT Disponible: \$${USDT_BALANCE} USDT"
-echo "  Acción: ${ACTION}"
-echo "  Razón: ${REASON}"
-echo ""
-echo "╔═══════════════════════════════════════════════════════╗"
-echo "║  ✅ ANÁLISIS AUTOMÁTICO COMPLETADO                   ║"
-echo "╚═══════════════════════════════════════════════════════╝"
+main "$@"
