@@ -1431,32 +1431,29 @@ Target: ${SCALP_TARGET_PERCENT}%
                 fi
                 
                 # 🔄 MODO RECICLAJE: Después de TP1, slot pasa a READY para nueva entrada
-                # Solo para NUEVAS entradas (detectado por timestamp reciente < 24h)
                 if [ "$SLOT_RECYCLING_ENABLED" = "true" ]; then
-                    local slot_age_hours=$(awk -v ts="$timestamp" -v now="$(date +%s)" 'BEGIN {
-                        gsub(/"/, "", ts);
-                        cmd = "date -d "" ts "" +%s";
-                        cmd | getline entry_time;
-                        close(cmd);
-                        print int((now - entry_time) / 3600)
-                    }')
-                    
-                    # Si el slot tiene menos de 1 hora, es entrada nueva → aplicar reciclaje
-                    if [ "$slot_age_hours" -lt 1 ] || [ -z "$slot_age_hours" ] || [ "$slot_age_hours" -lt 0 ]; then
-                        log "  🔄 MODO RECICLAJE: Slot #$slot_id es entrada nueva (<1h)"
-                        log "  🔄 TP1 cerrado → Slot pasa a READY para nueva entrada"
-                        
-                        # Resetear flags para próxima entrada
-                        update_slot_field "$slot_id" "tp1Done" "false"
-                        update_slot_field "$slot_id" "tp2Done" "false"
-                        update_slot_field "$slot_id" "tp3Done" "false"
-                        
-                        # NO cambiar a READY aquí - el ciclo actual continúa
-                        # El slot quedará disponible para nueva entrada en el próximo ciclo
-                        log "  ✅ Slot #$slot_id listo para nueva entrada en próximo ciclo"
-                        
-                        # Enviar Telegram TP1 con nota de reciclaje
-                        notify "TP1_HIT|$SYMBOL|$slot_id" "✅ TP1 HIT - $SYMBOL [35%] 🎯
+                    log "  🔄 MODO RECICLAJE: Slot #$slot_id listo para reingresar en próximos ciclos"
+                    log "  🔄 TP1 cerrado → Se evaluará nueva entrada tras el próximo autorefresh"
+                    update_slot_field "$slot_id" "tp1Done" "false"
+                    update_slot_field "$slot_id" "tp2Done" "false"
+                    update_slot_field "$slot_id" "tp3Done" "false"
+                    update_slot_field "$slot_id" "status" "READY"
+                    update_slot_field "$slot_id" "type" "NONE"
+                    update_slot_field "$slot_id" "orderId" "null"
+                    update_slot_field "$slot_id" "entryPrice" "null"
+                    update_slot_field "$slot_id" "quantity" "null"
+                    update_slot_field "$slot_id" "usdtSpent" "null"
+                    update_slot_field "$slot_id" "feeBuy" "null"
+                    update_slot_field "$slot_id" "totalCost" "null"
+                    update_slot_field "$slot_id" "stopLoss" "null"
+                    update_slot_field "$slot_id" "tp1" "null"
+                    update_slot_field "$slot_id" "tp2" "null"
+                    update_slot_field "$slot_id" "tp3" "null"
+                    update_slot_field "$slot_id" "highestPrice" "null"
+                    update_slot_field "$slot_id" "trailingStop" "null"
+                    update_slot_field "$slot_id" "timestamp" "null"
+
+                    notify "TP1_HIT|$SYMBOL|$slot_id" "✅ TP1 HIT - $SYMBOL [35%] 🎯
 
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${current_price}
@@ -1465,30 +1462,9 @@ P&L: \$${pnl_partial}
 
 🔄 MODO RECICLAJE ACTIVADO
 El slot buscará nueva entrada 🚀"
-                    else
-                        # Slot existente → mantener estrategia piramidal
-                        log "  📊 Slot #$slot_id es entrada existente (${slot_age_hours}h) → mantiene estrategia piramidal"
-                        
-                        # Calcular P&L parcial para notificación
-                        local pnl_partial=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
-                        
-                        # Enviar Telegram TP1 (versión piramidal)
-                        notify "TP1_HIT|$SYMBOL|$slot_id" "✅ TP1 HIT - $SYMBOL [35%] 🎯
-
-Slot: $slot_id / $MAX_SLOTS
-Exit: \$${current_price}
-Qty: $sell_qty_fmt (35%)
-P&L Parcial: \$${pnl_partial}
-ACUMULADO: 5% 📈
-
-Quedan 65% para TP2/TP3 🎯"
-                    fi
                 else
-                    # Reciclaje desactivado → mantener estrategia piramidal tradicional
-                    # Calcular P&L parcial para notificación
+                    # Slot existente o reciclaje desactivado -> mantener estrategia
                     local pnl_partial=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
-                    
-                    # Enviar Telegram TP1 (versión piramidal)
                     notify "TP1_HIT|$SYMBOL|$slot_id" "✅ TP1 HIT - $SYMBOL [35%] 🎯
 
 Slot: $slot_id / $MAX_SLOTS
