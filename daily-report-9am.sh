@@ -21,7 +21,7 @@ echo "║  📊 REPORTE DIARIO AUTOMÁTICO - 9 AM                 ║"
 echo "╚═══════════════════════════════════════════════════════╝"
 
 # Función para enviar Telegram
-send_telegram() {
+notify() {
     local message="$1"
     local config_file="$HOME/.openclaw/openclaw.json"
     
@@ -241,7 +241,7 @@ ${coin_table}
 
 # Enviar Telegram
 echo "Enviando reporte..."
-send_telegram "$report_msg"
+notify "$report_msg"
 
 # Guardar nuevo snapshot con formato completo
 cat > "$snapshot_file" << SNAPEOF

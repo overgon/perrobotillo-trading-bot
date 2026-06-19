@@ -20,7 +20,7 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [EARLY-WARNING] $1" | tee -a "$LOGS/early-warning.log"
 }
 
-send_telegram() {
+notify() {
     local message="$1"
     local config_file="$HOME/.openclaw/openclaw.json"
     if [ -f "$config_file" ]; then
@@ -110,7 +110,7 @@ if [ ${#warnings[@]} -gt 0 ]; then
     message+="• 80-99%: Monitorear de cerca, considerar trailing stop\n"
     message+="• 100%+: Emergency close inmediato\n"
     
-    send_telegram "$message"
+    notify "$message"
     log "✅ Alerta enviada"
 else
     log "✅ No hay slots en zona de riesgo"

@@ -15,7 +15,7 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
-send_telegram() {
+notify() {
     local message="$1"
     
     # Usar la herramienta message de OpenClaw si está disponible
@@ -112,7 +112,7 @@ log "Iniciando reporte Grid Trading"
 report=$(generate_report)
 
 if [ -n "$report" ]; then
-    send_telegram "$report"
+    notify "$report"
     log "✅ Reporte completado"
 else
     log "❌ Error generando reporte"
