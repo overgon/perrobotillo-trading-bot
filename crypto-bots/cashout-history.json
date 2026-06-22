@@ -1,55 +1,93 @@
 {
-  "version": "1.0",
+  "version": "2.0",
   "created": "2026-05-04T12:20:00-06:00",
   "totalCashouts": 2,
   "totalUSDTWithdrawn": 360.04,
-  "totalMXNReceived": 6280.70,
+  "totalMXNReceived": 6280.7,
   "avgExchangeRate": 17.45,
-  "cashouts": [
+  "autoCashouts": [],
+  "manualCashouts": [
     {
       "id": 1,
       "date": "2026-04-16T20:28:00-06:00",
       "description": "Trading Capital Restoration",
       "coins": [
-        {"symbol": "BTC", "amount": 0.00090, "price": 74667.89, "totalUSDT": 67.20},
-        {"symbol": "ETH", "amount": 0.0287, "price": 2330.95, "totalUSDT": 66.90},
-        {"symbol": "SOL", "amount": 0.750, "price": 87.92, "totalUSDT": 65.94}
+        {
+          "symbol": "BTC",
+          "amount": 0.0009,
+          "price": 74667.89,
+          "totalUSDT": 67.2
+        },
+        {
+          "symbol": "ETH",
+          "amount": 0.0287,
+          "price": 2330.95,
+          "totalUSDT": 66.9
+        },
+        {
+          "symbol": "SOL",
+          "amount": 0.75,
+          "price": 87.92,
+          "totalUSDT": 65.94
+        }
       ],
       "totalUSDT": 200.04,
-      "exchangeRate": 17.40,
-      "totalMXN": 3480.70,
+      "exchangeRate": 17.4,
+      "totalMXN": 3480.7,
       "fee": {
-        "trading": 0.00,
-        "p2p": 0.00,
-        "withdrawal": 0.00,
-        "total": 0.00,
+        "trading": 0.0,
+        "p2p": 0.0,
+        "withdrawal": 0.0,
+        "total": 0.0,
         "note": "Binance P2P - sin fees"
       },
-      "netMXN": 3480.70,
+      "netMXN": 3480.7,
       "destination": "Bank Transfer (P2P)",
-      "purpose": "Restore trading capital after emergency close"
+      "purpose": "Restore trading capital after emergency close",
+      "type": "MANUAL_P2P",
+      "dedupKey": "manual-202604162028000600-1"
     },
     {
       "id": 2,
       "date": "2026-05-04T12:20:00-06:00",
       "description": "Profit Cashout - Mayo 2026 (P2P)",
       "coins": [
-        {"symbol": "BTC", "amount": 0.000498, "price": 80338.11, "totalUSDT": 40.00},
-        {"symbol": "ETH", "amount": 0.01689, "price": 2368.88, "totalUSDT": 40.00},
-        {"symbol": "SOL", "amount": 0.4717, "price": 84.80, "totalUSDT": 40.00},
-        {"symbol": "LINK", "amount": 4.219, "price": 9.48, "totalUSDT": 40.00}
+        {
+          "symbol": "BTC",
+          "amount": 0.000498,
+          "price": 80338.11,
+          "totalUSDT": 40.0
+        },
+        {
+          "symbol": "ETH",
+          "amount": 0.01689,
+          "price": 2368.88,
+          "totalUSDT": 40.0
+        },
+        {
+          "symbol": "SOL",
+          "amount": 0.4717,
+          "price": 84.8,
+          "totalUSDT": 40.0
+        },
+        {
+          "symbol": "LINK",
+          "amount": 4.219,
+          "price": 9.48,
+          "totalUSDT": 40.0
+        }
       ],
-      "totalUSDT": 160.00,
-      "exchangeRate": 17.50,
-      "totalMXN": 2800.00,
+      "totalUSDT": 160.0,
+      "exchangeRate": 17.5,
+      "totalMXN": 2800.0,
       "fee": {
-        "trading": 0.00,
-        "p2p": 0.00,
-        "withdrawal": 0.00,
-        "total": 0.00,
+        "trading": 0.0,
+        "p2p": 0.0,
+        "withdrawal": 0.0,
+        "total": 0.0,
         "note": "Binance P2P - sin fees (0% commission)"
       },
-      "netMXN": 2800.00,
+      "netMXN": 2800.0,
       "destination": "Bank Transfer (P2P)",
       "purpose": "Profit withdrawal - Mayo 2026",
       "status": "COMPLETED",
@@ -59,15 +97,23 @@
         "bankName": "TBD",
         "transactionId": "TBD",
         "completedAt": "2026-05-04T12:20:00-06:00"
-      }
+      },
+      "type": "MANUAL_P2P",
+      "dedupKey": "manual-202605041220000600-2"
     }
   ],
   "summary": {
     "totalTradingProfit": 18.48,
-    "totalCashoutProfit": 160.00,
-    "remainingInBot": 0.00,
+    "totalCashoutProfit": 160.0,
+    "remainingInBot": 0.0,
     "winRate": 64.29,
     "totalTrades": 14,
     "note": "Cashout #2 realizado después de LINK TP2 (Trade ID 14)"
+  },
+  "migrationInfo": {
+    "fromVersion": "1.0",
+    "toVersion": "2.0",
+    "migratedAt": 1782096480.491559,
+    "backupFile": "/home/overgon/.openclaw/workspace/crypto-bots/cashout-history.json.v1-backup"
   }
 }
