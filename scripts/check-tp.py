@@ -5,23 +5,91 @@ Uso: python3 check-tp.py COIN CURRENT_PRICE STATE_FILE LOG_FILE
 """
 
 import json
-import subprocess
-import sys
-from datetime import datetime
 import os
-import urllib.request
+import sys
+import time
+import hmac
+import hashlib
 import urllib.parse
+import urllib.request
+from datetime import datetime, timezone
 
 if len(sys.argv) < 5:
     print(f"Usage: {sys.argv[0]} COIN CURRENT_PRICE STATE_FILE LOG_FILE")
     sys.exit(1)
 
 coin = sys.argv[1]
-current_price = float(sys.argv[2])
+raw_price = sys.argv[2]
 state_file = sys.argv[3]
 log_file = sys.argv[4]
 
+if raw_price is None or str(raw_price).strip() == '':
+    print(f"WARNING: {coin} precio no disponible, se salta este ciclo")
+    sys.exit(0)
+
+try:
+    current_price = float(raw_price)
+except (ValueError, TypeError):
+    print(f"ERROR: current_price inválido para {coin}: '{raw_price}'")
+    sys.exit(0)
+
 print(f"DEBUG Python: Checking {coin} at ${current_price}")
+
+def load_binance_env():
+    env_path = os.path.expanduser('~/.openclaw/secrets/binance.env')
+    if not os.path.exists(env_path):
+        raise RuntimeError('binance.env no encontrado')
+    env = {}
+    with open(env_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            if '=' not in line:
+                continue
+            key, value = line.split('=', 1)
+            env[key.strip()] = value.strip()
+    return env
+
+def sign_query(query_string: str, secret: str) -> str:
+    return hmac.new(secret.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
+
+def place_sell_order_market(symbol: str, quantity: str):
+    env = load_binance_env()
+    api_key = env.get('BINANCE_API_KEY')
+    api_secret = env.get('BINANCE_API_SECRET')
+    if not api_key or not api_secret:
+        raise RuntimeError('Faltan BINANCE_API_KEY/BINANCE_API_SECRET en binance.env')
+
+    base_url = 'https://api.binance.com'
+    timestamp = int(time.time() * 1000)
+    recv_window = 5000
+    params = {
+        'symbol': f'{symbol}USDT',
+        'side': 'SELL',
+        'type': 'MARKET',
+        'quantity': quantity,
+        'timestamp': timestamp,
+        'recvWindow': recv_window,
+    }
+    query_string = urllib.parse.urlencode(params, doseq=True)
+    signature = sign_query(query_string, api_secret)
+    url = f"{base_url}/api/v3/order?{query_string}&signature={signature}"
+
+    req = urllib.request.Request(url, headers={'X-MBX-APIKEY': api_key}, method='POST')
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            return json.loads(resp.read().decode('utf-8'))
+    except Exception as exc:
+        return {'status': 'ERROR', 'msg': str(exc)}
+
+def safe_float(value, default=0.0):
+    if value is None:
+        return default
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
 
 with open(state_file, 'r') as f:
     data = json.load(f)
@@ -32,186 +100,205 @@ for slot in data.get('slots', []):
     print(f"DEBUG: Slot {slot.get('slotId')} status={slot.get('status')}")
     if slot.get('status') != 'ACTIVE':
         continue
-    
-    # Verificar TP1, TP2, TP3 y STOP LOSS
+
     tp_targets = [
-        ('TP1', slot.get('tp1', 0), slot.get('tp1Done', False)),
-        ('TP2', slot.get('tp2', 0), slot.get('tp2Done', False)),
-        ('TP3', slot.get('tp3', 0), slot.get('tp3Done', False)),
+        ('TP1', safe_float(slot.get('tp1')), slot.get('tp1Done', False), safe_float(slot.get('tp1Pct'), 0.35)),
+        ('TP2', safe_float(slot.get('tp2')), slot.get('tp2Done', False), safe_float(slot.get('tp2Pct'), 0.30)),
+        ('TP3', safe_float(slot.get('tp3')), slot.get('tp3Done', False), safe_float(slot.get('tp3Pct'), 0.30)),
     ]
-    
-    # Verificar Stop Loss
-    stop_loss = slot.get('stopLoss', 0)
-    sl_triggered = False
-    if stop_loss > 0 and current_price <= stop_loss:
-        sl_triggered = True
-    
-    for tp_name, tp_price, tp_done in tp_targets:
+
+    stop_loss = safe_float(slot.get('stopLoss'))
+    sl_triggered = stop_loss > 0 and current_price <= stop_loss
+
+    if sl_triggered:
+        slots_to_close.append({
+            'slot_id': slot['slotId'],
+            'tp': 'SL',
+            'entry': slot.get('entryPrice', 0),
+            'tp_price': stop_loss,
+            'current': current_price,
+            'quantity': slot.get('quantity', 0),
+            'usdt_spent': slot.get('usdtSpent', 0),
+            'pct': 1.0,
+        })
+        continue
+
+    for tp_name, tp_price, tp_done, pct in tp_targets:
         if tp_done or tp_price == 0:
             continue
-        
         if current_price >= tp_price:
             slots_to_close.append({
                 'slot_id': slot['slotId'],
                 'tp': tp_name,
-                'entry': slot['entryPrice'],
+                'entry': slot.get('entryPrice', 0),
                 'tp_price': tp_price,
                 'current': current_price,
-                'quantity': slot['quantity'],
-                'usdt_spent': slot['usdtSpent']
+                'quantity': slot.get('quantity', 0),
+                'usdt_spent': slot.get('usdtSpent', 0),
+                'pct': pct,
             })
-    
-    # Verificar Stop Loss
-    if sl_triggered and stop_loss > 0:
-        slots_to_close.append({
-            'slot_id': slot['slotId'],
-            'tp': 'SL',
-            'entry': slot['entryPrice'],
-            'tp_price': stop_loss,
-            'current': current_price,
-            'quantity': slot['quantity'],
-            'usdt_spent': slot['usdtSpent']
-        })
 
-# Ejecutar cierres
+# Cierres
+history_dir = os.path.join(os.path.dirname(state_file), 'history')
+os.makedirs(history_dir, exist_ok=True)
+trade_history_file = os.path.join(history_dir, 'trade-history-closed.json')
+
+if not os.path.exists(trade_history_file):
+    with open(trade_history_file, 'w') as f:
+        json.dump({"version": "1.1", "closed": [], "cashouts": []}, f, indent=2)
+
 for slot_info in slots_to_close:
+    coin_display = coin
+    slot_id = slot_info['slot_id']
+    pct = slot_info.get('pct', 0.35)
+
     if slot_info['tp'] == 'SL':
-        print(f"🛑 STOP LOSS HIT: {coin} Slot {slot_info['slot_id']}")
+        print(f"🛑 STOP LOSS HIT: {coin} Slot {slot_id}")
     else:
-        print(f"🎯 TP HIT DETECTADO: {coin} Slot {slot_info['slot_id']} {slot_info['tp']}")
-    
+        print(f"🎯 TP HIT DETECTADO: {coin} Slot {slot_id} {slot_info['tp']} ({int(pct*100)}%)")
+
     print(f"   Entry: ${slot_info['entry']:.2f}")
     print(f"   TP: ${slot_info['tp_price']:.2f}")
-    print(f"   Current: ${slot_info['current']:.2f}")
-    print(f"   Quantity: {slot_info['quantity']}")
-    print(f"   🚀 Ejecutando cierre INMEDIATO...")
-    
-    # Ejecutar cierre
-    cmd = f"$HOME/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh {coin}"
-    subprocess.run(cmd, shell=True, capture_output=True)
-    
-    print(f"   ✅ Cierre ejecutado")
-    
-    # Actualizar estado
-    slot_id = slot_info['slot_id']
-    tp_name = slot_info['tp']
-    
-    for slot in data.get('slots', []):
-        if slot.get('slotId') == slot_id:
-            slot['status'] = 'READY'
-            if tp_name == 'TP1':
-                slot['tp1Done'] = True
-            elif tp_name == 'TP2':
-                slot['tp2Done'] = True
-            elif tp_name == 'TP3':
-                slot['tp3Done'] = True
-            break
-    
-    with open(state_file, 'w') as f:
-        json.dump(data, f, indent=2)
-    
-    print(f"   📝 Estado actualizado: Slot {slot_id} → READY")
-    
-    # Enviar alerta por Telegram
-    telegram_env = os.path.expanduser("~/.openclaw/secrets/telegram.env")
-    if os.path.exists(telegram_env):
-        with open(telegram_env, 'r') as tg_file:
-            for line in tg_file:
-                if line.startswith('TELEGRAM_BOT_TOKEN='):
-                    tg_token = line.strip().split('=')[1]
-                elif line.startswith('TELEGRAM_CHAT_ID='):
-                    tg_chat_id = line.strip().split('=')[1]
-        
-        pnl = (slot_info['current'] - slot_info['entry']) * slot_info['quantity']
-        pnl_pct = ((slot_info['current'] - slot_info['entry']) / slot_info['entry']) * 100
-        
-        if slot_info['tp'] == 'SL':
-            emoji = "🛑"
-            title = "STOP LOSS HIT"
-            pnl_str = f"-${abs(pnl):.2f} ({pnl_pct:.2f}%)"
-        elif pnl >= 0:
-            emoji = "✅"
-            title = f"TP HIT - {slot_info['tp']}"
-            pnl_str = f"+${pnl:.2f} ({pnl_pct:.2f}%)"
-        else:
-            emoji = "⚠️"
-            title = f"TP HIT - {slot_info['tp']}"
-            pnl_str = f"-${abs(pnl):.2f} ({pnl_pct:.2f}%)"
-        
-        message = (
-            f"{emoji} {title}\n\n"
-            f"🪙 {coin}/USDT - Slot {slot_id}\n\n"
-            f"💰 Entry: ${slot_info['entry']:.2f}\n"
-            f"🎯 Target: ${slot_info['tp_price']:.2f}\n"
-            f"📈 Current: ${slot_info['current']:.2f}\n\n"
-            f"💵 P&L: {pnl_str}\n"
-            f"📊 Cantidad: {slot_info['quantity']}\n\n"
-            f"⚡ Cierre ejecutado por TP Monitor\n"
-            f"🕐 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CST\n\n"
-            f"🐕 Perrobotillo Trading Bot"
-        )
-        
-        try:
-            url = f"https://api.telegram.org/bot{tg_token}/sendMessage"
-            data_req = urllib.parse.urlencode({
-                'chat_id': tg_chat_id,
-                'text': message,
-                'parse_mode': 'HTML'
-            }).encode()
-            urllib.request.urlopen(url, data_req, timeout=10)
-            print(f"   📱 Alerta enviada por Telegram")
-        except Exception as e:
-            print(f"   ❌ Error enviando Telegram: {e}")
-        
-        # NOTIFICAR AL DASHBOARD PARA SONIDO EN NAVEGADOR
-        try:
-            dashboard_url = "http://localhost:8080/api/notify-tp"
-            notify_data = urllib.parse.urlencode({
-                'coin': coin,
-                'slot_id': slot_info['slot_id'],
-                'tp': slot_info['tp'],
-                'pnl': pnl
-            }).encode()
-            
-            req = urllib.request.Request(dashboard_url, data=notify_data)
-            req.add_header('Content-Type', 'application/json')
-            urllib.request.urlopen(req, timeout=5)
-            print(f"   🌐 Dashboard notificado")
-        except Exception as e:
-            print(f"   ⚠️ Dashboard no notificado: {e}")
-    
+    print(f"   Current: ${current_price:.2f}")
+
+    quantity = safe_float(slot_info.get('quantity'), 0.0)
+    close_qty = round(quantity * pct, 8) if quantity > 0 else 0.0
+
+    if close_qty <= 0:
+        print(f"   ⚠️ Cantidad a cerrar calculada en 0, salteando ejecución")
+        continue
+
+    print(f"   Quantity: {quantity:.8f}")
+    print(f"   closeQty: {close_qty:.8f} (pct={pct})")
+    print(f"   🚀 Ejecutando cierre PARCIAL...")
+
+    execute_order = True
+    order_result = None
+    try:
+        order_result = place_sell_order_market(coin, f"{close_qty:.8f}")
+        status = order_result.get('status', '')
+        print(f"   Resultado venta: status={status}")
+        if status != 'FILLED':
+            print(f"   ❌ Venta no ejecutada: {order_result.get('msg', 'unknown')}")
+            execute_order = False
+    except Exception as exc:
+        print(f"   ❌ Error ejecutando venta: {exc}")
+        execute_order = False
+
+    if execute_order:
+        # Actualizar state con cierre parcial
+        for slot in data.get('slots', []):
+            if slot.get('slotId') == slot_id:
+                remaining = safe_float(slot.get('quantity'), 0.0) - close_qty
+                if remaining < 1e-8:
+                    remaining = 0.0
+                slot['quantity'] = remaining if remaining > 0 else None
+                if slot_info['tp'] == 'TP1':
+                    slot['tp1Done'] = True
+                elif slot_info['tp'] == 'TP2':
+                    slot['tp2Done'] = True
+                elif slot_info['tp'] == 'TP3':
+                    slot['tp3Done'] = True
+                    if remaining <= 0:
+                        slot['entryPrice'] = None
+                        slot['usdtSpent'] = None
+                        slot['stopLoss'] = None
+                        slot['tp1'] = None
+                        slot['tp2'] = None
+                        slot['tp3'] = None
+                        slot['tp1Done'] = False
+                        slot['tp2Done'] = False
+                        slot['tp3Done'] = False
+                        slot['feeBuy'] = None
+                        slot['totalCost'] = None
+                        slot['highestPrice'] = None
+                        slot['trailingStop'] = None
+                        slot['orderId'] = None
+                        slot['status'] = 'READY'
+                elif slot_info['tp'] == 'SL':
+                    slot['entryPrice'] = None
+                    slot['quantity'] = None
+                    slot['usdtSpent'] = None
+                    slot['stopLoss'] = None
+                    slot['tp1'] = None
+                    slot['tp2'] = None
+                    slot['tp3'] = None
+                    slot['tp1Done'] = False
+                    slot['tp2Done'] = False
+                    slot['tp3Done'] = False
+                    slot['feeBuy'] = None
+                    slot['totalCost'] = None
+                    slot['highestPrice'] = None
+                    slot['trailingStop'] = None
+                    slot['orderId'] = None
+                    slot['status'] = 'READY'
+                break
+
+        with open(state_file, 'w') as f:
+            json.dump(data, f, indent=2)
+
+    # Historial SIEMPRE se guarda
+    closed_record = {
+        'coin': coin,
+        'slotId': slot_id,
+        'closeType': slot_info['tp'],
+        'entryPrice': slot_info['entry'],
+        'closePrice': current_price,
+        'quantity': close_qty,
+        'usdtSpent': slot_info['usdt_spent'],
+        'closeTime': datetime.now(timezone.utc).isoformat(),
+        'orderId': order_result.get('orderId') if isinstance(order_result, dict) else None,
+        'quantityRatio': pct,
+    }
+
+    try:
+        with open(trade_history_file, 'r') as f:
+            history_data = json.load(f)
+    except (ValueError, FileNotFoundError):
+        history_data = {"version": "1.1", "closed": [], "cashouts": []}
+
+    history_data['closed'].append(closed_record)
+    history_data['cashouts'].append({
+        'time': closed_record['closeTime'],
+        'coin': coin,
+        'slotId': slot_id,
+        'type': closed_record['closeType'],
+        'amountUSDT': round(current_price * close_qty, 8),
+        'price': current_price,
+        'quantityRatio': pct,
+    })
+    with open(trade_history_file, 'w') as f:
+        json.dump(history_data, f, indent=2)
+
+    print(f"   💾 Historial cerrado guardado en {trade_history_file}")
     print()
 
+# Progreso cercano a TP sin cierres
 if not slots_to_close:
     for slot in data.get('slots', []):
         if slot.get('status') != 'ACTIVE':
             continue
-        
-        entry = slot.get('entryPrice', 0)
-        if entry > 0:
-            progress = ((current_price - entry) / entry) * 100
-            
-            tp1 = slot.get('tp1', 0)
-            tp2 = slot.get('tp2', 0)
-            tp3 = slot.get('tp3', 0)
-            
-            next_tp = None
-            next_tp_pct = None
-            
-            if not slot.get('tp1Done', False) and tp1 > 0:
-                next_tp = tp1
-                next_tp_pct = ((tp1 - entry) / entry) * 100
-            elif not slot.get('tp2Done', False) and tp2 > 0:
-                next_tp = tp2
-                next_tp_pct = ((tp2 - entry) / entry) * 100
-            elif not slot.get('tp3Done', False) and tp3 > 0:
-                next_tp = tp3
-                next_tp_pct = ((tp3 - entry) / entry) * 100
-            
-            if next_tp and next_tp_pct:
-                progress_to_next = (progress / next_tp_pct) * 100
-                
-                if progress_to_next >= 95:
-                    print(f"⚠️  CERCA DEL TP: {coin} Slot {slot['slotId']} → {progress_to_next:.1f}%")
-                    print(f"   Current: ${current_price:.2f} | TP: ${next_tp:.2f}")
-                    print()
+        entry = safe_float(slot.get('entryPrice'))
+        if entry <= 0:
+            continue
+        progress = ((current_price - entry) / entry) * 100
+        tp1 = safe_float(slot.get('tp1'))
+        tp2 = safe_float(slot.get('tp2'))
+        tp3 = safe_float(slot.get('tp3'))
+        next_tp = None
+        next_tp_pct = None
+        if not slot.get('tp1Done', False) and tp1 > 0:
+            next_tp = tp1
+            next_tp_pct = ((tp1 - entry) / entry) * 100
+        elif not slot.get('tp2Done', False) and tp2 > 0:
+            next_tp = tp2
+            next_tp_pct = ((tp2 - entry) / entry) * 100
+        elif not slot.get('tp3Done', False) and tp3 > 0:
+            next_tp = tp3
+            next_tp_pct = ((tp3 - entry) / entry) * 100
+        if next_tp and next_tp_pct:
+            progress_to_next = (progress / next_tp_pct) * 100
+            if progress_to_next >= 95:
+                print(f"⚠️  CERCA DEL TP: {coin} Slot {slot['slotId']} → {progress_to_next:.1f}%")
+                print(f"   Current: ${current_price:.2f} | TP: ${next_tp:.2f}")
+                print()

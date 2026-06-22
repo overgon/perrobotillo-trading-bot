@@ -30,6 +30,7 @@
 
 # BUG-041 FIX: set -e causa exit prematuro cuando auto_reset_slots retorna 1
 # set -e  # REMOVIDO - funciones pueden retornar 1 normalmente sin ser error fatal
+set +e
 
 # ════════════════════════════════════════════════════════
 # 📌 BOOTSTRAP Y VALIDACIONES INICIALES
@@ -54,212 +55,17 @@ case "$SYMBOL" in
 esac
 
 WORKSPACE="$HOME/.openclaw/workspace"
-SECRETS="$HOME/.openclaw/secrets"
+SECRETS="/home/...rets"
 LOGS="$HOME/.openclaw/logs"
 BINANCE="https://api.binance.com"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-if [ ! -f "$SECRETS/binance.env" ]; then
-    echo "❌ secrets/binance.env no encontrado"; exit 1
-fi
-source "$SECRETS/binance.env"
-
-if [ -z "${BINANCE_API_KEY:-}" ] || [ -z "${BINANCE_API_SECRET:-}" ]; then
-    echo "❌ BINANCE_API_KEY / BINANCE_API_SECRET vacíos"; exit 1
-fi
-
-# ════════════════════════════════════════════════════════
-# 🎯 CONFIGURACIÓN OPTIMIZADA - FASE 1 v2.1 + 20/80
-# ════════════════════════════════════════════════════════
-# Actualizado: 2026-04-22 12:55 CST (Perrobotillo)
-# Estrategia: 20% HOLDING + 80% TRADING
-# Objetivo: Máximo capital trabajando sin NOTIONAL filter
-# Status: LISTO PARA OPERAR
-
-# Source config 20/80
-CONFIG_FILE="$WORKSPACE/config/capital-config.sh"
-if [ -f "$CONFIG_FILE" ]; then
-    source "$CONFIG_FILE"
-    log "✅ Estrategia 20/80 cargada"
-else
-    log "⚠️ Config 20/80 no encontrada, usando defaults"
-    HOLD_PERCENT=20
-    TRADE_PERCENT=80
-    TRADE_POSITION_PERCENT=40
-    MIN_TRADE_SIZE=10
-fi
-
-# ════════════════════════════════════════════════════════
-# 🧠 CARGAR CONFIGURACIÓN DINÁMICA (Auto-Adjust)
-# ════════════════════════════════════════════════════════
-
-DYNAMIC_CONFIG="$WORKSPACE/crypto-bots/dynamic-config.env"
-if [ -f "$DYNAMIC_CONFIG" ]; then
-    source "$DYNAMIC_CONFIG"
-    
-    # Aplicar parámetros dinámicos si existen
-    [ -n "$TP1" ] && NORMAL_TP1=$TP1 && AGGRESSIVE_TP1=$TP1
-    [ -n "$TP2" ] && NORMAL_TP2=$TP2 && AGGRESSIVE_TP2=$TP2
-    [ -n "$TP3" ] && NORMAL_TP3=$TP3 && AGGRESSIVE_TP3=$TP3
-    [ -n "$STOP_LOSS" ] && STOP_LOSS_PERCENT=$STOP_LOSS
-    [ -n "$POSITION_SIZE" ] && TRADE_POSITION_PERCENT=$POSITION_SIZE
-    
-    log "🧠 MODO: ${MARKET_MODE:-LATERAL}"
-    log "   TP1: ${NORMAL_TP1}% | TP2: ${NORMAL_TP2}% | TP3: ${NORMAL_TP3}%"
-    log "   SL: ${STOP_LOSS_PERCENT:-5.0}%"
-else
-    log "⚠️ Sin config dinámica (usando defaults)"
-fi
-
-# Fallback: Asegurar que TRADE_POSITION_PERCENT tenga valor default
-if [ -z "$TRADE_POSITION_PERCENT" ] || [ "$TRADE_POSITION_PERCENT" = "0" ]; then
-    TRADE_POSITION_PERCENT=40
-    log "💡 TRADE_POSITION_PERCENT no definido, usando default 40%"
-fi
-
-# Fallback para NORMAL_TRADE_PERCENT
-if [ -z "$NORMAL_TRADE_PERCENT" ] || [ "$NORMAL_TRADE_PERCENT" = "0" ]; then
-    NORMAL_TRADE_PERCENT=$TRADE_POSITION_PERCENT
-    log "💡 NORMAL_TRADE_PERCENT no definido, usando TRADE_POSITION_PERCENT=$NORMAL_TRADE_PERCENT%"
-fi
-
-TRADING_HOURS_OPTIMAL="00,01,13,14,15,16,21,22"
-AGGRESSIVE_MODE=true
-
-# TRADE PERCENT - CONFIGURADO POR 20/80
-# El tamaño real se calcula dinámicamente basado en USDT disponible
-NORMAL_TRADE_PERCENT=$TRADE_POSITION_PERCENT  # 40% del capital de trading
-AGGRESSIVE_TRADE_PERCENT=45  # Un poco más agresivo
-
-# ACUMULACIÓN REDUCIDA (15% → 5%)
-# Más ganancias realizadas, menos acumulación
-ACCUMULATION_PERCENT=5  # (antes: 15)
-
-# ════════════════════════════════════════════════════════
-# 🔄 MODO RECICLAJE DE SLOTS (HÍBRIDO - 2026-05-03)
-# ════════════════════════════════════════════════════════
-# Para NUEVAS entradas: TP1 → READY → nueva entrada
-# Para entradas EXISTENTES: TP1 → TP2 → TP3 (piramidal)
-# 
-# true = Reciclaje activado para nuevas entradas
-# false = Mantener estrategia piramidal tradicional
-SLOT_RECYCLING_ENABLED=true
-
-# ════════════════════════════════════════════════════════
-# 🎯 SCALPING MODE (LATERAL MARKET - 2026-05-08)
-# ════════════════════════════════════════════════════════
-# Activado solo en mercado lateral para ganancias rápidas
-# Target: 1.0% (rango: 0.8-1.5%)
-# SL: 2.5% (más tight para scalping)
-SCALPING_ENABLED=true
-SCALP_TARGET_PERCENT="1.0"
-SCALP_SL_PERCENT="2.5"
-SCALP_MIN_PROFIT="0.50"
-
-# STOP LOSS POR COIN (basado en volatilidad diaria promedio)
-# ACTUALIZADO 2026-06-01: Reducido después de 6 SL hits consecutivos en BTC (-$93 USDT)
-# Razón: Mercado en downtrend, necesitamos protección más tight
-# Análisis: BTC perdió -$40.48 en último trade (5.94% drop), SL de 5.5% fue demasiado
-# Nuevo enfoque: SL de 3% para BTC, máximo $20 USDT por trade
-declare -A STOP_LOSS_BY_COIN=(
-    ["BTC"]="3.0"   # Antes: 5.5% → 3.0% (Evitar pérdidas >$20 USDT)
-    ["ETH"]="3.5"   # Antes: 6.0% → 3.5%
-    ["SOL"]="5.0"   # Antes: 8.0% → 5.0%
-    ["LINK"]="4.0"  # Antes: 7.0% → 4.0%
-    ["XRP"]="3.5"   # Antes: 6.0% → 3.5%
-    ["BNB"]="3.0"   # Antes: 5.5% → 3.0%
-    ["AVAX"]="4.5"  # Antes: 7.5% → 4.5%
-)
-
-# TAKE PROFIT OPTIMIZADOS v3 (2026-05-02) - MERCADO LATERAL
-# Ajustado para mercado en consolidación (rangos estrechos)
-# TP1: 2.5% → 1.8% (tomar profits más rápido)
-# TP2: 5.0% → 3.5% (más realista en rango)
-# TP3: 8.0% → 5.0% (objetivo alcanzable)
-# Win rate esperado: 16% → 45-50%
-NORMAL_TP1=1.8   # Reducido de 2.5% (mercado lateral)
-NORMAL_TP2=3.5   # Reducido de 5.0% (mercado lateral)
-NORMAL_TP3=5.0   # Reducido de 8.0% (mercado lateral)
-
-AGGRESSIVE_TP1=2.0
-AGGRESSIVE_TP2=4.0
-AGGRESSIVE_TP3=6.0
-
-# ════════════════════════════════════════════════════════
-# 🤖 ML TP PREDICTION - DYNAMIC TP ADJUSTMENT
-# ════════════════════════════════════════════════════════
-# Obtiene recomendación de ML para TPs dinámicos
-# Ejecuta predict-tp.py si no hay recomendaciones recientes
-ML_RECOMMENDATIONS_FILE="$HOME/.openclaw/workspace/ml/tp-recommendations.json"
-ML_SCRIPT="$HOME/.openclaw/workspace/ml/predict-tp.py"
-ML_GETTER="$HOME/.openclaw/workspace/ml/get-tp-recommendation.sh"
-
-# Función para obtener TPs de ML
-get_ml_tp() {
-    local coin="$1"
-    
-    # Si no existe el archivo de recomendaciones o tiene > 5 minutos, actualizar
-    if [ ! -f "$ML_RECOMMENDATIONS_FILE" ] || [ $(find "$ML_RECOMMENDATIONS_FILE" -mmin +5 2>/dev/null | wc -l) -gt 0 ]; then
-        log "🤖 ML: Actualizando predicciones..."
-        python3 "$ML_SCRIPT" > /dev/null 2>&1 &
-    fi
-    
-    # Obtener recomendación para esta coin
-    if [ -f "$ML_RECOMMENDATIONS_FILE" ] && [ -x "$ML_GETTER" ]; then
-        local ml_tps=$(bash "$ML_GETTER" "$coin" 2>/dev/null)
-        if [ -n "$ml_tps" ]; then
-            ML_TP1=$(echo "$ml_tps" | cut -d'|' -f1)
-            ML_TP2=$(echo "$ml_tps" | cut -d'|' -f2)
-            ML_TP3=$(echo "$ml_tps" | cut -d'|' -f3)
-            log "🤖 ML $coin: TP1=$ML_TP1% TP2=$ML_TP2% TP3=$ML_TP3%"
-            return 0
-        fi
-    fi
-    
-    # Fallback a TPs normales
-    ML_TP1=$NORMAL_TP1
-    ML_TP2=$NORMAL_TP2
-    ML_TP3=$NORMAL_TP3
-    return 1
-}
-
-# Obtener TPs dinámicos para esta coin (si ML está disponible)
-if [ -f "$ML_SCRIPT" ] && [ -f "$ML_GETTER" ]; then
-    get_ml_tp "$COIN"
-    # Sobrescribir TPs con recomendación de ML
-    TP1=$ML_TP1
-    TP2=$ML_TP2
-    TP3=$ML_TP3
-    log "🤖 ML TP Prediction: $COIN → TP1=$TP1% TP2=$TP2% TP3=$TP3%"
-else
-    log "⚠️  ML no disponible, usando TPs fijos"
-fi
-
-# Zero Trust + NOTIONAL Filter Fix (BUG-052)
-MIN_TRADE_USDT=10  # Mínimo Binance con margen (era $5)
-MAX_TRADE_USDT=100
-MIN_BALANCE_CHECK=true
-CHECK_DAILY_LOSS=true
-MAX_DAILY_LOSS_PERCENT=3
-BINANCE_FEE_PERCENT=0.015
-
-# Validaciones pre-trade (BUG-052)
-MIN_PORTFOLIO_FOR_TRADE=50  # No operar si portfolio < $50
-SNAPSHOT_REQUIRED=true      # Requiere snapshot válido
-
-# FASE 1: Trailing Stop DESACTIVADO para mercado lateral
-# ACTUALIZADO 2026-05-02: Trailing muy sensible causaba cierres prematuros
-# Se reactivará cuando BTC rompa rango ($77,750 o $78,600)
-TRAILING_STOP_ENABLED=false
-TRAILING_AFTER_TP1_PERCENT="2.0"  # Aumentado de 0.5% a 2.0% (menos sensible)
-TRAILING_AFTER_TP2_PERCENT="4.0"  # Aumentado de 3.0% a 4.0% (más margen)
-
-# Multi-Slot
 MAX_SLOTS=3
 
-# ============================================
-# 📁 FILES
-# ============================================
+# Cargar notify.sh una sola vez
+if [ -f "$WORKSPACE/crypto-bots/notify.sh" ]; then
+    # shellcheck source=/dev/null
+    source "$WORKSPACE/crypto-bots/notify.sh"
+fi
 
 STATE_FILE="$WORKSPACE/crypto-bots/${SYMBOL}-trade-state.json"
 DAILY_PNL_FILE="$WORKSPACE/crypto-bots/${SYMBOL}-daily-pnl.json"
@@ -274,7 +80,7 @@ log() {
 }
 
 log_debug() {
-    [ "${DEBUG:-false}" = "true" ] && echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$SYMBOL-DEBUG] $1" | tee -a "$LOGS/trade-${SYMBOL}-debug.log" || true
+    :
 }
 
 # ============================================
@@ -504,19 +310,34 @@ get_signature() {
 
 get_balance() {
     local symbol="$1"
+
+    if [ -z "${BINANCE_API_KEY:-}" ] || [ -z "${BINANCE_API_SECRET:-}" ]; then
+        local secrets_file="$HOME/.openclaw/secrets/binance.env"
+        if [ -f "$secrets_file" ]; then
+            # shellcheck source=/dev/null
+            source "$secrets_file"
+        fi
+    fi
+
+    if [ -z "${BINANCE_API_KEY:-}" ] || [ -z "${BINANCE_API_SECRET:-}" ]; then
+        log_debug "⚠️ Balance API error: credenciales no cargadas"
+        echo "0"
+        return
+    fi
+
     local timestamp=$(date -u +%s%3N)
     local query_string="timestamp=${timestamp}&recvWindow=5000"
     local signature=$(get_signature "$query_string")
     local result=$(curl -s -w "\n%{http_code}" -X GET "${BINANCE}/api/v3/account?${query_string}&signature=${signature}" -H "X-MBX-APIKEY: ${BINANCE_API_KEY}")
     local http_code=$(echo "$result" | tail -1)
     local body=$(echo "$result" | head -n -1)
-    
+
     if [ "$http_code" != "200" ]; then
         log_debug "⚠️ Balance API error: HTTP $http_code"
         echo "0"
         return
     fi
-    
+
     local balance=$(echo "$body" | jq -r ".balances[] | select(.asset == \"$symbol\") | .free // \"0\"")
     [ -z "$balance" ] && balance="0"
     echo "$balance"
@@ -611,9 +432,9 @@ init_slots() {
   "symbol": "$SYMBOL",
   "maxSlots": $MAX_SLOTS,
   "slots": [
-    {"slotId": 1, "status": "READY", "type": "NONE", "orderId": null, "entryPrice": null, "quantity": null, "usdtSpent": null, "stopLoss": null, "tp1": null, "tp2": null, "tp3": null, "tp1Done": false, "tp2Done": false, "tp3Done": false, "timestamp": null},
-    {"slotId": 2, "status": "READY", "type": "NONE", "orderId": null, "entryPrice": null, "quantity": null, "usdtSpent": null, "stopLoss": null, "tp1": null, "tp2": null, "tp3": null, "tp1Done": false, "tp2Done": false, "tp3Done": false, "timestamp": null},
-    {"slotId": 3, "status": "READY", "type": "NONE", "orderId": null, "entryPrice": null, "quantity": null, "usdtSpent": null, "stopLoss": null, "tp1": null, "tp2": null, "tp3": null, "tp1Done": false, "tp2Done": false, "tp3Done": false, "timestamp": null}
+    {"slotId": 1, "status": "READY", "type": "NONE", "orderId": null, "entryPrice": null, "quantity": null, "usdtSpent": null, "stopLoss": null, "tp1": null, "tp2": null, "tp3": null, "tp1Done": false, "tp2Done": false, "tp3Done": false, "tp1Pct": 0.35, "tp2Pct": 0.30, "tp3Pct": 0.30, "timestamp": null},
+    {"slotId": 2, "status": "READY", "type": "NONE", "orderId": null, "entryPrice": null, "quantity": null, "usdtSpent": null, "stopLoss": null, "tp1": null, "tp2": null, "tp3": null, "tp1Done": false, "tp2Done": false, "tp3Done": false, "tp1Pct": 0.35, "tp2Pct": 0.30, "tp3Pct": 0.30, "timestamp": null},
+    {"slotId": 3, "status": "READY", "type": "NONE", "orderId": null, "entryPrice": null, "quantity": null, "usdtSpent": null, "stopLoss": null, "tp1": null, "tp2": null, "tp3": null, "tp1Done": false, "tp2Done": false, "tp3Done": false, "tp1Pct": 0.35, "tp2Pct": 0.30, "tp3Pct": 0.30, "timestamp": null}
   ],
   "lastUpdated": "$(date -Iseconds)"
 }
@@ -651,8 +472,13 @@ get_available_slot() {
 }
 
 get_active_slots_count() {
-    local count=$(jq '[.slots[] | select(.status == "ACTIVE")] | length' "$STATE_FILE")
-    echo "$count"
+    local count
+    count=$(jq '[.slots[] | select(.status == "ACTIVE")] | length' "$STATE_FILE" 2>/dev/null) || true
+    if [[ "$count" =~ ^[0-9]+$ ]]; then
+        echo "$count"
+    else
+        echo "0"
+    fi
 }
 
 get_slot_data() {
@@ -710,7 +536,7 @@ update_slot_field() {
         log "  ✅ Slot $slot_id actualizado: $field = $value"
     else
         local jq_error=$(cat /tmp/jq_error_$$.txt)
-        log "  ❌ jq falló: $jq_error"
+        log "  ❌ jq falló en update_slot_field: slot=$slot_id field=$field value=$value - $jq_error"
         rm -f /tmp/state_$$.json /tmp/jq_error_$$.txt
         return 1
     fi
@@ -1000,15 +826,15 @@ execute_long() {
         
         log "📝 ML Exit code: $ml_exit_code"
         
-        # Parsear resultado del nuevo wrapper
-        ml_approved=$(echo "$ml_result" | grep "Aprobado:" | awk '{print $2}')
-        ml_confidence=$(echo "$ml_result" | grep "Confianza:" | awk '{print $2}' | sed 's/%//')
-        ml_signal=$(echo "$ml_result" | grep "Señal ML:" | awk '{print $3}')
-        ml_position=$(echo "$ml_result" | grep "Position size:" | awk '{print $2}' | sed 's/%//')
-        ml_reason=$(echo "$ml_result" | grep "Razón:" | cut -d: -f2- | sed 's/^ //')
+        # Parsear resultado del nuevo wrapper (normaliza newlines/símbolos del wrapper)
+        ml_approved=$(echo "$ml_result" | tr -d '\r\n' | grep -oE 'Aprobado:[[:space:]]*(✅|❌|YES|NO|true|false)' | sed -E 's/.*Aprobado:[[:space:]]*//')
+        ml_confidence=$(echo "$ml_result" | tr -d '\r\n' | grep -oE 'Confianza:[[:space:]]*[0-9]+(\.[0-9]+)?%' | sed -E 's/.*Confianza:[[:space:]]*([0-9]+(\.[0-9]+)?)%/\1/' | head -n1)
+        ml_signal=$(echo "$ml_result" | tr -d '\r\n' | grep -oE 'Señal ML:[[:space:]]*[A-Z_]+' | sed -E 's/.*Señal ML:[[:space:]]*//' | head -n1)
+        ml_position=$(echo "$ml_result" | tr -d '\r\n' | grep -oE 'size:[[:space:]]*[0-9]+(\.[0-9]+)?%' | sed -E 's/.*size:[[:space:]]*//;s/%//' | head -n1)
+        ml_reason=$(echo "$ml_result" | tr -d '\r\n' | sed -E 's/.*Razón:[[:space:]]*//' | head -n1)
         
-        log "🔍 ML Parseado: approved='$ml_approved', confidence='$ml_confidence}%', signal='$ml_signal'"
-        log "🔍 ML Position size: ${ml_position}%, Razón: $ml_reason"
+        log "🔍 ML Parseado: approved='${ml_approved:-N/A}', confidence='${ml_confidence:-N/A}%', signal='${ml_signal:-N/A}'"
+        log "🔍 ML Position size: ${ml_position:-N/A}%, Razón: ${ml_reason:-N/A}"
         
         # Si ML rechaza el trade, skippear
         if [ "$ml_approved" = "❌" ] || [ "$ml_approved" = "NO" ]; then
@@ -1202,18 +1028,22 @@ El slot permanece disponible para próximo trade. 🛡️"
         fi
         
         
+        # Formato limpio para notificación
+        local _fee_display="0.00"
+        [ -n "$fee_buy" ] && _fee_display="$fee_buy"
+
         local open_msg="🟢 LONG V3 SLOT $slot_id - $SYMBOL [$CURRENT_MODE]
 
 Slot: $slot_id / $MAX_SLOTS
-Entry: \$${fill_price} | Qty: $quantity
-Costo: \$${usdt_spent} | Fee: -\$${fee_buy}
+Entry: $fill_price | Qty: $quantity
+Costo: $usdt_spent | Fee: $_fee_display
 
 TPs:
-TP1: \$${tp1} (+${TP1_PERCENT}%) 50%
-TP2: \$${tp2} (+${TP2_PERCENT}%) 30%
-TP3: \$${tp3} (+${TP3_PERCENT}%) 20%
+TP1: $tp1 (+${TP1_PERCENT}%) 50%
+TP2: $tp2 (+${TP2_PERCENT}%) 30%
+TP3: $tp3 (+${TP3_PERCENT}%) 20%
 
-SL: \$${sl} (-${STOP_LOSS_PERCENT}%)
+SL: $sl (-${STOP_LOSS_PERCENT}%)
 
 $ml_section
 
@@ -2038,8 +1868,8 @@ auto_reset_slots() {
     done
     
     # También resetear si TODOS los slots están cerrados (caso original)
-    local active_count=$(get_active_slots_count)
-    local closed_count=$(jq '[.slots[] | select(.status | startswith("CLOSED"))] | length' "$STATE_FILE")
+    local active_count=$(get_active_slots_count || echo 0)
+    local closed_count=$(jq '[.slots[] | select(.status | startswith("CLOSED"))] | length' "$STATE_FILE" || echo 0)
     
     if [ "$active_count" -eq 0 ] && [ "$closed_count" -eq "$MAX_SLOTS" ]; then
         log "🔄 AUTO-RESET: Todos los slots cerrados ($closed_count/$MAX_SLOTS)"
@@ -2138,6 +1968,12 @@ if [ "$1" = "--history" ] || [ "$1" = "-h" ]; then
 fi
 
 execute_cycle() {
+    if [ -z "${BINANCE_API_KEY:-}" ] || [ -z "${BINANCE_API_SECRET:-}" ]; then
+        local secrets_file="$HOME/.openclaw/secrets/binance.env"
+        if [ -f "$secrets_file" ]; then
+            source "$secrets_file"
+        fi
+    fi
     log "╔═══════════════════════════════════════════════════════╗"
     log "║  🤖 CRYPTO TRADE BOT V3 - $SYMBOL [MULTI-SLOT]           ║"
     log "╚═══════════════════════════════════════════════════════╝"
@@ -2234,6 +2070,66 @@ _Jefe, el bot está en pausa global._ 🐕" 2>/dev/null || true
     for slot_id in $(seq 1 $MAX_SLOTS); do
         check_slot_tp_sl "$slot_id"
     done
+    
+    # Cargar configuración de mercado si existe
+    MARKET_MODE_CONF="${WORKSPACE}/crypto-bots/market-mode.conf"
+    if [ -f "$MARKET_MODE_CONF" ]; then
+        MARKET_MODE=$(grep '^MARKET_MODE=' "$MARKET_MODE_CONF" | cut -d'=' -f2 | tr -d '"' | xargs)
+        MCONF_TP1=$(grep '^TP1=' "$MARKET_MODE_CONF" | cut -d'=' -f2 | xargs)
+        MCONF_TP2=$(grep '^TP2=' "$MARKET_MODE_CONF" | cut -d'=' -f2 | xargs)
+        MCONF_TP3=$(grep '^TP3=' "$MARKET_MODE_CONF" | cut -d'=' -f2 | xargs)
+        MCONF_POSITION=$(grep '^POSITION_SIZE=' "$MARKET_MODE_CONF" | cut -d'=' -f2 | xargs)
+        
+        case "$MARKET_MODE" in
+            BULL|BULLISH|LATERAL_BULL)
+                NORMAL_TRADE_PERCENT=${NORMAL_TRADE_PERCENT:-20}
+                AGGRESSIVE_TRADE_PERCENT=${AGGRESSIVE_TRADE_PERCENT:-40}
+                NORMAL_TP1=${NORMAL_TP1:-1.5}
+                NORMAL_TP2=${NORMAL_TP2:-3.0}
+                NORMAL_TP3=${NORMAL_TP3:-5.0}
+                AGGRESSIVE_TP1=${AGGRESSIVE_TP1:-2.0}
+                AGGRESSIVE_TP2=${AGGRESSIVE_TP2:-4.0}
+                AGGRESSIVE_TP3=${AGGRESSIVE_TP3:-6.0}
+                ;;
+            BEAR|BEARISH|LATERAL_BEAR)
+                NORMAL_TRADE_PERCENT=${NORMAL_TRADE_PERCENT:-10}
+                AGGRESSIVE_TRADE_PERCENT=${AGGRESSIVE_TRADE_PERCENT:-20}
+                NORMAL_TP1=${NORMAL_TP1:-1.0}
+                NORMAL_TP2=${NORMAL_TP2:-2.0}
+                NORMAL_TP3=${NORMAL_TP3:-3.0}
+                AGGRESSIVE_TP1=${AGGRESSIVE_TP1:-1.5}
+                AGGRESSIVE_TP2=${AGGRESSIVE_TP2:-3.0}
+                AGGRESSIVE_TP3=${AGGRESSIVE_TP3:-4.5}
+                ;;
+            LATERAL|NEUTRAL)
+                NORMAL_TRADE_PERCENT=${NORMAL_TRADE_PERCENT:-15}
+                AGGRESSIVE_TRADE_PERCENT=${AGGRESSIVE_TRADE_PERCENT:-30}
+                NORMAL_TP1=${NORMAL_TP1:-1.2}
+                NORMAL_TP2=${NORMAL_TP2:-2.5}
+                NORMAL_TP3=${NORMAL_TP3:-4.0}
+                AGGRESSIVE_TP1=${AGGRESSIVE_TP1:-2.0}
+                AGGRESSIVE_TP2=${AGGRESSIVE_TP2:-4.0}
+                AGGRESSIVE_TP3=${AGGRESSIVE_TP3:-6.0}
+                ;;
+            *)
+                NORMAL_TRADE_PERCENT=${NORMAL_TRADE_PERCENT:-15}
+                AGGRESSIVE_TRADE_PERCENT=${AGGRESSIVE_TRADE_PERCENT:-30}
+                NORMAL_TP1=${NORMAL_TP1:-1.5}
+                NORMAL_TP2=${NORMAL_TP2:-3.0}
+                NORMAL_TP3=${NORMAL_TP3:-5.0}
+                AGGRESSIVE_TP1=${AGGRESSIVE_TP1:-2.0}
+                AGGRESSIVE_TP2=${AGGRESSIVE_TP2:-4.0}
+                AGGRESSIVE_TP3=${AGGRESSIVE_TP3:-6.0}
+                ;;
+        esac
+        
+        if [ -n "$MCONF_POSITION" ]; then
+            NORMAL_TRADE_PERCENT="$MCONF_POSITION"
+            AGGRESSIVE_TRADE_PERCENT="$MCONF_POSITION"
+        fi
+        
+        log "🧠 Market mode: $MARKET_MODE (TPs: $MCONF_TP1/$MCONF_TP2/$MCONF_TP3)"
+    fi
     
     # Detectar modo y obtener STOP LOSS por coin
     local current_hour=$(date -u +%H | sed 's/^0//')
@@ -2492,7 +2388,7 @@ _Jefe, el bot se detuvo automáticamente._ 🐕" 2>/dev/null || true
     fi
     
     # Check if we can open new trades
-    if [ $active_count -ge $MAX_SLOTS ]; then
+    if [ "$active_count" -ge "$MAX_SLOTS" ]; then
         log "⏸️ Máximo de slots alcanzado ($active_count / $MAX_SLOTS)"
         return 0
     fi
