@@ -67,6 +67,12 @@ if [ -f "$WORKSPACE/crypto-bots/notify.sh" ]; then
     source "$WORKSPACE/crypto-bots/notify.sh"
 fi
 
+# Cargar configs dinámicas si existen (auto-adjust / ML)
+if [ -f "$WORKSPACE/crypto-bots/dynamic-config.env" ]; then
+    # shellcheck source=/dev/null
+    source "$WORKSPACE/crypto-bots/dynamic-config.env"
+fi
+
 STATE_FILE="$WORKSPACE/crypto-bots/${SYMBOL}-trade-state.json"
 DAILY_PNL_FILE="$WORKSPACE/crypto-bots/${SYMBOL}-daily-pnl.json"
 BOT_FILE="$WORKSPACE/crypto-bots/${SYMBOL}-bot.json"
@@ -326,7 +332,7 @@ get_balance() {
     fi
 
     local timestamp=$(date -u +%s%3N)
-    local query_string="timestamp=${timestamp}&recvWindow=5000"
+    local query_string="timestamp=${timestamp}&recvWindow=60000"
     local signature=$(get_signature "$query_string")
     local result=$(curl -s -w "\n%{http_code}" -X GET "${BINANCE}/api/v3/account?${query_string}&signature=${signature}" -H "X-MBX-APIKEY: ${BINANCE_API_KEY}")
     local http_code=$(echo "$result" | tail -1)
@@ -345,20 +351,31 @@ get_balance() {
 
 get_portfolio_value() {
     local usdt=$(get_balance "USDT")
-    local total=$usdt
-    
+    usdt=$(printf '%s' "$usdt" | tr -d '[:space:]')
+    if ! printf '%s' "$usdt" | grep -qE '^[0-9]+(\.[0-9]+)?$'; then
+        echo "0"
+        return
+    fi
+    local total=$(printf '%.2f' "$usdt")
+
     for coin in BTC ETH BNB SOL LINK XRP AVAX; do
         local balance=$(get_balance "$coin")
-        if [ -n "$balance" ] && [ "$balance" != "0" ] && (( $(echo "$balance > 0" | bc -l) )); then
-            local price=$(curl -s "${BINANCE}/api/v3/ticker/price?symbol=${coin}USDT" 2>/dev/null | jq -r '.price // 0')
-            if [ -n "$price" ] && [ "$price" != "0" ]; then
-                local value=$(echo "scale=2; $balance * $price" | bc)
-                total=$(echo "scale=2; $total + $value" | bc)
-            fi
+        balance=$(printf '%s' "$balance" | tr -d '[:space:]')
+        if ! printf '%s' "$balance" | grep -qE '^[0-9]+(\.[0-9]+)?$'; then
+            continue
         fi
+        awk -v b="$balance" 'BEGIN {exit (b <= 0) ? 1 : 0}' || continue
+        local price
+        price=$(curl -sf "${BINANCE}/api/v3/ticker/price?symbol=${coin}USDT" | jq -r '.price // empty' 2>/dev/null || true)
+        [ -n "$price" ] || continue
+        price=$(printf '%s' "$price" | tr -d '[:space:]' | tr -d ',')
+        printf '%s' "$price" | grep -qE '^[0-9]+(\.[0-9]+)?$' || continue
+        local value
+        value=$(awk -v b="$balance" -v p="$price" 'BEGIN {printf "%.2f", b * p}')
+        total=$(awk -v t="$total" -v v="$value" 'BEGIN {printf "%.2f", t + v}')
     done
-    
-    echo "$total"
+
+    printf '%s' "$total"
 }
 
 format_quantity() {
@@ -641,19 +658,17 @@ check_daily_limit() {
     init_daily_pnl
     local daily_loss=$(jq -r '.loss // 0' "$DAILY_PNL_FILE")
     local portfolio_value=$(get_portfolio_value)
-    local max_loss=$(echo "scale=2; $portfolio_value * $MAX_DAILY_LOSS_PERCENT / 100" | bc)
-    
-    # ============================================
-    # 🛡️ VALIDACIONES CRÍTICAS (BUG-052)
-    # ============================================
-    
-    # VALIDACIÓN 1: Portfolio no puede ser $0
-    if [ -z "$portfolio_value" ] || [ "$portfolio_value" = "0" ] || [ "$portfolio_value" = "0.00" ]; then
-        log "❌ VALIDACIÓN FALLIDA: Portfolio = \$0 (cálculo incorrecto)"
+    [ -z "$portfolio_value" ] || ! echo "$portfolio_value" | grep -qE '^[0-9]+(\.[0-9]+)?$' && portfolio_value=0
+
+    if [ "$portfolio_value" = "0" ]; then
+        log "❌ VALIDACIÓN FALLIDA: Portfolio = \\$0 (cálculo incorrecto)"
         log "  Abortando check de límite diario para evitar falso positivo"
         log "  🛡️ BUG-052 PREVENIDO: Límite diario cancelado por datos incompletos"
         return 0  # No abortar trading, solo saltar el check de límite
     fi
+
+: "${MAX_DAILY_LOSS_PERCENT:=3}"
+    local max_loss=$(echo "scale=2; $portfolio_value * $MAX_DAILY_LOSS_PERCENT / 100" | bc)
     
     # VALIDACIÓN 2: Portfolio mínimo razonable (> $50)
     if (( $(awk -v p="$portfolio_value" 'BEGIN {print (p < 50) ? 1 : 0}') )); then
@@ -686,7 +701,7 @@ check_daily_limit() {
     local last_emergency=""
     [ -f "$emergency_file" ] && last_emergency=$(cat "$emergency_file")
     
-    if (( $(echo "$daily_loss >= $max_loss" | bc -l) )); then
+    if (( $(awk -v p="$portfolio_value" -v d="$daily_loss" 'BEGIN {print (d >= p * '"$MAX_DAILY_LOSS_PERCENT"' / 100) ? 1 : 0}') )); then
         log "❌ Límite diario alcanzado (\$${daily_loss} / \$${max_loss})"
         
         # Ejecutar emergency close UNA VEZ por día
@@ -859,139 +874,65 @@ execute_long() {
     else
         log "⚠️ ML Validator no encontrado en $ML_VALIDATOR, continuando sin validación"
     fi
-    
+
     check_daily_limit || return 1
-    
-    local usdt_balance=$(get_balance "USDT")
+
+    usdt_balance=$(get_balance "USDT")
+    usdt_balance=$(printf '%s' "$usdt_balance" | tr -d '[:space:]')
+    if ! printf '%s' "$usdt_balance" | grep -qE '^[0-9]+(\.[0-9]+)?$'; then
+        log "⚠️ Balance USDT con formato no numérico: '$usdt_balance'"
+        return 1
+    fi
     [ -z "$usdt_balance" ] || [ "$usdt_balance" = "0" ] && { log "⚠️ USDT balance no disponible"; return 1; }
-    
-    local price=$(curl -s "${BINANCE}/api/v3/ticker/price?symbol=${SYMBOL}USDT" 2>/dev/null | jq -r '.price')
+
+    price=$(curl -s "${BINANCE}/api/v3/ticker/price?symbol=${SYMBOL}USDT" 2>/dev/null | jq -r '.price')
+    price=$(printf '%s' "$price" | tr -d '[:space:]')
+    if ! printf '%s' "$price" | grep -qE '^[0-9]+(\.[0-9]+)?$'; then
+        log "⚠️ Precio con formato no numérico: '$price'"
+        return 1
+    fi
     [ -z "$price" ] || [ "$price" = "0" ] && { log "⚠️ Precio no disponible"; return 1; }
-    
-    # Calcular order value con position %
-    local order_value=$(awk -v bal="$usdt_balance" -v pct="$position_percent" 'BEGIN {printf "%.2f", bal * pct / 100}')
-    
-    # Si position % da menos de $5, usar TODO el balance (si alcanza)
-    log "DEBUG: Checking if $order_value < $MIN_ORDER_USDT"
-    if (( $(awk -v val="$order_value" -v min="5" 'BEGIN {print (val < min) ? 1 : 0}') )); then
-        log "⚠️ ${position_percent}% = \$${order_value} < \$${MIN_ORDER_USDT} mínimo"
-    log "DEBUG: Condition result = $(awk -v val="$order_value" -v min="5" 'BEGIN {print (val < min) ? 1 : 0}')"
-        
-        # Verificar si el balance TOTAL alcanza para el mínimo
-        if (( $(awk -v bal="$usdt_balance" -v min="5" 'BEGIN {print (bal < min) ? 1 : 0}') )); then
-            log "❌ Balance insuficiente para trade mínimo (\$${usdt_balance} < \$${MIN_ORDER_USDT})"
+
+    order_value=$(awk -v bal="$usdt_balance" -v pct="${position_percent:-10}" 'BEGIN {printf "%.2f", bal * pct / 100}')
+    if (( $(awk -v val="$order_value" -v min="10" 'BEGIN {print (val < min) ? 1 : 0}') )); then
+        log "⚠️ ${position_percent:-10}% = \$${order_value} < \$10 mínimo"
+        if (( $(awk -v bal="$usdt_balance" -v min="10" 'BEGIN {print (bal < min) ? 1 : 0}') )); then
+            log "❌ Balance insuficiente para trade mínimo (\$${usdt_balance} < \$10)"
             return 1
         fi
-        
-        # Usar 100% del balance en vez de position %
-        log "💡 Usando 100% del balance (\$${usdt_balance}) en vez de ${position_percent}%"
+        log "💡 Usando 100% del balance (\$${usdt_balance}) en vez de ${position_percent:-10}%"
         order_value="$usdt_balance"
-        log "DEBUG: order_value actualizado a $order_value"
     fi
-    
-    log "DEBUG: Calculando quantity con order_value=$order_value, price=$price"
-    
-    # Calcular cantidad basada en order value
-    local quantity=$(awk -v val="$order_value" -v p="$price" 'BEGIN {printf "%.8f", val / p}')
-    log "DEBUG: quantity raw = $quantity"
+
+    quantity=$(awk -v val="$order_value" -v p="$price" 'BEGIN {printf "%.8f", val / p}')
     [ -z "$quantity" ] || [ "$quantity" = "0.00000000" ] && { log "⚠️ Cantidad calculada inválida"; return 1; }
     quantity=$(format_quantity "$SYMBOL" "$quantity")
-    
-    local tp1=$(echo "scale=8; $price * (1 + $TP1_PERCENT / 100)" | bc)
-    local tp2=$(echo "scale=8; $price * (1 + $TP2_PERCENT / 100)" | bc)
-    local tp3=$(echo "scale=8; $price * (1 + $TP3_PERCENT / 100)" | bc)
-    local sl=$(echo "scale=8; $price * (1 - $STOP_LOSS_PERCENT / 100)" | bc)
-    
-    # ============================================
-    # 🚀 EJECUTAR ORDEN PRIMERO (antes de notificar)
-    # ============================================
-    
-    # DEBUG: Log balance antes de orden
-    log "💰 DEBUG: Balance USDT free: \$${usdt_balance}"
-    log "💰 DEBUG: Order value calculado: \$${order_value}"
-    log "💰 DEBUG: Quantity: $quantity @ \$${price}"
-    log "💰 DEBUG: Slot $slot_id de $MAX_SLOTS"
-    
-    # Verificar mínimo de Binance ANTES de enviar orden
-    if (( $(awk -v val="$order_value" -v min="10" 'BEGIN {print (val < min) ? 1 : 0}') )); then
-        log "❌ Orden rechazada: \$${order_value} < \$10 mínimo de Binance"
-        notify "ORDER_FAIL|$SYMBOL|$slot_id|BEFORE" "❌ ORDEN FALLÓ - $SYMBOL
 
-Slot: $slot_id / $MAX_SLOTS
-Razón: Order value \$${order_value} es menor al mínimo de Binance (\$10)
-Balance disponible: \$${usdt_balance}
+    tp1=$(echo "scale=8; $price * (1 + $TP1_PERCENT / 100)" | bc)
+    tp2=$(echo "scale=8; $price * (1 + $TP2_PERCENT / 100)" | bc)
+    tp3=$(echo "scale=8; $price * (1 + $TP3_PERCENT / 100)" | bc)
+    sl=$(echo "scale=8; $price * (1 - $STOP_LOSS_PERCENT / 100)" | bc)
 
-Ajusta position_size o espera más capital. 🛡️"
-        return 1
+    log "💰 DEBUG: Balance USDT free: \$${usdt_balance} | Order value: \$${order_value} | Quantity: $quantity @ \$${price} | Slot $slot_id de $MAX_SLOTS"
+
+    # Ejecutar compra y capturar resultado
+    local buy_result
+    buy_result=$(place_buy_order_market "$SYMBOL" "$quantity")
+    local buy_status
+    buy_status=$(printf '%s' "$buy_result" | jq -r '.status // empty')
+    local order_id
+    order_id=$(printf '%s' "$buy_result" | jq -r '.orderId // empty')
+    local fill_price
+    fill_price=$(printf '%s' "$buy_result" | jq -r '.price // empty')
+    if [ -z "$fill_price" ]; then
+        fill_price=$(printf '%s' "$buy_result" | jq -r '.fills[0].price // empty')
     fi
-    
-    log "📈 BUY Slot $slot_id: $quantity $SYMBOL @ \$${price}"
-    
-    # DEBUG: Log details antes de enviar
-    log "🔍 DEBUG: Quantity='$quantity' | Price='$price' | OrderValue='$order_value'"
-    log "🔍 DEBUG: Balance free='$usdt_balance' | Position%='$position_percent'"
-    
-    # Validar quantity antes de enviar orden
-    if [ -z "$quantity" ] || [ "$quantity" = "0" ] || [ "$quantity" = "0.00000000" ]; then
-        log "❌ Quantity inválida: '$quantity'"
-        notify "ORDER_FAIL|$SYMBOL|$slot_id|QUANTITY" "❌ ORDEN FALLÓ - $SYMBOL
-
-Slot: $slot_id / $MAX_SLOTS
-Razón: Quantity calculada es inválida ($quantity)
-Precio: \$${price} | Order value: \$${order_value}
-
-Revisa configuración del bot. 🛡️"
-        return 1
-    fi
-    
-    local buy_result=$(place_buy_order_market "$SYMBOL" "$quantity")
-    
-    # DEBUG: Log raw response
-    log "🔍 DEBUG: Binance response: $buy_result"
-    
-    local buy_status=$(echo "$buy_result" | jq -r '.status // "ERROR"')
-    
-    # Verificar si la orden fue exitosa
-    if [ "$buy_status" != "NEW" ] && [ "$buy_status" != "FILLED" ]; then
-        local error_msg=$(echo "$buy_result" | jq -r '.msg // "Unknown error"' 2>/dev/null)
-        local error_code=$(echo "$buy_result" | jq -r '.code // "-1"' 2>/dev/null)
-        
-        # Fallback si jq falla
-        [ -z "$error_msg" ] || [ "$error_msg" = "null" ] && error_msg="Unknown error"
-        [ -z "$error_code" ] || [ "$error_code" = "null" ] && error_code="-1"
-        
-        log "❌ Orden falló: status=$buy_status, code=$error_code, msg=$error_msg"
-        
-        # Obtener balance actual para debugging
-        local current_balance=$(get_balance "USDT")
-
-        # Notificar falla por Telegram con más contexto
-        notify "BINANCE_ORDER_FAIL|$SYMBOL|$slot_id" "❌ ORDEN FALLÓ - $SYMBOL
-
-Slot: $slot_id / $MAX_SLOTS
-Razón: $error_msg
-Código: $error_code
-
-Balance disponible: \$${current_balance} USDT
-Order value: \$${order_value}
-
-El slot permanece disponible para próximo trade. 🛡️"
-        
-        return 1
-    fi
-    
-    # Orden exitosa - extraer datos reales de ejecución
-    local order_id=$(echo "$buy_result" | jq -r '.orderId')
-    local fill_price=$(echo "$buy_result" | jq -r '.fills[0].price // "'$price'"')
-    local usdt_spent=$(echo "scale=2; $quantity * $fill_price" | bc)
-    local fee_buy=$(echo "scale=4; $usdt_spent * $BINANCE_FEE_PERCENT / 100" | bc)
-    local total_cost=$(echo "scale=2; $usdt_spent + $fee_buy" | bc)
-    
-    log "✅ Orden ejecutada: ID=$order_id, fill_price=\$${fill_price}"
-    
-    # ============================================
-    # 📝 ACTUALIZAR ESTADO DEL SLOT
-    # ============================================
+    local usdt_spent
+    usdt_spent=$(printf '%s' "$buy_result" | jq -r '.cummulativeQuoteQty // empty')
+    local fee_buy
+    fee_buy=$(printf '%s' "$buy_result" | jq -r '.fills[0].commission // empty')
+    local total_cost
+    total_cost=$(printf '%s' "$buy_result" | jq -r '.fills[0].qty // empty')
     
     if [ "$buy_status" = "NEW" ] || [ "$buy_status" = "FILLED" ]; then
 
@@ -1295,13 +1236,13 @@ El slot buscará nueva entrada 🚀"
                 else
                     # Slot existente o reciclaje desactivado -> mantener estrategia
                     local pnl_partial=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
-                    notify "TP1_HIT|$SYMBOL|$slot_id" "✅ TP1 HIT - $SYMBOL [35%] 🎯
+                    notify "TP1_HIT|$SYMBOL|$slot_id" "✅ TP1 - $SYMBOL
 
 Slot: $slot_id / $MAX_SLOTS
-Exit: \$${current_price}
-Qty: $sell_qty_fmt (35%)
-P&L Parcial: \$${pnl_partial}
-ACUMULADO: 5% 📈
+Exit: $${current_price}
+Vendido: $sell_qty_fmt
+P&L parcial: $${pnl_partial}
+Acumulado: 5% 📈
 
 Quedan 65% para TP2/TP3 🎯"
                 fi
@@ -1403,16 +1344,14 @@ El slot sigue activo y reintentará en próximos ciclos."
                 # BUG-036 FIX: Enviar Telegram TP2
                 log "  📱 DEBUG: Preparando notificación TP2..."
                 
-                local tp2_msg="✅ TP2 HIT - $SYMBOL [30%] 🎯
+                local tp2_msg="✅ TP2 - $SYMBOL
 
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${current_price}
-Qty: $sell_qty_fmt (30%)
-P&L Parcial: \$${pnl_partial}
-ACUMULADO: 5% 📈
+Vendido: $sell_qty_fmt
+P&L parcial: \$${pnl_partial}
+Queda para TP3 🎯"
 
-Queda 35% para TP3 🎯"
-                
                 notify "TP2_HIT|$SYMBOL|$slot_id" "$tp2_msg"
                 log "  📱 DEBUG: notify TP2 completado"
             else
@@ -1572,18 +1511,14 @@ El slot permanece activo."
                     acumulado_note="✅ 5% de la posición SE QUEDA en Binance (acumulado)\n💰 Vendido: 95% | Acumulado: 5% (TP2 skip)"
                 fi
                 
-                local tp3_msg="${pnl_icon} TP3 HIT - $SYMBOL [$tp3_percentage - $tp3_note] 🎯
+                local tp3_msg="🎯 TP3 - $SYMBOL [Cierre total]
 
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${exit_price}
-Qty: $sell_qty_fmt ($tp3_percentage)
-ACUMULADO: 5% 📈
+Vendido: $sell_qty_fmt
+P&L: \$${pnl_total}
+Mantiene 5% acumulado 📈"
 
-$acumulado_note
-P&L Total: \$${pnl_total}
-
-✅ Slot cerrado y disponible 🎯"
-                
                 notify "TP3_HIT|$SYMBOL|$slot_id" "$tp3_msg"
                 log "  📱 DEBUG: notify completado TP3"
             else
@@ -1643,13 +1578,13 @@ ACUMULADO: 5% se queda HODL 📈
                 [ $(echo "$pnl > 0" | bc -l) -eq 1 ] && pnl_icon="🟢"
                 
                 # Enviar Telegram
-                notify "SL_HIT|$SYMBOL|$slot_id" "${pnl_icon} SL HIT - $SYMBOL
+                notify "SL_HIT|$SYMBOL|$slot_id" "${pnl_icon} SL - $SYMBOL
 
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${exit_price}
 P&L: \$${pnl_display}
 
-El slot está disponible para próximo trade. 🛡️"
+Slot disponible 🔄"
                 
             else
                 local error=$(echo "$sell_result" | jq -r '.msg // "Unknown error"')
@@ -2094,12 +2029,12 @@ _Jefe, el bot está en pausa global._ 🐕" 2>/dev/null || true
             BEAR|BEARISH|LATERAL_BEAR)
                 NORMAL_TRADE_PERCENT=${NORMAL_TRADE_PERCENT:-10}
                 AGGRESSIVE_TRADE_PERCENT=${AGGRESSIVE_TRADE_PERCENT:-20}
-                NORMAL_TP1=${NORMAL_TP1:-1.0}
-                NORMAL_TP2=${NORMAL_TP2:-2.0}
-                NORMAL_TP3=${NORMAL_TP3:-3.0}
-                AGGRESSIVE_TP1=${AGGRESSIVE_TP1:-1.5}
-                AGGRESSIVE_TP2=${AGGRESSIVE_TP2:-3.0}
-                AGGRESSIVE_TP3=${AGGRESSIVE_TP3:-4.5}
+                NORMAL_TP1=${NORMAL_TP1:-1.8}
+                NORMAL_TP2=${NORMAL_TP2:-3.5}
+                NORMAL_TP3=${NORMAL_TP3:-5.5}
+                AGGRESSIVE_TP1=${AGGRESSIVE_TP1:-2.2}
+                AGGRESSIVE_TP2=${AGGRESSIVE_TP2:-4.5}
+                AGGRESSIVE_TP3=${AGGRESSIVE_TP3:-6.5}
                 ;;
             LATERAL|NEUTRAL)
                 NORMAL_TRADE_PERCENT=${NORMAL_TRADE_PERCENT:-15}
@@ -2114,12 +2049,12 @@ _Jefe, el bot está en pausa global._ 🐕" 2>/dev/null || true
             *)
                 NORMAL_TRADE_PERCENT=${NORMAL_TRADE_PERCENT:-15}
                 AGGRESSIVE_TRADE_PERCENT=${AGGRESSIVE_TRADE_PERCENT:-30}
-                NORMAL_TP1=${NORMAL_TP1:-1.5}
-                NORMAL_TP2=${NORMAL_TP2:-3.0}
-                NORMAL_TP3=${NORMAL_TP3:-5.0}
-                AGGRESSIVE_TP1=${AGGRESSIVE_TP1:-2.0}
-                AGGRESSIVE_TP2=${AGGRESSIVE_TP2:-4.0}
-                AGGRESSIVE_TP3=${AGGRESSIVE_TP3:-6.0}
+                NORMAL_TP1=${NORMAL_TP1:-1.8}
+                NORMAL_TP2=${NORMAL_TP2:-3.5}
+                NORMAL_TP3=${NORMAL_TP3:-5.5}
+                AGGRESSIVE_TP1=${AGGRESSIVE_TP1:-2.2}
+                AGGRESSIVE_TP2=${AGGRESSIVE_TP2:-4.5}
+                AGGRESSIVE_TP3=${AGGRESSIVE_TP3:-6.5}
                 ;;
         esac
         
@@ -2129,6 +2064,22 @@ _Jefe, el bot está en pausa global._ 🐕" 2>/dev/null || true
         fi
         
         log "🧠 Market mode: $MARKET_MODE (TPs: $MCONF_TP1/$MCONF_TP2/$MCONF_TP3)"
+
+        # Aplicar overrides del market-mode.conf si existen
+        if [ -n "$MCONF_TP1" ] && [ -n "$MCONF_TP2" ] && [ -n "$MCONF_TP3" ]; then
+            NORMAL_TP1="$MCONF_TP1"
+            NORMAL_TP2="$MCONF_TP2"
+            NORMAL_TP3="$MCONF_TP3"
+            AGGRESSIVE_TP1="$MCONF_TP1"
+            AGGRESSIVE_TP2="$MCONF_TP2"
+            AGGRESSIVE_TP3="$MCONF_TP3"
+        fi
+
+        # Leer SL desde market-mode.conf si está definido
+        MCONF_SL=$(grep '^SL=' "$MARKET_MODE_CONF" | cut -d'=' -f2 | xargs)
+        if [ -n "$MCONF_SL" ]; then
+            STOP_LOSS_PERCENT="$MCONF_SL"
+        fi
     fi
     
     # Detectar modo y obtener STOP LOSS por coin
@@ -2138,7 +2089,7 @@ _Jefe, el bot está en pausa global._ 🐕" 2>/dev/null || true
     if [ -n "${STOP_LOSS_BY_COIN[$SYMBOL]}" ]; then
         STOP_LOSS_PERCENT="${STOP_LOSS_BY_COIN[$SYMBOL]}"
     else
-        STOP_LOSS_PERCENT="4.0"  # Default si no está en la lista
+        STOP_LOSS_PERCENT="2.5"  # Default reducido para mejorar riesgo/beneficio
     fi
     
     # Detectar modo (AGGRESSIVE/NORMAL) para TP y trade size
