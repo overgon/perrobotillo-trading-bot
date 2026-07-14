@@ -58,17 +58,19 @@ def check_if_retrain_needed(coin: str) -> bool:
     1. Modelo no existe → re-entrenar
     2. Modelo > 7 días → re-entrenar
     3. Accuracy < 85% → re-entrenar urgente
+    4. Nuevos trades >= 10 desde último entrenamiento → re-entrenar
     """
     
-    metadata_path = MODELS_DIR / f"{coin}_ml_metadata.json"
+    metadata_path = MODELS_DIR / f"{coin}_optimized_metadata.json"
+    metadata_path_legacy = MODELS_DIR / f"{coin}_ml_metadata.json"
     
     # 1. Modelo no existe
-    if not metadata_path.exists():
+    if not metadata_path.exists() and not metadata_path_legacy.exists():
         logger.info(f"{coin}: Modelo no existe, re-entrenando")
         return True
     
-    # Cargar metadata
-    with open(metadata_path, 'r') as f:
+    chosen = metadata_path if metadata_path.exists() else metadata_path_legacy
+    with open(chosen, 'r') as f:
         metadata = json.load(f)
     
     # 2. Verificar edad del modelo
@@ -86,7 +88,24 @@ def check_if_retrain_needed(coin: str) -> bool:
         logger.warning(f"{coin}: Accuracy muy baja ({accuracy:.2%}), re-entrenando urgente")
         return True
     
-    logger.info(f"{coin}: Modelo OK (accuracy: {accuracy:.2%}, edad: {days_old} días)")
+    # 4. Verificar trades nuevos desde último entrenamiento
+    try:
+        last_count = metadata.get('last_trade_count', metadata.get('samples', 0))
+    except Exception:
+        last_count = 0
+    
+    trade_history_path = WORKSPACE / "crypto-bots/trade-history.json"
+    current_count = 0
+    if trade_history_path.exists():
+        with open(trade_history_path, 'r') as f:
+            current_count = len(json.load(f).get('trades', []))
+    
+    new_trades = max(0, current_count - last_count)
+    if new_trades >= 10:
+        logger.info(f"{coin}: {new_trades} trades nuevos desde último entrenamiento, re-entrenando")
+        return True
+    
+    logger.info(f"{coin}: Modelo OK (accuracy: {accuracy:.2%}, edad: {days_old} días, nuevos: {new_trades})")
     return False
 
 
@@ -119,41 +138,48 @@ def run_auto_retrain():
             
             pipeline = OptimizedMLPipeline(coin, use_feature_selection=True)  # ✅ Pipeline optimizado
             
-            # Fase 1: Gather
-            df = pipeline.gather_phase(DAYS_HISTORICAL)
+            # Cargar datos
+            df = pipeline.load_data(days=DAYS_HISTORICAL)
             
             if df is None or len(df) == 0:
                 logger.error(f"{coin}: No hay datos para entrenar")
                 results[coin] = {'status': 'failed', 'reason': 'no_data'}
                 continue
             
-            # Fase 2: Train (con SMOTE si está activado)
-            metrics = pipeline.train_phase(df, use_smote=USE_SMOTE)
+            # Entrenar
+            metrics = pipeline.train(df, test_size=0.2)
             
-            if not metrics:
+            if not metrics or 'accuracy' not in metrics:
                 logger.error(f"{coin}: Error en training")
                 results[coin] = {'status': 'failed', 'reason': 'train_error'}
                 continue
             
-            # Fase 3: Deploy (test prediction)
-            prediction = pipeline.deploy_phase()
-            
-            if not prediction:
-                logger.error(f"{coin}: Error en deploy")
-                results[coin] = {'status': 'failed', 'reason': 'deploy_error'}
-                continue
+            # Guardar conteo de trades usados para umbral de "nuevos trades"
+            try:
+                model_info_path = MODELS_DIR / f"{coin}_optimized_metadata.json"
+                if model_info_path.exists():
+                    with open(model_info_path, 'r') as f:
+                        meta = json.load(f)
+                    meta['last_trade_count'] = len(df)
+                    with open(model_info_path, 'w') as f:
+                        json.dump(meta, f, indent=2)
+            except Exception:
+                pass
             
             # Éxito
             logger.info(f"✅ {coin}: Re-entrenamiento completado")
-            logger.info(f"   Accuracy: {metrics['accuracy']:.2%}")
-            logger.info(f"   Señal actual: {prediction['signal']}")
-            logger.info(f"   Confianza: {prediction['confidence']:.1f}%")
+            logger.info(f"   Accuracy: {metrics.get('accuracy', 0):.2%}")
+            logger.info(f"   CV: {metrics.get('cv_mean', 0):.2%} (+/- {metrics.get('cv_std', 0):.2%})")
+            logger.info(f"   Overfitting gap: {metrics.get('overfitting_gap', 0):.2%}")
             
             results[coin] = {
                 'status': 'success',
-                'accuracy': metrics['accuracy'],
-                'signal': prediction['signal'],
-                'confidence': prediction['confidence']
+                'accuracy': metrics.get('accuracy', 0),
+                'cv_mean': metrics.get('cv_mean', 0),
+                'cv_std': metrics.get('cv_std', 0),
+                'overfitting_gap': metrics.get('overfitting_gap', 0),
+                'signal': 'N/A',
+                'confidence': 0.0
             }
             
         except Exception as e:

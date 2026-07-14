@@ -54,25 +54,26 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(loadPrices, CONFIG.PRICES_INTERVAL);
 });
 
-async function loadData() {
+async function loadData(forceHistory = false) {
     try {
-        const response = await fetch(CONFIG.API_URL);
+        const url = new URL(CONFIG.API_URL, window.location.origin);
+        if (forceHistory) url.searchParams.set('_hl', Date.now());
+        const response = await fetch(url.toString());
         const data = await response.json();
         lastData = data;
-        
+
         updatePortfolio({ portfolio: data.portfolio, history: data.history, pnl: data.pnl });
         updateSlots({ tradeStates: data.tradeStates || {}, prices: lastPrices });
-        updateGrid(data);  // 🆕 Update Grid Trading section
+        updateGrid(data);
         updateSystemStatus({ market_mode: data.market_mode, system: data.system });
         updateAutoAdjust({ auto_adjust: data.auto_adjust, market_mode: data.market_mode });
         updateTradesTable({ history: data.history });
         updateTimestamp(data.timestamp);
-        
-        // 🆕 Trigger animations after data update
+
         if (window.onDashboardDataUpdated) {
             window.onDashboardDataUpdated();
         }
-        
+
         console.log('✅ Data updated:', new Date(data.timestamp).toLocaleTimeString());
     } catch (error) {
         console.error('❌ Error loading data:', error);
@@ -620,7 +621,14 @@ function updateTradesTable(data) {
     console.log('📜 Updating trades table, trades:', trades.length);
     
     // Ordenar del más reciente al más antiguo (descendente por timestamp)
-    const sortedTrades = [...trades].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    const sortedTrades = [...trades].sort((a, b) => {
+      const ta = new Date((b.timestamp || '').replace(' ', 'T')).getTime();
+      const tb = new Date((a.timestamp || '').replace(' ', 'T')).getTime();
+      const da = ta || 0;
+      const db = tb || 0;
+      if (da !== db) return da - db;
+      return (b.id || 0) - (a.id || 0);
+    });
     const limit = showAllTrades ? sortedTrades.length : CONFIG.MAX_TRADES_DISPLAY;
     const tradesToShow = sortedTrades.slice(0, limit);
     

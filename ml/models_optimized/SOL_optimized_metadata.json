@@ -1,6 +1,6 @@
 {
   "coin": "SOL",
-  "trained_at": "2026-05-31T20:34:35.365107",
+  "trained_at": "2026-07-14T12:16:53.685693",
   "config": {
     "max_features": "sqrt",
     "max_depth": 8,

@@ -54,6 +54,15 @@ case "$SYMBOL" in
     *) echo "❌ SYMBOL no soportado: $SYMBOL"; exit 1 ;;
 esac
 
+# Core coins only - BTC and ETH disabled per user directive
+DISABLED_COINS="BTC ETH"
+for coin in $DISABLED_COINS; do
+    if [ "$SYMBOL" = "$coin" ]; then
+        echo "❌ $SYMBOL está deshabilitado por configuración"
+        exit 1
+    fi
+done
+
 WORKSPACE="$HOME/.openclaw/workspace"
 SECRETS="/home/...rets"
 LOGS="$HOME/.openclaw/logs"
@@ -77,6 +86,15 @@ STATE_FILE="$WORKSPACE/crypto-bots/${SYMBOL}-trade-state.json"
 DAILY_PNL_FILE="$WORKSPACE/crypto-bots/${SYMBOL}-daily-pnl.json"
 BOT_FILE="$WORKSPACE/crypto-bots/${SYMBOL}-bot.json"
 
+# 🔒 Instance lock per symbol
+LOCK_FILE="$WORKSPACE/crypto-bots/.${SYMBOL}-trading.lock"
+mkdir -p "$(dirname "$LOCK_FILE")" 2>/dev/null || true
+exec 9>"$LOCK_FILE"
+if ! flock -n 9; then
+    log "🔒 Lock activo para $SYMBOL (.${SYMBOL}-trading.lock) — otro ciclo en curso; saliendo."
+    exit 0
+fi
+
 # ============================================
 # 🔧 FUNCIONES DE LOGGING
 # ============================================
@@ -99,8 +117,9 @@ init_trade_history() {
     if [ ! -f "$HISTORY_FILE" ]; then
         cat > "$HISTORY_FILE" << EOF
 {
-  "version": "1.0",
+  "version": "2.0",
   "created": "$(date -Iseconds)",
+  "updatedAt": "$(date -Iseconds)",
   "totalTrades": 0,
   "totalWins": 0,
   "totalLosses": 0,
@@ -108,70 +127,146 @@ init_trade_history() {
   "totalLossUSDT": 0,
   "netPnLUSDT": 0,
   "winRate": 0,
+  "bySymbol": {},
+  "byDay": {},
   "trades": []
 }
 EOF
+        return
     fi
+
+    jq '. + {updatedAt: now | todate}' "$HISTORY_FILE" > "${HISTORY_FILE}.tmp" && mv "${HISTORY_FILE}.tmp" "$HISTORY_FILE" 2>/dev/null || true
+    ensure_history_indices
+}
+
+ensure_history_indices() {
+    if [ ! -f "$HISTORY_FILE" ]; then
+        return
+    fi
+
+    local needs_update=0
+    needs_update=$(jq -r '
+      (if .version then 0 else 1 end) +
+      (if .updatedAt then 0 else 1 end) +
+      (if .bySymbol then 0 else 1 end) +
+      (if .byDay then 0 else 1 end)
+    ' "$HISTORY_FILE" 2>/dev/null)
+
+    if [ "$needs_update" != "0" ]; then
+        local tmp="/tmp/history_index_$$.json"
+        jq '
+          .version = (.version // "2.0") |
+          .updatedAt = (.updatedAt // now | todate) |
+          .bySymbol = (.bySymbol // {}) |
+          .byDay = (.byDay // {}) |
+          .trades = (.trades // [])
+        ' "$HISTORY_FILE" > "$tmp" && mv "$tmp" "$HISTORY_FILE"
+    fi
+}
+
+rebuild_history_indices() {
+    [ -f "$HISTORY_FILE" ] || return 0
+    ensure_history_indices
+    local tmp="/tmp/history_rebuild_$$.json"
+    jq '
+      .bySymbol = (.trades | group_by(.symbol) | map({(.[0].symbol): {trades: length, wins: [.[] | select(.pnlUSDT+0 > 0)] | length, netPnL: ([.[].pnlUSDT] | add // 0)}}) | add // {}) |
+      .byDay = (.trades | group_by(.timestamp | split("T")[0]) | map({(.[0].timestamp | split("T")[0]): {trades: length, wins: [.[] | select(.pnlUSDT+0 > 0)] | length, netPnL: ([.[].pnlUSDT] | add // 0)}}) | add // {})
+    ' "$HISTORY_FILE" > "$tmp" && mv "$tmp" "$HISTORY_FILE"
+}
+
+adapter_slot_trade_to_log_trade() {
+    local source="${1:-BOT}"
+    local order_id="${2:-}"
+    local close_type="${3:-MANUAL}"
+    local entry_price="${4:-0}"
+    local exit_price="${5:-0}"
+    local quantity="${6:-0}"
+    local pnl="${7:-0}"
+    local strategy="${8:-LIQUIDATE}"
+    local executed_by="${9:-MANUAL}"
+    local raw_response_size="${10:-0}"
+    local account_snapshot="${11:-{}}"
+    local evidence="${12:-}"
+
+    if [ "$(echo "$pnl < 0" | bc -l 2>/dev/null || echo 0)" = "1" ]; then
+        local fee_override=$(echo "$quantity * $exit_price * 0.001" | bc -l 2>/dev/null || echo 0)
+    else
+        local fee_override=0
+    fi
+
+    log_trade_to_history "0" "$close_type" "$entry_price" "$exit_price" "$quantity" "$pnl" \
+        "$source" "$order_id" "$raw_response_size" "$strategy" "$executed_by" "$$" "$account_snapshot" "$evidence"
 }
 
 log_trade_to_history() {
     local slot_id="$1"
-    local close_type="$2"  # TP1, TP2, TP3, SL, TRAILING, SCALP
+    local close_type="$2"  # TP1, TP2, TP3, SL, TRAILING, SCALP, MANUAL_CLOSE_ZOMBIE, MANUAL, LIQUIDATE
     local entry_price="$3"
     local exit_price="$4"
     local quantity="$5"
     local pnl="$6"
-    
-    init_trade_history
-    
-    # Leer contadores actuales
-    local current_trades=$(jq -r '.totalTrades // 0' "$HISTORY_FILE")
-    local current_wins=$(jq -r '.totalWins // 0' "$HISTORY_FILE")
-    local current_losses=$(jq -r '.totalLosses // 0' "$HISTORY_FILE")
-    local current_profit=$(jq -r '.totalProfitUSDT // 0' "$HISTORY_FILE")
-    local current_loss=$(jq -r '.totalLossUSDT // 0' "$HISTORY_FILE")
-    local current_net=$(jq -r '.netPnLUSDT // 0' "$HISTORY_FILE")
-    
-    # Actualizar contadores
-    local new_trades=$((current_trades + 1))
-    local new_wins=$current_wins
-    local new_losses=$current_losses
-    local new_profit=$current_profit
-    local new_loss=$current_loss
-    local new_net=$(awk -v c="$current_net" -v p="$pnl" 'BEGIN {printf "%.8f", c + p}')
-    
-    # Determinar si fue win o loss
-    local is_win=$(awk -v p="$pnl" 'BEGIN {print (p > 0) ? 1 : 0}')
+    local source="${7:-BOT}"
+    local order_id="${8:-}"
+    local raw_response_size="${9:-0}"
+    local strategy="${10:-SPOT}"
+    local executed_by="${11:-BOT}"
+    local bot_pid="${12:-$$}"
+    local account_snapshot="${13:-{}}"
+    local evidence="${14:-}"
+
+    if [ ! -f "$HISTORY_FILE" ]; then
+        log "⚠️ HISTORY_FILE no existe, no se puede loggear trade"
+        return 0
+    fi
+
+    ensure_history_indices
+
+    local new_trades
+    new_trades=$(jq -r '[.trades // [] | length] + 1' "$HISTORY_FILE")
+    local current_wins
+    current_wins=$(jq -r '[.trades // [] | [.[] | select(.pnlUSDT != null)] | map(select(.pnlUSDT+0 > 0)) | length] | add // 0' "$HISTORY_FILE")
+    local current_losses
+    current_losses=$(jq -r '[.trades // [] | [.[] | select(.pnlUSDT != null)] | map(select(.pnlUSDT+0 <= 0)) | length] | add // 0' "$HISTORY_FILE")
+    local current_profit
+    current_profit=$(jq -r '[.trades // [] | map(select(.pnlUSDT != null and .pnlUSDT+0 > 0) | .pnlUSDT) | add // 0] | add // 0' "$HISTORY_FILE")
+    local current_loss
+    current_loss=$(jq -r '[.trades // [] | map(select(.pnlUSDT != null and .pnlUSDT+0 <= 0) | .pnlUSDT) | add // 0] | add // 0' "$HISTORY_FILE")
+    local current_net
+    current_net=$(jq -r '.netPnLUSDT // 0' "$HISTORY_FILE")
+
+    local is_win
+    is_win=$(awk -v p="$pnl" 'BEGIN {print (p+0 > 0) ? 1 : 0}')
     if [ "$is_win" = "1" ]; then
-        new_wins=$((current_wins + 1))
-        new_profit=$(awk -v c="$current_profit" -v p="$pnl" 'BEGIN {printf "%.8f", c + p}')
+        current_wins=$((current_wins + 1))
+        current_profit=$(awk -v c="$current_profit" -v p="$pnl" 'BEGIN {printf "%.8f", c + p}')
     else
-        new_losses=$((current_losses + 1))
-        new_loss=$(awk -v c="$current_loss" -v p="$pnl" 'BEGIN {printf "%.8f", c + p}')
+        current_losses=$((current_losses + 1))
+        current_loss=$(awk -v c="$current_loss" -v p="$pnl" 'BEGIN {printf "%.8f", c + p}')
     fi
-    
-    # Calcular win rate
-    local win_rate=$(awk -v w="$new_wins" -v t="$new_trades" 'BEGIN {if (t > 0) printf "%.2f", (w/t)*100; else print "0"}')
-    
-    # BUG FIX: Verificar duplicado EXACTO (mismo symbol+slot+closeType+timestamp minuto)
-    # NO bloquear trades nuevos del mismo slot
-    local current_minute=$(date +%Y-%m-%dT%H:%M)
-    local existing=$(jq --arg sym "$SYMBOL" --argjson slot "$slot_id" --arg close "$close_type" --arg ts "$current_minute" \
-        '[.trades[] | select(.symbol == $sym and .slotId == $slot and .closeType == $close) | select(.timestamp | startswith($ts))] | length' \
-        "$HISTORY_FILE" 2>/dev/null)
-    
-    if [ "$existing" -gt 0 ]; then
-        log "  ⚠️ Trade DUPLICADO del mismo minuto (${SYMBOL} Slot ${slot_id} ${close_type}) - NO guardar"
-        return 0  # Salir sin guardar
+    local new_net
+    new_net=$(awk -v c="$current_net" -v p="$pnl" 'BEGIN {printf "%.8f", c + p}')
+    local win_rate
+    win_rate=$(awk -v w="$current_wins" -v t="$new_trades" 'BEGIN {if (t > 0) printf "%.2f", (w/t)*100; else print "0"}')
+    local timestamp
+    timestamp=$(date -Iseconds)
+    local close_time
+    close_time=$(date '+%Y-%m-%d %H:%M:%S')
+
+    local dup_key="${SYMBOL}|${slot_id}|${close_type}|$(date +%Y-%m-%dT%H:%M)"
+    local existing
+    existing=$(jq --arg key "$dup_key" '[.trades[] | select((.symbol + "|" + (.slotId|tostring) + "|" + .closeType + "|" + (.timestamp | split("T")[0] + "T" + (.timestamp | split("T")[1] | split(":")[0] + ":" + (.timestamp | split("T")[1] | split(":")[1]))) == $key)] | length' "$HISTORY_FILE" 2>/dev/null)
+    if [ "$existing" != "0" ] && [ "$existing" != "null" ] && [ "$close_type" != "MANUAL_CLOSE_ZOMBIE" ]; then
+        log "  ⚠️ Trade DUPLICADO por clave minuto exacta (${SYMBOL} Slot ${slot_id} ${close_type}) - NO guardar"
+        return 0
     fi
-    
-    # Crear nuevo trade entry
-    local trade_id=$new_trades
-    local timestamp=$(date -Iseconds)
-    local close_time=$(date '+%Y-%m-%d %H:%M:%S')
-    
-    local new_trade=$(jq -n \
-        --argjson id "$trade_id" \
+
+    if [ "$source" = "BOT" ]; then
+        detect_account_drift "BEFORE_${close_type}"
+    fi
+
+    local new_trade
+    new_trade=$(jq -n \
+        --argjson id "$new_trades" \
         --arg symbol "$SYMBOL" \
         --argjson slot "$slot_id" \
         --arg type "LONG" \
@@ -182,6 +277,14 @@ log_trade_to_history() {
         --argjson pnl "$pnl" \
         --arg ts "$timestamp" \
         --arg closeTime "$close_time" \
+        --arg source "$source" \
+        --arg orderId "$order_id" \
+        --argjson rawResponseSize "$raw_response_size" \
+        --arg strategy "$strategy" \
+        --arg executedBy "$executed_by" \
+        --arg botPid "$bot_pid" \
+        --argjson accountSnapshot "$account_snapshot" \
+        --arg evidence "$evidence" \
         '{
             id: $id,
             symbol: $symbol,
@@ -194,92 +297,35 @@ log_trade_to_history() {
             pnlUSDT: $pnl,
             timestamp: $ts,
             closeTime: $closeTime,
+            source: $source,
+            orderId: ($orderId | if . == "" then null else . end),
+            rawResponseSize: ($rawResponseSize | if type == "number" then . else (tonumber // 0) end),
+            strategy: $strategy,
+            executedBy: $executed_by,
+            botPid: ($botPid | if . == "" then null else (. | tonumber) end),
+            accountSnapshot: $accountSnapshot,
+            evidence: ($evidence | if . == "" then null else . end),
             seeded: false
         }')
-    
-    # Actualizar archivo con jq
+
     local temp_file="/tmp/history_$$.json"
     jq --argjson trades "$new_trade" \
        --argjson totalTrades "$new_trades" \
-       --argjson totalWins "$new_wins" \
-       --argjson totalLosses "$new_losses" \
-       --argjson totalProfit "$new_profit" \
-       --argjson totalLoss "$new_loss" \
+       --argjson totalWins "$current_wins" \
+       --argjson totalLosses "$current_losses" \
+       --argjson totalProfit "$current_profit" \
+       --argjson totalLoss "$current_loss" \
        --argjson netPnL "$new_net" \
        --arg winRate "$win_rate" \
-       '.trades = [$trades] + .trades | .totalTrades = $totalTrades | .totalWins = $totalWins | .totalLosses = $totalLosses | .totalProfitUSDT = $totalProfit | .totalLossUSDT = $totalLoss | .netPnLUSDT = $netPnL | .winRate = ($winRate | tonumber)' \
+       --arg symbolIndexKey "$SYMBOL" \
+       --arg dayIndexKey "$(date +%Y-%m-%d)" \
+       '.trades = [$trades] + .trades | .totalTrades = $totalTrades | .totalWins = $totalWins | .totalLosses = $totalLosses | .totalProfitUSDT = $totalProfit | .totalLossUSDT = $totalLoss | .netPnLUSDT = $netPnL | .winRate = ($winRate | tonumber) | .updatedAt = now | todate | .bySymbol[$symbolIndexKey].trades = ((.bySymbol[$symbolIndexKey].trades // 0) + 1) | .byDay[$dayIndexKey].trades = ((.byDay[$dayIndexKey].trades // 0) + 1)' \
        "$HISTORY_FILE" > "$temp_file" && mv "$temp_file" "$HISTORY_FILE"
-    
-    log "  📜 Trade logged to history: #${trade_id} ${SYMBOL} ${close_type} PnL=\$${pnl}"
-    
-    # ════════════════════════════════════════════════════════
-    # 🛑 TRACK SL HITS - Update consecutive loss counter
-    # ════════════════════════════════════════════════════════
-    if [ "$close_type" = "SL" ] || [ "$close_type" = "SCALP" ]; then
-        SL_TRACKING_FILE="${WORKSPACE}/crypto-bots/${SYMBOL}-sl-tracking.json"
-        
-        # Leer estado actual
-        local current_consecutive=0
-        local current_total_today=0
-        local today=$(date +%Y-%m-%d)
-        
-        if [ -f "$SL_TRACKING_FILE" ]; then
-            current_consecutive=$(jq -r '.consecutive_sl // 0' "$SL_TRACKING_FILE" 2>/dev/null)
-            current_total_today=$(jq -r '.total_sl_today // 0' "$SL_TRACKING_FILE" 2>/dev/null)
-            
-            # Verificar si es otro día, resetear total diario
-            local last_date=$(jq -r '.last_date // null' "$SL_TRACKING_FILE" 2>/dev/null)
-            if [ "$last_date" != "$today" ]; then
-                current_total_today=0
-                log "  📅 Nuevo día, reseteando contador diario de SLs"
-            fi
-        fi
-        
-        # Incrementar contadores
-        local new_consecutive=$((current_consecutive + 1))
-        local new_total_today=$((current_total_today + 1))
-        
-        # Actualizar archivo
-        jq -n --argjson sl "$new_consecutive" --argjson total "$new_total_today" --arg date "$today" \
-            '{consecutive_sl: $sl, last_sl_time: now, pause_until: null, total_sl_today: $total, last_date: $date}' \
-            > "$SL_TRACKING_FILE"
-        
-        log "  🛑 SL HIT registrado: $new_consecutive consecutivo(s), $new_total_today hoy"
-        
-        # Alerta si llegamos a 2 SLs consecutivos
-        if [ "$new_consecutive" -eq 2 ]; then
-            log "  ⚠️ ALERTA: 2 SL hits consecutivos - Próximo trade activará PAUSE de 4 horas"
-        fi
-        
-        # Alerta si llegamos a 5 SLs en un día
-        if [ "$new_total_today" -ge 5 ]; then
-            log "  🚨 CRÍTICO: $new_total_today SL hits hoy - Considerar pausa manual"
-            notify "ALERT_LOSSES|$SYMBOL" "🚨 ALERTA DE PÉRDIDAS - $SYMBOL
 
-⚠️ $new_total_today Stop Loss hits HOY
+    log "  📜 Trade logged to history: #${trade_id:-$new_trades} ${SYMBOL} ${close_type} PnL=\$${pnl} source=${source} orderId=${order_id:-n/a}"
 
-📊 Estadísticas:
-• SLs consecutivos: $new_consecutive
-• SLs totales hoy: $new_total_today
-• P&L estimado: Revisar trade-history
-
-🛡️ Recomendación:
-• Revisar condiciones de mercado
-• Considerar pausa manual
-• Verificar si hay downtrend fuerte
-
-_Jefe, revisa el bot!_ 🐕" 2>/dev/null || true
-        fi
-    elif [ "$is_win" = "1" ]; then
-        # Reset consecutive SL counter on win
-        SL_TRACKING_FILE="${WORKSPACE}/crypto-bots/${SYMBOL}-sl-tracking.json"
-        if [ -f "$SL_TRACKING_FILE" ]; then
-            local current_total=$(jq -r '.total_sl_today // 0' "$SL_TRACKING_FILE" 2>/dev/null)
-            jq -n --argjson total "$current_total" \
-                '{consecutive_sl: 0, last_sl_time: null, pause_until: null, total_sl_today: $total}' \
-                > "$SL_TRACKING_FILE"
-            log "  ✅ Win registrado - Resetear contador consecutivo de SLs"
-        fi
+    if [ "$source" = "BOT" ]; then
+        detect_account_drift "AFTER_${close_type}"
     fi
 }
 
@@ -358,7 +404,7 @@ get_portfolio_value() {
     fi
     local total=$(printf '%.2f' "$usdt")
 
-    for coin in BTC ETH BNB SOL LINK XRP AVAX; do
+    for coin in BNB SOL AVAX LINK XRP; do
         local balance=$(get_balance "$coin")
         balance=$(printf '%s' "$balance" | tr -d '[:space:]')
         if ! printf '%s' "$balance" | grep -qE '^[0-9]+(\.[0-9]+)?$'; then
@@ -518,33 +564,41 @@ update_slot_field() {
     local field="$2"
     local value="$3"
     local json_file="$STATE_FILE"
-    
+
     [ -z "$slot_id" ] && { log "❌ update_slot_field: slot_id vacío"; return 1; }
     [ -z "$field" ] && { log "❌ update_slot_field: field vacío"; return 1; }
-    
+
+    # Nono resetear campos de trade activo sin antes cerrar
+    if [ "$field" = "status" ] && [ "$value" = "READY" ]; then
+        local current_status=$(jq -r ".slots[] | select(.slotId == $slot_id) | .status" "$json_file" 2>/dev/null || echo "UNKNOWN")
+        if [ "$current_status" != "CLOSED_SCALP" ] && [ "$current_status" != "CLOSED_SL" ] && [ "$current_status" != "CLOSED_TP" ] && [ "$current_status" != "CLOSED_TP2" ] && [ "$current_status" != "CLOSED_TP3" ] && [ "$current_status" != "CLOSED_TRAILING" ]; then
+            log "❌ update_slot_field: bloqueado reset a READY desde status=$current_status para slot=$slot_id"
+            return 1
+        fi
+    fi
+
     log "DEBUG: update_slot_field slot=$slot_id field=$field value=$value"
-    
+
     # Determinar tipo de valor
     local jq_update=""
     local jq_type=""
-    
+
     # Booleanos
     if [ "$value" = "true" ] || [ "$value" = "false" ]; then
         jq_update='.slots = [.slots[] | if (.slotId | tostring) == $sid then .[$field] = ($val == "true") else . end]'
         jq_type="BOOLEAN"
         log "  → Tipo: BOOLEAN"
-    # Números (solo dígitos, puntos, signos)
-    elif echo "$value" | grep -qE '^-?[0-9]+\.?[0-9]*$'; then
+    # Numbers: digits, dots, signs and e/E scientific
+    elif echo "$value" | grep -qE '^-?[0-9]+\.?[0-9]*([eE][+-]?[0-9]+)?$'; then
         jq_update='.slots = [.slots[] | if (.slotId | tostring) == $sid then .[$field] = ($val | tonumber) else . end]'
         jq_type="NUMERIC"
         log "  → Tipo: NUMERIC"
-    # Strings (todo lo demás)
     else
         jq_update='.slots = [.slots[] | if (.slotId | tostring) == $sid then .[$field] = $val else . end]'
         jq_type="STRING"
         log "  → Tipo: STRING"
     fi
-    
+
     # Ejecutar jq
     if jq --arg sid "$slot_id" --arg field "$field" --arg val "$value" \
        "$jq_update" \
@@ -552,12 +606,12 @@ update_slot_field() {
         mv /tmp/state_$$.json "$json_file"
         log "  ✅ Slot $slot_id actualizado: $field = $value"
     else
-        local jq_error=$(cat /tmp/jq_error_$$.txt)
+        local jq_error=$(cat /tmp/jq_error_$$.txt 2>/dev/null || echo "unknown jq error")
         log "  ❌ jq falló en update_slot_field: slot=$slot_id field=$field value=$value - $jq_error"
         rm -f /tmp/state_$$.json /tmp/jq_error_$$.txt
         return 1
     fi
-    
+
     rm -f /tmp/jq_error_$$.txt
     return 0
 }
@@ -841,26 +895,39 @@ execute_long() {
         
         log "📝 ML Exit code: $ml_exit_code"
         
-        # Parsear resultado del nuevo wrapper (normaliza newlines/símbolos del wrapper)
-        ml_approved=$(echo "$ml_result" | tr -d '\r\n' | grep -oE 'Aprobado:[[:space:]]*(✅|❌|YES|NO|true|false)' | sed -E 's/.*Aprobado:[[:space:]]*//')
-        ml_confidence=$(echo "$ml_result" | tr -d '\r\n' | grep -oE 'Confianza:[[:space:]]*[0-9]+(\.[0-9]+)?%' | sed -E 's/.*Confianza:[[:space:]]*([0-9]+(\.[0-9]+)?)%/\1/' | head -n1)
-        ml_signal=$(echo "$ml_result" | tr -d '\r\n' | grep -oE 'Señal ML:[[:space:]]*[A-Z_]+' | sed -E 's/.*Señal ML:[[:space:]]*//' | head -n1)
-        ml_position=$(echo "$ml_result" | tr -d '\r\n' | grep -oE 'size:[[:space:]]*[0-9]+(\.[0-9]+)?%' | sed -E 's/.*size:[[:space:]]*//;s/%//' | head -n1)
-        ml_reason=$(echo "$ml_result" | tr -d '\r\n' | sed -E 's/.*Razón:[[:space:]]*//' | head -n1)
+        # Normalizar salida eliminando separadores decorativos del wrapper ML
+        ml_result=$(echo "$ml_result" | sed 's/=\+\s*$//' | tr -d '\r')
+        
+        ml_approved=$(echo "$ml_result" | grep -oE 'Aprobado:[[:space:]]*(✅|❌|YES|NO|true|false)' | sed -E 's/.*Aprobado:[[:space:]]*//' | head -n1)
+        ml_confidence=$(echo "$ml_result" | grep -oE 'Confianza:[[:space:]]*[0-9]+(\.[0-9]+)?%' | sed -E 's/.*Confianza:[[:space:]]*([0-9]+(\.[0-9]+)?)%/\1/' | head -n1)
+        ml_signal=$(echo "$ml_result" | grep -oE 'Señal ML:[[:space:]]*(WAIT|LONG|SHORT)' | sed -E 's/.*Señal ML:[[:space:]]*//' | head -n1)
+        ml_position=$(echo "$ml_result" | grep -oE 'size:[[:space:]]*[0-9]+(\.[0-9]+)?%' | sed -E 's/.*size:[[:space:]]*//;s/%//' | head -n1)
+        ml_reason=$(echo "$ml_result" | grep -oE 'Razón:[[:space:]].+' | sed -E 's/.*Razón:[[:space:]]*//' | head -n1)
         
         log "🔍 ML Parseado: approved='${ml_approved:-N/A}', confidence='${ml_confidence:-N/A}%', signal='${ml_signal:-N/A}'"
         log "🔍 ML Position size: ${ml_position:-N/A}%, Razón: ${ml_reason:-N/A}"
         
         # Si ML rechaza el trade, skippear
+        if [ -z "$ml_approved" ] || [ "$ml_approved" = "N/A" ] || [ "$ml_approved" = "None" ]; then
+            ml_approved="❌"
+        fi
+        
         if [ "$ml_approved" = "❌" ] || [ "$ml_approved" = "NO" ]; then
             log "❌ ML Validator RECHAZÓ el trade"
-            log "   Señal: $ml_signal"
-            log "   Confianza: ${ml_confidence}%"
-            log "   Razón: $ml_reason"
+            log "   Señal: ${ml_signal:-N/A}"
+            log "   Confianza: ${ml_confidence:-N/A}%"
+            log "   Razón: ${ml_reason:-No se pudo parsear respuesta ML}"
             
             # Log a archivo de rechazos
-            echo "$(date -Iseconds),$SYMBOL,LONG,$ml_signal,$ml_confidence,$ml_reason" >> "$WORKSPACE/logs/ml-rejections.csv"
+            echo "$(date -Iseconds),$SYMBOL,LONG,${ml_signal:-N/A},${ml_confidence:-0},${ml_reason:-parse_failed}" >> "$WORKSPACE/logs/ml-rejections.csv"
             
+            return 1
+        fi
+        
+        # Si ML aprueba, exigir valores numéricos válidos
+        if ! printf '%s' "${ml_confidence:-0}" | grep -qE '^[0-9]+(\.[0-9]+)?$'; then
+            log "❌ ML Validator RECHAZÓ el trade"
+            log "   Confianza inválida: '${ml_confidence:-N/A}'"
             return 1
         fi
         
@@ -923,10 +990,23 @@ execute_long() {
     local order_id
     order_id=$(printf '%s' "$buy_result" | jq -r '.orderId // empty')
     local fill_price
-    fill_price=$(printf '%s' "$buy_result" | jq -r '.price // empty')
-    if [ -z "$fill_price" ]; then
+    local _raw_price
+    _raw_price=$(printf '%s' "$buy_result" | jq -r '.price // empty')
+    if [ -n "$_raw_price" ] && [ "$_raw_price" != "0" ] && [ "$_raw_price" != "0.00000000" ]; then
+        fill_price="$_raw_price"
+    else
         fill_price=$(printf '%s' "$buy_result" | jq -r '.fills[0].price // empty')
     fi
+    if [ -z "$fill_price" ]; then
+        local cum_qty
+        local first_qty
+        cum_qty=$(printf '%s' "$buy_result" | jq -r '.cummulativeQuoteQty // empty')
+        first_qty=$(printf '%s' "$buy_result" | jq -r '.fills[0].qty // empty')
+        if [ -n "$cum_qty" ] && [ -n "$first_qty" ] && [ "$(printf '%s' "$first_qty" | tr -d '[:space:]')" != "0" ]; then
+            fill_price=$(awk -v c="$cum_qty" -v q="$first_qty" 'BEGIN {printf "%.8f", c / q}')
+        fi
+    fi
+    [ -z "$fill_price" ] && fill_price="$price"
     local usdt_spent
     usdt_spent=$(printf '%s' "$buy_result" | jq -r '.cummulativeQuoteQty // empty')
     local fee_buy
@@ -937,8 +1017,10 @@ execute_long() {
     if [ "$buy_status" = "NEW" ] || [ "$buy_status" = "FILLED" ]; then
 
         # Actualizar slot
-        update_slot_status "$slot_id" "ACTIVE"
-        update_slot_field "$slot_id" "type" "\"LONG\""
+        update_slot_field "$slot_id" "status" "ACTIVE"
+        update_slot_field "$slot_id" "side" '"LONG"'
+        update_slot_field "$slot_id" "strategy" '"SLOT_V3"'
+        update_slot_field "$slot_id" "type" '"LONG"'
         update_slot_field "$slot_id" "orderId" "$order_id"
         update_slot_field "$slot_id" "entryPrice" "$fill_price"
         update_slot_field "$slot_id" "quantity" "$quantity"
@@ -1229,7 +1311,7 @@ Target: ${SCALP_TARGET_PERCENT}%
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${current_price}
 Qty: $sell_qty_fmt (35%)
-P&L: \$${pnl_partial}
+P&L: \$${pnl}
 
 🔄 MODO RECICLAJE ACTIVADO
 El slot buscará nueva entrada 🚀"
@@ -1239,10 +1321,10 @@ El slot buscará nueva entrada 🚀"
                     notify "TP1_HIT|$SYMBOL|$slot_id" "✅ TP1 - $SYMBOL
 
 Slot: $slot_id / $MAX_SLOTS
-Exit: $${current_price}
+Exit: \$${current_price}
 Vendido: $sell_qty_fmt
-P&L parcial: $${pnl_partial}
-Acumulado: 5% 📈
+P&L parcial: \$${pnl_partial}
+Queda para TP3 🎯
 
 Quedan 65% para TP2/TP3 🎯"
                 fi
@@ -1343,16 +1425,7 @@ El slot sigue activo y reintentará en próximos ciclos."
                 
                 # BUG-036 FIX: Enviar Telegram TP2
                 log "  📱 DEBUG: Preparando notificación TP2..."
-                
-                local tp2_msg="✅ TP2 - $SYMBOL
-
-Slot: $slot_id / $MAX_SLOTS
-Exit: \$${current_price}
-Vendido: $sell_qty_fmt
-P&L parcial: \$${pnl_partial}
-Queda para TP3 🎯"
-
-                notify "TP2_HIT|$SYMBOL|$slot_id" "$tp2_msg"
+                notify "TP2_HIT|$SYMBOL|$slot_id" "$(printf '✅ TP2 - %s\n\nSlot: %d / %d\nExit: $%s\nVendido: %s\nP&L parcial: $%.2f\nQueda para TP3 🎯' "$SYMBOL" "$slot_id" "$MAX_SLOTS" "$current_price" "$sell_qty_fmt" "$pnl_partial")"
                 log "  📱 DEBUG: notify TP2 completado"
             else
                 local error=$(echo "$sell_result" | jq -r '.msg // "Unknown error"')
@@ -1369,7 +1442,7 @@ Queda para TP3 🎯"
                     if (( $(echo "$remaining_value < 5" | bc -l) )); then
                         # Resto < $5 - CERRAR SLOT PARA EVITAR BUG-047
                         update_slot_field "$slot_id" "status" "CLOSED_TP2"
-                        log "  ⚠️ Resto < \$5 (\$${remaining_value}) - Slot marcado como CLOSED_TP2"
+                        log "  ⚠️ Resto < \$5 (${remaining_value}) - Slot marcado como CLOSED_TP2"
                         log "  💡 Resto se queda como 'dust' en Binance (convertible a BNB)"
                         
                         notify "TP2_FAIL|$SYMBOL|$slot_id|BUG-047" "⚠️ TP2 FALLÓ - $SYMBOL [BUG-047 FIX]
@@ -2010,11 +2083,23 @@ _Jefe, el bot está en pausa global._ 🐕" 2>/dev/null || true
     MARKET_MODE_CONF="${WORKSPACE}/crypto-bots/market-mode.conf"
     if [ -f "$MARKET_MODE_CONF" ]; then
         MARKET_MODE=$(grep '^MARKET_MODE=' "$MARKET_MODE_CONF" | cut -d'=' -f2 | tr -d '"' | xargs)
-        MCONF_TP1=$(grep '^TP1=' "$MARKET_MODE_CONF" | cut -d'=' -f2 | xargs)
-        MCONF_TP2=$(grep '^TP2=' "$MARKET_MODE_CONF" | cut -d'=' -f2 | xargs)
-        MCONF_TP3=$(grep '^TP3=' "$MARKET_MODE_CONF" | cut -d'=' -f2 | xargs)
-        MCONF_POSITION=$(grep '^POSITION_SIZE=' "$MARKET_MODE_CONF" | cut -d'=' -f2 | xargs)
-        
+        MCONF_TP1=$(grep '^TP1=' "$MARKET_MODE_CONF" | tail -n 1 | cut -d'=' -f2 | xargs)
+        MCONF_TP2=$(grep '^TP2=' "$MARKET_MODE_CONF" | tail -n 1 | cut -d'=' -f2 | xargs)
+        MCONF_TP3=$(grep '^TP3=' "$MARKET_MODE_CONF" | tail -n 1 | cut -d'=' -f2 | xargs)
+        MCONF_POSITION=$(grep '^POSITION_SIZE=' "$MARKET_MODE_CONF" | tail -n 1 | cut -d'=' -f2 | xargs)
+
+        # Per-coin overrides: highest precedence
+        COIN_TP1=$(grep "^${SYMBOL}_TP1=" "$MARKET_MODE_CONF" | tail -n 1 | cut -d'=' -f2 | xargs)
+        COIN_TP2=$(grep "^${SYMBOL}_TP2=" "$MARKET_MODE_CONF" | tail -n 1 | cut -d'=' -f2 | xargs)
+        COIN_TP3=$(grep "^${SYMBOL}_TP3=" "$MARKET_MODE_CONF" | tail -n 1 | cut -d'=' -f2 | xargs)
+        COIN_SL=$(grep "^${SYMBOL}_SL=" "$MARKET_MODE_CONF" | tail -n 1 | cut -d'=' -f2 | xargs)
+        COIN_POSITION_SIZE=$(grep "^${SYMBOL}_POSITION_SIZE=" "$MARKET_MODE_CONF" | tail -n 1 | cut -d'=' -f2 | xargs)
+        [ -n "$COIN_TP1" ] && MCONF_TP1="$COIN_TP1"
+        [ -n "$COIN_TP2" ] && MCONF_TP2="$COIN_TP2"
+        [ -n "$COIN_TP3" ] && MCONF_TP3="$COIN_TP3"
+        [ -n "$COIN_SL" ] && MCONF_SL="$COIN_SL"
+        [ -n "$COIN_POSITION_SIZE" ] && MCONF_POSITION="$COIN_POSITION_SIZE"
+
         case "$MARKET_MODE" in
             BULL|BULLISH|LATERAL_BULL)
                 NORMAL_TRADE_PERCENT=${NORMAL_TRADE_PERCENT:-20}
@@ -2230,7 +2315,7 @@ Se recomienda esperar condiciones mejores. 🐕"
                 
                 # Si todas las monedas están operando, limpiar flag global
                 OPERATING_COUNT=0
-                for coin in BTC ETH BNB SOL LINK XRP AVAX; do
+                for coin in BNB SOL AVAX LINK XRP; do
                     if [ ! -f "${WORKSPACE}/crypto-bots/${coin}-ml-pause-flag.json" ]; then
                         OPERATING_COUNT=$((OPERATING_COUNT + 1))
                     fi

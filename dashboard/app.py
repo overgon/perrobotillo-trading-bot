@@ -200,8 +200,13 @@ def get_portfolio_value():
             API_SECRET = lines[1].split('=')[1].strip()
         
         # 3. Get balance from Binance
-        timestamp = int(time.time() * 1000)
-        params = f'recvWindow=5000&timestamp={timestamp}'
+        # Sincronizar timestamp con Binance para evitar -1021 / -2015 por desfase
+        try:
+            t = requests.get('https://api.binance.com/api/v3/time', timeout=5)
+            server_ts = int(t.json().get('serverTime', 0) or 0)
+        except Exception:
+            server_ts = int(time.time() * 1000)
+        params = f'recvWindow=60000&timestamp={server_ts}'
         signature = hmac.new(API_SECRET.encode(), params.encode(), hashlib.sha256).hexdigest()
         
         headers = {'X-MBX-APIKEY': API_KEY}
@@ -269,7 +274,35 @@ def get_trade_states():
         if os.path.exists(state_file):
             try:
                 with open(state_file, 'r') as f:
-                    states[coin] = json.load(f)
+                    state = json.load(f)
+                
+                # Normalizar entryPrice inválido en slots ACTIVOS
+                slots = state.get('slots', [])
+                for slot in slots:
+                    status = slot.get('status', 'READY')
+                    entry_price = slot.get('entryPrice')
+                    
+                    # Si entryPrice es null, 0, 0E-8, string vacío o NO válido, usar precio actual
+                    if status == 'ACTIVE':
+                        try:
+                            ep = float(entry_price) if entry_price is not None else 0
+                        except (TypeError, ValueError):
+                            ep = 0
+                        
+                        if ep <= 0:
+                            # Fetch precio actual desde Binance como fallback
+                            try:
+                                import requests
+                                price_url = f'https://api.binance.com/api/v3/ticker/price?symbol={coin}USDT'
+                                price_resp = requests.get(price_url, timeout=5)
+                                current_price = float(price_resp.json().get('price', 0))
+                                if current_price > 0:
+                                    slot['entryPrice'] = current_price
+                                    slot['entryPriceNormalized'] = True
+                            except Exception:
+                                pass
+                
+                states[coin] = state
             except Exception as e:
                 print(f"Error reading {coin} state: {e}")
                 states[coin] = {"status": "error"}
@@ -284,7 +317,15 @@ def get_trade_history():
     if os.path.exists(history_file):
         try:
             with open(history_file, 'r') as f:
-                return json.load(f)
+                data = json.load(f)
+            trades = data.get('trades', [])
+            trades = sorted(
+                trades,
+                key=lambda t: t.get('timestamp') or '',
+                reverse=True
+            )
+            data['trades'] = trades
+            return data
         except Exception as e:
             print(f"Error reading trade history: {e}")
     
