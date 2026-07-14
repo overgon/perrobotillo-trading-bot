@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-18T14:00:01.638000+00:00",
+  "generated_at": "2026-07-14T14:00:02.151097+00:00",
   "base_position_size": 15,
   "coins": {
     "BTC": {
@@ -88,16 +88,16 @@
     },
     "AVAX": {
       "position_size": 13.5,
-      "reason": "WR 50.0% (50-70%, medio) + PnL negativo reciente",
+      "reason": "WR 60.0% (50-70%, medio) + PnL negativo reciente",
       "stats": {
-        "trades": 28,
-        "wins": 21,
+        "trades": 29,
+        "wins": 22,
         "losses": 7,
-        "win_rate": 75.0,
-        "total_pnl": 24.99057106,
-        "avg_pnl": 0.892520395,
-        "recent_wr": 50.0,
-        "recent_pnl": -9.77503331
+        "win_rate": 75.86206896551724,
+        "total_pnl": 25.10547106,
+        "avg_pnl": 0.8657058986206896,
+        "recent_wr": 60.0,
+        "recent_pnl": -8.3396741
       }
     }
   }

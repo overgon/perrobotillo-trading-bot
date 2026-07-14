@@ -21,10 +21,19 @@
     "coin_ETH",
     "coin_LINK",
     "coin_SOL",
-    "coin_XRP"
+    "coin_XRP",
+    "fear_greed",
+    "fear_greed_7d_avg",
+    "fear_greed_30d_avg",
+    "fear_greed_change",
+    "btc_dominance",
+    "volume_to_market_ratio",
+    "regime_EXTREME_FEAR",
+    "regime_FEAR",
+    "regime_NEUTRAL"
   ],
-  "accuracy": 0.8194583751253761,
-  "trained_at": "2026-06-18T11:05:21.384708",
-  "version": "2.0.0",
-  "retrain_count": 8
+  "accuracy": 0.9736050785165385,
+  "trained_at": "2026-06-22T09:59:51.628976",
+  "version": "2.1.0",
+  "retrain_count": 9
 }

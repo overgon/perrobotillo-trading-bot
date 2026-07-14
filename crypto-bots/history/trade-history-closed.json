@@ -1,0 +1,199 @@
+{
+  "version": "1.1",
+  "closed": [
+    {
+      "coin": "BNB",
+      "slotId": 1,
+      "closeType": "TP1",
+      "entryPrice": 590.36,
+      "closePrice": 597.0,
+      "quantity": 0.04,
+      "usdtSpent": 23.6144,
+      "closeTime": "2026-06-22T01:56:11.517589Z",
+      "orderId": null
+    },
+    {
+      "coin": "BNB",
+      "slotId": 2,
+      "closeType": "TP1",
+      "entryPrice": 590.04,
+      "closePrice": 597.0,
+      "quantity": 0.028,
+      "usdtSpent": 16.52112,
+      "closeTime": "2026-06-22T01:56:11.519224Z",
+      "orderId": null
+    },
+    {
+      "coin": "AVAX",
+      "slotId": 1,
+      "closeType": "TP2",
+      "entryPrice": 6.259,
+      "closePrice": 6.5,
+      "quantity": 0.081,
+      "usdtSpent": 10.13958,
+      "closeTime": "2026-06-22T01:58:34.589306Z",
+      "orderId": null
+    },
+    {
+      "coin": "AVAX",
+      "slotId": 1,
+      "closeType": "TP3",
+      "entryPrice": 6.259,
+      "closePrice": 6.5,
+      "quantity": 0.081,
+      "usdtSpent": 10.13958,
+      "closeTime": "2026-06-22T01:58:34.590817Z",
+      "orderId": null
+    },
+    {
+      "coin": "AVAX",
+      "slotId": 2,
+      "closeType": "TP1",
+      "entryPrice": 6.324,
+      "closePrice": 6.5,
+      "quantity": 1.58,
+      "usdtSpent": 9.99192,
+      "closeTime": "2026-06-22T01:58:34.592303Z",
+      "orderId": null
+    },
+    {
+      "coin": "AVAX",
+      "slotId": 2,
+      "closeType": "TP2",
+      "entryPrice": 6.324,
+      "closePrice": 6.5,
+      "quantity": 1.58,
+      "usdtSpent": 9.99192,
+      "closeTime": "2026-06-22T01:58:34.593899Z",
+      "orderId": null
+    },
+    {
+      "coin": "XRP",
+      "slotId": 1,
+      "closeType": "TP1",
+      "entryPrice": 1.1445,
+      "closePrice": 1.18,
+      "quantity": 56.2,
+      "usdtSpent": 64.3209,
+      "closeTime": "2026-06-22T01:58:34.679766Z",
+      "orderId": null
+    },
+    {
+      "coin": "XRP",
+      "slotId": 1,
+      "closeType": "TP2",
+      "entryPrice": 1.1445,
+      "closePrice": 1.18,
+      "quantity": 56.2,
+      "usdtSpent": 64.3209,
+      "closeTime": "2026-06-22T01:58:34.681273Z",
+      "orderId": null
+    },
+    {
+      "coin": "XRP",
+      "slotId": 1,
+      "closeType": "TP3",
+      "entryPrice": 1.1445,
+      "closePrice": 1.18,
+      "quantity": 56.2,
+      "usdtSpent": 64.3209,
+      "closeTime": "2026-06-22T01:58:34.682667Z",
+      "orderId": null
+    },
+    {
+      "coin": "AVAX",
+      "slotId": 1,
+      "closeType": "TP1",
+      "entryPrice": 6.425,
+      "closePrice": 6.576,
+      "quantity": 1.2355,
+      "usdtSpent": 22.68025,
+      "closeTime": "2026-07-13T09:03:56.506018+00:00",
+      "orderId": null,
+      "quantityRatio": 0.35
+    }
+  ],
+  "cashouts": [
+    {
+      "time": "2026-06-22T01:56:11.517589Z",
+      "coin": "BNB",
+      "slotId": 1,
+      "type": "TP1",
+      "amountUSDT": 23.88,
+      "price": 597.0
+    },
+    {
+      "time": "2026-06-22T01:56:11.519224Z",
+      "coin": "BNB",
+      "slotId": 2,
+      "type": "TP1",
+      "amountUSDT": 16.716,
+      "price": 597.0
+    },
+    {
+      "time": "2026-06-22T01:58:34.589306Z",
+      "coin": "AVAX",
+      "slotId": 1,
+      "type": "TP2",
+      "amountUSDT": 0.5265,
+      "price": 6.5
+    },
+    {
+      "time": "2026-06-22T01:58:34.590817Z",
+      "coin": "AVAX",
+      "slotId": 1,
+      "type": "TP3",
+      "amountUSDT": 0.5265,
+      "price": 6.5
+    },
+    {
+      "time": "2026-06-22T01:58:34.592303Z",
+      "coin": "AVAX",
+      "slotId": 2,
+      "type": "TP1",
+      "amountUSDT": 10.27,
+      "price": 6.5
+    },
+    {
+      "time": "2026-06-22T01:58:34.593899Z",
+      "coin": "AVAX",
+      "slotId": 2,
+      "type": "TP2",
+      "amountUSDT": 10.27,
+      "price": 6.5
+    },
+    {
+      "time": "2026-06-22T01:58:34.679766Z",
+      "coin": "XRP",
+      "slotId": 1,
+      "type": "TP1",
+      "amountUSDT": 66.316,
+      "price": 1.18
+    },
+    {
+      "time": "2026-06-22T01:58:34.681273Z",
+      "coin": "XRP",
+      "slotId": 1,
+      "type": "TP2",
+      "amountUSDT": 66.316,
+      "price": 1.18
+    },
+    {
+      "time": "2026-06-22T01:58:34.682667Z",
+      "coin": "XRP",
+      "slotId": 1,
+      "type": "TP3",
+      "amountUSDT": 66.316,
+      "price": 1.18
+    },
+    {
+      "time": "2026-07-13T09:03:56.506018+00:00",
+      "coin": "AVAX",
+      "slotId": 1,
+      "type": "TP1",
+      "amountUSDT": 8.124648,
+      "price": 6.576,
+      "quantityRatio": 0.35
+    }
+  ]
+}

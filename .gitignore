@@ -76,6 +76,23 @@ cashout-history.json.v1-backup
 trade-history.json.backup-*
 openclaw-workspace-state.json
 legacy/
+research/paper_money_smoke.py
+research/vibe-alpha/alpha101_054_v2.py
+scripts/__pycache__/*
+scripts/balance-now.sh
+scripts/check-all-balances.py
+scripts/cleanup-trade-state.sh
+scripts/daily-report.py
+scripts/sell-btc-rebalance.py
+scripts/sell-xrp-rebalance.py
+scripts/tp-monitor.sh.tmp
+scripts/watchdog-bots-vivos.sh
+tp-monitor.sh
+ml/__pycache__/*
+ml/position-size-recommendations.json
+ml/predictions_log.json
+ml/tp-predictions.json
+ml/tp-recommendations.json
 
 # ════════════════════════════════════════════════════════
 # ✅ LO QUE SÍ SE SUBE (explícitamente)

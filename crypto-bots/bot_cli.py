@@ -49,12 +49,18 @@ def setup_logging(symbol: str) -> logging.Logger:
     logger = logging.getLogger(f"bot_cli_{symbol}")
     logger.setLevel(logging.DEBUG)
     if not logger.handlers:
-        fh = logging.FileHandler(LOG_DIR / f"bot_cli_{symbol}.log", encoding="utf-8")
-        fh.setLevel(logging.DEBUG)
-        fmt = logging.Formatter("[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-        fh.setFormatter(fmt)
-        logger.addHandler(fh)
-        logger.propagate = False
+        primary = LOG_DIR / f"bot_cli_{symbol}.log"
+        fallback = LOG_DIR / f"bot_cli_{symbol}.fallback.log"
+        for target in (primary, fallback):
+            try:
+                fh = logging.FileHandler(target, encoding="utf-8")
+            except Exception as exc:
+                continue
+            fh.setLevel(logging.DEBUG)
+            fh.setFormatter(logging.Formatter("[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"))
+            logger.addHandler(fh)
+            logger.propagate = False
+            break
     return logger
 
 
@@ -67,30 +73,35 @@ class LockError(Exception):
 
 def acquire_lock(symbol: str, logger: logging.Logger) -> Path:
     lock_path = WORKSPACE / "crypto-bots" / f".bot_cli_{symbol}.lock"
-    if lock_path.exists():
-        try:
-            pid = int(lock_path.read_text().strip())
-        except (ValueError, OSError):
-            pid = None
-        if pid is not None:
-            alive = True
+    try:
+        if lock_path.exists():
             try:
-                os.kill(pid, 0)
-            except ProcessLookupError:
-                alive = False
-            except PermissionError:
+                pid = int(lock_path.read_text().strip())
+            except (ValueError, OSError):
+                pid = None
+            if pid is not None:
                 alive = True
-            if alive:
-                logger.info("Lock activo para %s (PID %s), abortando", symbol, pid)
-                raise LockError(f"Another instance is running for {symbol} (PID {pid})")
-            else:
-                logger.info("Lock huérfano detectado para %s, limpiando", symbol)
                 try:
-                    lock_path.unlink()
-                except FileNotFoundError:
-                    pass
-    lock_path.write_text(str(os.getpid()))
-    return lock_path
+                    os.kill(pid, 0)
+                except ProcessLookupError:
+                    alive = False
+                except PermissionError:
+                    alive = True
+                if alive:
+                    logger.info("Lock activo para %s (PID %s), abortando", symbol, pid)
+                    raise LockError(f"Another instance is running for {symbol} (PID {pid})")
+                else:
+                    logger.info("Lock huérfano detectado para %s, limpiando", symbol)
+                    try:
+                        lock_path.unlink()
+                    except FileNotFoundError:
+                        pass
+        lock_path.write_text(str(os.getpid()))
+        logger.info("Lock creado: %s (PID %s)", lock_path, os.getpid())
+        return lock_path
+    except Exception as exc:
+        logger.exception("Error en acquire_lock: %s", exc)
+        raise
 
 
 def release_lock(lock_path: Path) -> None:

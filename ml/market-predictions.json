@@ -1,72 +1,69 @@
 {
-  "timestamp": "2026-06-18T18:00:46.537267",
+  "timestamp": "2026-07-14T14:00:49.305884",
   "model_accuracy": 0.9970238095238095,
   "predictions": {
     "BTC": {
-      "market_mode": "LATERAL",
-      "confidence": 0.97,
+      "market_mode": "BULL",
+      "confidence": 0.8,
       "probabilities": {
-        "BEAR": 0.03,
-        "BULL": 0.0,
-        "LATERAL": 0.97
+        "BEAR": 0.0,
+        "BULL": 0.8,
+        "LATERAL": 0.2
       }
     },
     "ETH": {
-      "market_mode": "LATERAL",
-      "confidence": 1.0,
+      "market_mode": "BULL",
+      "confidence": 0.867,
       "probabilities": {
         "BEAR": 0.0,
-        "BULL": 0.0,
-        "LATERAL": 1.0
+        "BULL": 0.867,
+        "LATERAL": 0.133
       }
     },
     "BNB": {
       "market_mode": "LATERAL",
-      "confidence": 0.955,
-      "probabilities": {
-        "BEAR": 0.045,
-        "BULL": 0.0,
-        "LATERAL": 0.955
-      }
-    },
-    "SOL": {
-      "market_mode": "LATERAL",
-      "confidence": 0.991,
-      "probabilities": {
-        "BEAR": 0.009,
-        "BULL": 0.0,
-        "LATERAL": 0.991
-      }
-    },
-    "LINK": {
-      "market_mode": "LATERAL",
-      "confidence": 1.0,
-      "probabilities": {
-        "BEAR": 0.0,
-        "BULL": 0.0,
-        "LATERAL": 1.0
-      }
-    },
-    "XRP": {
-      "market_mode": "LATERAL",
       "confidence": 0.981,
       "probabilities": {
-        "BEAR": 0.019,
-        "BULL": 0.0,
+        "BEAR": 0.0,
+        "BULL": 0.019,
         "LATERAL": 0.981
       }
     },
-    "AVAX": {
-      "market_mode": "BEAR",
-      "confidence": 0.76,
+    "SOL": {
+      "market_mode": "BULL",
+      "confidence": 0.938,
       "probabilities": {
-        "BEAR": 0.76,
-        "BULL": 0.0,
-        "LATERAL": 0.24
+        "BEAR": 0.0,
+        "BULL": 0.938,
+        "LATERAL": 0.062
+      }
+    },
+    "LINK": {
+      "market_mode": "BULL",
+      "confidence": 0.939,
+      "probabilities": {
+        "BEAR": 0.0,
+        "BULL": 0.939,
+        "LATERAL": 0.061
+      }
+    },
+    "XRP": {
+      "market_mode": "BULL",
+      "confidence": 0.905,
+      "probabilities": {
+        "BEAR": 0.0,
+        "BULL": 0.905,
+        "LATERAL": 0.095
+      }
+    },
+    "AVAX": {
+      "market_mode": "BULL",
+      "confidence": 0.935,
+      "probabilities": {
+        "BEAR": 0.0,
+        "BULL": 0.935,
+        "LATERAL": 0.065
       }
     }
-  },
-  "recommended_mode": "LATERAL",
-  "discrepancy": true,
-  "reason": "ML LATERAL vs Auto-Adjust BEAR"
+  }
 }

@@ -192,40 +192,40 @@ case $MARKET_MODE in
         TP1=3.0
         TP2=6.0
         TP3=10.0
-        SL=8.0
+        SL=4.0
         POSITION_SIZE=25
         TRAILING="true"
         ;;
     "BEAR")
-        TP1=2.0
-        TP2=4.0
-        TP3=6.0
-        SL=4.0
-        POSITION_SIZE=15
+        TP1=1.8
+        TP2=3.5
+        TP3=5.5
+        SL=2.5
+        POSITION_SIZE=10
         TRAILING="false"
         ;;
     "VOLATILE_BULL")
         TP1=3.5
         TP2=7.0
         TP3=12.0
-        SL=10.0
-        POSITION_SIZE=20
+        SL=5.0
+        POSITION_SIZE=15
         TRAILING="true"
         ;;
     "VOLATILE_BEAR")
-        TP1=2.0
-        TP2=4.0
-        TP3=6.0
-        SL=5.0
-        POSITION_SIZE=15
+        TP1=1.8
+        TP2=3.5
+        TP3=5.5
+        SL=2.5
+        POSITION_SIZE=10
         TRAILING="false"
         ;;
     *)  # LATERAL (default)
         TP1=2.5
         TP2=5.0
         TP3=7.0
-        SL=5.0
-        POSITION_SIZE=20
+        SL=2.5
+        POSITION_SIZE=15
         TRAILING="false"
         ;;
 esac

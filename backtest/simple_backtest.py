@@ -38,16 +38,16 @@ def load_trade_log(coin: str) -> pd.DataFrame:
                     # Determinar tipo de salida
                     if "TP1" in line:
                         exit_type = "TP1"
-                        pnl_pct = 0.025  # 2.5%
+                        pnl_pct = 0.035  # 3.5%
                     elif "TP2" in line:
                         exit_type = "TP2"
-                        pnl_pct = 0.050  # 5.0%
+                        pnl_pct = 0.055  # 5.5%
                     elif "TP3" in line:
                         exit_type = "TP3"
-                        pnl_pct = 0.080  # 8.0%
+                        pnl_pct = 0.080  # 8.0% (unchanged)
                     elif "SL HIT" in line or "Trailing stop" in line:
                         exit_type = "SL"
-                        pnl_pct = -0.035  # -3.5%
+                        pnl_pct = -0.050  # -5.0%
                     else:
                         continue
                     
