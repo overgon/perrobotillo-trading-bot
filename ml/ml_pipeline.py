@@ -585,22 +585,49 @@ _Generado por Perrobotillo ML Pipeline 🐕_
         return report_file
     
     def _log_prediction(self, prediction: Dict):
-        """Guardar predicción en log JSON"""
+        """Guardar predicción en log JSON de forma serializable"""
         
         log_file = ML_DIR / "predictions_log.json"
         
+        # Sanitizar a types serializables
+        safe = {}
+        for k, v in prediction.items():
+            if isinstance(v, (str, int, float, bool)):
+                safe[k] = v
+            elif v is None:
+                safe[k] = None
+            else:
+                safe[k] = str(v)
+        
         predictions = []
         if log_file.exists():
-            with open(log_file, 'r') as f:
-                predictions = json.load(f)
+            try:
+                with open(log_file, 'r') as f:
+                    predictions = json.load(f)
+            except Exception:
+                safe_path = log_file.with_suffix('.corrupt.json')
+                predictions = []
+                try:
+                    import re
+                    text = log_file.read_text(errors='ignore')
+                    for m in re.finditer(r'\{.*?\}\s*', text, re.S):
+                        try:
+                            predictions.append(json.loads(m.group(1)))
+                        except Exception:
+                            pass
+                    if predictions:
+                        with open(safe_path, 'w') as f:
+                            json.dump(predictions, f, indent=2, default=str)
+                except Exception:
+                    predictions = []
         
-        predictions.append(prediction)
+        predictions.append(safe)
         
         # Mantener solo últimas 100 predicciones
         predictions = predictions[-100:]
         
         with open(log_file, 'w') as f:
-            json.dump(predictions, f, indent=2)
+            json.dump(predictions, f, indent=2, default=str)
 
 
 # ════════════════════════════════════════════════════════

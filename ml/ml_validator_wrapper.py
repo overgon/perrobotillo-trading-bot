@@ -27,6 +27,8 @@ from ml_pipeline import MLPipeline
 MIN_CONFIDENCE = 60  # Mínimo % para aprobar trade
 MODEL_DIR = Path("/home/overgon/.openclaw/workspace/ml/models_optimized")  # ✅ MODELOS OPTIMIZADOS
 FALLBACK_POSITION_PERCENT = 25
+RISK_BLOCK_CONFIDENCE = 75  # Debajo de esto, ML puede bloquear como seguridad
+RISK_REVIEW_CONFIDENCE = 60  # Arriba de esto, ML solo sugiere y no bloquea
 
 # ════════════════════════════════════════════════════════
 # VALIDADOR
@@ -123,8 +125,8 @@ def validate_trade(coin: str, direction: str = "LONG", trade_type: str = "NORMAL
         result['reason'] = f"ML aprobado ({prediction['confidence']:.1f}% confianza)"
         result['source'] = 'ML'
         result['base_position_size'] = result['position_size']
-        
-        # Ajustar position size según confianza
+
+        # Adjust position size according to confidence
         confidence = prediction['confidence']
         if confidence >= 80:
             result['position_size'] = 100  # Full position
@@ -134,6 +136,37 @@ def validate_trade(coin: str, direction: str = "LONG", trade_type: str = "NORMAL
             result['position_size'] = 50   # Half position
         else:
             result['position_size'] = 25   # Minimal position
+
+        # Optional alpha reinforcement — never cancels ML approval
+        try:
+            from pathlib import Path
+            import sys
+            workspace = Path('/home/overgon/.openclaw/workspace')
+            alpha_dir = workspace / 'research' / 'vibe-alpha'
+            if str(alpha_dir) not in sys.path:
+                sys.path.insert(0, str(alpha_dir))
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("alpha101_054", str(alpha_dir / "alpha101_054.py"))
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            compute_054 = mod.compute
+            bench_spec = importlib.util.spec_from_file_location("bench_crypto", str(alpha_dir / "bench_crypto.py"))
+            bench_mod = importlib.util.module_from_spec(bench_spec)
+            bench_spec.loader.exec_module(bench_mod)
+            panel = bench_mod.build_panel([f"{coin}USDT"], days=30)
+            panel = bench_mod.align_panel(panel, [f"{coin}USDT"])
+            alpha_df = compute_054(panel)
+            alpha_value = float(alpha_df.iloc[-1, 0]) if not alpha_df.empty else None
+            if alpha_value is not None:
+                result['alpha101_054'] = alpha_value
+                if alpha_value > 0:
+                    result['reason'] = f"{result['reason']} | alpha101_054 refuerza (+)"
+                    result['source'] = 'ML+ALPHA'
+                else:
+                    result['reason'] = f"{result['reason']} | alpha101_054 baja score (-)"
+                    result['source'] = 'ML+ALPHA'
+        except Exception:
+            pass
     else:
         # Fallback explícito
         fallback = _technical_fallback(coin, direction)
@@ -149,7 +182,7 @@ def validate_trade(coin: str, direction: str = "LONG", trade_type: str = "NORMAL
             result['reason'] = f"{result['reason']} | Fallback: {fallback.get('reason', 'sin datos')}"
             result['source'] = 'ML_BLOCKED'
             result['base_position_size'] = result['position_size']
-    
+
     return result
 
 
@@ -195,15 +228,12 @@ def _technical_fallback(coin: str, direction: str = "LONG") -> dict:
         rsi = 100 - (100 / (1 + (avg_gain / avg_loss))) if avg_loss else 50.0
 
         bullish_trend = current > sma20 > sma50
-        oversold = rsi < 45
+        oversold = rsi < 62
         volume_ok = volumes[-1] >= np.mean(volumes[-20:]) if len(volumes) >= 20 else True
 
         if direction == 'LONG':
-            if bullish_trend and oversold and volume_ok:
-                approved = True
-                reason = f'Fallback LONG aprobado (RSI={rsi:.1f}, sma20={sma20:.2f}, sma50={sma50:.2f})'
-            else:
-                reason = f'Fallback LONG rechazado (RSI={rsi:.1f}, trend={bullish_trend}, vol={volume_ok})'
+            approved = bool(bullish_trend and oversold and volume_ok)
+            reason = f'Fallback LONG aprobado (trend={bullish_trend}, RSI={rsi:.1f}, vol={volume_ok})' if approved else f'Fallback LONG rechazado (trend={bullish_trend}, RSI={rsi:.1f}, vol={volume_ok})'
         elif direction == 'SHORT':
             not_bullish = current < sma20 < sma50
             overbought = rsi > 55

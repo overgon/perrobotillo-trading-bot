@@ -44,15 +44,17 @@ _Learn about the person you're helping. Update this as you go._
 - Que el bot no verifique antes de actuar
 
 ### 📊 Status Actual
-- **Sistema:** GRID TRADING BOT (7 monedas)
-- **Portfolio:** ~$2,500+ USDT (después del rebalanceo)
-- **Grid bots:** 7/7 operativos (BTC, ETH, BNB, SOL, LINK, XRP, AVAX)
-- **Órdenes activas:** ~44 órdenes grid distribuidas
-- **P&L Hoy:** Variable (monitoreo continuo)
+- **Sistema:** SLOTS TRADING BOT (7 monedas)
+- **Portfolio:** ~$2,393 USDT
+- **Slots activos:** 9/21 (BTC, ETH, BNB, SOL, LINK, XRP, AVAX)
+- **Órdenes activas:** 9 posiciones LONG con TP1/TP2/TP3
+- **P&L Hoy:** -$4.31 USDT (-0.18%) - normal por comisiones + SL recientes
 - **Último rebalanceo:** 2026-06-16 00:19 AM (+$1,335 invertidos en ETH/BNB/SOL)
 
 ### 🎯 Sistema Actual
-- **Grid Trading:** Operativo 24/7 con órdenes automáticas buy/sell
+- **Grid Trading:** ❌ DESACTIVADO (desde Jun 2026)
+- **Sistema de Slots:** ✅ ACTIVO - posiciones direccionales LONG con TP escalonados
+- **Estrategia:** TP1 cobrado → espera TP2/TP3 o SL
 - **Memory Search:** Automático cada 6 horas (solo alertas críticas)
 - **Dashboard:** http://192.168.3.215:8080 con animaciones cyberpunk
 - **API quota:** Optimizada (mínimo gasto innecesario)

@@ -1,6 +1,6 @@
 # 🐕 Backtest Report - BNB
 
-_Generado: 2026-05-31 14:07:19_
+_Generado: 2026-06-26 17:27:21_
 _Periodo: Últimos 30 días_
 
 ---
@@ -9,25 +9,25 @@ _Periodo: Últimos 30 días_
 
 | Métrica | Valor |
 |---------|-------|
-| **Total Trades** | 60 |
-| **Winning Trades** | 58 ✅ |
-| **Losing Trades** | 2 ❌ |
-| **Win Rate** | 96.67% |
-| **TP1 / TP2 / TP3** | 27 / 15 / 16 |
-| **Stop Losses** | 2 |
-| **Total P&L** | $131.75 USDT (4.39%) |
-| **Max Drawdown** | 5.56% |
-| **Profit Factor** | 38.64 |
-| **Avg por Trade** | $2.2 |
+| **Total Trades** | 95 |
+| **Winning Trades** | 32 ✅ |
+| **Losing Trades** | 63 ❌ |
+| **Win Rate** | 33.68% |
+| **TP1 / TP2 / TP3** | 13 / 10 / 9 |
+| **Stop Losses** | 63 |
+| **Total P&L** | $-71.25 USDT (-1.5%) |
+| **Max Drawdown** | 195.0% |
+| **Profit Factor** | 0.55 |
+| **Avg por Trade** | $-0.75 |
 
 ---
 
 ## 📈 Distribución de Salidas
 
-- 🎯 **TP1** (2.5%): 27 trades
-- 🎯🎯 **TP2** (5.0%): 15 trades  
-- 🎯🎯🎯 **TP3** (8.0%): 16 trades
-- ❌ **SL** (-3.5%): 2 trades
+- 🎯 **TP1** (2.5%): 13 trades
+- 🎯🎯 **TP2** (5.0%): 10 trades  
+- 🎯🎯🎯 **TP3** (8.0%): 9 trades
+- ❌ **SL** (-3.5%): 63 trades
 
 ---
 

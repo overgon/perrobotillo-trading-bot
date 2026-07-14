@@ -1,6 +1,6 @@
 # 🐕 Backtest Report - LINK
 
-_Generado: 2026-05-31 14:07:19_
+_Generado: 2026-06-26 17:27:21_
 _Periodo: Últimos 30 días_
 
 ---
@@ -9,25 +9,25 @@ _Periodo: Últimos 30 días_
 
 | Métrica | Valor |
 |---------|-------|
-| **Total Trades** | 89 |
-| **Winning Trades** | 31 ✅ |
-| **Losing Trades** | 58 ❌ |
-| **Win Rate** | 34.83% |
-| **TP1 / TP2 / TP3** | 18 / 9 / 4 |
-| **Stop Losses** | 58 |
-| **Total P&L** | $-40.5 USDT (-0.91%) |
-| **Max Drawdown** | 248.99% |
-| **Profit Factor** | 0.6 |
-| **Avg por Trade** | $-0.46 |
+| **Total Trades** | 215 |
+| **Winning Trades** | 57 ✅ |
+| **Losing Trades** | 158 ❌ |
+| **Win Rate** | 26.51% |
+| **TP1 / TP2 / TP3** | 30 / 17 / 10 |
+| **Stop Losses** | 158 |
+| **Total P&L** | $-255.75 USDT (-2.38%) |
+| **Max Drawdown** | 483.15% |
+| **Profit Factor** | 0.35 |
+| **Avg por Trade** | $-1.19 |
 
 ---
 
 ## 📈 Distribución de Salidas
 
-- 🎯 **TP1** (2.5%): 18 trades
-- 🎯🎯 **TP2** (5.0%): 9 trades  
-- 🎯🎯🎯 **TP3** (8.0%): 4 trades
-- ❌ **SL** (-3.5%): 58 trades
+- 🎯 **TP1** (2.5%): 30 trades
+- 🎯🎯 **TP2** (5.0%): 17 trades  
+- 🎯🎯🎯 **TP3** (8.0%): 10 trades
+- ❌ **SL** (-3.5%): 158 trades
 
 ---
 
