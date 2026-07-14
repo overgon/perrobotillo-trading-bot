@@ -12,7 +12,8 @@
 # ════════════════════════════════════════════════════════
 
 ## Sistema Actual
-- **Grid Trading:** 7 monedas, dashboard disponible
+- **Grid Trading:** ❌ DESACTIVADO
+- **Sistema de Slots:** ✅ ACTIVO - 9/21 posiciones LONG activas
 - **Watchdog:** Solo incidentes críticos (emergencias reales)
 - **Reporte Diario:** 9 AM (único reporte automático PERMITIDO)
 - **Heartbeats/Status/Memory Search Automáticos:** ❌ OFF - SILENCIO TOTAL

@@ -1,6 +1,6 @@
 # 🐕 Backtest Report - XRP
 
-_Generado: 2026-05-31 14:07:19_
+_Generado: 2026-06-26 17:27:21_
 _Periodo: Últimos 30 días_
 
 ---
@@ -9,25 +9,25 @@ _Periodo: Últimos 30 días_
 
 | Métrica | Valor |
 |---------|-------|
-| **Total Trades** | 33 |
+| **Total Trades** | 138 |
 | **Winning Trades** | 24 ✅ |
-| **Losing Trades** | 9 ❌ |
-| **Win Rate** | 72.73% |
-| **TP1 / TP2 / TP3** | 10 / 8 / 6 |
-| **Stop Losses** | 9 |
-| **Total P&L** | $40.75 USDT (2.47%) |
-| **Max Drawdown** | 38.18% |
-| **Profit Factor** | 3.59 |
-| **Avg por Trade** | $1.23 |
+| **Losing Trades** | 114 ❌ |
+| **Win Rate** | 17.39% |
+| **TP1 / TP2 / TP3** | 13 / 9 / 2 |
+| **Stop Losses** | 114 |
+| **Total P&L** | $-229.5 USDT (-3.33%) |
+| **Max Drawdown** | 3500.0% |
+| **Profit Factor** | 0.19 |
+| **Avg por Trade** | $-1.66 |
 
 ---
 
 ## 📈 Distribución de Salidas
 
-- 🎯 **TP1** (2.5%): 10 trades
-- 🎯🎯 **TP2** (5.0%): 8 trades  
-- 🎯🎯🎯 **TP3** (8.0%): 6 trades
-- ❌ **SL** (-3.5%): 9 trades
+- 🎯 **TP1** (2.5%): 13 trades
+- 🎯🎯 **TP2** (5.0%): 9 trades  
+- 🎯🎯🎯 **TP3** (8.0%): 2 trades
+- ❌ **SL** (-3.5%): 114 trades
 
 ---
 

@@ -1,6 +1,6 @@
 # 🐕 Backtest Report - AVAX
 
-_Generado: 2026-05-31 14:07:19_
+_Generado: 2026-06-26 17:27:22_
 _Periodo: Últimos 30 días_
 
 ---
@@ -9,25 +9,25 @@ _Periodo: Últimos 30 días_
 
 | Métrica | Valor |
 |---------|-------|
-| **Total Trades** | 42 |
-| **Winning Trades** | 30 ✅ |
-| **Losing Trades** | 12 ❌ |
-| **Win Rate** | 71.43% |
-| **TP1 / TP2 / TP3** | 15 / 10 / 5 |
-| **Stop Losses** | 12 |
-| **Total P&L** | $42.75 USDT (2.04%) |
-| **Max Drawdown** | 54.19% |
-| **Profit Factor** | 3.04 |
-| **Avg por Trade** | $1.02 |
+| **Total Trades** | 56 |
+| **Winning Trades** | 15 ✅ |
+| **Losing Trades** | 41 ❌ |
+| **Win Rate** | 26.79% |
+| **TP1 / TP2 / TP3** | 9 / 5 / 1 |
+| **Stop Losses** | 41 |
+| **Total P&L** | $-69.0 USDT (-2.46%) |
+| **Max Drawdown** | 404.08% |
+| **Profit Factor** | 0.33 |
+| **Avg por Trade** | $-1.23 |
 
 ---
 
 ## 📈 Distribución de Salidas
 
-- 🎯 **TP1** (2.5%): 15 trades
-- 🎯🎯 **TP2** (5.0%): 10 trades  
-- 🎯🎯🎯 **TP3** (8.0%): 5 trades
-- ❌ **SL** (-3.5%): 12 trades
+- 🎯 **TP1** (2.5%): 9 trades
+- 🎯🎯 **TP2** (5.0%): 5 trades  
+- 🎯🎯🎯 **TP3** (8.0%): 1 trades
+- ❌ **SL** (-3.5%): 41 trades
 
 ---
 

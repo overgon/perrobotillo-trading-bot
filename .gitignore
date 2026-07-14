@@ -60,6 +60,24 @@ sessions/
 *.md.tmp
 
 # ════════════════════════════════════════════════════════
+# 🗄️ ARCHIVO / HISTORIAL / CACHÉ
+# ════════════════════════════════════════════════════════
+.archive/
+crypto-bots/daily-report-*
+crypto-bots/monthly-report-*
+cache/
+state/
+research/vibe-alpha/__pycache__/
+*.bak
+*.backup
+*-trade-state.json.bak-*
+*cashout-history.json.migrated*
+cashout-history.json.v1-backup
+trade-history.json.backup-*
+openclaw-workspace-state.json
+legacy/
+
+# ════════════════════════════════════════════════════════
 # ✅ LO QUE SÍ SE SUBE (explícitamente)
 # ════════════════════════════════════════════════════════
 # !.gitignore
