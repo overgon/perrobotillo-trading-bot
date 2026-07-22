@@ -104,8 +104,8 @@ nano secrets/binance.env
 
 **Reemplazá:**
 ```bash
-BINANCE_API_KEY="tu_api_key_aqui"
-BINANCE_SECRET_KEY="tu_secret_key_aqui"
+BINANCE_API_KEY="<TU_API_KEY>"
+BINANCE_SECRET_KEY="<TU_API_SECRET>"
 PUBLIC_IP="tu_ip_publica_aqui"
 ```
 
@@ -165,7 +165,7 @@ nano secrets/telegram.env
 
 **Reemplazá:**
 ```bash
-TELEGRAM_BOT_TOKEN="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
+TELEGRAM_BOT_TOKEN="<TU_BOT_TOKEN>"
 TELEGRAM_CHAT_ID="7543955537"
 ```
 
