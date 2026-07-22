@@ -104,3 +104,13 @@ ml/tp-recommendations.json
 # !config/*.sh (sin secrets)
 # !crypto-bots/*.sh (scripts del bot)
 # !*.md (documentación)
+
+# === SECURITY: Runtime data nunca va en git ===
+crypto-bots/.public_ip
+crypto-bots/alerts-state.json
+crypto-bots/capital-manager-progress.json
+crypto-bots/cashout-history.json
+crypto-bots/trade-history.json
+crypto-bots/*-trade-state.json
+*-trade-state.json.bak-*
+dashboard/ssl/*.key
