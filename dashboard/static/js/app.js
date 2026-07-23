@@ -275,23 +275,27 @@ function updateSlots(data) {
             let targetName = 'TP1';
             let progress = 0;
             let isLossMode = pnl < 0;
+            const isClosed = status.startsWith('CLOSED');
+            const isPaused = status === 'PAUSED' || status === 'PAUSE';
             
-            // Si está en negativo, mostrar SL como next target
-            if (isLossMode && sl > 0) {
+            // Solo mostrar 100% si el slot está cerrado realmente
+            if (isClosed) {
+                progress = 100;
+                targetName = status.replace('CLOSED_', '').toUpperCase();
+            } else if (isPaused) {
+                progress = Math.min(100, Math.max(0, progress));
+                targetName = 'PAUSED';
+            } else if (isLossMode && sl > 0) {
                 targetPrice = sl;
                 targetName = 'SL';
-                // Progreso hacia SL (0% = entry, 100% = SL hit)
-                // Si el precio ya cruzó el SL, mostrar 100% pero con indicador visual
                 if (entryPrice > 0 && sl > 0 && sl !== entryPrice) {
                     progress = ((entryPrice - currentPrice) / (entryPrice - sl)) * 100;
-                    // Clamp entre 0-100 para display, pero mantener valor real para lógica
                     if (progress >= 100) {
                         progress = 100;
-                        targetName = 'SL HIT ⚠️';
+                        targetName = 'SL HIT';
                     }
                 }
             } else {
-                // Positivo o neutral → mostrar TP normal
                 if (slot.tp1Done && slot.tp2Done) {
                     targetPrice = tp3;
                     targetName = 'TP3';
@@ -304,7 +308,7 @@ function updateSlots(data) {
                 }
                 
                 if (entryPrice > 0 && targetPrice > 0 && currentPrice > 0 && targetPrice !== entryPrice) {
-                    progress = Math.min(100, ((currentPrice - entryPrice) / (targetPrice - entryPrice)) * 100);
+                    progress = Math.min(99.9, ((currentPrice - entryPrice) / (targetPrice - entryPrice)) * 100);
                 }
             }
             
