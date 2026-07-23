@@ -357,9 +357,8 @@ def get_grid_status():
     }
 
 def get_daily_pnl():
-    """Calcular P&L de las últimas 24 horas + P&L por moneda desde trade-history.json"""
+    """Calcular P&L de las últimas 24 horas + P&L no realizado de trades activos"""
     try:
-        import time
         from datetime import datetime, timedelta
         
         # Calcular fecha de hace 24 horas
@@ -374,7 +373,7 @@ def get_daily_pnl():
         for coin in coins:
             pnl_by_coin[coin] = 0.0
         
-        # Leer trade-history.json
+        # 1) PnL realizado desde trade-history.json
         history_file = f"{CRYPTO_BOTS}/trade-history.json"
         if os.path.exists(history_file):
             with open(history_file, 'r') as f:
@@ -382,27 +381,86 @@ def get_daily_pnl():
                 trades = data.get('trades', [])
                 
                 for trade in trades:
-                    # Verificar si el trade es de las últimas 24 horas
-                    close_time_str = trade.get('closeTime')
+                    close_time_str = trade.get('closeTime') or trade.get('timestamp')
                     if not close_time_str:
                         continue
                     
-                    # Parsear fecha (formato: "2026-05-12 10:30:45")
                     try:
-                        close_time = datetime.strptime(close_time_str, "%Y-%m-%d %H:%M:%S")
+                        close_time = datetime.fromisoformat(str(close_time_str).replace('Z', '+00:00'))
                         if close_time >= yesterday:
-                            # Trade dentro de las últimas 24 horas
                             symbol = trade.get('symbol', 'UNKNOWN')
-                            pnl = float(trade.get('pnlUSDT', 0) or 0)
-                            
+                            pnl = float(trade.get('pnlUSDT', trade.get('pnl', 0)) or 0)
                             total_pnl += pnl
-                            if symbol in pnl_by_coin:
-                                pnl_by_coin[symbol] += pnl
-                            else:
-                                pnl_by_coin[symbol] = pnl
+                            pnl_by_coin[symbol] = pnl_by_coin.get(symbol, 0.0) + pnl
                     except Exception as e:
                         print(f"Error parsing date {close_time_str}: {e}")
                         continue
+        
+        # 2) PnL no realizado desde slots activos, usando precios del state local
+        for coin in coins:
+            state_file = f"{CRYPTO_BOTS}/{coin}-trade-state.json"
+            if not os.path.exists(state_file):
+                continue
+            try:
+                state = json.loads(open(state_file).read())
+            except Exception:
+                continue
+            active_slots = [s for s in state.get('slots', []) if s.get('status') == 'ACTIVE']
+            for slot in active_slots:
+                entry = float(slot.get('entryPrice', 0) or 0)
+                qty = float(slot.get('quantity', 0) or 0)
+                if entry <= 0 or qty <= 0:
+                    continue
+                current = entry
+                cache_path = f"{CRYPTO_BOTS}/../logs/status-cache.json"
+                try:
+                    if os.path.exists(cache_path):
+                        cache = json.loads(open(cache_path).read())
+                        current = float(cache.get('grid', {}).get('bots', {}).get(coin, {}).get('price', entry) or entry)
+                except Exception:
+                    current = entry
+                if current == entry:
+                    try:
+                        import requests
+                        r = requests.get(f"https://api.binance.com/api/v3/ticker/price?symbol={coin}USDT", timeout=4)
+                        current = float(r.json().get('price', entry) or entry)
+                    except Exception:
+                        current = entry
+                pnl = (current - entry) * qty
+                pnl_by_coin[coin] = pnl_by_coin.get(coin, 0.0) + pnl
+                total_pnl += pnl
+        
+        # 3) Fluctuación real del Spot desde spot-registry.json
+        registry_file = f"{CRYPTO_BOTS}/spot-registry.json"
+        if os.path.exists(registry_file):
+            try:
+                registry = json.loads(open(registry_file).read_text())
+                base_usdt = float(registry.get('total_usdt', 0) or 0)
+                base_mxn = float(registry.get('total_mxn', 0) or 0)
+                prices_base = registry.get('prices_base') or registry.get('prices_now', {})
+                base_assets = registry.get('assets_mxn_base') or [
+                    {'symbol': a.get('symbol'), 'mxn': a.get('mxn', 0)}
+                    for a in registry.get('assets', [])
+                ]
+                spot_prices = registry.get('prices_now', {})
+                mxn_rate = base_mxn / base_usdt if base_usdt > 0 else 17.0
+                base_mxn_map = {a.get('symbol'): float(a.get('mxn', 0) or 0) for a in base_assets}
+                for asset in registry.get('assets', []):
+                    symbol = asset.get('symbol')
+                    if symbol not in coins or symbol == 'USDT':
+                        continue
+                    balance = float(asset.get('balance', 0) or 0)
+                    if balance <= 0:
+                        continue
+                    price_base = float(prices_base.get(symbol, 0) or 0)
+                    price_now = float(spot_prices.get(symbol, asset.get('price_now', 0)) or 0)
+                    mxn_now = balance * price_now * mxn_rate
+                    mxn_base = base_mxn_map.get(symbol, mxn_now)
+                    diff = mxn_now - mxn_base
+                    pnl_by_coin[symbol] = pnl_by_coin.get(symbol, 0.0) + diff / mxn_rate
+                    total_pnl += diff / mxn_rate
+            except Exception as e:
+                print(f"[PNL] Error applying spot-registry fluctuation: {e}")
         
         print(f"📊 24H P&L calculado: ${total_pnl:.2f} USDT")
         print(f"📊 P&L por moneda: {pnl_by_coin}")

@@ -655,7 +655,7 @@ function updateTradesTable(data) {
                 <td>${trade.type}</td>
                 <td>$${(trade.entryPrice || 0).toFixed(2)}</td>
                 <td>$${(trade.exitPrice || 0).toFixed(2)}</td>
-                <td style="color: ${pnlColor}">${trade.pnlUSDT >= 0 ? '+' : ''}$${(trade.pnlUSDT || 0).toFixed(2)}</td>
+                <td style="color: ${pnlColor}">${trade.pnlUSDT != null ? (trade.pnlUSDT >= 0 ? '+' : '') + '$' + trade.pnlUSDT.toFixed(2) : '--'}</td>
                 <td><span class="status-badge ${pnlClass}">${closeType}</span></td>
                 <td>${new Date(trade.timestamp).toLocaleString()}</td>
             </tr>

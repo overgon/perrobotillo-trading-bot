@@ -63,7 +63,7 @@ def place_sell_order_market(symbol: str, quantity: str):
 
     base_url = 'https://api.binance.com'
     timestamp = int(time.time() * 1000)
-    recv_window = 5000
+    recv_window = 60000
     params = {
         'symbol': f'{symbol}USDT',
         'side': 'SELL',

@@ -54,15 +54,6 @@ case "$SYMBOL" in
     *) echo "❌ SYMBOL no soportado: $SYMBOL"; exit 1 ;;
 esac
 
-# Core coins only - BTC and ETH disabled per user directive
-DISABLED_COINS="BTC ETH"
-for coin in $DISABLED_COINS; do
-    if [ "$SYMBOL" = "$coin" ]; then
-        echo "❌ $SYMBOL está deshabilitado por configuración"
-        exit 1
-    fi
-done
-
 WORKSPACE="$HOME/.openclaw/workspace"
 SECRETS="/home/...rets"
 LOGS="$HOME/.openclaw/logs"
@@ -105,6 +96,18 @@ log() {
 
 log_debug() {
     :
+}
+
+register_capital_move() {
+    local coin="$1"
+    local type="$2"
+    local usdt_amount="$3"
+    local quantity="$4"
+    local price="$5"
+    local order_id="$6"
+    local note="$7"
+    local balance_after="${8:-}"
+    python3 /tmp/capital_helper.py "$coin" "$type" "$usdt_amount" "$quantity" "$price" "$order_id" "$note" "$balance_after" >/dev/null 2>&1 || true
 }
 
 # ============================================
@@ -785,30 +788,6 @@ Emergency close ejecutado. Trading detenido hasta mañana. 🛡️"
     return 0
 }
 
-send_telegram() {
-    local message="$1"
-    local config_file="$HOME/.openclaw/openclaw.json"
-    log "📱 Intentando enviar Telegram..."
-    if [ -f "$config_file" ]; then
-        local bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)
-        if [ -n "$bot_token" ] && [ "$bot_token" != "null" ]; then
-            local result=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
-                -H "Content-Type: application/json" \
-                -d "{\"chat_id\":\"7543955537\",\"text\":\"$message\",\"parse_mode=HTML\"}" 2>&1)
-            local http_code=$(echo "$result" | grep "HTTP_CODE:" | cut -d':' -f2)
-            if [ "$http_code" = "200" ]; then
-                log "✅ Telegram enviado exitosamente"
-            else
-                log "❌ Error Telegram: HTTP $http_code - $result"
-            fi
-        else
-            log "❌ Error: Bot token no encontrado en openclaw.json"
-        fi
-    else
-        log "❌ Error: openclaw.json no encontrado"
-    fi
-}
-
 place_buy_order_market() {
     local symbol="$1" quantity="$2"
     
@@ -1057,24 +1036,25 @@ execute_long() {
 
         local open_msg="🟢 LONG V3 SLOT $slot_id - $SYMBOL [$CURRENT_MODE]
 
-Slot: $slot_id / $MAX_SLOTS
-Entry: $fill_price | Qty: $quantity
-Costo: $usdt_spent | Fee: $_fee_display
+📦 Slot: $slot_id / $MAX_SLOTS
+💰 Entry: $fill_price | Qty: $quantity BTC
+💸 Costo: $usdt_spent | Fee: $_fee_display
 
-TPs:
-TP1: $tp1 (+${TP1_PERCENT}%) 50%
-TP2: $tp2 (+${TP2_PERCENT}%) 30%
-TP3: $tp3 (+${TP3_PERCENT}%) 20%
+🎯 TPs:
+   TP1: $tp1 (+${TP1_PERCENT}%)
+   TP2: $tp2 (+${TP2_PERCENT}%)
+   TP3: $tp3 (+${TP3_PERCENT}%)
 
-SL: $sl (-${STOP_LOSS_PERCENT}%)
+🛡️ SL: $sl (-${STOP_LOSS_PERCENT}%)
 
 $ml_section
 
-🚀 Trade activo - Monitoreando TPs..."
+🚀 Trade activo - Monitoreando TPs... 🕵️"
         
         notify "OPEN|LONG|$SYMBOL|$slot_id" "$open_msg"
         log "  📱 DEBUG: Notificación de apertura enviada por notify"
         log "✅ Slot $slot_id LONG abierto: Order $order_id"
+        register_capital_move "$SYMBOL" "BUY" "$usdt_spent" "$quantity" "$fill_price" "$order_id" "OPEN Slot $slot_id"
         return 0
     else
         local error=$(echo "$buy_result" | jq -r '.msg // "Unknown error"')
@@ -1258,6 +1238,7 @@ Target: ${SCALP_TARGET_PERCENT}%
             local sell_status=$(echo "$sell_result" | jq -r '.status // "ERROR"')
             if [ "$sell_status" = "FILLED" ]; then
                 log "  ✅ TP1 ejecutado exitosamente ($sell_qty_fmt)"
+                    register_capital_move "$SYMBOL" "TP1" "$sell_value" "$sell_qty" "$current_price" "$sell_order_id" "TP1 Slot $slot_id"
                 
                 # Calcular P&L ANTES de guardar en histórico
                 local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
@@ -1383,6 +1364,7 @@ El slot sigue activo y reintentará en próximos ciclos."
             local sell_status=$(echo "$sell_result" | jq -r '.status // "ERROR"')
             if [ "$sell_status" = "FILLED" ]; then
                 log "  ✅ TP2 ejecutado exitosamente ($sell_qty_fmt)"
+                    register_capital_move "$SYMBOL" "TP2" "$sell_value" "$sell_qty" "$current_price" "$sell_order_id" "TP2 Slot $slot_id"
                 
                 # Calcular P&L ANTES de guardar en histórico
                 local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
@@ -1531,6 +1513,7 @@ El slot permanece activo."
             local sell_status=$(echo "$sell_result" | jq -r '.status // "ERROR"')
             if [ "$sell_status" = "FILLED" ]; then
                 log "  ✅ TP3 ejecutado exitosamente ($sell_qty_fmt) - CIERRE TOTAL 📈"
+                    register_capital_move "$SYMBOL" "TP3" "$sell_value" "$sell_qty" "$current_price" "$sell_order_id" "TP3 Slot $slot_id CIERRE TOTAL"
                 
                 # Calcular P&L ANTES de guardar en histórico
                 local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$quantity" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
@@ -1621,6 +1604,7 @@ ACUMULADO: 5% se queda HODL 📈
             local sell_status=$(echo "$sell_result" | jq -r '.status // "ERROR"')
             if [ "$sell_status" = "FILLED" ]; then
                 log "  ✅ SL ejecutado exitosamente - Slot cerrado"
+        register_capital_move "$SYMBOL" "SL" "$sell_value" "$sell_qty" "$current_price" "$sell_order_id" "SL Slot $slot_id"
                 update_slot_status "$slot_id" "CLOSED_SL"
                 
                 # Actualizar P&L
@@ -1711,6 +1695,7 @@ execute_trailing_stop() {
 
     ✅ Ganancias aseguradas 🛡️"
         log "  ✅ Trailing stop ejecutado exitosamente - Slot cerrado"
+            register_capital_move "$SYMBOL" "TRAILING" "$sell_value" "$sell_qty" "$current_price" "$sell_order_id" "Trailing stop Slot $slot_id"
         update_slot_status "$slot_id" "CLOSED_TRAILING"
         
         # Actualizar P&L
