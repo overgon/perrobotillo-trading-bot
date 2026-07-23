@@ -646,7 +646,12 @@ def api_status():
         },
         'history': {
             'total_trades': trade_history.get('totalTrades', 0),
-            'win_rate': trade_history.get('winRate', 0),
+            'win_rate': round(
+                sum(1 for t in trade_history.get('trades', []) if t.get('pnlUSDT') is not None and t['pnlUSDT'] > 0)
+                / max(sum(1 for t in trade_history.get('trades', []) if t.get('pnlUSDT') is not None), 1)
+                * 100,
+                2
+            ),
             'net_pnl': trade_history.get('netPnLUSDT', 0),
             'trades': trade_history.get('trades', [])
         },

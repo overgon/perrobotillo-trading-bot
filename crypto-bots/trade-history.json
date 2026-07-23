@@ -11,11 +11,11 @@
   },
   "totalTrades": 214,
   "totalWins": 130,
-  "totalLosses": 76,
+  "totalLosses": 84,
   "totalProfitUSDT": 406.385148,
   "totalLossUSDT": -438.235241,
   "netPnLUSDT": -31.850093,
-  "winRate": 61.61,
+  "winRate": 60.75,
   "trades": [
     {
       "id": 214,
@@ -3108,5 +3108,5 @@
       "seeded": true
     }
   ],
-  "updatedAt": "2026-07-23T12:52:52.741584"
+  "updatedAt": "2026-07-23T13:01:26.638082"
 }
