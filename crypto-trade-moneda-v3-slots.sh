@@ -835,6 +835,8 @@ place_buy_order_market() {
 
 place_sell_order_market() {
     local symbol="$1" quantity="$2"
+    # FIX: recortar cantidad para evitar 'too much precision' de Binance
+    quantity=$(awk -v q="$quantity" 'BEGIN {printf "%.8f", q}')
     # Generate timestamp immediately before use
     local timestamp=$(date -u +%s%3N)
     local query_string="symbol=${symbol}USDT&side=SELL&type=MARKET&quantity=${quantity}&timestamp=${timestamp}&recvWindow=20000"

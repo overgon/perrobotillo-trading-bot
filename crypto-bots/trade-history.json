@@ -9,7 +9,7 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 212,
+  "totalTrades": 213,
   "totalWins": 130,
   "totalLosses": 76,
   "totalProfitUSDT": 406.385148,
@@ -17,6 +17,26 @@
   "netPnLUSDT": -31.850093,
   "winRate": 61.61,
   "trades": [
+    {
+      "id": 213,
+      "symbol": "AVAX",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 6.425,
+      "exitPrice": 6.238,
+      "quantity": 0.7,
+      "usdtSpent": 4.4975,
+      "closeType": "SL",
+      "pnlUSDT": -0.1309,
+      "timestamp": "2026-07-23T12:10:00.000000",
+      "closeTime": "2026-07-23 12:10:00",
+      "source": "BOT",
+      "strategy": "SPOT",
+      "status": "CLOSED_SL",
+      "orderId": null,
+      "note": "SL hit - precision fix applied, state fixed",
+      "seeded": false
+    },
     {
       "id": 212,
       "symbol": "AVAX",
@@ -28,9 +48,9 @@
       "usdtSpent": 16.93696,
       "closeType": "SL",
       "pnlUSDT": -0.63,
-      "timestamp": "2026-07-23T12:10:30.719826",
-      "closeTime": "2026-07-23 12:10:30",
-      "source": "MANUAL_RECOVERY",
+      "timestamp": "2026-07-23T12:00:00.000000",
+      "closeTime": "2026-07-23 12:00:00",
+      "source": "BOT",
       "strategy": "SPOT",
       "status": "CLOSED_SL",
       "orderId": null,
@@ -3068,5 +3088,5 @@
       "seeded": true
     }
   ],
-  "updatedAt": "2026-07-23T12:10:30.719826"
+  "updatedAt": "2026-07-23T12:36:39.336670"
 }
