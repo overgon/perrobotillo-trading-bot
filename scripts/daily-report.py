@@ -349,9 +349,14 @@ def generate_report():
     # Calcular totales
     total_pnl = sum(d['pnl_24h'] for d in pnl_data.values())
     total_trades = sum(d['trades'] for d in pnl_data.values())
-    wins = sum(1 for t in yesterday_trades if 'TP' in t['line'])
-    losses = total_trades - wins if total_trades > 0 else 0
-    win_rate = (wins / total_trades * 100) if total_trades > 0 else 0
+    if yesterday_trades:
+        wins = sum(1 for t in yesterday_trades if 'TP' in t['line'])
+        losses = sum(1 for t in yesterday_trades if 'SL' in t['line'])
+        win_rate = (wins / max(len(yesterday_trades), 1)) * 100
+    else:
+        wins = 0
+        losses = 0
+        win_rate = 0.0
     
     # Construir mensaje
     report = []
@@ -380,13 +385,12 @@ def generate_report():
     
     # Trades ayer
     report.append("📈 <b>TRADES DE AYER</b>")
-    if yesterday_trades:
-        report.append(f"   Total: {total_trades} trades")
-        report.append(f"   Wins: {wins} | Losses: {losses}")
-        report.append(f"   Win Rate: <b>{win_rate:.1f}%</b>")
-        report.append(f"   P&L: <b>${total_pnl:+,.2f}</b>")
-    else:
-        report.append("   Sin trades registrados")
+    global_wins, global_losses, global_total = get_win_rate(days=1)
+    global_win_rate = (global_wins / global_total * 100) if global_total > 0 else 0.0
+    report.append(f"   Total: {global_total} trades")
+    report.append(f"   Wins: {global_wins} | Losses: {global_losses}")
+    report.append(f"   Win Rate: <b>{global_win_rate:.1f}%</b>")
+    report.append(f"   P&L: <b>${total_pnl:+,.2f}</b>")
     report.append("")
     
     # Trades activos
