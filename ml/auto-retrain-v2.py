@@ -138,8 +138,21 @@ def run_auto_retrain():
             
             pipeline = OptimizedMLPipeline(coin, use_feature_selection=True)  # ✅ Pipeline optimizado
             
-            # Cargar datos
-            df = pipeline.load_data(days=DAYS_HISTORICAL)
+            # Cargar datos: priorizar ventana reciente cuando hay trades nuevos
+            kwargs = {'days': DAYS_HISTORICAL}
+            try:
+                with open(MODELS_DIR / f"{coin}_optimized_metadata.json") as f:
+                    last_count = json.load(f).get('last_trade_count', 0)
+                current_count = 0
+                trade_history_path = WORKSPACE / "crypto-bots/trade-history.json"
+                if trade_history_path.exists():
+                    with open(trade_history_path) as f:
+                        current_count = len(json.load(f).get('trades', []))
+                if current_count - last_count > 0:
+                    kwargs['last_n'] = current_count - last_count
+            except Exception:
+                pass
+            df = pipeline.load_data(**kwargs)
             
             if df is None or len(df) == 0:
                 logger.error(f"{coin}: No hay datos para entrenar")

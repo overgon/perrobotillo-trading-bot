@@ -75,8 +75,13 @@ class OptimizedMLPipeline:
         self.model_path = MODELS_DIR / f"{self.coin}_optimized_model.pkl"
         self.metadata_path = MODELS_DIR / f"{self.coin}_optimized_metadata.json"
     
-    def load_data(self, days: int = 90) -> pd.DataFrame:
-        """Cargar datos desde features generados"""
+    def load_data(self, days: int = 90, last_n: int | None = None) -> pd.DataFrame:
+        """Cargar datos desde features generados
+        
+        Args:
+          days: si last_n es None y days > 0, usa solo los últimos días por fecha.
+          last_n: si se indica, mezcla esa ventana reciente priorizada y completa lo necesario para llegar a un mínimo viable.
+        """
         
         features_file = FEATURES_DIR / f"{self.coin}_features.csv"
         
@@ -85,7 +90,42 @@ class OptimizedMLPipeline:
             return pd.DataFrame()
         
         df = pd.read_csv(features_file)
-        print(f"✅ {len(df)} samples cargados")
+        
+        # Intentar cortar por fecha si existe columna temporal
+        time_col = None
+        for col in ['timestamp', 'open_time', 'close_time', 'time', 'datetime']:
+            if col in df.columns:
+                time_col = col
+                break
+        
+        if last_n is not None and last_n > 0:
+            if time_col is not None:
+                try:
+                    time_vals = pd.to_datetime(df[time_col], errors='coerce')
+                    latest_time = time_vals.dropna().max()
+                    window = df.loc[time_vals >= latest_time - pd.Timedelta(minutes=5*1440*days) // days if days else latest_time - pd.to_timedelta(last_n, unit='m')]
+                except Exception:
+                    window = df.tail(last_n)
+                
+                needed = max(60, int(last_n * 1.5))
+                df_recent = window.tail(last_n)
+                df_backfill = df.iloc[:-len(df_recent)].tail(needed - len(df_recent))
+                df = pd.concat([df_backfill, df_recent], ignore_index=True)
+                print(f"✅ Ventana reciente: {len(df_recent)} samples + backfill {len(df_backfill)} = {len(df)} samples")
+            else:
+                df = pd.concat([df.iloc[:-last_n].tail(max(0, 60 - last_n)), df.tail(last_n)], ignore_index=True)
+                print(f"✅ Últimos {last_n} samples usados con backfill mínimo: {len(df)} samples")
+        elif time_col is not None:
+            try:
+                time_vals = pd.to_datetime(df[time_col], errors='coerce')
+                latest_time = time_vals.dropna().max()
+                cutoff = latest_time - pd.Timedelta(minutes=min(days, 60) * 1440)
+                df = df.loc[time_vals >= cutoff].copy()
+            except Exception:
+                pass
+            print(f"✅ Datos filtrados por ventana: {len(df)} samples")
+        else:
+            print(f"✅ {len(df)} samples cargados")
         
         return df
     
