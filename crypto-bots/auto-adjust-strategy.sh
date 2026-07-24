@@ -11,11 +11,31 @@ WORKSPACE="${SCRIPT_DIR}/.."
 CONFIG_FILE="${SCRIPT_DIR}/market-mode.conf"
 BOT_SCRIPT="${SCRIPT_DIR}/crypto-trade-moneda-v3-slots.sh"
 ML_VALIDATOR="${SCRIPT_DIR}/ml-market-validator.sh"
+GLOBAL_PAUSE_FILE="${SCRIPT_DIR}/global-pause-flag.json"
+STATE_DIR="${SCRIPT_DIR}/state"
+mkdir -p "$STATE_DIR"
 
 echo "╔═══════════════════════════════════════════════════════╗"
 echo "║  🧠 AUTO-ADJUST STRATEGY ENGINE                       ║"
 echo "╚═══════════════════════════════════════════════════════╝"
 echo ""
+
+# ════════════════════════════════════════════════════════
+# PASO 0: CIRCUIT BREAKER GUARD
+# ════════════════════════════════════════════════════════
+CB_ALLOWED="true"
+if [ -f "$GLOBAL_PAUSE_FILE" ]; then
+    PAUSE_UNTIL=$(python3 -c "import json; print(json.load(open('$GLOBAL_PAUSE_FILE')).get('pause_until',''))" 2>/dev/null || echo "")
+    if [ -n "$PAUSE_UNTIL" ]; then
+        NOW=$(date '+%Y-%m-%d %H:%M:%S')
+        if [[ "$NOW" < "$PAUSE_UNTIL" ]]; then
+            CB_ALLOWED="false"
+            echo "🛑 Circuit breaker activo hasta $PAUSE_UNTIL"
+        else
+            echo "✅ Circuit breaker expirado"
+        fi
+    fi
+fi
 
 # ════════════════════════════════════════════════════════
 # PASO 1: EJECUTAR ANÁLISIS DE MERCADO
@@ -37,17 +57,80 @@ echo "✅ Mercado analizado: ${MARKET_MODE}"
 echo ""
 
 # ════════════════════════════════════════════════════════
+# PASO 1.5: COOLDOWN / HYSTERESIS
+# ════════════════════════════════════════════════════════
+
+LAST_MODE_FILE="${STATE_DIR}/last-market-mode.txt"
+LAST_MODE_TIME_FILE="${STATE_DIR}/last-market-mode.time"
+COOLDOWN_MINUTES=720  # 12 horas
+
+FORCE_MODE="false"
+if [ -f "$LAST_MODE_FILE" ] && [ -f "$LAST_MODE_TIME_FILE" ]; then
+    LAST_MODE=$(cat "$LAST_MODE_FILE" || echo "")
+    LAST_TS=$(cat "$LAST_MODE_TIME_FILE" || echo "")
+    if [ -n "$LAST_TS" ]; then
+        AGE_MIN=$(python3 -c "import time; from datetime import datetime; fmt='%Y-%m-%d %H:%M:%S'; print(int((datetime.now()-datetime.strptime('$LAST_TS', fmt)).total_seconds()/60))" 2>/dev/null || echo "9999")
+        if [ "$LAST_MODE" = "$MARKET_MODE" ]; then
+            echo "🔁 Modo sin cambios: $MARKET_MODE"
+        elif [ "$AGE_MIN" -lt "$COOLDOWN_MINUTES" ]; then
+            echo "⏳ Cooldown activo: hace ${AGE_MIN} min cambió a $LAST_MODE; se mantiene ${AGE_MIN} min más"
+            MARKET_MODE="$LAST_MODE"
+            FORCE_MODE="true"
+        else
+            echo "✅ Cooldown expirado, se permite cambio"
+        fi
+    fi
+fi
+
+echo "$MARKET_MODE" > "$LAST_MODE_FILE"
+date '+%Y-%m-%d %H:%M:%S' > "$LAST_MODE_TIME_FILE"
+
+# ════════════════════════════════════════════════════════
 # PASO 2: ACTUALIZAR CONFIGURACIÓN DEL BOT
 # ════════════════════════════════════════════════════════
 
 echo "⏳ Paso 2/3: Actualizando configuración del bot..."
 
-# Obtener Fear & Greed Index de Alternative.me
-echo "   📊 Obteniendo Fear & Greed Index..."
-FG_DATA=$(curl -s "https://api.alternative.me/fng/" 2>/dev/null)
-FG_VALUE=$(echo "$FG_DATA" | python3 -c "import sys,json; print(json.load(sys.stdin)['data'][0]['value'])" 2>/dev/null || echo "N/A")
-FG_CLASS=$(echo "$FG_DATA" | python3 -c "import sys,json; print(json.load(sys.stdin)['data'][0]['value_classification'])" 2>/dev/null || echo "N/A")
-echo "   ✅ F&G: ${FG_VALUE} (${FG_CLASS})"
+# Reusar valores de Paso 1; NO volver a consultar F&G
+FG_VALUE="${FG_VALUE:-N/A}"
+FG_CLASS="${FG_CLASS:-N/A}"
+
+# Si circuit breaker activo, forzar modo defensivo
+if [ "$CB_ALLOWED" = "false" ]; then
+    echo "🛑 CB activo: forzando modo defensivo"
+    MARKET_MODE="LATERAL"
+    MARKET_REASON="Circuit breaker activo"
+    TP1=1.5
+    TP2=3.0
+    TP3=5.0
+    SL=3.5
+    POSITION_SIZE=10
+    TRAILING_STOP="false"
+fi
+
+# Sanity check de parámetros por modo
+case "$MARKET_MODE" in
+    BULL)
+        [ "$POSITION_SIZE" -gt 25 ] && POSITION_SIZE=25
+        [ "$SL" -gt 10 ] && SL=10
+        ;;
+    BEAR)
+        [ "$POSITION_SIZE" -gt 15 ] && POSITION_SIZE=15
+        [ "$SL" -gt 5 ] && SL=5
+        ;;
+    VOLATILE_BULL)
+        [ "$POSITION_SIZE" -gt 20 ] && POSITION_SIZE=20
+        [ "$SL" -gt 10 ] && SL=10
+        ;;
+    VOLATILE_BEAR)
+        [ "$POSITION_SIZE" -gt 15 ] && POSITION_SIZE=15
+        [ "$SL" -gt 5 ] && SL=5
+        ;;
+    LATERAL|*)
+        [ "$POSITION_SIZE" -gt 20 ] && POSITION_SIZE=20
+        [ "$SL" -gt 5 ] && SL=5
+        ;;
+esac
 
 # Crear archivo de configuración dinámica
 DYNAMIC_CONFIG="${SCRIPT_DIR}/dynamic-config.env"
@@ -82,42 +165,10 @@ echo "✅ Configuración dinámica guardada: ${DYNAMIC_CONFIG}"
 echo ""
 
 # ════════════════════════════════════════════════════════
-# PASO 3: NOTIFICAR CAMBIOS
+# PASO 3: VALIDACIÓN ML
 # ════════════════════════════════════════════════════════
 
-echo "⏳ Paso 3/3: Notificando cambios..."
-
-# Enviar resumen por Telegram (formato compacto)
-if [ -f "${WORKSPACE}/lib/send-telegram.sh" ]; then
-    source "${WORKSPACE}/lib/send-telegram.sh"
-    send_telegram "🧠 AUTO-ADJUST STRATEGY
-
-🎯 Modo: ${MARKET_MODE}
-📝 Razón: ${MARKET_REASON}
-
-⚙️ TP1/2/3: +${TP1}/${TP2}/${TP3}% | SL: -${SL}%
-💰 Position: ${POSITION_SIZE}%
-
-📊 BTC: \$${BTC_PRICE} | RSI: ${RSI} | F&G: ${FG_VALUE} (${FG_CLASS})
-
-✅ Estrategia ajustada"
-fi
-
-echo ""
-echo "╔═══════════════════════════════════════════════════════╗"
-echo "║  ✅ AUTO-ADJUST COMPLETED                             ║"
-echo "╚═══════════════════════════════════════════════════════╝"
-echo ""
-echo "📁 Configuración en: ${DYNAMIC_CONFIG}"
-echo ""
-echo "🔄 El bot usará esta configuración en la próxima ejecución"
-echo ""
-
-# ════════════════════════════════════════════════════════
-# PASO 4: VALIDACIÓN ML (NUEVO)
-# ════════════════════════════════════════════════════════
-
-echo "⏳ Paso 4/4: Ejecutando ML validation..."
+echo "⏳ Paso 3/3: Ejecutando ML validation..."
 
 # FIX: Verificar edad de ML predictions antes de validar
 ML_RESULT_FILE="${SCRIPT_DIR}/../ml/market-predictions.json"
@@ -144,38 +195,68 @@ fi
 "${ML_VALIDATOR}"  # ML validator en crypto-bots/
 
 # ════════════════════════════════════════════════════════
-# PASO 5: NOTIFICAR + APLICAR OVERRIDE (DESPUÉS DE ML VALIDATION)
+# PASO 4: RESULTADO FINAL + OVERRIDE + NOTIFICACIÓN
 # ════════════════════════════════════════════════════════
 
-# Leer resultado de ML validation
-ML_RESULT_FILE="${SCRIPT_DIR}/../ml/market-predictions.json"
+OVERRIDE=""
+FINAL_MODE="$MARKET_MODE"
+ML_CONFIDENCE="N/A"
+
 if [ -f "$ML_RESULT_FILE" ]; then
-    ML_DISCREPANCY=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print('true' if d.get('discrepancy', False) else 'false')")
-    ML_MODE=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(d.get('recommended_mode', 'UNKNOWN'))")
-    ML_CONFIDENCE=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(f\"{d['predictions'].get('BTC', {}).get('confidence', 0)*100:.0f}%\")")
-    ML_CONF_NUM=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(int(d['predictions'].get('BTC', {}).get('confidence', 0)*100))")
-    
-    # Determinar modo final y aplicar override si corresponde
-    if [ "$ML_DISCREPANCY" = "true" ] && [ "$ML_CONF_NUM" -gt 80 ]; then
+    ML_DISCREPANCY=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print('true' if d.get('discrepancy', False) else 'false')" 2>/dev/null || echo "false")
+    ML_MODE=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(d.get('recommended_mode', 'UNKNOWN'))" 2>/dev/null || echo "UNKNOWN")
+    ML_CONFIDENCE=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(f\"{d['predictions'].get('BTC', {}).get('confidence', 0)*100:.0f}%\")" 2>/dev/null || echo "N/A")
+    ML_CONF_NUM=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(int(d['predictions'].get('BTC', {}).get('confidence', 0)*100))" 2>/dev/null || echo "0")
+    # ML metadata quality gate (required for override)
+    ML_F1_MACRO=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(d.get('metrics', {}).get('f1_macro', 0))" 2>/dev/null || echo "0")
+    ML_CV_MEAN=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(d.get('metrics', {}).get('cv_mean', 0))" 2>/dev/null || echo "0")
+
+    ML_GATE="false"
+    if [ "$ML_DISCREPANCY" = "true" ] && [ "$ML_CONF_NUM" -gt 80 ] && [ "$(python3 -c "print($ML_F1_MACRO > 0.55)")" = "True" ] && [ "$(python3 -c "print($ML_CV_MEAN > 0.75)")" = "True" ]; then
+        ML_GATE="true"
+    fi
+
+    if [ "$ML_GATE" = "true" ]; then
         FINAL_MODE="$ML_MODE"
         OVERRIDE="✅ ML override aplicado"
-        
-        # Aplicar override en dynamic-config.env
+        echo "🔁 Override ML aprobado (conf=$ML_CONFIDENCE, f1_macro=$ML_F1_MACRO, cv_mean=$ML_CV_MEAN)"
+        # Apply override in dynamic config
         if [ -f "$DYNAMIC_CONFIG" ]; then
             sed -i "s/^export MARKET_MODE=.*/export MARKET_MODE=\"$FINAL_MODE\"/" "$DYNAMIC_CONFIG"
             echo "" >> "$DYNAMIC_CONFIG"
-            echo "# ML Override: $(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(d.get('reason', ''))")" >> "$DYNAMIC_CONFIG"
+            echo "# ML Override: $(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(d.get('reason', ''))" 2>/dev/null || echo "")" >> "$DYNAMIC_CONFIG"
             echo "# ML Confidence: $ML_CONFIDENCE" >> "$DYNAMIC_CONFIG"
+            echo "# ML Gate: f1_macro=$ML_F1_MACRO cv_mean=$ML_CV_MEAN" >> "$DYNAMIC_CONFIG"
         fi
     else
-        FINAL_MODE="$MARKET_MODE"  # FIX: Usar MARKET_MODE en lugar de AUTO_MODE (no definida)
         OVERRIDE="✅ ML de acuerdo"
+        if [ "$ML_DISCREPANCY" = "true" ]; then
+            echo "⚠️  Override ML descartado por métricas insuficientes (conf=$ML_CONFIDENCE, f1_macro=$ML_F1_MACRO, cv_mean=$ML_CV_MEAN)"
+        fi
     fi
-    
-    # Notificar resultado final (formato compacto)
-    if [ -f "${WORKSPACE}/lib/send-telegram.sh" ]; then
-        source "${WORKSPACE}/lib/send-telegram.sh"
-        send_telegram "🧠 AUTO-ADJUST + ML VALIDATION
+else
+    OVERRIDE="⚠️ ML no disponible"
+fi
+
+# Notificación única final
+if [ -f "${WORKSPACE}/lib/send-telegram.sh" ]; then
+    source "${WORKSPACE}/lib/send-telegram.sh"
+    if [ "$CB_ALLOWED" = "false" ]; then
+        send_telegram "🧠 AUTO-ADJUST FINAL
+
+🎯 Modo: ${FINAL_MODE}
+📝 Razón: ${MARKET_REASON}
+🛑 Circuit breaker activo: parámetros defensivos
+
+⚙️ TP1/2/3: +${TP1}/${TP2}/${TP3}% | SL: -${SL}%
+💰 Position: ${POSITION_SIZE}%
+
+📊 BTC: \\$${BTC_PRICE} | RSI: ${RSI} | F&G: ${FG_VALUE} (${FG_CLASS})
+🤖 ML: ${ML_CONFIDENCE} | ${OVERRIDE}
+
+✅ Ajuste aplicado"
+    else
+        send_telegram "🧠 AUTO-ADJUST FINAL
 
 🎯 Modo: ${FINAL_MODE} | ${OVERRIDE}
 📝 Razón: ${MARKET_REASON}
@@ -183,27 +264,21 @@ if [ -f "$ML_RESULT_FILE" ]; then
 ⚙️ TP1/2/3: +${TP1}/${TP2}/${TP3}% | SL: -${SL}%
 💰 Position: ${POSITION_SIZE}%
 
-📊 BTC: \$${BTC_PRICE} | RSI: ${RSI} | F&G: ${FG_VALUE} (${FG_CLASS})
+📊 BTC: \\$${BTC_PRICE} | RSI: ${RSI} | F&G: ${FG_VALUE} (${FG_CLASS})
 🤖 ML: ${ML_CONFIDENCE}
 
-✅ Estrategia validada"
-    fi
-else
-    # Fallback: notificar sin ML (formato compacto)
-    if [ -f "${WORKSPACE}/lib/send-telegram.sh" ]; then
-        source "${WORKSPACE}/lib/send-telegram.sh"
-        send_telegram "🧠 AUTO-ADJUST STRATEGY
-
-🎯 Modo: ${MARKET_MODE}
-📝 Razón: ${MARKET_REASON}
-
-⚙️ TP1/2/3: +${TP1}/${TP2}/${TP3}% | SL: -${SL}%
-💰 Position: ${POSITION_SIZE}%
-
-📊 BTC: \$${BTC_PRICE} | RSI: ${RSI} | F&G: ${FG_VALUE} (${FG_CLASS})
-
-✅ Estrategia ajustada"
+✅ Ajuste aplicado"
     fi
 fi
+
+echo ""
+echo "╔═══════════════════════════════════════════════════════╗"
+echo "║  ✅ AUTO-ADJUST COMPLETED                             ║"
+echo "╚═══════════════════════════════════════════════════════╝"
+echo ""
+echo "📁 Configuración en: ${DYNAMIC_CONFIG}"
+echo ""
+echo "🔄 El bot usará esta configuración en la próxima ejecución"
+echo ""
 
 exit 0
