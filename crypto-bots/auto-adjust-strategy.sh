@@ -239,36 +239,16 @@ else
 fi
 
 # Notificación única final
+MSG_FINAL=""
+if [ "$CB_ALLOWED" = "false" ]; then
+    MSG_FINAL=$(printf "🧠 AUTO-ADJUST FINAL\n\n🎯 Modo: %s\n📝 Razón: %s\n🛑 Circuit breaker activo: parámetros defensivos\n\n⚙️ TP1/2/3: +%s/%s/%s%% | SL: -%s%%\n💰 Position: %s%%\n\n📊 BTC: \$%s | RSI: %s | F&G: %s (%s)\n🤖 ML: %s | %s\n\n✅ Ajuste aplicado" "$FINAL_MODE" "$MARKET_REASON" "$TP1" "$TP2" "$TP3" "$SL" "$POSITION_SIZE" "$BTC_PRICE" "$RSI" "$FG_VALUE" "$FG_CLASS" "$ML_CONFIDENCE" "$OVERRIDE")
+else
+    MSG_FINAL=$(printf "🧠 AUTO-ADJUST FINAL\n\n🎯 Modo: %s | %s\n📝 Razón: %s\n\n⚙️ TP1/2/3: +%s/%s/%s%% | SL: -%s%%\n💰 Position: %s%%\n\n📊 BTC: \$%s | RSI: %s | F&G: %s (%s)\n🤖 ML: %s\n\n✅ Ajuste aplicado" "$FINAL_MODE" "$OVERRIDE" "$MARKET_REASON" "$TP1" "$TP2" "$TP3" "$SL" "$POSITION_SIZE" "$BTC_PRICE" "$RSI" "$FG_VALUE" "$FG_CLASS" "$ML_CONFIDENCE")
+fi
+
 if [ -f "${WORKSPACE}/lib/send-telegram.sh" ]; then
     source "${WORKSPACE}/lib/send-telegram.sh"
-    if [ "$CB_ALLOWED" = "false" ]; then
-        send_telegram "🧠 AUTO-ADJUST FINAL
-
-🎯 Modo: ${FINAL_MODE}
-📝 Razón: ${MARKET_REASON}
-🛑 Circuit breaker activo: parámetros defensivos
-
-⚙️ TP1/2/3: +${TP1}/${TP2}/${TP3}% | SL: -${SL}%
-💰 Position: ${POSITION_SIZE}%
-
-📊 BTC: \\$${BTC_PRICE} | RSI: ${RSI} | F&G: ${FG_VALUE} (${FG_CLASS})
-🤖 ML: ${ML_CONFIDENCE} | ${OVERRIDE}
-
-✅ Ajuste aplicado"
-    else
-        send_telegram "🧠 AUTO-ADJUST FINAL
-
-🎯 Modo: ${FINAL_MODE} | ${OVERRIDE}
-📝 Razón: ${MARKET_REASON}
-
-⚙️ TP1/2/3: +${TP1}/${TP2}/${TP3}% | SL: -${SL}%
-💰 Position: ${POSITION_SIZE}%
-
-📊 BTC: \\$${BTC_PRICE} | RSI: ${RSI} | F&G: ${FG_VALUE} (${FG_CLASS})
-🤖 ML: ${ML_CONFIDENCE}
-
-✅ Ajuste aplicado"
-    fi
+    send_telegram "$MSG_FINAL"
 fi
 
 echo ""
