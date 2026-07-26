@@ -319,6 +319,18 @@ def validate_trade(symbol, trade_type="NORMAL", direction="LONG"):
         confidence = min(100, confidence + 5)
     elif market_regime == "BEAR" and direction == "SHORT":
         confidence = min(100, confidence + 5)
+    elif market_regime == "LATERAL_BULL" and direction == "LONG":
+        # Regla 2/3 filtros: tender + RSI/Volumen medios-altos en lateral alcista
+        trend_ok = indicators.get('trend_bullish', False)
+        rsi_ok = 45 <= rsi <= 75
+        vol_ok = volume_ratio >= 1.0
+        strong_filters = sum([trend_ok, rsi_ok, vol_ok])
+        if strong_filters >= 2:
+            confidence = min(100, confidence + 10)
+            reasons.append("LATERAL_BULL override: 2/3 filtros OK")
+        else:
+            confidence = max(0, confidence - 5)
+            reasons.append("LATERAL_BULL: filtros insuficientes")
     elif market_regime == "LATERAL":
         confidence = max(0, confidence - 5)  # Lateral es más riesgoso
     
