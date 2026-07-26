@@ -216,11 +216,11 @@ if [ -f "$ML_RESULT_FILE" ]; then
         ML_GATE="true"
     fi
 
-    if [ "$ML_GATE" = "true" ]; then
+    ALLOWED_OVERRIDE_MODES="BULL|LATERAL|BEAR|VOLATILE_BULL|VOLATILE_BEAR"
+    if [ "$ML_GATE" = "true" ] && echo "$MARKET_MODE" | grep -Eq "$ALLOWED_OVERRIDE_MODES"; then
         FINAL_MODE="$ML_MODE"
         OVERRIDE="✅ ML override aplicado"
         echo "🔁 Override ML aprobado (conf=$ML_CONFIDENCE, f1_macro=$ML_F1_MACRO, cv_mean=$ML_CV_MEAN)"
-        # Apply override in dynamic config
         if [ -f "$DYNAMIC_CONFIG" ]; then
             sed -i "s/^export MARKET_MODE=.*/export MARKET_MODE=\"$FINAL_MODE\"/" "$DYNAMIC_CONFIG"
             echo "" >> "$DYNAMIC_CONFIG"
@@ -231,7 +231,7 @@ if [ -f "$ML_RESULT_FILE" ]; then
     else
         OVERRIDE="✅ ML de acuerdo"
         if [ "$ML_DISCREPANCY" = "true" ]; then
-            echo "⚠️  Override ML descartado por métricas insuficientes (conf=$ML_CONFIDENCE, f1_macro=$ML_F1_MACRO, cv_mean=$ML_CV_MEAN)"
+            echo "⚠️  Override ML descartado (modo extendido=$MARKET_MODE o métricas insuficientes)"
         fi
     fi
 else
