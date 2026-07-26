@@ -120,6 +120,8 @@ def detect_market_mode(price: float, ema20: float, ema50: float, fg: int, rsi: f
         return "BULL", "Fear & Greed > 60 + Precio > EMA20"
     if fg < 40 and price < ema20:
         return "BEAR", "Fear & Greed < 40 + Precio < EMA20"
+    if price > ema20 and rsi >= 45 and fg < 50:
+        return "LATERAL_BULL", "Precio > EMA20 + RSI >= 45 + Fear/Greed < 50"
     if rsi > 70:
         return "VOLATILE_BULL", "RSI > 70 (sobrecompra)"
     if rsi < 30:
@@ -129,6 +131,7 @@ def detect_market_mode(price: float, ema20: float, ema50: float, fg: int, rsi: f
 
 MODE_PARAMS = {
     "BULL": dict(TP1=3.0, TP2=6.0, TP3=10.0, SL=8.0, POSITION_SIZE=25, TRAILING_STOP="true"),
+    "LATERAL_BULL": dict(TP1=3.0, TP2=6.0, TP3=9.0, SL=3.5, POSITION_SIZE=20, TRAILING_STOP="false"),
     "BEAR": dict(TP1=2.0, TP2=4.0, TP3=6.0, SL=4.0, POSITION_SIZE=15, TRAILING_STOP="false"),
     "VOLATILE_BULL": dict(TP1=3.5, TP2=7.0, TP3=12.0, SL=10.0, POSITION_SIZE=20, TRAILING_STOP="true"),
     "VOLATILE_BEAR": dict(TP1=2.0, TP2=4.0, TP3=6.0, SL=5.0, POSITION_SIZE=15, TRAILING_STOP="false"),
