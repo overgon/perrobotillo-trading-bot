@@ -1246,7 +1246,16 @@ Target: ${SCALP_TARGET_PERCENT}%
                 local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
                 
                 # LOG TRADE TO HISTORY
-                log_trade_to_history "$slot_id" "TP1" "$entry" "$current_price" "$sell_qty" "$pnl"
+                log_trade_to_history "$slot_id" "CLOSED_TP1" "$entry" "$current_price" "$sell_qty" "$pnl"
+                
+                # 🐕 FIX persistencia TP1 si log_trade_to_history falló
+                if [ "$(jq -r --arg sy "$SYMBOL" --argjson sid "$slot_id" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType=="CLOSED_TP1")] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)" = "0" ]; then
+                    log "  ⚠️ log_trade_to_history no persistió CLOSED_TP1; reintento forzado"
+                    TP1_HIST=1
+                    capture_account_snapshot
+                    build_trade_evidence "TP1"
+                    log_trade_to_history "$slot_id" "CLOSED_TP1" "$entry" "$current_price" "$sell_qty" "$pnl"
+                fi
                 
                 # 🐕 FIX: Actualizar quantity restante después de TP1
                 local remaining_qty=$(awk -v orig="$quantity" -v sold="$sell_qty" 'BEGIN {printf "%.8f", orig - sold}')

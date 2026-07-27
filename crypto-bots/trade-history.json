@@ -9,13 +9,13 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 217,
-  "totalWins": 130,
+  "totalTrades": 218,
+  "totalWins": 131,
   "totalLosses": 87,
-  "totalProfitUSDT": 406.385148,
+  "totalProfitUSDT": 406.9138751,
   "totalLossUSDT": -438.235241,
-  "netPnLUSDT": -31.850093,
-  "winRate": 59.91,
+  "netPnLUSDT": -31.3213659,
+  "winRate": 60.09,
   "trades": [
     {
       "id": 217,
@@ -3166,7 +3166,28 @@
       "feeSell": 0.0,
       "executedBy": "RECOVERY",
       "seeded": true
+    },
+    {
+      "id": 218,
+      "symbol": "SOL",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 75.03,
+      "exitPrice": 76.92625,
+      "quantity": 0.27885,
+      "closeType": "CLOSED_TP1",
+      "pnlUSDT": 0.5287271,
+      "timestamp": "2026-07-27T13:24:07.643398+00:00",
+      "closeTime": "2026-07-27 07:24:07",
+      "source": "BOT",
+      "strategy": "SPOT",
+      "status": "CLOSED_TP1",
+      "orderId": 17541051601,
+      "feeBuy": 4.221e-05,
+      "feeSell": 0.0,
+      "seeded": false,
+      "note": "TP1 recovered - manual history backfill after bugfix"
     }
   ],
-  "updatedAt": "2026-07-24T10:15:55.806570"
+  "updatedAt": "2026-07-27T13:24:07.643398+00:00"
 }
