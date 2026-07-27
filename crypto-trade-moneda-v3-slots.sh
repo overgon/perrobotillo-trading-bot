@@ -203,19 +203,11 @@ adapter_slot_trade_to_log_trade() {
 
 log_trade_to_history() {
     local slot_id="$1"
-    local close_type="$2"  # TP1, TP2, TP3, SL, TRAILING, SCALP, MANUAL_CLOSE_ZOMBIE, MANUAL, LIQUIDATE
+    local close_type="$2"
     local entry_price="$3"
     local exit_price="$4"
     local quantity="$5"
     local pnl="$6"
-    local source="${7:-BOT}"
-    local order_id="${8:-}"
-    local raw_response_size="${9:-0}"
-    local strategy="${10:-SPOT}"
-    local executed_by="${11:-BOT}"
-    local bot_pid="${12:-$$}"
-    local account_snapshot="${13:-{}}"
-    local evidence="${14:-}"
 
     if [ ! -f "$HISTORY_FILE" ]; then
         log "⚠️ HISTORY_FILE no existe, no se puede loggear trade"
@@ -257,7 +249,7 @@ log_trade_to_history() {
 
     local dup_key="${SYMBOL}|${slot_id}|${close_type}|$(date +%Y-%m-%dT%H:%M)"
     local existing
-    existing=$(jq --arg key "$dup_key" '[.trades[] | select((.symbol + "|" + (.slotId|tostring) + "|" + .closeType + "|" + (.timestamp | split("T")[0] + "T" + (.timestamp | split("T")[1] | split(":")[0] + ":" + (.timestamp | split("T")[1] | split(":")[1]))) == $key)] | length' "$HISTORY_FILE" 2>/dev/null)
+    existing=$(jq --arg key "$dup_key" '[.trades[] | select((.symbol + "|" + (.slotId|tostring) + "|" + .closeType + "|" + (.timestamp | split("T")[0] + "T" + (.timestamp | split("T")[1] | split(":")[0] + ":" + (.timestamp | split("T")[1] | split(":")[1]))) == $key)] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)
     if [ "$existing" != "0" ] && [ "$existing" != "null" ] && [ "$close_type" != "MANUAL_CLOSE_ZOMBIE" ]; then
         log "  ⚠️ Trade DUPLICADO por clave minuto exacta (${SYMBOL} Slot ${slot_id} ${close_type}) - NO guardar"
         return 0
@@ -280,14 +272,14 @@ log_trade_to_history() {
         --argjson pnl "$pnl" \
         --arg ts "$timestamp" \
         --arg closeTime "$close_time" \
-        --arg source "$source" \
-        --arg orderId "$order_id" \
-        --argjson rawResponseSize "$raw_response_size" \
-        --arg strategy "$strategy" \
-        --arg executedBy "$executed_by" \
-        --arg botPid "$bot_pid" \
-        --argjson accountSnapshot "$account_snapshot" \
-        --arg evidence "$evidence" \
+        --arg source "${source:-BOT}" \
+        --arg orderId "${order_id:-}" \
+        --argjson rawResponseSize "${raw_response_size:-0}" \
+        --arg strategy "${strategy:-SPOT}" \
+        --arg executedBy "${executed_by:-BOT}" \
+        --arg botPid "${bot_pid:-}" \
+        --argjson accountSnapshot "${account_snapshot:-{}}" \
+        --arg evidence "${evidence:-}" \
         '{
             id: $id,
             symbol: $symbol,
@@ -304,7 +296,7 @@ log_trade_to_history() {
             orderId: ($orderId | if . == "" then null else . end),
             rawResponseSize: ($rawResponseSize | if type == "number" then . else (tonumber // 0) end),
             strategy: $strategy,
-            executedBy: $executed_by,
+            executedBy: $executedBy,
             botPid: ($botPid | if . == "" then null else (. | tonumber) end),
             accountSnapshot: $accountSnapshot,
             evidence: ($evidence | if . == "" then null else . end),
@@ -325,7 +317,27 @@ log_trade_to_history() {
        '.trades = [$trades] + .trades | .totalTrades = $totalTrades | .totalWins = $totalWins | .totalLosses = $totalLosses | .totalProfitUSDT = $totalProfit | .totalLossUSDT = $totalLoss | .netPnLUSDT = $netPnL | .winRate = ($winRate | tonumber) | .updatedAt = now | todate | .bySymbol[$symbolIndexKey].trades = ((.bySymbol[$symbolIndexKey].trades // 0) + 1) | .byDay[$dayIndexKey].trades = ((.byDay[$dayIndexKey].trades // 0) + 1)' \
        "$HISTORY_FILE" > "$temp_file" && mv "$temp_file" "$HISTORY_FILE"
 
-    log "  📜 Trade logged to history: #${trade_id:-$new_trades} ${SYMBOL} ${close_type} PnL=\$${pnl} source=${source} orderId=${order_id:-n/a}"
+    local written_id
+    written_id=$(jq -r --arg sy "$SYMBOL" --argjson sid "$slot_id" --arg ct "$close_type" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType==$ct)] | first?.id // 0' "$HISTORY_FILE" 2>/dev/null || echo 0)
+    if [ "${written_id:-0}" = "0" ]; then
+        log "  ⚠️ history write no confirmó persistencia; reintento numbered"
+        local retry_n
+        retry_n=$(jq -r '[.trades // [] | length] + 1' "$HISTORY_FILE")
+        jq --argjson trades "$new_trade" \
+           --argjson totalTrades "$retry_n" \
+           --argjson totalWins "$current_wins" \
+           --argjson totalLosses "$current_losses" \
+           --argjson totalProfit "$current_profit" \
+           --argjson totalLoss "$current_loss" \
+           --argjson netPnL "$new_net" \
+           --arg winRate "$win_rate" \
+           --arg symbolIndexKey "$SYMBOL" \
+           --arg dayIndexKey "$(date +%Y-%m-%d)" \
+           '.trades = [$trades] + .trades | .totalTrades = $totalTrades | .totalWins = $totalWins | .totalLosses = $totalLosses | .totalProfitUSDT = $totalProfit | .totalLossUSDT = $totalLoss | .netPnLUSDT = $netPnL | .winRate = ($winRate | tonumber) | .updatedAt = now | todate | .bySymbol[$symbolIndexKey].trades = ((.bySymbol[$symbolIndexKey].trades // 0) + 1) | .byDay[$dayIndexKey].trades = ((.byDay[$dayIndexKey].trades // 0) + 1)' \
+           "$HISTORY_FILE" > "$temp_file" && mv "$temp_file" "$HISTORY_FILE"
+    fi
+
+    log "  📜 Trade logged to history: #${trade_id:-$new_trades} ${SYMBOL} ${close_type} PnL=\$${pnl} source=${source:-BOT} orderId=${order_id:-n/a}"
 
     if [ "$source" = "BOT" ]; then
         detect_account_drift "AFTER_${close_type}"
@@ -1124,7 +1136,7 @@ check_slot_tp_sl() {
                     local pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
                     
                     # LOG TRADE TO HISTORY
-                    log_trade_to_history "$slot_id" "SCALP" "$entry" "$exit_price" "$quantity" "$pnl"
+                    log_trade_to_history "$slot_id" "CLOSED_SCALP" "$entry" "$exit_price" "$quantity" "$pnl"
                     
                     # Actualizar P&L diario
                     update_pnl_after_close "$slot_id" "SCALP" "$entry" "$exit_price" "$quantity" "$fee_usd"
@@ -1381,7 +1393,7 @@ El slot sigue activo y reintentará en próximos ciclos."
                 local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
                 
                 # LOG TRADE TO HISTORY
-                log_trade_to_history "$slot_id" "TP2" "$entry" "$current_price" "$sell_qty" "$pnl"
+                log_trade_to_history "$slot_id" "CLOSED_TP2" "$entry" "$current_price" "$sell_qty" "$pnl"
                 
                 # 🐕 FIX: Actualizar quantity restante después de TP2
                 local remaining_qty=$(awk -v orig="$quantity" -v sold="$sell_qty" 'BEGIN {printf "%.8f", orig - sold}')
@@ -1530,7 +1542,7 @@ El slot permanece activo."
                 local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$quantity" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
                 
                 # LOG TRADE TO HISTORY
-                log_trade_to_history "$slot_id" "TP3" "$entry" "$current_price" "$quantity" "$pnl"
+                log_trade_to_history "$slot_id" "CLOSED_TP3" "$entry" "$current_price" "$quantity" "$pnl"
                 
                 # 🐕 FIX: Actualizar quantity a 0 (o el 5% acumulado) después de TP3
                 # En modo acumulación, 5% se queda en Binance, pero el slot se cierra
@@ -1631,7 +1643,7 @@ ACUMULADO: 5% se queda HODL 📈
                 local pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
                 
                 # LOG TRADE TO HISTORY
-                log_trade_to_history "$slot_id" "SL" "$entry" "$exit_price" "$quantity" "$pnl"
+                log_trade_to_history "$slot_id" "CLOSED_SL" "$entry" "$exit_price" "$quantity" "$pnl"
                 
                 # Marcar SL como ejecutado
                 log "  🛑 SL ejecutado"
@@ -1722,7 +1734,7 @@ execute_trailing_stop() {
         local pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
         
         # LOG TRADE TO HISTORY
-        log_trade_to_history "$slot_id" "TRAILING" "$entry" "$exit_price" "$quantity" "$pnl"
+        log_trade_to_history "$slot_id" "CLOSED_TRAILING" "$entry" "$exit_price" "$quantity" "$pnl"
         
         # Actualizar P&L diario
         update_pnl_after_close "$slot_id" "TRAILING" "$entry" "$exit_price" "$quantity" "$fee_usd"
