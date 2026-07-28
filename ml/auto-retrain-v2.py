@@ -81,11 +81,12 @@ def check_if_retrain_needed(coin: str) -> bool:
         logger.info(f"{coin}: Modelo tiene {days_old} días, re-entrenando")
         return True
     
-    # 3. Verificar accuracy
-    accuracy = metadata.get('metrics', {}).get('accuracy', 0)
-    
-    if accuracy < 0.85:
-        logger.warning(f"{coin}: Accuracy muy baja ({accuracy:.2%}), re-entrenando urgente")
+    # 3. Verificar métrica principal de metadata o fallback a accuracy
+    metric_key = metadata.get('primary_metric', 'accuracy')
+    current_metric = metadata.get('metrics', {}).get(metric_key, metadata.get('metrics', {}).get('accuracy', 0))
+    threshold = 0.80 if metric_key == 'f1_macro' else 0.85
+    if current_metric < threshold:
+        logger.warning(f"{coin}: {metric_key}={current_metric:.2%} < {threshold:.0%}, re-entrenando urgente")
         return True
     
     # 4. Verificar trades nuevos desde último entrenamiento

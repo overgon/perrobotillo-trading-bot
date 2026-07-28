@@ -16,7 +16,7 @@ from typing import Dict, List, Tuple
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import SelectKBest, mutual_info_classif
 import warnings
@@ -240,7 +240,7 @@ class OptimizedMLPipeline:
         
         # Cross-validation estricto (10 folds)
         print("\n🔄 Cross-validation (10 folds)...")
-        cv_scores = cross_val_score(self.model, X_train_scaled, y_train, cv=10)
+        cv_scores = cross_val_score(self.model, X_train_scaled, y_train, cv=StratifiedKFold(10, shuffle=True, random_state=42))
         cv_mean = cv_scores.mean()
         cv_std = cv_scores.std()
         

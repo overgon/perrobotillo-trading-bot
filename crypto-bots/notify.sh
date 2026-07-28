@@ -67,12 +67,12 @@ send_telegram() {
         return 1
     fi
     local escaped
-    escaped="$(printf '%s' "$message" | sed 's/"/\\"/g' | tr '\n' ' ')";
+    escaped="$(printf '%s' "$message" | jq -R . | jq -s -R 'rtrimstr("\n")')"
     local result
     result="$(curl -s -w "\nHTTP_CODE:%{http_code}" -X POST \
         "https://api.telegram.org/bot${bot_token}/sendMessage" \
         -H 'Content-Type: application/json' \
-        -d "{\"chat_id\":\"${CHAT_ID}\",\"text\":\"${escaped}\",\"parse_mode\":\"HTML\"}" 2>&1)"
+        -d "{\"chat_id\":\"${CHAT_ID}\",\"text\":${escaped},\"parse_mode\":\"HTML\"}" 2>&1)"
     local code
     code="$(echo "$result" | grep "HTTP_CODE:" | cut -d':' -f2)"
     if [ "$code" = "200" ]; then

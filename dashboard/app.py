@@ -253,6 +253,16 @@ def get_portfolio_value():
         
     except Exception as e:
         print(f"❌ Error getting portfolio from Binance: {e}")
+        cache_value = None
+        if os.path.exists(cache_file):
+            try:
+                with open(cache_file) as f:
+                    cache_value = float(json.load(f).get('value', 0))
+            except Exception:
+                cache_value = None
+        if cache_value:
+            print(f"⚠️  Usando cache local de portfolio: ${cache_value:.2f}")
+            return cache_value
         # Fallback to snapshot
         try:
             snapshot_file = f"{WORKSPACE}/portfolio-snapshot.json"
@@ -260,7 +270,7 @@ def get_portfolio_value():
                 with open(snapshot_file, 'r') as f:
                     data = json.load(f)
                     return float(data.get('value', 0))
-        except:
+        except Exception:
             pass
         return 0.0
 

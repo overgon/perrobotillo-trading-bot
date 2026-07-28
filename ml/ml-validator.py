@@ -104,7 +104,7 @@ def get_klines(symbol, interval='1h', limit=100):
     return None
 
 def get_market_regime(symbol):
-    """Detectar market regime (BULL/BEAR/LATERAL)"""
+    """Detectar market regime (BULL/BEAR/LATERAL/LATERAL_BULL)"""
     data = get_klines(symbol, interval='4h', limit=50)
     if not data:
         return "UNKNOWN", 0
@@ -121,6 +121,8 @@ def get_market_regime(symbol):
         return "BULL", 0.8
     elif current_price < sma_20 < sma_50:
         return "BEAR", 0.8
+    elif current_price > sma_20 and sma_20 <= sma_50:
+        return "LATERAL_BULL", 0.7
     else:
         return "LATERAL", 0.6
 

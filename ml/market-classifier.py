@@ -166,11 +166,12 @@ def extract_features(df, symbol):
 
 def label_market_mode(df):
     """
-    Etiquetar cada fila como BULL/BEAR/LATERAL basado en price action
+    Etiquetar cada fila como BULL/BEAR/LATERAL/LATERAL_BULL basado en price action
     
     Reglas:
     - BULL: price_trend > 2% y RSI > 55 y ema_9 > ema_21
     - BEAR: price_trend < -2% y RSI < 45 y ema_9 < ema_21
+    - LATERAL_BULL: RSI 40-70 y precio en mitad superior de BB
     - LATERAL: todo lo demás
     """
     labels = []
@@ -179,11 +180,14 @@ def label_market_mode(df):
         trend = row.get('price_trend', 0)
         rsi = row.get('rsi', 50)
         ema_cross = row.get('ema_cross', 0)
+        bb_position = row.get('bb_position', 0.5)
         
         if trend > 0.02 and rsi > 55 and ema_cross > 0:
             labels.append('BULL')
         elif trend < -0.02 and rsi < 45 and ema_cross < 0:
             labels.append('BEAR')
+        elif 40 <= rsi <= 70 and bb_position >= 0.3:
+            labels.append('LATERAL_BULL')
         else:
             labels.append('LATERAL')
     
@@ -219,9 +223,13 @@ def generate_training_data():
     # Combinar todos los datos
     combined = pd.concat(all_data, ignore_index=True)
     
+    # Etiquetar antes de guardar/cachear para persistir LATERAL_BULL
+    combined['market_mode'] = label_market_mode(combined)
+    
     # Guardar
     combined.to_csv(DATA_FILE, index=False)
     print(f"✅ Data guardada: {len(combined)} filas")
+    print('Label counts:', combined['market_mode'].value_counts().to_dict())
     
     return combined
 

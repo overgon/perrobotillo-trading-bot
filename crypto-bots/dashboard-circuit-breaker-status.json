@@ -2,9 +2,9 @@
   "circuitBreakerActive": true,
   "status": "GLOBAL_PAUSE",
   "triggeredBy": "loss_rate",
-  "activatedAt": "2026-06-23T02:00:02.208268",
-  "pauseUntil": "2026-06-23 14:00:02",
-  "losses24h": 1,
+  "activatedAt": "2026-07-28T11:04:01.247773",
+  "pauseUntil": "2026-07-28 23:04:01",
+  "losses24h": 2,
   "message": "\ud83d\udd34 Circuit Breaker ON - 100.00% loss rate",
   "allowedOperations": [
     "SL Management",
@@ -15,5 +15,5 @@
     "New Entries",
     "DCA Operations"
   ],
-  "lastChecked": "2026-06-23T02:00:02.208297"
+  "lastChecked": "2026-07-28T11:04:01.247795"
 }

@@ -111,6 +111,126 @@
       "closeTime": "2026-07-13T09:03:56.506018+00:00",
       "orderId": null,
       "quantityRatio": 0.35
+    },
+    {
+      "coin": "AVAX",
+      "slotId": 1,
+      "closeType": "TP2",
+      "entryPrice": 6.425,
+      "closePrice": 6.755,
+      "quantity": 0.60272623,
+      "usdtSpent": 22.68025,
+      "closeTime": "2026-07-15T00:01:56.041358+00:00",
+      "orderId": null,
+      "quantityRatio": 0.3
+    },
+    {
+      "coin": "AVAX",
+      "slotId": 1,
+      "closeType": "TP2",
+      "entryPrice": 6.425,
+      "closePrice": 6.75,
+      "quantity": 0.60272623,
+      "usdtSpent": 22.68025,
+      "closeTime": "2026-07-15T12:53:55.443671+00:00",
+      "orderId": null,
+      "quantityRatio": 0.3
+    },
+    {
+      "coin": "AVAX",
+      "slotId": 1,
+      "closeType": "TP2",
+      "entryPrice": 6.425,
+      "closePrice": 6.751,
+      "quantity": 0.60272623,
+      "usdtSpent": 22.68025,
+      "closeTime": "2026-07-15T12:55:13.185913+00:00",
+      "orderId": null,
+      "quantityRatio": 0.3
+    },
+    {
+      "coin": "AVAX",
+      "slotId": 1,
+      "closeType": "TP2",
+      "entryPrice": 6.425,
+      "closePrice": 6.749,
+      "quantity": 0.60272623,
+      "usdtSpent": 22.68025,
+      "closeTime": "2026-07-15T12:58:28.501501+00:00",
+      "orderId": null,
+      "quantityRatio": 0.3
+    },
+    {
+      "coin": "AVAX",
+      "slotId": 1,
+      "closeType": "TP2",
+      "entryPrice": 6.425,
+      "closePrice": 6.749,
+      "quantity": 0.60272623,
+      "usdtSpent": 22.68025,
+      "closeTime": "2026-07-15T12:59:51.236420+00:00",
+      "orderId": null,
+      "quantityRatio": 0.3
+    },
+    {
+      "coin": "BTC",
+      "slotId": 1,
+      "closeType": "SL",
+      "entryPrice": 64844.8,
+      "closePrice": 63212.0,
+      "quantity": 0.00097,
+      "usdtSpent": 62.899456,
+      "closeTime": "2026-07-17T05:30:11.361354+00:00",
+      "orderId": null,
+      "quantityRatio": 1.0
+    },
+    {
+      "coin": "BTC",
+      "slotId": 1,
+      "closeType": "SL",
+      "entryPrice": 64844.8,
+      "closePrice": 63204.14,
+      "quantity": 0.00097,
+      "usdtSpent": 62.899456,
+      "closeTime": "2026-07-17T05:31:34.422640+00:00",
+      "orderId": null,
+      "quantityRatio": 1.0
+    },
+    {
+      "coin": "BTC",
+      "slotId": 1,
+      "closeType": "SL",
+      "entryPrice": 64844.8,
+      "closePrice": 63200.0,
+      "quantity": 0.00097,
+      "usdtSpent": 62.899456,
+      "closeTime": "2026-07-17T05:34:24.865257+00:00",
+      "orderId": null,
+      "quantityRatio": 1.0
+    },
+    {
+      "coin": "BTC",
+      "slotId": 2,
+      "closeType": "SL",
+      "entryPrice": 64803.99,
+      "closePrice": 63111.03,
+      "quantity": 0.00068,
+      "usdtSpent": 44.0667132,
+      "closeTime": "2026-07-17T05:37:00.343631+00:00",
+      "orderId": null,
+      "quantityRatio": 1.0
+    },
+    {
+      "coin": "BTC",
+      "slotId": 2,
+      "closeType": "SL",
+      "entryPrice": 64803.99,
+      "closePrice": 63108.4,
+      "quantity": 0.00068,
+      "usdtSpent": 44.0667132,
+      "closeTime": "2026-07-17T05:40:05.550780+00:00",
+      "orderId": null,
+      "quantityRatio": 1.0
     }
   ],
   "cashouts": [
@@ -194,6 +314,96 @@
       "amountUSDT": 8.124648,
       "price": 6.576,
       "quantityRatio": 0.35
+    },
+    {
+      "time": "2026-07-15T00:01:56.041358+00:00",
+      "coin": "AVAX",
+      "slotId": 1,
+      "type": "TP2",
+      "amountUSDT": 4.07141568,
+      "price": 6.755,
+      "quantityRatio": 0.3
+    },
+    {
+      "time": "2026-07-15T12:53:55.443671+00:00",
+      "coin": "AVAX",
+      "slotId": 1,
+      "type": "TP2",
+      "amountUSDT": 4.06840205,
+      "price": 6.75,
+      "quantityRatio": 0.3
+    },
+    {
+      "time": "2026-07-15T12:55:13.185913+00:00",
+      "coin": "AVAX",
+      "slotId": 1,
+      "type": "TP2",
+      "amountUSDT": 4.06900478,
+      "price": 6.751,
+      "quantityRatio": 0.3
+    },
+    {
+      "time": "2026-07-15T12:58:28.501501+00:00",
+      "coin": "AVAX",
+      "slotId": 1,
+      "type": "TP2",
+      "amountUSDT": 4.06779933,
+      "price": 6.749,
+      "quantityRatio": 0.3
+    },
+    {
+      "time": "2026-07-15T12:59:51.236420+00:00",
+      "coin": "AVAX",
+      "slotId": 1,
+      "type": "TP2",
+      "amountUSDT": 4.06779933,
+      "price": 6.749,
+      "quantityRatio": 0.3
+    },
+    {
+      "time": "2026-07-17T05:30:11.361354+00:00",
+      "coin": "BTC",
+      "slotId": 1,
+      "type": "SL",
+      "amountUSDT": 61.31564,
+      "price": 63212.0,
+      "quantityRatio": 1.0
+    },
+    {
+      "time": "2026-07-17T05:31:34.422640+00:00",
+      "coin": "BTC",
+      "slotId": 1,
+      "type": "SL",
+      "amountUSDT": 61.3080158,
+      "price": 63204.14,
+      "quantityRatio": 1.0
+    },
+    {
+      "time": "2026-07-17T05:34:24.865257+00:00",
+      "coin": "BTC",
+      "slotId": 1,
+      "type": "SL",
+      "amountUSDT": 61.304,
+      "price": 63200.0,
+      "quantityRatio": 1.0
+    },
+    {
+      "time": "2026-07-17T05:37:00.343631+00:00",
+      "coin": "BTC",
+      "slotId": 2,
+      "type": "SL",
+      "amountUSDT": 42.9155004,
+      "price": 63111.03,
+      "quantityRatio": 1.0
+    },
+    {
+      "time": "2026-07-17T05:40:05.550780+00:00",
+      "coin": "BTC",
+      "slotId": 2,
+      "type": "SL",
+      "amountUSDT": 42.913712,
+      "price": 63108.4,
+      "quantityRatio": 1.0
     }
   ]
 }

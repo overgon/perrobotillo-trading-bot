@@ -1,6 +1,6 @@
 {
   "coin": "LINK",
-  "trained_at": "2026-07-14T12:16:58.570500",
+  "trained_at": "2026-07-24T11:15:44.396031",
   "config": {
     "max_features": "sqrt",
     "max_depth": 8,
@@ -16,14 +16,17 @@
   "samples": 711,
   "metrics": {
     "accuracy": 0.7832167832167832,
-    "precision": 0.8594280658983702,
+    "precision": 0.8628286917760603,
     "recall": 0.7832167832167832,
-    "f1": 0.8111768573307035,
-    "cv_mean": 0.7886278195488722,
-    "cv_std": 0.04422912093191469,
-    "train_score": 0.8503521126760564,
+    "f1": 0.8120823382625959,
+    "cv_mean": 0.7849937343358395,
+    "cv_std": 0.05590363944748342,
+    "train_score": 0.8626760563380281,
     "test_score": 0.7832167832167832,
-    "overfitting_gap": 0.06713532945927314
+    "overfitting_gap": 0.0794592731212449,
+    "f1_macro": 0.0
   },
-  "is_optimized": true
+  "is_optimized": true,
+  "last_trade_count": 711,
+  "primary_metric": "f1_macro"
 }
