@@ -9,14 +9,30 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 220,
-  "totalWins": 131,
+  "totalTrades": 221,
+  "totalWins": 132,
   "totalLosses": 89,
   "totalProfitUSDT": 406.9138751,
   "totalLossUSDT": -438.235241,
-  "netPnLUSDT": -40.082266,
-  "winRate": 59.55,
+  "netPnLUSDT": -39.832266,
+  "winRate": 59.73,
   "trades": [
+    {
+      "id": 221,
+      "symbol": "BNB",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 576.41,
+      "exitPrice": 591.49,
+      "quantity": 0.017,
+      "closeType": "CLOSED_TP1",
+      "pnlUSDT": 0.25,
+      "timestamp": "2026-07-28T00:00:00.000000",
+      "closeTime": "2026-07-28T00:00:00",
+      "source": "BOT",
+      "status": "CLOSED_TP1",
+      "seeded": false
+    },
     {
       "id": 220,
       "symbol": "BTC",
@@ -3221,7 +3237,7 @@
       "note": "TP1 recovered - manual history backfill after bugfix"
     }
   ],
-  "updatedAt": "2026-07-28T11:03:36.747085",
+  "updatedAt": "2026-07-30T10:30:00.331638",
   "bySymbol": {
     "BTC": 17,
     "BNB": 36,
