@@ -9,14 +9,48 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 222,
+  "totalTrades": 224,
   "totalWins": 133,
-  "totalLosses": 89,
+  "totalLosses": 91,
   "totalProfitUSDT": 406.9138751,
   "totalLossUSDT": -438.235241,
-  "netPnLUSDT": -39.025252,
-  "winRate": 59.91,
+  "netPnLUSDT": -43.185252,
+  "winRate": 59.38,
   "trades": [
+    {
+      "id": 224,
+      "symbol": "BTC",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 64844.8,
+      "exitPrice": 62668.6,
+      "quantity": 0.00097,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -3.47,
+      "timestamp": "2026-07-31T10:59:00.000000",
+      "closeTime": "2026-07-31 10:59:00",
+      "source": "TELEGRAM_RECOVERY",
+      "status": "CLOSED_SL",
+      "note": "SL hit - recover from Telegram notify",
+      "seeded": false
+    },
+    {
+      "id": 223,
+      "symbol": "ETH",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 1592.13,
+      "exitPrice": 1877.71,
+      "quantity": 0.0122,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -0.69,
+      "timestamp": "2026-07-31T10:59:00.000000",
+      "closeTime": "2026-07-31 10:59:00",
+      "source": "TELEGRAM_RECOVERY",
+      "status": "CLOSED_SL",
+      "note": "SL hit - recover from Telegram notify",
+      "seeded": false
+    },
     {
       "id": 222,
       "symbol": "BNB",
@@ -3253,7 +3287,7 @@
       "note": "TP1 recovered - manual history backfill after bugfix"
     }
   ],
-  "updatedAt": "2026-07-30T10:51:02.970905",
+  "updatedAt": "2026-07-31T10:54:15.396882",
   "bySymbol": {
     "BTC": 17,
     "BNB": 36,

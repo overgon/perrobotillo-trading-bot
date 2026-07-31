@@ -1644,6 +1644,13 @@ ACUMULADO: 5% se queda HODL 📈
                 
                 # LOG TRADE TO HISTORY
                 log_trade_to_history "$slot_id" "CLOSED_SL" "$entry" "$exit_price" "$quantity" "$pnl"
+
+                # ✅ Verificación final de persistencia antes de continuar
+                local history_check=$(jq --arg sy "$SYMBOL" --argjson sid "$slot_id" --arg ct "CLOSED_SL" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType==$ct)] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)
+                if [ "${history_check:-0}" = "0" ]; then
+                    log "  ❌ SEGURIDAD: history no persistió CLOSED_SL tras reintento; abortando cierre para evitar pérdida de datos"
+                    return 1
+                fi
                 
                 # Marcar SL como ejecutado
                 log "  🛑 SL ejecutado"
