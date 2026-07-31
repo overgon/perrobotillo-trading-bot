@@ -734,6 +734,37 @@ def test_sound():
     """Test page for cash register sound"""
     return render_template("test-sound.html")
 
+@app.route('/atom')
+def atom_page():
+    return render_template('atom.html')
+
+@app.route('/api/atom/price')
+def api_atom_price():
+    try:
+        with open('/tmp/atom_price_check.json') as f:
+            data = json.load(f)
+        return jsonify(data)
+    except Exception:
+        return jsonify({'error':'no_price'}), 404
+
+@app.route('/api/atom/events')
+def api_atom_events():
+    try:
+        with open('/tmp/atom_events_watch.json') as f:
+            data = json.load(f)
+        return jsonify(data)
+    except Exception:
+        return jsonify({'error':'no_events'}), 404
+
+@app.route('/api/atom/news')
+def api_atom_news():
+    try:
+        with open('/tmp/atom_weekly_news.json') as f:
+            data = json.load(f)
+        return jsonify(data)
+    except Exception:
+        return jsonify({'error':'no_news'}), 404
+
 @app.route('/crypto-bots/<path:filename>')
 def serve_crypto_bot_file(filename):
     """Servir archivos desde crypto-bots/ (reportes, notificaciones, etc.)"""

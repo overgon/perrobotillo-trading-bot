@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATOM Tracker</title>
+<style>
+  :root { --bg:#0b0f14; --panel:#131921; --text:#e6e6e6; --muted:#8a93a6; --accent:#5c6bc0; --good:#26a69a; --bad:#ef5350; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif; }
+  header { padding:18px 20px; background:linear-gradient(180deg,#111827,#0b0f14); border-bottom:1px solid #1e293b; display:flex; align-items:center; gap:12px; }
+  header h1 { font-size:18px; margin:0; }
+  header .badge { font-size:12px; color:#c7d2fe; background:#1e293b; padding:4px 8px; border-radius:999px; }
+  main { padding:16px; display:grid; grid-template-columns: 1fr; gap:16px; }
+  @media (min-width: 860px){ main { grid-template-columns: 1fr 1fr; } }
+  .card { background:var(--panel); border:1px solid #1f2937; border-radius:14px; padding:14px; }
+  .card h2 { margin:0 0 8px; font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; }
+  .big { font-size:34px; font-weight:700; }
+  .up { color:var(--good); }
+  .down { color:var(--bad); }
+  .muted { color:var(--muted); }
+  .row { display:flex; justify-content:space-between; gap:8px; align-items:center; padding:6px 0; border-top:1px solid #1f2937; }
+  .list { margin:0; padding:0; list-style:none; }
+  .list li { padding:8px 0; border-bottom:1px solid #1f2937; }
+  a { color:#93c5fd; text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  .muted a { color:#7aa3d1; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>ATOM Tracker</h1>
+    <div class="muted">Seguimiento de precio, eventos y noticias de Cosmos</div>
+  </div>
+  <div class="badge" id="clock">--</div>
+</header>
+<main>
+  <section class="card">
+    <h2>Precio ATOM</h2>
+    <div class="big" id="price">--</div>
+    <div class="muted" id="chg">--</div>
+    <div class="row">
+      <span class="muted">Actualizado</span>
+      <span class="muted" id="asOf">--</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Eventos</h2>
+    <div class="muted" id="evUpdated">--</div>
+    <div style="margin-top:8px;">
+      <a id="evLink" href="#" target="_blank">--</a>
+      <div class="muted" id="evTitle">--</div>
+    </div>
+  </section>
+
+  <section class="card" style="grid-column: 1 / -1;">
+    <h2>Noticias recientes</h2>
+    <ul class="list" id="news">
+      <li>Cargando...</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+  async function load() {
+    const [price, events, news] = await Promise.all([
+      fetch('/api/atom/price').then(r=>r.json()),
+      fetch('/api/atom/events').then(r=>r.json()),
+      fetch('/api/atom/news').then(r=>r.json())
+    ]);
+    document.getElementById('price').textContent = '$' + (price.price || '--');
+    const chg = price.changePct == null ? '' : (price.changePct >= 0 ? `▲ ${Number(price.changePct).toFixed(2)}%` : `▼ ${Number(Math.abs(price.changePct)).toFixed(2)}%`);
+    const chgEl = document.getElementById('chg');
+    chgEl.textContent = chg || 'Sin cambio previo';
+    chgEl.className = 'muted' + (price.changePct == null ? '' : (price.changePct >= 0 ? ' up' : ' down'));
+    document.getElementById('asOf').textContent = price.asOf || '--';
+    document.getElementById('clock').textContent = new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' });
+
+    const evLink = document.getElementById('evLink');
+    const evTitle = document.getElementById('evTitle');
+    if (events.latestLink) { evLink.href = events.latestLink; evLink.textContent = events.latestLink; }
+    evTitle.textContent = events.latestTitle || 'Sin título';
+    document.getElementById('evUpdated').textContent = 'Actualizado: ' + (events.updated || '--');
+
+    const list = document.getElementById('news');
+    list.innerHTML = '';
+    const items = Array.isArray(news.items) ? news.items : [];
+    if (!items.length) { list.innerHTML = '<li>Sin noticias</li>'; }
+    items.forEach(it => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = it.url; a.target = '_blank'; a.textContent = it.title || it.url;
+      const p = document.createElement('div');
+      p.className = 'muted';
+      p.textContent = (it.snippet || '').slice(0, 220);
+      li.appendChild(a);
+      li.appendChild(p);
+      list.appendChild(li);
+    });
+  }
+  load();
+  setInterval(load, 300000);
+</script>
+</body>
+</html>
