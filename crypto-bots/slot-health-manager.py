@@ -68,21 +68,26 @@ def clean_slot_data(slot):
 
 def has_active_position(slot):
     """Verifica si un slot tiene una posición activa basada en campos de cierre."""
+    status = slot.get("status", "UNKNOWN")
+    # Estado cerrado explícito: no hay posición activa
+    if status.startswith("CLOSED_") or status == "READY":
+        return False
+
     order_id = slot.get("orderId")
     entry_price = slot.get("entryPrice")
-    
+
     # Sin orderId o entryPrice = no hay posición
     if order_id is None or entry_price is None:
         return False
-    
+
     # Verificar si tiene información de cierre
     closed_fields = ['closedAt', 'closeType', 'exitPrice', 'exitReason', 'exitTimestamp']
     has_close_info = any(slot.get(f) for f in closed_fields if f in slot and slot.get(f) is not None)
-    
+
     # Si tiene info de cierre, la posición ya no existe
     if has_close_info:
         return False
-    
+
     # Tiene orderId, entryPrice, y NO tiene info de cierre = posición activa
     return True
 
@@ -94,13 +99,10 @@ def repair_slot(slot, coin, slot_id):
     has_position = has_active_position(slot)
     tp3_done = slot.get("tp3Done", False)
     
-    # Caso 0: Estados CLOSED_* → Siempre limpiar y poner READY
+    # Caso 0: Estados CLOSED_* → preservar cierre, no limpiar
     # Esto incluye: CLOSED_TRAILING, CLOSED_TP1, CLOSED_TP2, CLOSED_TP3, CLOSED_SL
     if current_status.startswith("CLOSED_"):
-        repairs.append(f"Estado '{current_status}' → 'READY'")
-        slot["status"] = "READY"
-        clean_slot_data(slot)
-        return slot, repairs
+        return None, []
     
     # Caso 1: Status ACTIVE con TP3 completado → trade terminado, cerrar
     if current_status == "ACTIVE" and has_position and tp3_done:
