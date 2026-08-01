@@ -4,19 +4,19 @@
   "slots": [
     {
       "slotId": 1,
-      "status": "CLOSED_SL",
+      "status": "READY",
       "type": "\"LONG\"",
-      "orderId": 5647289603,
-      "entryPrice": 6.471,
-      "quantity": 3.66,
-      "usdtSpent": 23.68386,
-      "feeBuy": 2.996e-05,
-      "totalCost": 3.66,
-      "stopLoss": 6.30825,
-      "tp1": 6.63175,
-      "tp2": 6.7935,
-      "tp3": 6.9229,
-      "tp1Done": true,
+      "orderId": null,
+      "entryPrice": null,
+      "quantity": null,
+      "usdtSpent": null,
+      "feeBuy": null,
+      "totalCost": null,
+      "stopLoss": null,
+      "tp1": null,
+      "tp2": null,
+      "tp3": null,
+      "tp1Done": false,
       "tp2Done": false,
       "tp3Done": false,
       "timestamp": "\"2026-07-31T07:37:20-06:00\"",
@@ -72,5 +72,5 @@
       "strategy": "\"SLOT_V3\""
     }
   ],
-  "lastUpdated": "2026-08-01T16:27:47.569143-06:00"
+  "lastUpdated": "2026-08-01T17:39:15.300451-06:00"
 }
