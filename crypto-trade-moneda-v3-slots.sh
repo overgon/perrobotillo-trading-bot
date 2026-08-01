@@ -217,7 +217,7 @@ log_trade_to_history() {
     ensure_history_indices
 
     local new_trades
-    new_trades=$(jq -r '[.trades // [] | length] + 1' "$HISTORY_FILE")
+    new_trades=$(jq -r '(.trades // [] | length) + 1' "$HISTORY_FILE")
     local current_wins
     current_wins=$(jq -r '[.trades // [] | [.[] | select(.pnlUSDT != null)] | map(select(.pnlUSDT+0 > 0)) | length] | add // 0' "$HISTORY_FILE")
     local current_losses

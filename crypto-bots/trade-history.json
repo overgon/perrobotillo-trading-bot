@@ -9,14 +9,30 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 224,
+  "totalTrades": 225,
   "totalWins": 133,
-  "totalLosses": 91,
+  "totalLosses": 92,
   "totalProfitUSDT": 406.9138751,
   "totalLossUSDT": -438.235241,
-  "netPnLUSDT": -43.185252,
-  "winRate": 59.38,
+  "netPnLUSDT": -44.061088,
+  "winRate": 59.11,
   "trades": [
+    {
+      "id": 225,
+      "symbol": "SOL",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 75.03,
+      "exitPrice": 71.9,
+      "quantity": 0.27885,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -0.8758354,
+      "timestamp": "2026-08-01T16:25:00.000000",
+      "closeTime": "2026-08-01 16:25:00",
+      "source": "BOT",
+      "status": "CLOSED_SL",
+      "seeded": false
+    },
     {
       "id": 224,
       "symbol": "BTC",
@@ -3287,7 +3303,7 @@
       "note": "TP1 recovered - manual history backfill after bugfix"
     }
   ],
-  "updatedAt": "2026-07-31T10:54:15.396882",
+  "updatedAt": "2026-08-01T16:27:25.909853",
   "bySymbol": {
     "BTC": 17,
     "BNB": 36,
