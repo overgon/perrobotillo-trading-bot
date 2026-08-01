@@ -103,6 +103,13 @@ def repair_slot(slot, coin, slot_id):
     # Esto incluye: CLOSED_TRAILING, CLOSED_TP1, CLOSED_TP2, CLOSED_TP3, CLOSED_SL
     if current_status.startswith("CLOSED_"):
         return None, []
+
+    # Caso 0b: Slots pausados/atorados → reparar a READY
+    if current_status in ("PAUSED", "PAUSE"):
+        repairs.append(f"Estado '{current_status}' → 'READY'")
+        slot["status"] = "READY"
+        clean_slot_data(slot)
+        return slot, repairs
     
     # Caso 1: Status ACTIVE con TP3 completado → trade terminado, cerrar
     if current_status == "ACTIVE" and has_position and tp3_done:
