@@ -328,6 +328,32 @@ def get_system_status():
         status['alerts'].append(f'Error verificando sistema: {e}')
         return status
 
+def get_win_rate(days=1):
+    """Calcula win rate de los últimos N días desde trade-history.json"""
+    history_file = CRYPTO_BOTS_DIR / 'trade-history.json'
+    if not history_file.exists():
+        return 0, 0, 0
+    try:
+        with open(history_file) as f:
+            data = json.load(f)
+        trades = data.get('trades', [])
+        cutoff = datetime.now() - timedelta(days=days)
+        recent = []
+        for t in trades:
+            ts = t.get('timestamp') or t.get('closeTime') or ''
+            try:
+                dt = datetime.fromisoformat(ts.replace('Z', '+00:00'))
+            except Exception:
+                continue
+            if dt >= cutoff:
+                recent.append(t)
+        total = len(recent)
+        wins = sum(1 for t in recent if t.get('pnlUSDT') is not None and t['pnlUSDT'] > 0)
+        losses = total - wins
+        return wins, losses, total
+    except Exception:
+        return 0, 0, 0
+
 def generate_report():
     """Genera el reporte diario completo"""
     now = datetime.now()
