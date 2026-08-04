@@ -3317,6 +3317,20 @@
       "feeSell": 0.0,
       "seeded": false,
       "note": "TP1 recovered - manual history backfill after bugfix"
+    },
+    {
+      "id": 227,
+      "symbol": "AVAX",
+      "slotId": 1,
+      "closeType": "CLOSED_TP1",
+      "entryPrice": 6.537,
+      "exitPrice": 6.859,
+      "quantity": 2.93,
+      "pnlUSDT": 0.94,
+      "orderId": null,
+      "timestamp": "2026-08-03T20:49:08.760422",
+      "source": "BOT",
+      "note": "TP1 ejecutado notificado por Telegram"
     }
   ],
   "updatedAt": "2026-08-01T17:34:19.717168",
