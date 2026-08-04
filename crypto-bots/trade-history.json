@@ -3331,6 +3331,34 @@
       "timestamp": "2026-08-03T20:49:08.760422",
       "source": "BOT",
       "note": "TP1 ejecutado notificado por Telegram"
+    },
+    {
+      "id": 228,
+      "symbol": "AVAX",
+      "slotId": 1,
+      "closeType": "CLOSED_TP2",
+      "entryPrice": 6.537,
+      "exitPrice": 6.927,
+      "quantity": 1.63,
+      "pnlUSDT": 0.636,
+      "orderId": null,
+      "timestamp": "2026-08-03T20:58:05.296263",
+      "source": "BOT",
+      "note": "CLOSED_TP2 notificado por Telegram"
+    },
+    {
+      "id": 229,
+      "symbol": "AVAX",
+      "slotId": 1,
+      "closeType": "CLOSED_TP3",
+      "entryPrice": 6.537,
+      "exitPrice": 6.927,
+      "quantity": 3.382,
+      "pnlUSDT": 1.319,
+      "orderId": null,
+      "timestamp": "2026-08-03T20:58:05.296282",
+      "source": "BOT",
+      "note": "CLOSED_TP3 notificado por Telegram"
     }
   ],
   "updatedAt": "2026-08-01T17:34:19.717168",
