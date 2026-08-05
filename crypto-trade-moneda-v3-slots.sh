@@ -1137,6 +1137,19 @@ check_slot_tp_sl() {
                     
                     # LOG TRADE TO HISTORY
                     log_trade_to_history "$slot_id" "CLOSED_SCALP" "$entry" "$exit_price" "$quantity" "$pnl"
+                    # 🐕 FIX persistencia SCALP si log_trade_to_history falló
+                    local scalp_history_check
+                    scalp_history_check=$(jq --arg sy "$SYMBOL" --argjson sid "$slot_id" --arg ct "CLOSED_SCALP" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType==$ct)] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)
+                    if [ "$scalp_history_check" = "0" ]; then
+                        log "  ⚠️ log_trade_to_history no persistió CLOSED_SCALP; reintento forzado"
+                        sleep 1
+                        log_trade_to_history "$slot_id" "CLOSED_SCALP" "$entry" "$exit_price" "$quantity" "$pnl"
+                        scalp_history_check=$(jq --arg sy "$SYMBOL" --argjson sid "$slot_id" --arg ct "CLOSED_SCALP" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType==$ct)] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)
+                        if [ "$scalp_history_check" = "0" ]; then
+                            log "  ❌ SEGURIDAD: history no persistió CLOSED_SCALP tras reintento; abortando cierre para evitar pérdida de datos"
+                            return 1
+                        fi
+                    fi
                     
                     # Actualizar P&L diario
                     update_pnl_after_close "$slot_id" "SCALP" "$entry" "$exit_price" "$quantity" "$fee_usd"
@@ -1394,7 +1407,20 @@ El slot sigue activo y reintentará en próximos ciclos."
                 
                 # LOG TRADE TO HISTORY
                 log_trade_to_history "$slot_id" "CLOSED_TP2" "$entry" "$current_price" "$sell_qty" "$pnl"
-                
+                # 🐕 FIX persistencia TP2 si log_trade_to_history falló
+                local tp2_history_check
+                tp2_history_check=$(jq --arg sy "$SYMBOL" --argjson sid "$slot_id" --arg ct "CLOSED_TP2" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType==$ct)] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)
+                if [ "$tp2_history_check" = "0" ]; then
+                    log "  ⚠️ log_trade_to_history no persistió CLOSED_TP2; reintento forzado"
+                    sleep 1
+                    log_trade_to_history "$slot_id" "CLOSED_TP2" "$entry" "$current_price" "$sell_qty" "$pnl"
+                    tp2_history_check=$(jq --arg sy "$SYMBOL" --argjson sid "$slot_id" --arg ct "CLOSED_TP2" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType==$ct)] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)
+                    if [ "$tp2_history_check" = "0" ]; then
+                        log "  ❌ SEGURIDAD: history no persistió CLOSED_TP2 tras reintento; abortando cierre para evitar pérdida de datos"
+                        return 1
+                    fi
+                fi
+
                 # 🐕 FIX: Actualizar quantity restante después de TP2
                 local remaining_qty=$(awk -v orig="$quantity" -v sold="$sell_qty" 'BEGIN {printf "%.8f", orig - sold}')
                 log "  🔄 Quantity: $quantity - $sell_qty = $remaining_qty (restante)"
@@ -1543,6 +1569,19 @@ El slot permanece activo."
                 
                 # LOG TRADE TO HISTORY
                 log_trade_to_history "$slot_id" "CLOSED_TP3" "$entry" "$current_price" "$quantity" "$pnl"
+                # 🐕 FIX persistencia TP3 si log_trade_to_history falló
+                local tp3_history_check
+                tp3_history_check=$(jq --arg sy "$SYMBOL" --argjson sid "$slot_id" --arg ct "CLOSED_TP3" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType==$ct)] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)
+                if [ "$tp3_history_check" = "0" ]; then
+                    log "  ⚠️ log_trade_to_history no persistió CLOSED_TP3; reintento forzado"
+                    sleep 1
+                    log_trade_to_history "$slot_id" "CLOSED_TP3" "$entry" "$current_price" "$quantity" "$pnl"
+                    tp3_history_check=$(jq --arg sy "$SYMBOL" --argjson sid "$slot_id" --arg ct "CLOSED_TP3" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType==$ct)] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)
+                    if [ "$tp3_history_check" = "0" ]; then
+                        log "  ❌ SEGURIDAD: history no persistió CLOSED_TP3 tras reintento; abortando cierre para evitar pérdida de datos"
+                        return 1
+                    fi
+                fi
                 
                 # 🐕 FIX: Actualizar quantity a 0 (o el 5% acumulado) después de TP3
                 # En modo acumulación, 5% se queda en Binance, pero el slot se cierra
@@ -1727,6 +1766,22 @@ execute_trailing_stop() {
         log "  ✅ Trailing stop ejecutado exitosamente - Slot cerrado"
             register_capital_move "$SYMBOL" "TRAILING" "$sell_value" "$sell_qty" "$current_price" "$sell_order_id" "Trailing stop Slot $slot_id"
         update_slot_status "$slot_id" "CLOSED_TRAILING"
+        
+        # LOG TRADE TO HISTORY
+        log_trade_to_history "$slot_id" "CLOSED_TRAILING" "$entry" "$exit_price" "$quantity" "$pnl"
+        # 🐕 FIX persistencia TRAILING si log_trade_to_history falló
+        local trailing_history_check
+        trailing_history_check=$(jq --arg sy "$SYMBOL" --argjson sid "$slot_id" --arg ct "CLOSED_TRAILING" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType==$ct)] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)
+        if [ "$trailing_history_check" = "0" ]; then
+            log "  ⚠️ log_trade_to_history no persistió CLOSED_TRAILING; reintento forzado"
+            sleep 1
+            log_trade_to_history "$slot_id" "CLOSED_TRAILING" "$entry" "$exit_price" "$quantity" "$pnl"
+            trailing_history_check=$(jq --arg sy "$SYMBOL" --argjson sid "$slot_id" --arg ct "CLOSED_TRAILING" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType==$ct)] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)
+            if [ "$trailing_history_check" = "0" ]; then
+                log "  ❌ SEGURIDAD: history no persistió CLOSED_TRAILING tras reintento; abortando cierre para evitar pérdida de datos"
+                return 1
+            fi
+        fi
         
         # Actualizar P&L
         local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
