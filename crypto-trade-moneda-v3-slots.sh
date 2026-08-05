@@ -1663,6 +1663,7 @@ Mantiene 5% acumulado 📈"
                     local balance_response=$(curl -s "$BINANCE/api/v3/account?$queryString&signature=$signature" -H "X-MBX-APIKEY: $BINANCE_API_KEY")
                     local balance=$(echo "$balance_response" | jq -r ".balances[] | select(.asset==\"$SYMBOL\") | .free" 2>/dev/null)
                     
+                    local forced_close_success=false
                     if [ -n "$balance" ] && [ "$balance" != "0" ] && [ "$balance" != "0.00000000" ]; then
                         local final_sell_qty=$(format_quantity "$SYMBOL" "$balance")
                         local final_sell_result=$(place_sell_order_market "$SYMBOL" "$final_sell_qty")
@@ -1670,9 +1671,14 @@ Mantiene 5% acumulado 📈"
                         
                         if [ "$final_sell_status" = "FILLED" ]; then
                             log "  ✅ Venta final forzada exitosa: $final_sell_qty"
-                            # Registrar en history como CLOSED_TP3
                             local final_exit=$(echo "$final_sell_result" | jq -r '.fills[0].price // 0')
-                            local final_pnl=$(awk -v e="$entry" -v x="$final_exit" -v q="$quantity" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
+                            local final_fee=$(echo "$final_sell_result" | jq -r '.fills[0].commission // 0')
+                            local final_fee_asset=$(echo "$final_sell_result" | jq -r '.fills[0].commissionAsset // "USDT"')
+                            local final_fee_usd=$final_fee
+                            if [ "$final_fee_asset" = "BNB" ]; then
+                                final_fee_usd=$(awk -v b="$final_fee" -v p="$final_exit" 'BEGIN {printf "%.8f", b * p}')
+                            fi
+                            local final_pnl=$(awk -v e="$entry" -v x="$final_exit" -v q="$quantity" -v f="$final_fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
                             log_trade_to_history "$slot_id" "CLOSED_TP3" "$entry" "$final_exit" "$quantity" "$final_pnl"
                             update_slot_field "$slot_id" "status" "CLOSED_TP3"
                             update_slot_field "$slot_id" "tp3Done" "true"
@@ -1682,23 +1688,27 @@ Exit: \$$final_exit
 Vendido: $final_sell_qty
 P&L: \$$(awk -v p="$final_pnl" 'BEGIN {printf "%.2f", p}')
 ✅ Cierre forzado tras 3 fallos"
-                            update_slot_field "$slot_id" "tp3FailCount" "0"
-                            return 0
+                            forced_close_success=true
                         fi
                     fi
                     
-                    # Si no se pudo vender, cerrar como insuficiente y registrar en history
-                    log "  ⚠️ No se pudo vender balance final - Cerrando como insuficiente"
-                    log_trade_to_history "$slot_id" "CLOSED_TP3_INSUFFICIENT" "$entry" "$current_price" "$quantity" "0"
-                    update_slot_field "$slot_id" "status" "CLOSED_TP3_INSUFFICIENT"
-                    update_slot_field "$slot_id" "tp3Done" "true"
-                    update_slot_field "$slot_id" "tp3FailCount" "0"
-                    notify "TP3_FAIL|$SYMBOL|$slot_id|FORCED_CLOSE" "⚠️ TP3 - $SYMBOL [Cierre forzado]
+                    if [ "$forced_close_success" = "false" ]; then
+                        log "  ⚠️ No se pudo vender balance final - Cerrando como insuficiente"
+                        # Registrar en history con PnL aproximado usando precio actual
+                        local approx_pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$quantity" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
+                        log_trade_to_history "$slot_id" "CLOSED_TP3_INSUFFICIENT" "$entry" "$current_price" "$quantity" "$approx_pnl"
+                        update_slot_field "$slot_id" "status" "CLOSED_TP3_INSUFFICIENT"
+                        update_slot_field "$slot_id" "tp3Done" "true"
+                        notify "TP3_FAIL|$SYMBOL|$slot_id|FORCED_CLOSE" "⚠️ TP3 - $SYMBOL [Cierre forzado]
 Slot: $slot_id / $MAX_SLOTS
 Error: $error
 Razón: 3 fallos consecutivos
 ✅ Slot cerrado - dust queda en Binance
 📝 Registrado en history como CLOSED_TP3_INSUFFICIENT"
+                    fi
+                    
+                    # Resetear contador tras cierre forzado
+                    update_slot_field "$slot_id" "tp3FailCount" "0"
                     return 0
                 fi
                 
