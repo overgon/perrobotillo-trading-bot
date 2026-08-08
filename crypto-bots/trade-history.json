@@ -9,13 +9,13 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 231,
+  "totalTrades": 233,
   "totalWins": 133,
   "totalLosses": 93,
   "totalProfitUSDT": 406.9138751,
   "totalLossUSDT": -438.235241,
-  "netPnLUSDT": -41.70277614,
-  "winRate": 59.74,
+  "netPnLUSDT": -41.25374854,
+  "winRate": 60.09,
   "trades": [
     {
       "id": 226,
@@ -3399,6 +3399,46 @@
       "feeBuy": 4.2e-05,
       "feeSell": 0.0,
       "rawResponseSize": 0
+    },
+    {
+      "id": 232,
+      "symbol": "SOL",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 73.7,
+      "exitPrice": 75.04,
+      "quantity": 0.142,
+      "closeType": "CLOSED_TP1",
+      "pnlUSDT": 0.18927221,
+      "timestamp": "2026-08-08T04:53:02-06:00",
+      "closeTime": "2026-08-08 04:53:02",
+      "source": "BOT",
+      "orderId": 17579970903,
+      "strategy": "SPOT",
+      "executedBy": "BOT",
+      "feeBuy": 1.343e-05,
+      "feeSell": 0.0,
+      "rawResponseSize": 0
+    },
+    {
+      "id": 233,
+      "symbol": "SOL",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 74.18,
+      "exitPrice": 76.17,
+      "quantity": 0.131,
+      "closeType": "CLOSED_TP1",
+      "pnlUSDT": 0.25975539,
+      "timestamp": "2026-08-08T08:53:02-06:00",
+      "closeTime": "2026-08-08 08:53:02",
+      "source": "BOT",
+      "orderId": 17580436487,
+      "strategy": "SPOT",
+      "executedBy": "BOT",
+      "feeBuy": 1.227e-05,
+      "feeSell": 0.0,
+      "rawResponseSize": 0
     }
   ],
   "updatedAt": "2026-08-01T17:34:19.717168",
@@ -3462,5 +3502,5 @@
     "2026-07-16": 2,
     "2026-07-27": 1
   },
-  "lastUpdated": "2026-08-05T09:20:47.975393"
+  "lastUpdated": "2026-08-08T08:57:15.865207"
 }
