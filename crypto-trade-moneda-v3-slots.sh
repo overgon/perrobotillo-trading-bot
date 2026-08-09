@@ -25,6 +25,7 @@
 #  - crypto-bots/<SYMBOL>-trade-state.json -> estado de slots
 #  - crypto-bots/trade-history.json       -> histórico global
 #  - crypto-bots/global-circuit-breaker.sh -> pause global cross-moneda
+#  - crypto-bots/per-coin-config.env      -> parámetros por moneda (TP/SL/slots/ML)
 #  - ml/ml-drawdown-check.sh              -> risk check por moneda
 #
 
@@ -73,6 +74,28 @@ if [ -f "$WORKSPACE/crypto-bots/dynamic-config.env" ]; then
     source "$WORKSPACE/crypto-bots/dynamic-config.env"
 fi
 
+# Per-coin overrides
+if [ -f "$WORKSPACE/crypto-bots/per-coin-config.env" ]; then
+    # shellcheck source=/dev/null
+    source "$WORKSPACE/crypto-bots/per-coin-config.env"
+    eval "COIN_TP1=\${${SYMBOL}_TP1:-$TP1}"
+    eval "COIN_TP2=\${${SYMBOL}_TP2:-$TP2}"
+    eval "COIN_TP3=\${${SYMBOL}_TP3:-$TP3}"
+    eval "COIN_STOP_LOSS=\${${SYMBOL}_STOP_LOSS:-$STOP_LOSS}"
+    eval "COIN_POSITION_SIZE=\${${SYMBOL}_POSITION_SIZE:-$POSITION_SIZE}"
+    eval "COIN_MAX_SLOTS=\${${SYMBOL}_MAX_SLOTS:-$MAX_SLOTS}"
+    eval "COIN_ML_MIN_CONFIDENCE=\${${SYMBOL}_ML_MIN_CONFIDENCE:-50}"
+    eval "COIN_ENABLED=\${${SYMBOL}_ENABLED:-true}"
+    export TP1_PERCENT="$COIN_TP1"
+    export TP2_PERCENT="$COIN_TP2"
+    export TP3_PERCENT="$COIN_TP3"
+    export STOP_LOSS_PERCENT="$COIN_STOP_LOSS"
+    export POSITION_SIZE="$COIN_POSITION_SIZE"
+    export MAX_SLOTS="$COIN_MAX_SLOTS"
+    export ML_MIN_CONFIDENCE="$COIN_ML_MIN_CONFIDENCE"
+    export SYMBOL_ENABLED="$COIN_ENABLED"
+fi
+
 STATE_FILE="$WORKSPACE/crypto-bots/${SYMBOL}-trade-state.json"
 DAILY_PNL_FILE="$WORKSPACE/crypto-bots/${SYMBOL}-daily-pnl.json"
 BOT_FILE="$WORKSPACE/crypto-bots/${SYMBOL}-bot.json"
@@ -85,6 +108,8 @@ if ! flock -n 9; then
     log "🔒 Lock activo para $SYMBOL (.${SYMBOL}-trading.lock) — otro ciclo en curso; saliendo."
     exit 0
 fi
+
+log "📌 CONFIG PER-COIN $SYMBOL: TP1=${TP1_PERCENT}% TP2=${TP2_PERCENT}% TP3=${TP3_PERCENT}% SL=${STOP_LOSS_PERCENT}% SIZE=${POSITION_SIZE}% MAX_SLOTS=$MAX_SLOTS ML_MIN=$ML_MIN_CONFIDENCE% ENABLED=$SYMBOL_ENABLED"
 
 # ============================================
 # 🔧 FUNCIONES DE LOGGING
@@ -903,6 +928,19 @@ execute_long() {
         # Si ML rechaza el trade, skippear
         if [ -z "$ml_approved" ] || [ "$ml_approved" = "N/A" ] || [ "$ml_approved" = "None" ]; then
             ml_approved="❌"
+        fi
+        
+        # 🐕 FIX: Per-coin enable/disable + ML confidence threshold
+        if [ "${SYMBOL_ENABLED:-true}" = "false" ]; then
+            log "❌ TRADING DESHABILITADO para $SYMBOL en per-coin-config.env"
+            return 1
+        fi
+        
+        if [ -n "$ml_confidence" ] && [ "$ml_confidence" != "N/A" ]; then
+            if [ "$(printf '%s\n' "$ml_confidence < $ML_MIN_CONFIDENCE" | bc -l 2>/dev/null || echo 0)" = "1" ]; then
+                log "❌ ML confidence $ml_confidence% < $ML_MIN_CONFIDENCE% mínimo para $SYMBOL"
+                return 1
+            fi
         fi
         
         if [ "$ml_approved" = "❌" ] || [ "$ml_approved" = "NO" ]; then
@@ -2565,6 +2603,12 @@ _Jefe, el bot se detuvo automáticamente._ 🐕" 2>/dev/null || true
     # Check if we can open new trades
     if [ "$active_count" -ge "$MAX_SLOTS" ]; then
         log "⏸️ Máximo de slots alcanzado ($active_count / $MAX_SLOTS)"
+        return 0
+    fi
+    
+    # 🐕 FIX: Per-coin enable/disable check
+    if [ "${SYMBOL_ENABLED:-true}" = "false" ]; then
+        log "❌ TRADING DESHABILITADO para $SYMBOL en per-coin-config.env"
         return 0
     fi
     
