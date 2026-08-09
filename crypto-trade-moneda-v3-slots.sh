@@ -339,7 +339,7 @@ log_trade_to_history() {
        --arg winRate "$win_rate" \
        --arg symbolIndexKey "$SYMBOL" \
        --arg dayIndexKey "$(date +%Y-%m-%d)" \
-       '.trades = [$trades] + .trades | .totalTrades = $totalTrades | .totalWins = $totalWins | .totalLosses = $totalLosses | .totalProfitUSDT = $totalProfit | .totalLossUSDT = $totalLoss | .netPnLUSDT = $netPnL | .winRate = ($winRate | tonumber) | .updatedAt = now | todate | .bySymbol[$symbolIndexKey].trades = ((.bySymbol[$symbolIndexKey].trades // 0) + 1) | .byDay[$dayIndexKey].trades = ((.byDay[$dayIndexKey].trades // 0) + 1)' \
+       '.trades = [$trades] + .trades | .totalTrades = $totalTrades | .totalWins = $totalWins | .totalLosses = $totalLosses | .totalProfitUSDT = $totalProfit | .totalLossUSDT = $totalLoss | .netPnLUSDT = $netPnL | .winRate = ($winRate | tonumber) | .updatedAt = (now | todate) | .bySymbol[$symbolIndexKey] = ((.bySymbol[$symbolIndexKey] // {trades: 0, wins: 0, netPnL: 0}) | .trades = ((.trades // 0) + 1)) | .byDay[$dayIndexKey] = ((.byDay[$dayIndexKey] // {trades: 0, wins: 0, netPnL: 0}) | .trades = ((.trades // 0) + 1))' \
        "$HISTORY_FILE" > "$temp_file" && mv "$temp_file" "$HISTORY_FILE"
 
     local written_id
@@ -358,7 +358,7 @@ log_trade_to_history() {
            --arg winRate "$win_rate" \
            --arg symbolIndexKey "$SYMBOL" \
            --arg dayIndexKey "$(date +%Y-%m-%d)" \
-           '.trades = [$trades] + .trades | .totalTrades = $totalTrades | .totalWins = $totalWins | .totalLosses = $totalLosses | .totalProfitUSDT = $totalProfit | .totalLossUSDT = $totalLoss | .netPnLUSDT = $netPnL | .winRate = ($winRate | tonumber) | .updatedAt = now | todate | .bySymbol[$symbolIndexKey].trades = ((.bySymbol[$symbolIndexKey].trades // 0) + 1) | .byDay[$dayIndexKey].trades = ((.byDay[$dayIndexKey].trades // 0) + 1)' \
+           '.trades = [$trades] + .trades | .totalTrades = $totalTrades | .totalWins = $totalWins | .totalLosses = $totalLosses | .totalProfitUSDT = $totalProfit | .totalLossUSDT = $totalLoss | .netPnLUSDT = $netPnL | .winRate = ($winRate | tonumber) | .updatedAt = (now | todate) | .bySymbol[$symbolIndexKey] = ((.bySymbol[$symbolIndexKey] // {trades: 0, wins: 0, netPnL: 0}) | .trades = ((.trades // 0) + 1)) | .byDay[$dayIndexKey] = ((.byDay[$dayIndexKey] // {trades: 0, wins: 0, netPnL: 0}) | .trades = ((.trades // 0) + 1))' \
            "$HISTORY_FILE" > "$temp_file" && mv "$temp_file" "$HISTORY_FILE"
     fi
 
