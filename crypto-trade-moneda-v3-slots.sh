@@ -1684,6 +1684,64 @@ Mantiene 5% acumulado 📈"
                 local error=$(echo "$sell_result" | jq -r '.msg // "Unknown error"')
                 log "  ❌ TP3 venta falló: $error"
                 
+                # 🐕 FIX: Cierre inmediato si es insufficient balance
+                if echo "$error" | grep -qi "insufficient\|NOTIONAL\|minimum"; then
+                    log "  ⚠️ TP3 falló por balance insuficiente - CERRANDO SLOT FORZADO"
+                    # Intentar vender TODO el balance restante una última vez
+                    local timestamp=$(($(date +%s) * 1000))
+                    local recvWindow=5000
+                    local queryString="timestamp=$timestamp&recvWindow=$recvWindow"
+                    local signature=$(echo -n "$queryString" | openssl dgst -sha256 -hmac "$BINANCE_API_SECRET" | awk '{print $2}')
+                    local balance_response=$(curl -s "$BINANCE/api/v3/account?$queryString&signature=$signature" -H "X-MBX-APIKEY: $BINANCE_API_KEY")
+                    local balance=$(echo "$balance_response" | jq -r ".balances[] | select(.asset==\"$SYMBOL\") | .free" 2>/dev/null)
+                    
+                    local forced_close_success=false
+                    if [ -n "$balance" ] && [ "$balance" != "0" ] && [ "$balance" != "0.00000000" ]; then
+                        local final_sell_qty=$(format_quantity "$SYMBOL" "$balance")
+                        local final_sell_result=$(place_sell_order_market "$SYMBOL" "$final_sell_qty")
+                        local final_sell_status=$(echo "$final_sell_result" | jq -r '.status // "ERROR"')
+                        
+                        if [ "$final_sell_status" = "FILLED" ]; then
+                            log "  ✅ Venta final forzada exitosa: $final_sell_qty"
+                            local final_exit=$(echo "$final_sell_result" | jq -r '.fills[0].price // 0')
+                            local final_fee=$(echo "$final_sell_result" | jq -r '.fills[0].commission // 0')
+                            local final_fee_asset=$(echo "$final_sell_result" | jq -r '.fills[0].commissionAsset // "USDT"')
+                            local final_fee_usd=$final_fee
+                            if [ "$final_fee_asset" = "BNB" ]; then
+                                final_fee_usd=$(awk -v b="$final_fee" -v p="$final_exit" 'BEGIN {printf "%.8f", b * p}')
+                            fi
+                            local final_pnl=$(awk -v e="$entry" -v x="$final_exit" -v q="$quantity" -v f="$final_fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
+                            log_trade_to_history "$slot_id" "CLOSED_TP3" "$entry" "$final_exit" "$quantity" "$final_pnl"
+                            update_slot_field "$slot_id" "status" "CLOSED_TP3"
+                            update_slot_field "$slot_id" "tp3Done" "true"
+                            notify "TP3_HIT|$SYMBOL|$slot_id|FORCED" "🎯 TP3 - $SYMBOL [Cierre forzado]
+Slot: $slot_id / $MAX_SLOTS
+Exit: \$$final_exit
+Vendido: $final_sell_qty
+P&L: \$$(awk -v p="$final_pnl" 'BEGIN {printf "%.2f", p}')
+✅ Cierre forzado por balance insuficiente"
+                            forced_close_success=true
+                        fi
+                    fi
+                    
+                    if [ "$forced_close_success" = "false" ]; then
+                        log "  ⚠️ No se pudo vender balance final - Cerrando como insuficiente"
+                        local approx_pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$quantity" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
+                        log_trade_to_history "$slot_id" "CLOSED_TP3_INSUFFICIENT" "$entry" "$current_price" "$quantity" "$approx_pnl"
+                        update_slot_field "$slot_id" "status" "CLOSED_TP3_INSUFFICIENT"
+                        update_slot_field "$slot_id" "tp3Done" "true"
+                        notify "TP3_FAIL|$SYMBOL|$slot_id|FORCED_CLOSE" "⚠️ TP3 - $SYMBOL [Cierre forzado]
+Slot: $slot_id / $MAX_SLOTS
+Error: $error
+Razón: Balance insuficiente en el primer fallo
+✅ Slot cerrado - dust queda en Binance
+📝 Registrado en history como CLOSED_TP3_INSUFFICIENT"
+                    fi
+                    
+                    update_slot_field "$slot_id" "tp3FailCount" "0"
+                    return 0
+                fi
+                
                 # 🐕 FIX: Contador de fallos TP3 + cierre forzado tras 3 intentos
                 local current_tp3_fails=$(echo "$slot_data" | jq -r '.tp3FailCount // 0')
                 local new_tp3_fails=$((current_tp3_fails + 1))
