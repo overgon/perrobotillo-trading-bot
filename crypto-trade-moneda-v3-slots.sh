@@ -2067,7 +2067,7 @@ auto_reset_slots() {
         local slot_status=$(jq -r ".slots[$((slot_id-1))].status" "$STATE_FILE")
         
         # Solo resetear slots CLOSED_SL o CLOSED_TP (no READY o ACTIVE)
-        if [[ "$slot_status" == "CLOSED_SL" || "$slot_status" == "CLOSED_TP" || "$slot_status" == "CLOSED_TP3" || "$slot_status" == "CLOSED_SCALP" || "$slot_status" == "CLOSED_TRAILING" ]]; then
+        if [[ "$slot_status" == "CLOSED_SL" || "$slot_status" == "CLOSED_TP" || "$slot_status" == "CLOSED_TP3" || "$slot_status" == "CLOSED_SCALP" || "$slot_status" == "CLOSED_TRAILING" || "$slot_status" == "CLOSED_TP3_INSUFFICIENT" ]]; then
             local slot_timestamp=$(jq -r ".slots[$((slot_id-1))].timestamp" "$STATE_FILE" | tr -d '"')
             
             # Convertir timestamp a epoch (manejar formato ISO 8601)
