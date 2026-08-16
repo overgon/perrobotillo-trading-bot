@@ -9,7 +9,7 @@
 import json
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 WORKSPACE = Path("/home/overgon/.openclaw/workspace")
@@ -114,51 +114,34 @@ def get_portfolio_total():
         return 0.0, 0.0
 
 def get_pnl_24h_by_coin():
-    """Obtiene P&L 24h por moneda desde spot-registry + trade state real"""
-    pnl_data = {}
+    """Obtiene P&L 24h por moneda desde trade-history.json y PnL no realizado de slots activos"""
+    pnl_data = {coin: {'pnl_24h': 0, 'trades': 0, 'win': 0, 'loss': 0} for coin in COINS}
     try:
-        # Cargar snapshot Spot base
-        registry = {}
-        registry_path = CRYPTO_BOTS_DIR / "spot-registry.json"
-        if registry_path.exists():
-            try:
-                registry = json.loads(registry_path.read_text())
-            except Exception:
-                registry = {}
-
-        base_usdt = float(registry.get('total_usdt', 0) or 0)
-        base_mxn = float(registry.get('total_mxn', 0) or 0)
-        prices_base = registry.get('prices_base') or registry.get('prices_now', {})
-        base_assets = registry.get('assets_mxn_base') or [
-            {'symbol': a.get('symbol'), 'mxn': a.get('mxn', 0)}
-            for a in registry.get('assets', [])
-        ]
-        spot_prices = registry.get('prices_now', {})
-        mxn_rate = base_mxn / base_usdt if base_usdt > 0 else 17.0
-        base_mxn_map = {a.get('symbol'): float(a.get('mxn', 0) or 0) for a in base_assets}
-
-        # Cálculo principal: fluctuación Spot base vs ahora
-        for asset in registry.get('assets', []):
-            symbol = asset.get('symbol')
-            if symbol not in COINS or symbol == 'USDT':
-                continue
-            balance = float(asset.get('balance', 0) or 0)
-            if balance <= 0:
-                continue
-            price_base = float(prices_base.get(symbol, 0) or 0)
-            price_now = float(spot_prices.get(symbol, asset.get('price_now', 0)) or 0)
-            if price_base <= 0 or price_now <= 0:
-                continue
-            mxn_now = balance * price_now * mxn_rate
-            mxn_base = base_mxn_map.get(symbol, mxn_now)
-            diff = mxn_now - mxn_base
-            pnl_by_coin = diff / mxn_rate
-            pnl_data[symbol] = {
-                'pnl_24h': round(pnl_by_coin, 4),
-                'trades': 0,
-                'win': 0,
-                'loss': 0,
-            }
+        history_file = CRYPTO_BOTS_DIR / "trade-history.json"
+        if history_file.exists():
+            with open(history_file) as f:
+                data = json.load(f)
+            cutoff = datetime.now(timezone.utc) - timedelta(days=1)
+            for t in data.get("trades", []):
+                ts = t.get("timestamp", "")
+                if not ts:
+                    continue
+                try:
+                    dt = datetime.fromisoformat(ts)
+                    if dt.tzinfo is None:
+                        dt = dt.replace(tzinfo=timezone.utc)
+                except Exception:
+                    continue
+                if dt >= cutoff:
+                    coin = t.get("symbol")
+                    if coin in COINS:
+                        pnl = t.get("pnlUSDT", 0) or 0
+                        pnl_data[coin]["pnl_24h"] += pnl
+                        pnl_data[coin]["trades"] += 1
+                        if pnl > 0:
+                            pnl_data[coin]["win"] += 1
+                        else:
+                            pnl_data[coin]["loss"] += 1
 
         # Complemento: PnL no realizado desde slots activos con precio local cacheado
         try:
@@ -176,7 +159,6 @@ def get_pnl_24h_by_coin():
             except Exception:
                 pass
 
-            # Fallback a Binance para monedas sin cache
             for coin in COINS:
                 if coin in price_cache:
                     continue
@@ -203,40 +185,61 @@ def get_pnl_24h_by_coin():
                     if entry <= 0 or qty <= 0:
                         continue
                     avg_cost = usdt_spent / qty if usdt_spent > 0 else entry
-                    pnl = max(qty * (current_price - avg_cost), 0) if current_price > 0 else 0
-                    if coin not in pnl_data:
-                        pnl_data[coin] = {'pnl_24h': 0, 'trades': 0, 'win': 0, 'loss': 0}
-                    pnl_data[coin]['pnl_24h'] = round(pnl_data[coin]['pnl_24h'] + pnl, 4)
-                    pnl_data[coin]['trades'] += 1
+                    pnl = qty * (current_price - avg_cost) if current_price > 0 else 0
+                    pnl_data[coin]["pnl_24h"] = round(pnl_data[coin]["pnl_24h"] + pnl, 4)
+                    pnl_data[coin]["trades"] += 1
         except Exception:
             pass
 
-        # Asegurar todas las monedas
         for coin in COINS:
-            pnl_data.setdefault(coin, {'pnl_24h': 0, 'trades': 0, 'win': 0, 'loss': 0})
+            pnl_data[coin]["pnl_24h"] = round(pnl_data[coin]["pnl_24h"], 4)
         return pnl_data
     except Exception as e:
         print(f"Error getting P&L: {e}", file=sys.stderr)
         return {coin: {'pnl_24h': 0, 'trades': 0, 'win': 0, 'loss': 0} for coin in COINS}
 
 def get_yesterday_trades():
-    """Obtiene trades del día anterior"""
+    """Obtiene trades del día anterior desde trade-history.json y logs"""
     trades = []
     
     try:
         yesterday = datetime.now() - timedelta(days=1)
+        yesterday_str = yesterday.strftime('%Y-%m-%d')
         
-        for coin in COINS:
-            log_file = LOGS_DIR / f"trade-{coin}.log"
-            if log_file.exists():
-                with open(log_file, 'r') as f:
-                    for line in f:
-                        if yesterday.strftime('%Y-%m-%d') in line:
-                            if any(x in line for x in ['TP', 'SL', 'cerrado']):
-                                trades.append({
-                                    'coin': coin,
-                                    'line': line.strip()
-                                })
+        # Fuente principal: trade-history.json
+        history_file = CRYPTO_BOTS_DIR / "trade-history.json"
+        if history_file.exists():
+            with open(history_file) as f:
+                data = json.load(f)
+            for t in data.get("trades", []):
+                ts = t.get("closeTime", "") or t.get("timestamp", "")
+                if not ts:
+                    continue
+                try:
+                    dt = datetime.fromisoformat(ts)
+                    if dt.tzinfo is None:
+                        dt = dt.replace(tzinfo=timezone.utc)
+                except Exception:
+                    continue
+                if dt.strftime('%Y-%m-%d') == yesterday_str:
+                    trades.append({
+                        'coin': t.get('symbol'),
+                        'line': f"{t.get('closeTime')} {t.get('symbol')} slot{t.get('slotId')} {t.get('closeType')} PnL={t.get('pnlUSDT')}"
+                    })
+        
+        # Fallback: logs de cron en ~/.openclaw/logs/
+        if not trades:
+            for coin in COINS:
+                log_file = Path.home() / ".openclaw" / "logs" / f"cron-{coin}.log"
+                if log_file.exists():
+                    with open(log_file, 'r') as f:
+                        for line in f:
+                            if yesterday_str in line:
+                                if any(x in line for x in ['TP', 'SL', 'cerrado', 'Trade logged']):
+                                    trades.append({
+                                        'coin': coin,
+                                        'line': line.strip()
+                                    })
         
         return trades
     except Exception as e:
