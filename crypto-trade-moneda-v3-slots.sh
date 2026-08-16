@@ -2401,7 +2401,19 @@ _Jefe, el bot está en pausa global._ 🐕" 2>/dev/null || true
             STOP_LOSS_PERCENT="$MCONF_SL"
         fi
     fi
-    
+
+    # Restaurar overrides por moneda después de market-mode.conf
+    eval "COIN_TP1=\${${SYMBOL}_TP1}"
+    eval "COIN_TP2=\${${SYMBOL}_TP2}"
+    eval "COIN_TP3=\${${SYMBOL}_TP3}"
+    eval "COIN_SL=\${${SYMBOL}_STOP_LOSS}"
+    eval "COIN_POSITION_SIZE=\${${SYMBOL}_POSITION_SIZE}"
+    if [ -n "$COIN_TP1" ]; then NORMAL_TP1="$COIN_TP1"; AGGRESSIVE_TP1="$COIN_TP1"; TP1_PERCENT="$COIN_TP1"; fi
+    if [ -n "$COIN_TP2" ]; then NORMAL_TP2="$COIN_TP2"; AGGRESSIVE_TP2="$COIN_TP2"; TP2_PERCENT="$COIN_TP2"; fi
+    if [ -n "$COIN_TP3" ]; then NORMAL_TP3="$COIN_TP3"; AGGRESSIVE_TP3="$COIN_TP3"; TP3_PERCENT="$COIN_TP3"; fi
+    if [ -n "$COIN_SL" ]; then STOP_LOSS_PERCENT="$COIN_SL"; fi
+    if [ -n "$COIN_POSITION_SIZE" ]; then NORMAL_TRADE_PERCENT="$COIN_POSITION_SIZE"; AGGRESSIVE_TRADE_PERCENT="$COIN_POSITION_SIZE"; TRADE_PERCENT="$COIN_POSITION_SIZE"; fi
+
     # Detectar modo y obtener STOP LOSS por coin
     local current_hour=$(date -u +%H | sed 's/^0//')
     
