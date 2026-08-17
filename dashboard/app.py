@@ -296,6 +296,9 @@ def get_portfolio_value():
 
 def get_trade_states():
     """Obtener estado de trades para todas las coins"""
+    cached = _get_mem_cache('trade_states')
+    if cached is not None:
+        return cached
     coins = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX']
     states = {}
     
@@ -339,6 +342,7 @@ def get_trade_states():
         else:
             states[coin] = {"status": "no_data"}
     
+    _set_mem_cache('trade_states', states, ttl=2)
     return states
 
 def get_trade_history():

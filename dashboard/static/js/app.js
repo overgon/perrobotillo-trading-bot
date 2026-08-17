@@ -870,5 +870,5 @@ notificationStyle.textContent = `
 document.head.appendChild(notificationStyle);
 
 // Check every 5 seconds
-setInterval(checkTPNotifications, 5000);
+setInterval(checkTPNotifications, 15000);
 console.log('🔔 TP/SL Notification system initialized');
