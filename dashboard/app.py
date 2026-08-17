@@ -323,17 +323,15 @@ def get_trade_states():
                             ep = 0
                         
                         if ep <= 0:
-                            # Fetch precio actual desde Binance como fallback
+                            # Precio centralizado desde cache para evitar N requests
                             try:
-                                import requests
-                                price_url = f'https://api.binance.com/api/v3/ticker/price?symbol={coin}USDT'
-                                price_resp = requests.get(price_url, timeout=2)
-                                current_price = float(price_resp.json().get('price', 0))
-                                if current_price > 0:
-                                    slot['entryPrice'] = current_price
-                                    slot['entryPriceNormalized'] = True
+                                prices = _get_mem_cache('binance_prices') or {}
+                                current_price = float(prices.get(f'{coin}USDT', 0) or 0)
                             except Exception:
-                                pass
+                                current_price = 0
+                            if current_price > 0:
+                                slot['entryPrice'] = current_price
+                                slot['entryPriceNormalized'] = True
                 
                 states[coin] = state
             except Exception as e:
@@ -439,8 +437,19 @@ def get_daily_pnl():
                         print(f"Error parsing date {close_time_str}: {e}")
                         continue
         
-        # 2) PnL no realizado desde slots activos, usando precios del state local
+        # 2) PnL no realizado desde slots activos, usando precios cacheados centralizados
+        prices = _get_mem_cache('binance_prices') or {}
+        if not prices:
+            try:
+                import requests
+                prices = {p['symbol']: float(p['price']) for p in requests.get('https://api.binance.com/api/v3/ticker/price', timeout=2).json()}
+                _set_mem_cache('binance_prices', prices, ttl=2)
+            except Exception:
+                prices = {}
         for coin in coins:
+            price_now = float(prices.get(f'{coin}USDT', 0) or 0)
+            if not price_now:
+                continue
             state_file = f"{CRYPTO_BOTS}/{coin}-trade-state.json"
             if not os.path.exists(state_file):
                 continue
@@ -454,22 +463,7 @@ def get_daily_pnl():
                 qty = float(slot.get('quantity', 0) or 0)
                 if entry <= 0 or qty <= 0:
                     continue
-                current = entry
-                cache_path = f"{CRYPTO_BOTS}/../logs/status-cache.json"
-                try:
-                    if os.path.exists(cache_path):
-                        cache = json.loads(open(cache_path).read())
-                        current = float(cache.get('grid', {}).get('bots', {}).get(coin, {}).get('price', entry) or entry)
-                except Exception:
-                    current = entry
-                if current == entry:
-                    try:
-                        import requests
-                        r = requests.get(f"https://api.binance.com/api/v3/ticker/price?symbol={coin}USDT", timeout=2)
-                        current = float(r.json().get('price', entry) or entry)
-                    except Exception:
-                        current = entry
-                pnl = (current - entry) * qty
+                pnl = (price_now - entry) * qty
                 pnl_by_coin[coin] = pnl_by_coin.get(coin, 0.0) + pnl
                 total_pnl += pnl
         
@@ -477,7 +471,7 @@ def get_daily_pnl():
         registry_file = f"{CRYPTO_BOTS}/spot-registry.json"
         if os.path.exists(registry_file):
             try:
-                registry = json.loads(open(registry_file).read_text())
+                registry = json.loads(open(registry_file).read())
                 base_usdt = float(registry.get('total_usdt', 0) or 0)
                 base_mxn = float(registry.get('total_mxn', 0) or 0)
                 prices_base = registry.get('prices_base') or registry.get('prices_now', {})
@@ -758,27 +752,23 @@ def api_prices():
     try:
         import requests
         
-        # UNA SOLA llamada a Binance para todas las monedas
-        url = 'https://api.binance.com/api/v3/ticker/24hr'
-        response = requests.get(url, timeout=10)
+        # UNA SOLA llamada a Binance para nuestras monedas
+        symbols = ['BTCUSDT','ETHUSDT','BNBUSDT','SOLUSDT','LINKUSDT','XRPUSDT','AVAXUSDT']
+        url = 'https://api.binance.com/api/v3/ticker/24hr?symbol=' + '&symbol='.join(symbols)
+        response = requests.get(url, timeout=3)
         all_tickers = response.json()
         
-        # Filtrar solo nuestras monedas
-        coins = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX']
         prices = {}
-        
         for ticker in all_tickers:
             symbol = ticker.get('symbol', '')
-            for coin in coins:
-                if symbol == f'{coin}USDT':
-                    prices[coin] = {
-                        'price': float(ticker.get('lastPrice', 0)),
-                        'change_24h': float(ticker.get('priceChangePercent', 0)),
-                        'volume': float(ticker.get('volume', 0)),
-                        'high': float(ticker.get('highPrice', 0)),
-                        'low': float(ticker.get('lowPrice', 0))
-                    }
-                    break
+            coin = symbol.replace('USDT', '')
+            prices[coin] = {
+                'price': float(ticker.get('lastPrice', 0)),
+                'change_24h': float(ticker.get('priceChangePercent', 0)),
+                'volume': float(ticker.get('volume', 0)),
+                'high': float(ticker.get('highPrice', 0)),
+                'low': float(ticker.get('lowPrice', 0))
+            }
         
         return jsonify(prices)
         
