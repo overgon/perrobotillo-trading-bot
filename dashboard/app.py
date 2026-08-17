@@ -7,6 +7,10 @@
 # ════════════════════════════════════════════════════════
 
 from flask import Flask, render_template, jsonify, request, send_from_directory
+import threading
+
+_DASH_CACHE = {}
+_DASH_CACHE_LOCK = threading.Lock()
 from functools import wraps
 import json
 import os
@@ -14,6 +18,22 @@ import subprocess
 from datetime import datetime
 import glob
 import base64
+
+_DASH_TTL = 5
+
+def _set_mem_cache(key, value, ttl=_DASH_TTL):
+    with _DASH_CACHE_LOCK:
+        _DASH_CACHE[key] = {'value': value, 'ts': __import__('time').time(), 'ttl': ttl}
+
+def _get_mem_cache(key):
+    with _DASH_CACHE_LOCK:
+        entry = _DASH_CACHE.get(key)
+        if not entry:
+            return None
+        if __import__('time').time() - entry.get('ts', 0) > entry.get('ttl', _DASH_TTL):
+            _DASH_CACHE.pop(key, None)
+            return None
+        return entry.get('value')
 
 def get_mxn_rate():
     """Obtener tasa de cambio USDT/MXN en tiempo real de Binance con cache"""
@@ -47,7 +67,7 @@ def get_mxn_rate():
     # Fetch from Binance
     try:
         import requests
-        response = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=USDTMXN', timeout=5)
+        response = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=USDTMXN', timeout=2)
         rate = float(response.json().get('price', 17.5))
         
         # Save cache
@@ -202,7 +222,7 @@ def get_portfolio_value():
         # 3. Get balance from Binance
         # Sincronizar timestamp con Binance para evitar -1021 / -2015 por desfase
         try:
-            t = requests.get('https://api.binance.com/api/v3/time', timeout=5)
+            t = requests.get('https://api.binance.com/api/v3/time', timeout=2)
             server_ts = int(t.json().get('serverTime', 0) or 0)
         except Exception:
             server_ts = int(time.time() * 1000)
@@ -304,7 +324,7 @@ def get_trade_states():
                             try:
                                 import requests
                                 price_url = f'https://api.binance.com/api/v3/ticker/price?symbol={coin}USDT'
-                                price_resp = requests.get(price_url, timeout=5)
+                                price_resp = requests.get(price_url, timeout=2)
                                 current_price = float(price_resp.json().get('price', 0))
                                 if current_price > 0:
                                     slot['entryPrice'] = current_price
@@ -323,6 +343,9 @@ def get_trade_states():
 
 def get_trade_history():
     """Obtener historial de trades"""
+    cached = _get_mem_cache('trade_history')
+    if cached is not None:
+        return cached
     history_file = f"{CRYPTO_BOTS}/trade-history.json"
     if os.path.exists(history_file):
         try:
@@ -335,11 +358,11 @@ def get_trade_history():
                 reverse=True
             )
             data['trades'] = trades
+            _set_mem_cache('trade_history', data, ttl=5)
             return data
         except Exception as e:
             print(f"Error reading trade history: {e}")
-    
-    return {
+    fallback = {
         "version": "1.0",
         "totalTrades": 0,
         "totalWins": 0,
@@ -348,26 +371,32 @@ def get_trade_history():
         "winRate": 0,
         "trades": []
     }
+    _set_mem_cache('trade_history', fallback, ttl=5)
+    return fallback
 
 def get_grid_status():
     """🆕 Obtener status del Grid Trading Bot"""
+    cached = _get_mem_cache('grid_status')
+    if cached is not None:
+        return cached
     grid_status_file = f"{WORKSPACE}/dashboard/grid-status.json"
     if os.path.exists(grid_status_file):
         try:
             with open(grid_status_file, 'r') as f:
-                return json.load(f)
+                data = json.load(f)
+                _set_mem_cache('grid_status', data, ttl=5)
+                return data
         except Exception as e:
             print(f"Error reading grid status: {e}")
-    
-    return {
-        "status": "inactive",
-        "totalBots": 0,
-        "totalOrders": 0,
-        "bots": {}
-    }
+    fallback = {"status": "inactive", "totalBots": 0, "totalOrders": 0, "bots": {}}
+    _set_mem_cache('grid_status', fallback, ttl=5)
+    return fallback
 
 def get_daily_pnl():
     """Calcular P&L de las últimas 24 horas + P&L no realizado de trades activos"""
+    cached = _get_mem_cache('daily_pnl')
+    if cached is not None:
+        return cached
     try:
         from datetime import datetime, timedelta
         
@@ -432,7 +461,7 @@ def get_daily_pnl():
                 if current == entry:
                     try:
                         import requests
-                        r = requests.get(f"https://api.binance.com/api/v3/ticker/price?symbol={coin}USDT", timeout=4)
+                        r = requests.get(f"https://api.binance.com/api/v3/ticker/price?symbol={coin}USDT", timeout=2)
                         current = float(r.json().get('price', entry) or entry)
                     except Exception:
                         current = entry
@@ -475,7 +504,9 @@ def get_daily_pnl():
         print(f"📊 24H P&L calculado: ${total_pnl:.2f} USDT")
         print(f"📊 P&L por moneda: {pnl_by_coin}")
         
-        return total_pnl, pnl_by_coin
+        result = (round(total_pnl, 2), {k: round(v, 2) for k, v in pnl_by_coin.items()})
+        _set_mem_cache('daily_pnl', result, ttl=5)
+        return result
     except Exception as e:
         print(f"Error calculating daily PnL: {e}")
         return 0.0, {}
@@ -619,7 +650,7 @@ def api_status():
     try:
         import requests
         test_url = 'https://api.binance.com/api/v3/ping'
-        requests.get(test_url, timeout=5)
+        requests.get(test_url, timeout=2)
         api_binance = 'ok'
     except:
         api_binance = 'error'
@@ -627,7 +658,7 @@ def api_status():
     # Obtener IP pública
     try:
         import requests
-        ip_response = requests.get('https://ifconfig.me', timeout=5)
+        ip_response = requests.get('https://ifconfig.me', timeout=2)
         public_ip = ip_response.text.strip()
     except:
         public_ip = 'error'
@@ -636,7 +667,7 @@ def api_status():
     try:
         import requests
         gateway_url = 'http://localhost:11434/api/tags'
-        requests.get(gateway_url, timeout=5)
+        requests.get(gateway_url, timeout=2)
         gateway = 'ok'
     except:
         gateway = 'error'
