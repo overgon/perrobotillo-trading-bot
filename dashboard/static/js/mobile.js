@@ -96,6 +96,7 @@ async function loadData() {
         updateSlots({ tradeStates: data.tradeStates || {}, prices: lastPrices });
         updateSystemStatus({ market_mode: data.market_mode, system: data.system });
         updateAutoAdjust({ auto_adjust: data.auto_adjust, market_mode: data.market_mode });
+        updateCircuitBreakerStatus(data);
         updateTradesTable({ history: data.history });
         updateTimestamp(data.timestamp);
         
