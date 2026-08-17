@@ -3779,6 +3779,20 @@
       "feeBuy": 7.098e-05,
       "feeSell": 1.6e-05,
       "rawResponseSize": 0
+    },
+    {
+      "id": 251,
+      "symbol": "SOL",
+      "slotId": 1,
+      "type": "CLOSED_SL",
+      "entryPrice": 73.7,
+      "exitPrice": 74.47,
+      "quantity": 0.09225,
+      "pnlUSDT": -2.22,
+      "closeTime": "2026-08-16T23:52:41.161577",
+      "timestamp": "2026-08-16T23:52:41.161596",
+      "orderId": null,
+      "reason": "SL HIT"
     }
   ],
   "updatedAt": "2026-08-01T17:34:19.717168",
