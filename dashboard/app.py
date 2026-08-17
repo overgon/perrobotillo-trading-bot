@@ -232,7 +232,7 @@ def get_portfolio_value():
         headers = {'X-MBX-APIKEY': API_KEY}
         url = f'https://api.binance.com/api/v3/account?{params}&signature={signature}'
         
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, headers=headers, timeout=3)
         data = response.json()
         
         if 'balances' not in data:
@@ -240,7 +240,7 @@ def get_portfolio_value():
         
         # 4. Get current prices
         prices_url = 'https://api.binance.com/api/v3/ticker/price'
-        prices_response = requests.get(prices_url, timeout=10)
+        prices_response = requests.get(prices_url, timeout=3)
         prices = {p['symbol']: float(p['price']) for p in prices_response.json()}
         
         # 5. Calculate total value in USDT
@@ -729,7 +729,7 @@ def api_status():
                 2
             ),
             'net_pnl': trade_history.get('netPnLUSDT', 0),
-            'trades': trade_history.get('trades', [])
+            'trades': (trade_history.get('trades', []) or [])[:10]
         },
         'cashout': {
             'total_usdt': cashout_history.get('totalUSDT', 0),
