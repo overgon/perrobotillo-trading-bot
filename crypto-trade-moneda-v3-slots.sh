@@ -233,140 +233,16 @@ log_trade_to_history() {
     local exit_price="$4"
     local quantity="$5"
     local pnl="$6"
+    local order_id="${order_id:-}"
+    local source="${source:-BOT}"
+    local reason="${reason:-}"
 
     if [ ! -f "$HISTORY_FILE" ]; then
         log "⚠️ HISTORY_FILE no existe, no se puede loggear trade"
         return 0
     fi
 
-    ensure_history_indices
-
-    local new_trades
-    new_trades=$(jq -r '(.trades // [] | length) + 1' "$HISTORY_FILE")
-    local current_wins
-    current_wins=$(jq -r '[.trades // [] | [.[] | select(.pnlUSDT != null)] | map(select(.pnlUSDT+0 > 0)) | length] | add // 0' "$HISTORY_FILE")
-    local current_losses
-    current_losses=$(jq -r '[.trades // [] | [.[] | select(.pnlUSDT != null)] | map(select(.pnlUSDT+0 <= 0)) | length] | add // 0' "$HISTORY_FILE")
-    local current_profit
-    current_profit=$(jq -r '[.trades // [] | map(select(.pnlUSDT != null and .pnlUSDT+0 > 0) | .pnlUSDT) | add // 0] | add // 0' "$HISTORY_FILE")
-    local current_loss
-    current_loss=$(jq -r '[.trades // [] | map(select(.pnlUSDT != null and .pnlUSDT+0 <= 0) | .pnlUSDT) | add // 0] | add // 0' "$HISTORY_FILE")
-    local current_net
-    current_net=$(jq -r '.netPnLUSDT // 0' "$HISTORY_FILE")
-
-    local is_win
-    is_win=$(awk -v p="$pnl" 'BEGIN {print (p+0 > 0) ? 1 : 0}')
-    if [ "$is_win" = "1" ]; then
-        current_wins=$((current_wins + 1))
-        current_profit=$(awk -v c="$current_profit" -v p="$pnl" 'BEGIN {printf "%.8f", c + p}')
-    else
-        current_losses=$((current_losses + 1))
-        current_loss=$(awk -v c="$current_loss" -v p="$pnl" 'BEGIN {printf "%.8f", c + p}')
-    fi
-    local new_net
-    new_net=$(awk -v c="$current_net" -v p="$pnl" 'BEGIN {printf "%.8f", c + p}')
-    local win_rate
-    win_rate=$(awk -v w="$current_wins" -v t="$new_trades" 'BEGIN {if (t > 0) printf "%.2f", (w/t)*100; else print "0"}')
-    local timestamp
-    timestamp=$(date -Iseconds)
-    local close_time
-    close_time=$(date '+%Y-%m-%d %H:%M:%S')
-
-    local dup_key="${SYMBOL}|${slot_id}|${close_type}|$(date +%Y-%m-%dT%H:%M)"
-    local existing
-    existing=$(jq --arg key "$dup_key" '[.trades[] | select((.symbol + "|" + (.slotId|tostring) + "|" + .closeType + "|" + (.timestamp | split("T")[0] + "T" + (.timestamp | split("T")[1] | split(":")[0] + ":" + (.timestamp | split("T")[1] | split(":")[1]))) == $key)] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)
-    if [ "$existing" != "0" ] && [ "$existing" != "null" ] && [ "$close_type" != "MANUAL_CLOSE_ZOMBIE" ]; then
-        log "  ⚠️ Trade DUPLICADO por clave minuto exacta (${SYMBOL} Slot ${slot_id} ${close_type}) - NO guardar"
-        return 0
-    fi
-
-    if [ "$source" = "BOT" ]; then
-        detect_account_drift "BEFORE_${close_type}"
-    fi
-
-    local new_trade
-    new_trade=$(jq -n \
-        --argjson id "$new_trades" \
-        --arg symbol "$SYMBOL" \
-        --argjson slot "$slot_id" \
-        --arg type "LONG" \
-        --argjson entry "$entry_price" \
-        --argjson exit "$exit_price" \
-        --argjson qty "$quantity" \
-        --arg closeType "$close_type" \
-        --argjson pnl "$pnl" \
-        --arg ts "$timestamp" \
-        --arg closeTime "$close_time" \
-        --arg source "${source:-BOT}" \
-        --arg orderId "${order_id:-}" \
-        --argjson rawResponseSize "${raw_response_size:-0}" \
-        --arg strategy "${strategy:-SPOT}" \
-        --arg executedBy "${executed_by:-BOT}" \
-        --arg botPid "${bot_pid:-}" \
-        --argjson accountSnapshot "${account_snapshot:-{}}" \
-        --arg evidence "${evidence:-}" \
-        '{
-            id: $id,
-            symbol: $symbol,
-            slotId: $slot,
-            type: $type,
-            entryPrice: $entry,
-            exitPrice: $exit,
-            quantity: $qty,
-            closeType: $closeType,
-            pnlUSDT: $pnl,
-            timestamp: $ts,
-            closeTime: $closeTime,
-            source: $source,
-            orderId: ($orderId | if . == "" then null else . end),
-            rawResponseSize: ($rawResponseSize | if type == "number" then . else (tonumber // 0) end),
-            strategy: $strategy,
-            executedBy: $executedBy,
-            botPid: ($botPid | if . == "" then null else (. | tonumber) end),
-            accountSnapshot: $accountSnapshot,
-            evidence: ($evidence | if . == "" then null else . end),
-            seeded: false
-        }')
-
-    local temp_file="/tmp/history_$$.json"
-    jq --argjson trades "$new_trade" \
-       --argjson totalTrades "$new_trades" \
-       --argjson totalWins "$current_wins" \
-       --argjson totalLosses "$current_losses" \
-       --argjson totalProfit "$current_profit" \
-       --argjson totalLoss "$current_loss" \
-       --argjson netPnL "$new_net" \
-       --arg winRate "$win_rate" \
-       --arg symbolIndexKey "$SYMBOL" \
-       --arg dayIndexKey "$(date +%Y-%m-%d)" \
-       '.trades = [$trades] + .trades | .totalTrades = $totalTrades | .totalWins = $totalWins | .totalLosses = $totalLosses | .totalProfitUSDT = $totalProfit | .totalLossUSDT = $totalLoss | .netPnLUSDT = $netPnL | .winRate = ($winRate | tonumber) | .updatedAt = (now | todate) | .bySymbol[$symbolIndexKey] = ((.bySymbol[$symbolIndexKey] // {trades: 0, wins: 0, netPnL: 0}) | .trades = ((.trades // 0) + 1)) | .byDay[$dayIndexKey] = ((.byDay[$dayIndexKey] // {trades: 0, wins: 0, netPnL: 0}) | .trades = ((.trades // 0) + 1))' \
-       "$HISTORY_FILE" > "$temp_file" && mv "$temp_file" "$HISTORY_FILE"
-
-    local written_id
-    written_id=$(jq -r --arg sy "$SYMBOL" --argjson sid "$slot_id" --arg ct "$close_type" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType==$ct)] | first?.id // 0' "$HISTORY_FILE" 2>/dev/null || echo 0)
-    if [ "${written_id:-0}" = "0" ]; then
-        log "  ⚠️ history write no confirmó persistencia; reintento numbered"
-        local retry_n
-        retry_n=$(jq -r '[.trades // [] | length] + 1' "$HISTORY_FILE")
-        jq --argjson trades "$new_trade" \
-           --argjson totalTrades "$retry_n" \
-           --argjson totalWins "$current_wins" \
-           --argjson totalLosses "$current_losses" \
-           --argjson totalProfit "$current_profit" \
-           --argjson totalLoss "$current_loss" \
-           --argjson netPnL "$new_net" \
-           --arg winRate "$win_rate" \
-           --arg symbolIndexKey "$SYMBOL" \
-           --arg dayIndexKey "$(date +%Y-%m-%d)" \
-           '.trades = [$trades] + .trades | .totalTrades = $totalTrades | .totalWins = $totalWins | .totalLosses = $totalLosses | .totalProfitUSDT = $totalProfit | .totalLossUSDT = $totalLoss | .netPnLUSDT = $netPnL | .winRate = ($winRate | tonumber) | .updatedAt = (now | todate) | .bySymbol[$symbolIndexKey] = ((.bySymbol[$symbolIndexKey] // {trades: 0, wins: 0, netPnL: 0}) | .trades = ((.trades // 0) + 1)) | .byDay[$dayIndexKey] = ((.byDay[$dayIndexKey] // {trades: 0, wins: 0, netPnL: 0}) | .trades = ((.trades // 0) + 1))' \
-           "$HISTORY_FILE" > "$temp_file" && mv "$temp_file" "$HISTORY_FILE"
-    fi
-
-    log "  📜 Trade logged to history: #${trade_id:-$new_trades} ${SYMBOL} ${close_type} PnL=\$${pnl} source=${source:-BOT} orderId=${order_id:-n/a}"
-
-    if [ "$source" = "BOT" ]; then
-        detect_account_drift "AFTER_${close_type}"
-    fi
+    "$WORKSPACE/scripts/log_trade_to_history.py" "$slot_id" "$close_type" "$entry_price" "$exit_price" "$quantity" "$pnl" "$order_id" "$source" "$reason"
 }
 
 # ============================================
