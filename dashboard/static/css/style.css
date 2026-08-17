@@ -1570,3 +1570,35 @@ body::before {
         grid-template-columns: 1fr;
     }
 }
+
+/* Circuit Breaker Badge */
+.cb-badge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 110px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #d1d5db;
+  text-align: center;
+}
+.cb-badge .cb-label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+.cb-badge .cb-countdown {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.95;
+}
+.cb-badge.off { border-color: rgba(148,163,184,0.25); }
+.cb-badge.on {
+  border-color: rgba(248,113,113,0.6);
+  background: rgba(248,113,113,0.08);
+  color: #fecaca;
+}

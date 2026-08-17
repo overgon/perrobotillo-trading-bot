@@ -67,6 +67,7 @@ async function loadData(forceHistory = false) {
         updateGrid(data);
         updateSystemStatus({ market_mode: data.market_mode, system: data.system });
         updateAutoAdjust({ auto_adjust: data.auto_adjust, market_mode: data.market_mode });
+        updateCircuitBreakerStatus(data);
         updateTradesTable({ history: data.history });
         updateTimestamp(data.timestamp);
 
@@ -236,18 +237,19 @@ function updateSlots(data) {
                 return;
             }
             
-            // Slots cerrados → mostrar como PAUSE (gris o naranja si emergency)
+            // Slots cerrados → mostrar como CLOSED_<tipo>
             if (status.startsWith('CLOSED')) {
                 const closeReason = status.replace('CLOSED_', '') || 'CLOSED';
-                const slotClass = isEmergencyMode ? 'emergency-pause' : 'pause';
-                const statusText = isEmergencyMode ? `EMERGENCY PAUSE 🟠 (${closeReason})` : `PAUSE ⏸️ (${closeReason})`;
+                const slotClass = 'closed';
+                const statusText = `CLOSED ${closeReason} 🟢`;
+                const statusIcon = '🟢';
                 html += `
                     <div class="slot-card ${slotClass}">
                         <div class="slot-header">
                             <div class="slot-coin">${coin}</div>
                             <div class="slot-id">Slot ${slot.slotId}</div>
                         </div>
-                        <div class="slot-status ${slotClass}">${statusText}</div>
+                        <div class="slot-status ${slotClass}">${statusText} ${statusIcon}</div>
                     </div>
                 `;
                 return;
@@ -611,6 +613,45 @@ function updateAutoAdjust(data) {
             countdownEl.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }, 1000);
     }
+}
+
+function updateCircuitBreakerStatus(data) {
+    const cb = (data.circuitBreakerStatus || {}).circuitBreakerActive ? (data.circuitBreakerStatus || {}) : {};
+    const cbLabel = document.getElementById('cbLabel');
+    const cbCountdown = document.getElementById('cbCountdown');
+    const cbBadge = document.getElementById('cbBadge');
+    if (!cbLabel || !cbCountdown || !cbBadge) return;
+
+    if (!cb.circuitBreakerActive) {
+        cbLabel.textContent = 'CB OFF';
+        cbCountdown.textContent = '';
+        cbBadge.className = 'cb-badge off';
+        return;
+    }
+
+    cbLabel.textContent = 'CB ON';
+    cbBadge.className = 'cb-badge on';
+    const until = cb.pauseUntil ? new Date(cb.pauseUntil) : null;
+    if (!until) {
+        cbCountdown.textContent = '';
+        return;
+    }
+
+    const update = () => {
+        const now = new Date();
+        const diff = until - now;
+        if (diff <= 0) {
+            cbCountdown.textContent = '00:00:00';
+            setTimeout(loadData, 1000);
+            return;
+        }
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        cbCountdown.textContent = `⏳ ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    };
+    update();
+    setInterval(update, 1000);
 }
 
 // ═══════════════════════════════════════════════════════
