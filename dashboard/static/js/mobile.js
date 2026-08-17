@@ -6,8 +6,8 @@
 const CONFIG = {
     API_URL: '/api/status',
     PRICES_URL: '/api/prices',
-    REFRESH_INTERVAL: 60000,
-    PRICES_INTERVAL: 60000,
+    REFRESH_INTERVAL: 300000,
+    PRICES_INTERVAL: 300000,
     CACHE_BUSTER: true  // Force fresh API calls
 };
 
@@ -532,7 +532,7 @@ function updateAutoAdjust(data) {
             if (diff <= 0) {
                 countdownEl.textContent = '00:00:00';
                 clearInterval(countdownInterval);
-                setTimeout(loadData, 2000);
+                
                 return;
             }
             

@@ -5,8 +5,8 @@
 const CONFIG = {
     API_URL: '/api/status',
     PRICES_URL: '/api/prices',
-    REFRESH_INTERVAL: 60000,
-    PRICES_INTERVAL: 60000,
+    REFRESH_INTERVAL: 300000,
+    PRICES_INTERVAL: 300000,
     MAX_TRADES_DISPLAY: 10
 };
 
@@ -602,7 +602,7 @@ function updateAutoAdjust(data) {
                 countdownEl.textContent = '00:00:00';
                 clearInterval(countdownInterval);
                 // Reload data when adjustment time arrives
-                setTimeout(loadData, 2000);
+                
                 return;
             }
             
@@ -642,7 +642,7 @@ function updateCircuitBreakerStatus(data) {
         const diff = until - now;
         if (diff <= 0) {
             cbCountdown.textContent = '00:00:00';
-            setTimeout(loadData, 1000);
+            
             return;
         }
         const h = Math.floor(diff / 3600000);
@@ -870,5 +870,5 @@ notificationStyle.textContent = `
 document.head.appendChild(notificationStyle);
 
 // Check every 5 seconds
-setInterval(checkTPNotifications, 15000);
+setInterval(checkTPNotifications, 30000);
 console.log('🔔 TP/SL Notification system initialized');
