@@ -519,6 +519,37 @@ def get_market_mode():
     
     return {"MARKET_MODE": "LATERAL", "TP1": "2.5", "TP2": "5.0", "TP3": "7.0", "SL": "5.0"}
 
+def _load_circuit_breaker_status():
+    """Leer estado del Circuit Breaker desde el archivo de estado"""
+    try:
+        status_file = os.path.join(CRYPTO_BOTS, 'dashboard-circuit-breaker-status.json')
+        if not os.path.exists(status_file):
+            return {
+                'circuitBreakerActive': False,
+                'status': 'NORMAL',
+                'pauseUntil': None,
+                'triggeredBy': None,
+                'message': 'CB OFF'
+            }
+        with open(status_file, 'r') as f:
+            data = json.load(f)
+        return {
+            'circuitBreakerActive': bool(data.get('circuitBreakerActive', False)),
+            'status': data.get('status', 'NORMAL'),
+            'pauseUntil': data.get('pauseUntil'),
+            'triggeredBy': data.get('triggeredBy'),
+            'message': data.get('message', 'CB OFF')
+        }
+    except Exception as e:
+        print(f"Error reading circuit breaker status: {e}")
+        return {
+            'circuitBreakerActive': False,
+            'status': 'NORMAL',
+            'pauseUntil': None,
+            'triggeredBy': None,
+            'message': 'CB OFF'
+        }
+
 # ════════════════════════════════════════════════════════
 # RUTAS
 # ════════════════════════════════════════════════════════
@@ -682,6 +713,7 @@ def api_status():
             'minutes_until': minutes_until,
             'interval_hours': 6
         },
+        'circuitBreakerStatus': _load_circuit_breaker_status(),
         'timestamp': now.isoformat()
     })
 
