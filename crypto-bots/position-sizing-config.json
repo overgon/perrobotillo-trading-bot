@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-07-28T14:00:01.307394+00:00",
+  "generated_at": "2026-07-31T14:00:01.699829+00:00",
   "base_position_size": 15,
   "coins": {
     "BTC": {
       "position_size": 9.0,
       "reason": "WR 20.0% < 50% (bajo) + PnL negativo reciente",
       "stats": {
-        "trades": 15,
+        "trades": 17,
         "wins": 6,
-        "losses": 9,
-        "win_rate": 40.0,
-        "total_pnl": -95.51116060860001,
-        "avg_pnl": -6.36741070724,
+        "losses": 11,
+        "win_rate": 35.294117647058826,
+        "total_pnl": -99.0511606086,
+        "avg_pnl": -5.826538859329411,
         "recent_wr": 20.0,
-        "recent_pnl": -99.86322659
+        "recent_pnl": -80.4079574
       }
     },
     "ETH": {
@@ -34,14 +34,14 @@
       "position_size": 9.0,
       "reason": "WR 30.0% < 50% (bajo) + PnL negativo reciente",
       "stats": {
-        "trades": 36,
-        "wins": 27,
+        "trades": 38,
+        "wins": 29,
         "losses": 9,
-        "win_rate": 75.0,
-        "total_pnl": 50.948751210000005,
-        "avg_pnl": 1.4152430891666667,
+        "win_rate": 76.31578947368422,
+        "total_pnl": 52.00576498,
+        "avg_pnl": 1.368572762631579,
         "recent_wr": 30.0,
-        "recent_pnl": -7.205458039999999
+        "recent_pnl": -15.58424827
       }
     },
     "SOL": {

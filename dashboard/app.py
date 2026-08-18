@@ -100,6 +100,11 @@ def hide_server_headers(response):
     """Ocultar headers del servidor por seguridad"""
     response.headers.pop('Server', None)
     response.headers.pop('X-Powered-By', None)
+    # Cache headers para assets estáticos
+    path = request.path
+    if path.startswith('/static/'):
+        response.headers['Cache-Control'] = 'public, max-age=300'
+        response.headers['Expires'] = 'Thu, 01 Jan 2026 00:00:00 GMT'
     return response
 
 WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
@@ -356,7 +361,7 @@ def get_trade_history():
             trades = data.get('trades', [])
             trades = sorted(
                 trades,
-                key=lambda t: t.get('timestamp') or '',
+                key=lambda t: str(t.get('timestamp', '')),
                 reverse=True
             )
             data['trades'] = trades
@@ -429,7 +434,9 @@ def get_daily_pnl():
                     try:
                         close_time = datetime.fromisoformat(str(close_time_str).replace('Z', '+00:00'))
                         if close_time >= yesterday:
-                            symbol = trade.get('symbol', 'UNKNOWN')
+                            symbol = trade.get('symbol', 'UNKNOWN') or 'UNKNOWN'
+                            if not isinstance(symbol, str):
+                                symbol = str(symbol)
                             pnl = float(trade.get('pnlUSDT', trade.get('pnl', 0)) or 0)
                             total_pnl += pnl
                             pnl_by_coin[symbol] = pnl_by_coin.get(symbol, 0.0) + pnl
@@ -621,6 +628,9 @@ def api_portfolio():
 @app.route('/api/status')
 def api_status():
     """API endpoint para estado completo"""
+    import time as _time
+    _t0 = _time.time()
+    _mark = lambda label: print(f"[PERF api_status] {label}: {_time.time()-_t0:.3f}s")
     portfolio_value = get_portfolio_value()
     trade_states = get_trade_states()
     trade_history = get_trade_history()
@@ -693,7 +703,7 @@ def api_status():
             'value_mx': portfolio_value * get_mxn_rate(),
             'pnl_24h': round(daily_pnl, 2),
             'pnl_24h_percent': round((daily_pnl / portfolio_value * 100) if portfolio_value > 0 else 0, 2),
-            'pnl_by_coin': pnl_by_coin
+            'pnl_by_coin': {str(k) if k is not None else 'UNKNOWN': round(v, 2) for k, v in pnl_by_coin.items() if k is not None}
         },
         'slots': {
             'total': total_slots,
@@ -717,8 +727,8 @@ def api_status():
         'history': {
             'total_trades': trade_history.get('totalTrades', 0),
             'win_rate': round(
-                sum(1 for t in trade_history.get('trades', []) if t.get('pnlUSDT') is not None and t['pnlUSDT'] > 0)
-                / max(sum(1 for t in trade_history.get('trades', []) if t.get('pnlUSDT') is not None), 1)
+                sum(1 for t in trade_history.get('trades', []) if (t.get('pnlUSDT') is not None and isinstance(t.get('pnlUSDT'), (int, float)) and t['pnlUSDT'] > 0))
+                / max(sum(1 for t in trade_history.get('trades', []) if (t.get('pnlUSDT') is not None and isinstance(t.get('pnlUSDT'), (int, float)))), 1)
                 * 100,
                 2
             ),
@@ -752,28 +762,37 @@ def api_prices():
     try:
         import requests
         
-        # UNA SOLA llamada a Binance para nuestras monedas
-        symbols = ['BTCUSDT','ETHUSDT','BNBUSDT','SOLUSDT','LINKUSDT','XRPUSDT','AVAXUSDT']
-        url = 'https://api.binance.com/api/v3/ticker/24hr?symbol=' + '&symbol='.join(symbols)
-        response = requests.get(url, timeout=3)
+        # Bulk ticker + filtrado local para evitar 400 de Binance con símbolos múltiples
+        cached = _get_mem_cache('api_prices')
+        if cached is not None:
+            return jsonify(cached)
+        
+        url = 'https://api.binance.com/api/v3/ticker/24hr'
+        response = requests.get(url, timeout=10)
         all_tickers = response.json()
         
+        coins = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX']
         prices = {}
         for ticker in all_tickers:
             symbol = ticker.get('symbol', '')
             coin = symbol.replace('USDT', '')
-            prices[coin] = {
-                'price': float(ticker.get('lastPrice', 0)),
-                'change_24h': float(ticker.get('priceChangePercent', 0)),
-                'volume': float(ticker.get('volume', 0)),
-                'high': float(ticker.get('highPrice', 0)),
-                'low': float(ticker.get('lowPrice', 0))
-            }
+            if coin in coins:
+                prices[coin] = {
+                    'price': float(ticker.get('lastPrice', 0)),
+                    'change_24h': float(ticker.get('priceChangePercent', 0)),
+                    'volume': float(ticker.get('volume', 0)),
+                    'high': float(ticker.get('highPrice', 0)),
+                    'low': float(ticker.get('lowPrice', 0))
+                }
         
+        _set_mem_cache('api_prices', prices, ttl=5)
         return jsonify(prices)
         
     except Exception as e:
         print(f"Error getting prices: {e}")
+        cached = _get_mem_cache('api_prices')
+        if cached is not None:
+            return jsonify(cached)
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/trades')

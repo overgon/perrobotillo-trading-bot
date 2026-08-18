@@ -1,19 +1,7 @@
 {
-  "circuitBreakerActive": true,
-  "status": "GLOBAL_PAUSE",
-  "triggeredBy": "loss_rate",
-  "activatedAt": "2026-07-28T11:04:01.247773",
-  "pauseUntil": "2026-07-28 23:04:01",
-  "losses24h": 2,
-  "message": "\ud83d\udd34 Circuit Breaker ON - 100.00% loss rate",
-  "allowedOperations": [
-    "SL Management",
-    "TP Management",
-    "Emergency Close"
-  ],
-  "blockedOperations": [
-    "New Entries",
-    "DCA Operations"
-  ],
-  "lastChecked": "2026-07-28T11:04:01.247795"
+  "circuitBreakerActive": false,
+  "status": "RESUMED",
+  "message": "Circuit Breaker OFF - Trading Reanudado",
+  "resumedAt": "2026-08-17T23:53:01.347136",
+  "lastChecked": "2026-08-17T23:53:01.347161"
 }
