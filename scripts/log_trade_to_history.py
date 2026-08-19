@@ -182,7 +182,26 @@ def main():
         os.fsync(f.fileno())
     temp_file.replace(HISTORY_FILE)
 
-    print(f"  📜 Trade logged to history: #{next_id} {os.environ.get('SYMBOL')} {close_type} PnL=${pnl:+.2f} source={source} orderId={order_id or 'n/a'}")
+    print(f"  📜 Trade logged to history: #{next_id} {symbol} {close_type} PnL=${pnl:+.2f} source={source} orderId={order_id or 'n/a'}")
+
+    # 🔧 FIX: notify Telegram for forced/manual trades
+    # Bot runtime normally publishes TRADE_CLOSED to Redis; this fires notify.sh
+    # so manual closes via log_trade_to_history.py also produce notifications
+    try:
+        import subprocess
+        notify_script = WORKSPACE / "scripts" / "notify_trade.sh"
+        if notify_script.exists():
+            subprocess.Popen([
+                "bash", str(notify_script),
+                str(symbol),
+                str(close_type),
+                str(pnl),
+                str(next_id),
+                str(entry),
+                str(exit_)
+            ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception as e:
+        print(f"  ⚠️ notify_trade.sh dispatch failed: {e}")
 
 if __name__ == "__main__":
     main()
