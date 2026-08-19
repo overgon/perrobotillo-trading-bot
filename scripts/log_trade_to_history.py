@@ -8,6 +8,58 @@ import tempfile
 
 WORKSPACE = Path(os.environ.get("WORKSPACE", "/home/overgon/.openclaw/workspace"))
 HISTORY_FILE = WORKSPACE / "crypto-bots" / "trade-history.json"
+COIN_CONFIG_FILE = WORKSPACE / "crypto-bots" / "per-coin-config.env"
+
+# Mapeo slotId → moneda basado en 7 monedas x 3 slots
+SLOT_TO_COIN = {
+    1: 'BTC', 2: 'BTC', 3: 'BTC',
+    4: 'ETH', 5: 'ETH', 6: 'ETH',
+    7: 'BNB', 8: 'BNB', 9: 'BNB',
+    10: 'SOL', 11: 'SOL', 12: 'SOL',
+    13: 'LINK', 14: 'LINK', 15: 'LINK',
+    16: 'XRP', 17: 'XRP', 18: 'XRP',
+    19: 'AVAX', 20: 'AVAX', 21: 'AVAX',
+}
+
+def _resolve_symbol_from_slot(slot_id, workspace=WORKSPACE):
+    """🔧 Derive coin symbol from slotId as fallback when SYMBOL env is empty.
+    
+    Reads per-coin-config.env for symbol override, falls back to SLOT_TO_COIN map.
+    This prevents symbol: null in trade-history.json.
+    """
+    try:
+        sid = int(slot_id)
+        # Intentar leer symbol del per-coin-config.env
+        from configparser import ConfigParser
+        config = ConfigParser()
+        config.read(str(workspace / "crypto-bots" / "per-coin-config.env"))
+        # per-coin-config.env usa formato KEY=VALUE, no INI estándar
+        # Leerlo como archivo plano
+        coin_config_path = workspace / "crypto-bots" / "per-coin-config.env"
+        if coin_config_path.exists():
+            with open(coin_config_path) as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith('#'):
+                        continue
+                    if '=' in line:
+                        key, val = line.split('=', 1)
+                        key = key.strip()
+                        val = val.strip()
+                        # Buscar claves como BTC_SYMBOL o COIN_BTC
+                        if key.endswith(f'_{sid}') or key.endswith('_symbol'):
+                            # Extraer coin del slotId
+                            coin = SLOT_TO_COIN.get(sid)
+                            if coin and f"{coin}_SYMBOL" == key:
+                                return val
+        # Fallback: usar mapeo directo slotId → coin
+        return SLOT_TO_COIN.get(sid, f"UNKNOWN_{sid}")
+    except Exception:
+        # Último recurso: usar mapeo memoria
+        try:
+            return SLOT_TO_COIN.get(int(slot_id), "UNKNOWN")
+        except Exception:
+            return "UNKNOWN"
 
 def main():
     if len(sys.argv) < 7:
@@ -49,6 +101,12 @@ def main():
     timestamp = datetime.now().isoformat()
     close_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+    # 🔧 FIX CAUSA RAÍZ: si SYMBOL no está en entorno, deriva del slotId
+    # usando per-coin-config.env (evita symbol: null en trade-history.json)
+    symbol = os.environ.get("SYMBOL")
+    if not symbol:
+        symbol = _resolve_symbol_from_slot(slot_id, WORKSPACE)
+
     wins = sum(1 for t in trades if (t.get("pnlUSDT") or 0) > 0)
     losses = sum(1 for t in trades if (t.get("pnlUSDT") or 0) <= 0)
     profit = sum(t.get("pnlUSDT", 0) or 0 for t in trades if (t.get("pnlUSDT") or 0) > 0)
@@ -58,7 +116,7 @@ def main():
 
     new_trade = {
         "id": next_id,
-        "symbol": os.environ.get("SYMBOL"),
+        "symbol": symbol,
         "slotId": int(slot_id),
         "type": "LONG",
         "entryPrice": entry,
