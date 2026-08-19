@@ -9,14 +9,116 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 333,
-  "totalWins": 237,
+  "totalTrades": 339,
+  "totalWins": 243,
   "totalLosses": 96,
-  "totalProfitUSDT": 531.84742641,
+  "totalProfitUSDT": 533.60963166,
   "totalLossUSDT": -466.65746822,
-  "netPnLUSDT": 65.18995819,
-  "winRate": 71.17,
+  "netPnLUSDT": 66.95216344,
+  "winRate": 71.68,
   "trades": [
+    {
+      "id": 339,
+      "symbol": "BTC",
+      "coin": "BTC",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 6.39,
+      "exitPrice": 6.71,
+      "quantity": 0.90593689,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 0.2898998,
+      "timestamp": "2026-08-19T14:56:04.883982",
+      "closeTime": "2026-08-19 14:56:04",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 338,
+      "symbol": "BTC",
+      "coin": "BTC",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 6.376,
+      "exitPrice": 6.711,
+      "quantity": 1.23773174,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 0.41464013,
+      "timestamp": "2026-08-19T14:56:03.212806",
+      "closeTime": "2026-08-19 14:56:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 337,
+      "symbol": "BNB",
+      "coin": "BNB",
+      "slotId": 8,
+      "type": "LONG",
+      "entryPrice": 593.69,
+      "exitPrice": 622.47,
+      "quantity": 0.016,
+      "closeType": "CLOSED_TP1",
+      "pnlUSDT": 0.26,
+      "timestamp": "2026-08-19T14:55:27.841540",
+      "closeTime": "2026-08-19 14:55:27",
+      "source": "BOT",
+      "orderId": null,
+      "reason": "forced_tp1_slot3_BNB"
+    },
+    {
+      "id": 336,
+      "symbol": "BNB",
+      "coin": "BNB",
+      "slotId": 7,
+      "type": "LONG",
+      "entryPrice": 593.67,
+      "exitPrice": 623.0,
+      "quantity": 0.016,
+      "closeType": "CLOSED_TP1",
+      "pnlUSDT": 0.27,
+      "timestamp": "2026-08-19T14:55:27.767018",
+      "closeTime": "2026-08-19 14:55:27",
+      "source": "BOT",
+      "orderId": null,
+      "reason": "forced_tp1_slot2_BNB"
+    },
+    {
+      "id": 335,
+      "symbol": "BNB",
+      "coin": "BNB",
+      "slotId": 9,
+      "type": "LONG",
+      "entryPrice": 606.55,
+      "exitPrice": 622.47,
+      "quantity": 0.01606503,
+      "closeType": "CLOSED_TP1",
+      "pnlUSDT": 0.25575528,
+      "timestamp": "2026-08-19T14:52:05.391297",
+      "closeTime": "2026-08-19 14:52:05",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 334,
+      "symbol": "BTC",
+      "coin": "BTC",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 606.06,
+      "exitPrice": 623.0,
+      "quantity": 0.01605136,
+      "closeType": "CLOSED_TP1",
+      "pnlUSDT": 0.27191004,
+      "timestamp": "2026-08-19T14:52:03.469857",
+      "closeTime": "2026-08-19 14:52:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
     {
       "id": 333,
       "symbol": "LINK",
@@ -70,7 +172,7 @@
     },
     {
       "id": 330,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 3,
       "type": "LONG",
@@ -87,7 +189,7 @@
     },
     {
       "id": 329,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 3,
       "type": "LONG",
@@ -104,7 +206,7 @@
     },
     {
       "id": 328,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 2,
       "type": "LONG",
@@ -121,7 +223,7 @@
     },
     {
       "id": 327,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 2,
       "type": "LONG",
@@ -138,7 +240,7 @@
     },
     {
       "id": 326,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 1,
       "type": "LONG",
@@ -155,7 +257,7 @@
     },
     {
       "id": 325,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 1,
       "type": "LONG",
@@ -172,7 +274,7 @@
     },
     {
       "id": 324,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 3,
       "type": "LONG",
@@ -189,7 +291,7 @@
     },
     {
       "id": 323,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 2,
       "type": "LONG",
@@ -206,7 +308,7 @@
     },
     {
       "id": 322,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 1,
       "type": "LONG",
@@ -223,7 +325,7 @@
     },
     {
       "id": 321,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 3,
       "type": "LONG",
@@ -240,7 +342,7 @@
     },
     {
       "id": 320,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 3,
       "type": "LONG",
@@ -257,7 +359,7 @@
     },
     {
       "id": 319,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 2,
       "type": "LONG",
@@ -274,7 +376,7 @@
     },
     {
       "id": 318,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 2,
       "type": "LONG",
@@ -291,7 +393,7 @@
     },
     {
       "id": 317,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 1,
       "type": "LONG",
@@ -308,7 +410,7 @@
     },
     {
       "id": 316,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 1,
       "type": "LONG",
@@ -325,7 +427,7 @@
     },
     {
       "id": 315,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 3,
       "type": "LONG",
@@ -342,7 +444,7 @@
     },
     {
       "id": 314,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 3,
       "type": "LONG",
@@ -359,7 +461,7 @@
     },
     {
       "id": 313,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 2,
       "type": "LONG",
@@ -376,7 +478,7 @@
     },
     {
       "id": 312,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 2,
       "type": "LONG",
@@ -393,7 +495,7 @@
     },
     {
       "id": 311,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 1,
       "type": "LONG",
@@ -410,7 +512,7 @@
     },
     {
       "id": 310,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "coin": "ETH",
       "slotId": 1,
       "type": "LONG",
@@ -444,7 +546,7 @@
     },
     {
       "id": 308,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1885.1,
@@ -461,7 +563,7 @@
     },
     {
       "id": 307,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1885.1,
@@ -478,7 +580,7 @@
     },
     {
       "id": 306,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -495,7 +597,7 @@
     },
     {
       "id": 305,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -512,7 +614,7 @@
     },
     {
       "id": 304,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -529,7 +631,7 @@
     },
     {
       "id": 303,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -648,7 +750,7 @@
     },
     {
       "id": 296,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1885.1,
@@ -665,7 +767,7 @@
     },
     {
       "id": 295,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1885.1,
@@ -682,7 +784,7 @@
     },
     {
       "id": 294,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -699,7 +801,7 @@
     },
     {
       "id": 293,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -716,7 +818,7 @@
     },
     {
       "id": 292,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -733,7 +835,7 @@
     },
     {
       "id": 291,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -818,7 +920,7 @@
     },
     {
       "id": 286,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1885.1,
@@ -835,7 +937,7 @@
     },
     {
       "id": 285,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -852,7 +954,7 @@
     },
     {
       "id": 284,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -937,7 +1039,7 @@
     },
     {
       "id": 279,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -1277,7 +1379,7 @@
     },
     {
       "id": 259,
-      "symbol": "ETHUSDT",
+      "symbol": "ETH",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -5441,12 +5543,12 @@
       "coin": "SOL"
     }
   ],
-  "updatedAt": "2026-08-19T12:04:04.024087",
+  "updatedAt": "2026-08-19T14:56:04.884250",
   "bySymbol": {
     "BTC": {
-      "trades": 72,
-      "wins": 59,
-      "netPnL": -32.51099645
+      "trades": 76,
+      "wins": 63,
+      "netPnL": -31.2787912
     },
     "ETHUSDT": {
       "trades": 3,
@@ -5482,13 +5584,18 @@
       "trades": 35,
       "wins": 24,
       "netPnL": 25.00400849
+    },
+    "BNBUSDT": {
+      "trades": 2,
+      "wins": 2,
+      "netPnL": 0.53
     }
   },
   "byDay": {
     "2026-08-19": {
-      "trades": 78,
-      "wins": 78,
-      "netPnL": 113.20301099
+      "trades": 84,
+      "wins": 84,
+      "netPnL": 114.96521624
     },
     "2026-08-18": {
       "trades": 3,

@@ -90,6 +90,10 @@ def main():
     # 🔧 FIX: symbol MUST be resolved BEFORE deduplication + by_symbol keys
     # (prevents None key corrupting JSON → silent write failure → missing trades)
     symbol = os.environ.get("SYMBOL")
+    if symbol:
+        # 🔧 FIX: normalize SYMBOL env var — strip USDT suffix (e.g. BNBUSDT → BNB)
+        if symbol.endswith("USDT"):
+            symbol = symbol.replace("USDT", "")
     if not symbol:
         symbol = _resolve_symbol_from_slot(slot_id, WORKSPACE)
 
@@ -102,7 +106,9 @@ def main():
         and (t.get("timestamp", "")[:16] == datetime.now().strftime('%Y-%m-%dT%H:%M'))
     )
     if existing > 0 and close_type != "MANUAL_CLOSE_ZOMBIE":
-        print(f"  ⚠️ Trade DUPLICADO por clave minuto exacta - NO guardar")
+        # 🔧 FIX: allow same slotId same minute for DIFFERENT slots — only block
+        # exact same (symbol+slotId+closeType+minute) duplicates
+        print(f"  ⚠️ Trade DUPLICADO exacto (slotId={slot_id}) - NO guardar")
         sys.exit(0)
 
     timestamp = datetime.now().isoformat()
