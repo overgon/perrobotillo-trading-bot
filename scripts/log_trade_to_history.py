@@ -118,6 +118,7 @@ def main():
     new_trade = {
         "id": next_id,
         "symbol": symbol,
+        "coin": symbol,  # 🔧 FIX: frontend needs coin field (was NULL)
         "slotId": int(slot_id),
         "type": "LONG",
         "entryPrice": entry,

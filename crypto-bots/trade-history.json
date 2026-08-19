@@ -9,14 +9,150 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 301,
-  "totalWins": 205,
+  "totalTrades": 309,
+  "totalWins": 213,
   "totalLosses": 96,
-  "totalProfitUSDT": 456.30843547,
+  "totalProfitUSDT": 470.59600504,
   "totalLossUSDT": -466.65746822,
-  "netPnLUSDT": -8.12903275,
-  "winRate": 68.11,
+  "netPnLUSDT": 6.15853682,
+  "winRate": 68.93,
   "trades": [
+    {
+      "id": 309,
+      "symbol": "BTC",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 76.28,
+      "exitPrice": 82.37,
+      "quantity": 0.27885,
+      "closeType": "CLOSED_TP3_INSUFFICIENT",
+      "pnlUSDT": 1.6981965,
+      "timestamp": "2026-08-19T09:43:03.991777",
+      "closeTime": "2026-08-19 09:43:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 308,
+      "symbol": "BTC",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 1885.1,
+      "exitPrice": 2084.0,
+      "quantity": 0.0125385,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 2.49390765,
+      "timestamp": "2026-08-19T09:41:08.350720",
+      "closeTime": "2026-08-19 09:41:08",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 307,
+      "symbol": "BTC",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 1885.1,
+      "exitPrice": 2084.0,
+      "quantity": 0.0125385,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 2.49390765,
+      "timestamp": "2026-08-19T09:41:07.283699",
+      "closeTime": "2026-08-19 09:41:07",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 306,
+      "symbol": "BTC",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 1891.89,
+      "exitPrice": 2084.54,
+      "quantity": 0.007098,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 1.3674297,
+      "timestamp": "2026-08-19T09:41:06.434161",
+      "closeTime": "2026-08-19 09:41:06",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 305,
+      "symbol": "BTC",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 1891.89,
+      "exitPrice": 2084.54,
+      "quantity": 0.007098,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 1.3674297,
+      "timestamp": "2026-08-19T09:41:05.366907",
+      "closeTime": "2026-08-19 09:41:05",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 304,
+      "symbol": "BTC",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 1888.35,
+      "exitPrice": 2083.56,
+      "quantity": 0.0101595,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 1.983236,
+      "timestamp": "2026-08-19T09:41:04.419135",
+      "closeTime": "2026-08-19 09:41:04",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 303,
+      "symbol": "BTC",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 1888.35,
+      "exitPrice": 2083.56,
+      "quantity": 0.0101595,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 1.983236,
+      "timestamp": "2026-08-19T09:41:03.338344",
+      "closeTime": "2026-08-19 09:41:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 302,
+      "symbol": "BTC",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 63150.0,
+      "exitPrice": 68581.23,
+      "quantity": 0.00016575,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 0.90022637,
+      "timestamp": "2026-08-19T09:40:02.316843",
+      "closeTime": "2026-08-19 09:40:02",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
     {
       "id": 301,
       "symbol": "BTC",
@@ -4897,7 +5033,7 @@
       "coin": "SOL"
     }
   ],
-  "updatedAt": "2026-08-19T09:36:05.839605",
+  "updatedAt": "2026-08-19T09:43:03.994268",
   "bySymbol": {
     "AVAX": {
       "trades": 37,
@@ -4937,7 +5073,7 @@
     "null": {
       "trades": 1,
       "wins": 1,
-      "netPnL": 0.41108267
+      "netPnL": 1.6981965
     }
   },
   "byDay": {
@@ -5267,9 +5403,9 @@
       "netPnL": 1.24522409
     },
     "2026-08-19": {
-      "trades": 46,
-      "wins": 46,
-      "netPnL": 37.66402005
+      "trades": 54,
+      "wins": 54,
+      "netPnL": 51.95158962
     }
   },
   "lastUpdated": "2026-08-14T20:42:49.220903"
