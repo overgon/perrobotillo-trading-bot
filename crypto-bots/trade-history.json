@@ -9,19 +9,53 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 339,
-  "totalWins": 243,
+  "totalTrades": 341,
+  "totalWins": 245,
   "totalLosses": 96,
-  "totalProfitUSDT": 533.60963166,
+  "totalProfitUSDT": 534.38339762,
   "totalLossUSDT": -466.65746822,
-  "netPnLUSDT": 66.95216344,
-  "winRate": 71.68,
+  "netPnLUSDT": 67.7259294,
+  "winRate": 71.85,
   "trades": [
     {
+      "id": 341,
+      "symbol": "AVAX",
+      "coin": "AVAX",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 6.376,
+      "exitPrice": 6.796,
+      "quantity": 0.66647094,
+      "closeType": "CLOSED_TP3",
+      "pnlUSDT": 0.281,
+      "timestamp": "2026-08-19T16:54:44.040102",
+      "closeTime": "2026-08-19 16:54:44",
+      "source": "BOT",
+      "orderId": null,
+      "reason": "forced_tp3_AVAX_slot1_user_confirm"
+    },
+    {
+      "id": 340,
+      "symbol": "BNB",
+      "coin": "BNB",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 603.1,
+      "exitPrice": 633.59,
+      "quantity": 0.01616156,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 0.49276596,
+      "timestamp": "2026-08-19T15:42:03.157239",
+      "closeTime": "2026-08-19 15:42:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
       "id": 339,
-      "symbol": "BTC",
-      "coin": "BTC",
-      "slotId": 2,
+      "symbol": "AVAX",
+      "coin": "AVAX",
+      "slotId": 20,
       "type": "LONG",
       "entryPrice": 6.39,
       "exitPrice": 6.71,
@@ -36,9 +70,9 @@
     },
     {
       "id": 338,
-      "symbol": "BTC",
-      "coin": "BTC",
-      "slotId": 1,
+      "symbol": "AVAX",
+      "coin": "AVAX",
+      "slotId": 19,
       "type": "LONG",
       "entryPrice": 6.376,
       "exitPrice": 6.711,
@@ -5543,12 +5577,12 @@
       "coin": "SOL"
     }
   ],
-  "updatedAt": "2026-08-19T14:56:04.884250",
+  "updatedAt": "2026-08-19T16:54:44.040314",
   "bySymbol": {
     "BTC": {
-      "trades": 76,
-      "wins": 63,
-      "netPnL": -31.2787912
+      "trades": 77,
+      "wins": 64,
+      "netPnL": -30.78602524
     },
     "ETHUSDT": {
       "trades": 3,
@@ -5566,9 +5600,9 @@
       "netPnL": 18.70833808
     },
     "AVAX": {
-      "trades": 51,
-      "wins": 40,
-      "netPnL": 32.25258359
+      "trades": 52,
+      "wins": 41,
+      "netPnL": 32.53358359
     },
     "LINK": {
       "trades": 51,
@@ -5593,9 +5627,9 @@
   },
   "byDay": {
     "2026-08-19": {
-      "trades": 84,
-      "wins": 84,
-      "netPnL": 114.96521624
+      "trades": 86,
+      "wins": 86,
+      "netPnL": 115.7389822
     },
     "2026-08-18": {
       "trades": 3,
