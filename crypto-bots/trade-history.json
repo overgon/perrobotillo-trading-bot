@@ -9,14 +9,65 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 330,
-  "totalWins": 234,
+  "totalTrades": 333,
+  "totalWins": 237,
   "totalLosses": 96,
-  "totalProfitUSDT": 527.92112734,
+  "totalProfitUSDT": 531.84742641,
   "totalLossUSDT": -466.65746822,
-  "netPnLUSDT": 63.48365912,
-  "winRate": 70.91,
+  "netPnLUSDT": 65.18995819,
+  "winRate": 71.17,
   "trades": [
+    {
+      "id": 333,
+      "symbol": "LINK",
+      "coin": "LINK",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 9.476,
+      "exitPrice": 10.011,
+      "quantity": 0.36869291,
+      "closeType": "CLOSED_TP3_INSUFFICIENT",
+      "pnlUSDT": 0.19725071,
+      "timestamp": "2026-08-19T12:04:04.023771",
+      "closeTime": "2026-08-19 12:04:04",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 332,
+      "symbol": "BTC",
+      "coin": "BTC",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 63150.0,
+      "exitPrice": 68860.35,
+      "quantity": 0.00038675,
+      "closeType": "TP3",
+      "pnlUSDT": 1.52056276,
+      "timestamp": "2026-08-19T10:30:02.569581",
+      "closeTime": "2026-08-19 10:30:02",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 331,
+      "symbol": "BTC",
+      "coin": "BTC",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 63150.0,
+      "exitPrice": 68860.37,
+      "quantity": 0.00038675,
+      "closeType": "CLOSED_TP3",
+      "pnlUSDT": 2.2084856,
+      "timestamp": "2026-08-19T10:30:02.451337",
+      "closeTime": "2026-08-19 10:30:02",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
     {
       "id": 330,
       "symbol": "BTC",
@@ -5390,60 +5441,65 @@
       "coin": "SOL"
     }
   ],
-  "updatedAt": "2026-08-19T10:11:07.604798",
+  "updatedAt": "2026-08-19T12:04:04.024087",
   "bySymbol": {
-    "AVAX": {
-      "trades": 37,
-      "wins": 26,
-      "netPnL": 26.14307106
-    },
-    "SOL": {
-      "trades": 35,
-      "wins": 24,
-      "netPnL": 25.00400849
-    },
     "BTC": {
-      "trades": 19,
-      "wins": 6,
-      "netPnL": -112.45484392
-    },
-    "ETH": {
-      "trades": 25,
-      "wins": 11,
-      "netPnL": -54.25821915
-    },
-    "BNB": {
-      "trades": 41,
-      "wins": 32,
-      "netPnL": 52.74557663
-    },
-    "LINK": {
-      "trades": 47,
-      "wins": 35,
-      "netPnL": -5.20639949
-    },
-    "XRP": {
-      "trades": 47,
-      "wins": 21,
-      "netPnL": 18.21098698
-    },
-    "null": {
-      "trades": 1,
-      "wins": 1,
-      "netPnL": 2.59622181
+      "trades": 72,
+      "wins": 59,
+      "netPnL": -32.51099645
     },
     "ETHUSDT": {
       "trades": 3,
       "wins": 3,
       "netPnL": 21.45
     },
-    "null": {
-      "trades": 1,
-      "wins": 1,
-      "netPnL": 2.59622181
+    "BNB": {
+      "trades": 46,
+      "wins": 37,
+      "netPnL": 58.02736513
+    },
+    "XRP": {
+      "trades": 49,
+      "wins": 23,
+      "netPnL": 18.70833808
+    },
+    "AVAX": {
+      "trades": 51,
+      "wins": 40,
+      "netPnL": 32.25258359
+    },
+    "LINK": {
+      "trades": 51,
+      "wins": 39,
+      "netPnL": -4.3153564
+    },
+    "ETH": {
+      "trades": 26,
+      "wins": 12,
+      "netPnL": -53.42598425
+    },
+    "SOL": {
+      "trades": 35,
+      "wins": 24,
+      "netPnL": 25.00400849
     }
   },
   "byDay": {
+    "2026-08-19": {
+      "trades": 78,
+      "wins": 78,
+      "netPnL": 113.20301099
+    },
+    "2026-08-18": {
+      "trades": 3,
+      "wins": 3,
+      "netPnL": 1.24522409
+    },
+    "2026-08-17": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 0.55754251
+    },
     "2026-08-01": {
       "trades": 2,
       "wins": 0,
@@ -5682,7 +5738,7 @@
     "2026-06-16": {
       "trades": 1,
       "wins": 0,
-      "netPnL": 0.0
+      "netPnL": 0
     },
     "2026-07-13": {
       "trades": 1,
@@ -5758,21 +5814,6 @@
       "trades": 1,
       "wins": 0,
       "netPnL": -2.22
-    },
-    "2026-08-17": {
-      "trades": 1,
-      "wins": 1,
-      "netPnL": 0.55754251
-    },
-    "2026-08-18": {
-      "trades": 3,
-      "wins": 3,
-      "netPnL": 1.24522409
-    },
-    "2026-08-19": {
-      "trades": 75,
-      "wins": 75,
-      "netPnL": 109.27671192
     }
   },
   "lastUpdated": "2026-08-14T20:42:49.220903"
