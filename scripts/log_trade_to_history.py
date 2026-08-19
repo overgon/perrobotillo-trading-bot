@@ -101,8 +101,9 @@ def main():
     timestamp = datetime.now().isoformat()
     close_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    # 🔧 FIX CAUSA RAÍZ: si SYMBOL no está en entorno, deriva del slotId
-    # usando per-coin-config.env (evita symbol: null en trade-history.json)
+    # 🔧 FIX: symbol fallback from slotId using per-coin-config.env
+    # If SYMBOL env var is missing (e.g. script fired by cron without context),
+    # derive the symbol from slotId via coin configuration mapping
     symbol = os.environ.get("SYMBOL")
     if not symbol:
         symbol = _resolve_symbol_from_slot(slot_id, WORKSPACE)

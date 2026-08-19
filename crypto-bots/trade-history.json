@@ -9,14 +9,252 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 287,
-  "totalWins": 191,
+  "totalTrades": 301,
+  "totalWins": 205,
   "totalLosses": 96,
-  "totalProfitUSDT": 436.63834398,
+  "totalProfitUSDT": 456.30843547,
   "totalLossUSDT": -466.65746822,
-  "netPnLUSDT": -27.79912424,
-  "winRate": 66.55,
+  "netPnLUSDT": -8.12903275,
+  "winRate": 68.11,
   "trades": [
+    {
+      "id": 301,
+      "symbol": "BTC",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 6.368,
+      "exitPrice": 6.641,
+      "quantity": 1.50579732,
+      "closeType": "CLOSED_TP1",
+      "pnlUSDT": 0.41108267,
+      "timestamp": "2026-08-19T09:36:05.836690",
+      "closeTime": "2026-08-19 09:36:05",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 300,
+      "symbol": "BTC",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 6.39,
+      "exitPrice": 6.639,
+      "quantity": 1.50625094,
+      "closeType": "CLOSED_TP1",
+      "pnlUSDT": 0.37505648,
+      "timestamp": "2026-08-19T09:36:04.146233",
+      "closeTime": "2026-08-19 09:36:04",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 299,
+      "symbol": "BTC",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 6.39,
+      "exitPrice": 6.639,
+      "quantity": 1.50625094,
+      "closeType": "CLOSED_TP1",
+      "pnlUSDT": 0.37505648,
+      "timestamp": "2026-08-19T09:36:04.067093",
+      "closeTime": "2026-08-19 09:36:04",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 298,
+      "symbol": "BTC",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 6.376,
+      "exitPrice": 6.641,
+      "quantity": 1.50579732,
+      "closeType": "CLOSED_TP1",
+      "pnlUSDT": 0.39903629,
+      "timestamp": "2026-08-19T09:36:02.389341",
+      "closeTime": "2026-08-19 09:36:02",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 297,
+      "symbol": "BTC",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 76.06,
+      "exitPrice": 81.8,
+      "quantity": 0.13961146,
+      "closeType": "CLOSED_TP3_INSUFFICIENT",
+      "pnlUSDT": 0.80136978,
+      "timestamp": "2026-08-19T09:33:04.187708",
+      "closeTime": "2026-08-19 09:33:04",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 296,
+      "symbol": "BTC",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 1885.1,
+      "exitPrice": 2061.43,
+      "quantity": 0.0125385,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 2.2109137,
+      "timestamp": "2026-08-19T09:31:07.968722",
+      "closeTime": "2026-08-19 09:31:07",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 295,
+      "symbol": "BTC",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 1885.1,
+      "exitPrice": 2061.43,
+      "quantity": 0.0125385,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 2.2109137,
+      "timestamp": "2026-08-19T09:31:06.875036",
+      "closeTime": "2026-08-19 09:31:06",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 294,
+      "symbol": "BTC",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 1891.89,
+      "exitPrice": 2057.45,
+      "quantity": 0.007098,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 1.17514488,
+      "timestamp": "2026-08-19T09:31:05.813480",
+      "closeTime": "2026-08-19 09:31:05",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 293,
+      "symbol": "BTC",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 1891.89,
+      "exitPrice": 2057.45,
+      "quantity": 0.007098,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 1.17514488,
+      "timestamp": "2026-08-19T09:31:04.732674",
+      "closeTime": "2026-08-19 09:31:04",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 292,
+      "symbol": "BTC",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 1888.35,
+      "exitPrice": 2057.82,
+      "quantity": 0.0101595,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 1.72173047,
+      "timestamp": "2026-08-19T09:31:03.632315",
+      "closeTime": "2026-08-19 09:31:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 291,
+      "symbol": "BTC",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 1888.35,
+      "exitPrice": 2057.82,
+      "quantity": 0.0101595,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 1.72173047,
+      "timestamp": "2026-08-19T09:31:02.548744",
+      "closeTime": "2026-08-19 09:31:02",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 290,
+      "symbol": "BTC",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 63115.61,
+      "exitPrice": 68265.15,
+      "quantity": 0.000871,
+      "closeType": "TP3",
+      "pnlUSDT": 1.2667413,
+      "timestamp": "2026-08-19T09:30:03.810232",
+      "closeTime": "2026-08-19 09:30:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 289,
+      "symbol": "BTC",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 63115.61,
+      "exitPrice": 68261.04,
+      "quantity": 0.000871,
+      "closeType": "CLOSED_TP3",
+      "pnlUSDT": 4.48166953,
+      "timestamp": "2026-08-19T09:30:03.690281",
+      "closeTime": "2026-08-19 09:30:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
+    {
+      "id": 288,
+      "symbol": "BTC",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 63115.61,
+      "exitPrice": 68261.04,
+      "quantity": 0.0002613,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 1.34450086,
+      "timestamp": "2026-08-19T09:30:02.352397",
+      "closeTime": "2026-08-19 09:30:02",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "coin": "BTC"
+    },
     {
       "id": 287,
       "symbol": "BTC",
@@ -31,7 +269,8 @@
       "closeTime": "2026-08-19 09:20:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "BTC"
     },
     {
       "id": 286,
@@ -47,7 +286,8 @@
       "closeTime": "2026-08-19 09:11:06",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "BNB"
     },
     {
       "id": 285,
@@ -63,7 +303,8 @@
       "closeTime": "2026-08-19 09:11:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "BNB"
     },
     {
       "id": 284,
@@ -79,7 +320,8 @@
       "closeTime": "2026-08-19 09:11:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "BNB"
     },
     {
       "id": 283,
@@ -95,7 +337,8 @@
       "closeTime": "2026-08-19 09:10:11",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "BTC"
     },
     {
       "id": 282,
@@ -111,7 +354,8 @@
       "closeTime": "2026-08-19 08:55:05",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "XRP"
     },
     {
       "id": 281,
@@ -127,7 +371,8 @@
       "closeTime": "2026-08-19 08:55:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "XRP"
     },
     {
       "id": 280,
@@ -143,7 +388,8 @@
       "closeTime": "2026-08-19 08:53:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "AVAX"
     },
     {
       "id": 279,
@@ -159,7 +405,8 @@
       "closeTime": "2026-08-19 08:51:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "BNB"
     },
     {
       "id": 278,
@@ -175,7 +422,8 @@
       "closeTime": "2026-08-19 08:50:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "BTC"
     },
     {
       "id": 277,
@@ -191,7 +439,8 @@
       "closeTime": "2026-08-19 08:40:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "BTC"
     },
     {
       "id": 276,
@@ -207,7 +456,8 @@
       "closeTime": "2026-08-19 08:30:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "BTC"
     },
     {
       "id": 275,
@@ -223,7 +473,8 @@
       "closeTime": "2026-08-19 08:23:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "AVAX"
     },
     {
       "id": 274,
@@ -239,7 +490,8 @@
       "closeTime": "2026-08-19 08:20:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "BTC"
     },
     {
       "id": 273,
@@ -255,7 +507,8 @@
       "closeTime": "2026-08-19 08:13:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "AVAX"
     },
     {
       "id": 272,
@@ -271,7 +524,8 @@
       "closeTime": "2026-08-19 08:10:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "BTC"
     },
     {
       "id": 271,
@@ -287,7 +541,8 @@
       "closeTime": "2026-08-19 08:10:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "BTC"
     },
     {
       "id": 270,
@@ -303,7 +558,8 @@
       "closeTime": "2026-08-19 08:03:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "AVAX"
     },
     {
       "id": 269,
@@ -319,7 +575,8 @@
       "closeTime": "2026-08-19 07:53:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "AVAX"
     },
     {
       "id": 268,
@@ -335,7 +592,8 @@
       "closeTime": "2026-08-19 07:50:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "BTC"
     },
     {
       "id": 267,
@@ -351,7 +609,8 @@
       "closeTime": "2026-08-19 07:43:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "AVAX"
     },
     {
       "id": 266,
@@ -367,7 +626,8 @@
       "closeTime": "2026-08-19 07:33:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "AVAX"
     },
     {
       "id": 265,
@@ -383,7 +643,8 @@
       "closeTime": "2026-08-19 07:23:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "AVAX"
     },
     {
       "id": 264,
@@ -399,7 +660,8 @@
       "closeTime": "2026-08-19 07:13:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "AVAX"
     },
     {
       "id": 263,
@@ -415,7 +677,8 @@
       "closeTime": "2026-08-19 07:03:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "AVAX"
     },
     {
       "id": 262,
@@ -431,7 +694,8 @@
       "closeTime": "2026-08-19 06:53:06",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "AVAX"
     },
     {
       "id": 261,
@@ -447,7 +711,8 @@
       "closeTime": "2026-08-19 06:53:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "AVAX"
     },
     {
       "id": 260,
@@ -463,7 +728,8 @@
       "closeTime": "2026-08-19 06:53:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "AVAX"
     },
     {
       "id": 259,
@@ -479,7 +745,8 @@
       "closeTime": "2026-08-19 06:51:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "BNB"
     },
     {
       "id": 258,
@@ -495,7 +762,8 @@
       "closeTime": "2026-08-19 06:43:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "AVAX"
     },
     {
       "id": 257,
@@ -511,7 +779,8 @@
       "closeTime": "2026-08-19 03:24:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "LINK"
     },
     {
       "id": 256,
@@ -527,7 +796,8 @@
       "closeTime": "2026-08-19 01:54:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "LINK"
     },
     {
       "id": 255,
@@ -543,7 +813,8 @@
       "closeTime": "2026-08-18 21:44:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "LINK"
     },
     {
       "id": 254,
@@ -559,7 +830,8 @@
       "closeTime": "2026-08-18 21:24:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "LINK"
     },
     {
       "id": 253,
@@ -575,7 +847,8 @@
       "closeTime": "2026-08-18 08:31:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "ETH"
     },
     {
       "id": 252,
@@ -591,7 +864,8 @@
       "closeTime": "2026-08-17 14:20:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "coin": "BTC"
     },
     {
       "id": 226,
@@ -607,7 +881,8 @@
       "closeTime": "2026-08-01 16:25:36",
       "source": "BOT",
       "status": "CLOSED_SL",
-      "seeded": false
+      "seeded": false,
+      "coin": "AVAX"
     },
     {
       "id": 225,
@@ -623,7 +898,8 @@
       "closeTime": "2026-08-01 16:25:00",
       "source": "BOT",
       "status": "CLOSED_SL",
-      "seeded": false
+      "seeded": false,
+      "coin": "SOL"
     },
     {
       "id": 224,
@@ -640,7 +916,8 @@
       "source": "TELEGRAM_RECOVERY",
       "status": "CLOSED_SL",
       "note": "SL hit - recover from Telegram notify",
-      "seeded": false
+      "seeded": false,
+      "coin": "BTC"
     },
     {
       "id": 223,
@@ -657,7 +934,8 @@
       "source": "TELEGRAM_RECOVERY",
       "status": "CLOSED_SL",
       "note": "SL hit - recover from Telegram notify",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 222,
@@ -673,7 +951,8 @@
       "closeTime": "2026-07-30 10:50:23",
       "source": "BOT",
       "status": "CLOSED_TP2",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 221,
@@ -689,7 +968,8 @@
       "closeTime": "2026-07-28T00:00:00",
       "source": "BOT",
       "status": "CLOSED_TP1",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 220,
@@ -705,7 +985,8 @@
       "closeTime": "2026-07-28T00:00:00",
       "source": "BOT",
       "status": "CLOSED_SL",
-      "seeded": false
+      "seeded": false,
+      "coin": "BTC"
     },
     {
       "id": 219,
@@ -721,7 +1002,8 @@
       "closeTime": "2026-07-28T00:00:00",
       "source": "BOT",
       "status": "CLOSED_SL",
-      "seeded": false
+      "seeded": false,
+      "coin": "BTC"
     },
     {
       "id": 217,
@@ -741,7 +1023,8 @@
       "status": "CLOSED_SL",
       "orderId": null,
       "note": "SL hit - recover from Telegram notify",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 216,
@@ -761,7 +1044,8 @@
       "status": "CLOSED_SL",
       "orderId": null,
       "note": "SL hit - recover from Telegram notify",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 215,
@@ -781,7 +1065,8 @@
       "status": "CLOSED_SL",
       "orderId": null,
       "note": "SL hit - recover from Telegram notify",
-      "seeded": false
+      "seeded": false,
+      "coin": "BTC"
     },
     {
       "id": 214,
@@ -801,7 +1086,8 @@
       "status": "CLOSED_SL",
       "orderId": null,
       "note": "SL hit - Auto recovery v2",
-      "seeded": false
+      "seeded": false,
+      "coin": "AVAX"
     },
     {
       "id": 213,
@@ -821,7 +1107,8 @@
       "status": "CLOSED_SL",
       "orderId": null,
       "note": "SL hit - precision fix applied, state fixed",
-      "seeded": false
+      "seeded": false,
+      "coin": "AVAX"
     },
     {
       "id": 212,
@@ -841,7 +1128,8 @@
       "status": "CLOSED_SL",
       "orderId": null,
       "note": "SL hit - Manual recovery",
-      "seeded": false
+      "seeded": false,
+      "coin": "AVAX"
     },
     {
       "id": 1,
@@ -856,7 +1144,8 @@
       "timestamp": "2026-04-23T17:23:08-06:00",
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
-      "closeTime": "2026-04-23 17:23:08"
+      "closeTime": "2026-04-23 17:23:08",
+      "coin": "SOL"
     },
     {
       "id": 2,
@@ -871,7 +1160,8 @@
       "timestamp": "2026-04-23T17:23:08-06:00",
       "seeded": false,
       "note": "TP2 hit - Manual recovery",
-      "closeTime": "2026-04-23 17:23:08"
+      "closeTime": "2026-04-23 17:23:08",
+      "coin": "SOL"
     },
     {
       "id": 3,
@@ -886,7 +1176,8 @@
       "timestamp": "2026-04-24T12:43:11-06:00",
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
-      "closeTime": "2026-04-24 12:43:11"
+      "closeTime": "2026-04-24 12:43:11",
+      "coin": "SOL"
     },
     {
       "id": 4,
@@ -901,7 +1192,8 @@
       "timestamp": "2026-04-24T12:43:11-06:00",
       "seeded": false,
       "note": "TP2 hit - Manual recovery",
-      "closeTime": "2026-04-24 12:43:11"
+      "closeTime": "2026-04-24 12:43:11",
+      "coin": "SOL"
     },
     {
       "id": 5,
@@ -916,7 +1208,8 @@
       "timestamp": "2026-04-24T16:54:08-06:00",
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
-      "closeTime": "2026-04-24 16:54:08"
+      "closeTime": "2026-04-24 16:54:08",
+      "coin": "LINK"
     },
     {
       "id": 6,
@@ -931,7 +1224,8 @@
       "timestamp": "2026-04-24T16:54:08-06:00",
       "seeded": false,
       "note": "TP2 hit - Manual recovery (missing trade)",
-      "closeTime": "2026-04-24 16:54:08"
+      "closeTime": "2026-04-24 16:54:08",
+      "coin": "LINK"
     },
     {
       "id": 7,
@@ -946,7 +1240,8 @@
       "timestamp": "2026-04-26T03:02:15-06:00",
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
-      "closeTime": "2026-04-26 03:02:15"
+      "closeTime": "2026-04-26 03:02:15",
+      "coin": "BNB"
     },
     {
       "id": 8,
@@ -961,7 +1256,8 @@
       "timestamp": "2026-04-27T11:42:23-06:00",
       "seeded": false,
       "note": "TP2 hit - Manual recovery (missing trade)",
-      "closeTime": "2026-04-27 11:42:23"
+      "closeTime": "2026-04-27 11:42:23",
+      "coin": "BNB"
     },
     {
       "id": 9,
@@ -976,7 +1272,8 @@
       "timestamp": "2026-04-30T09:35:11-06:00",
       "seeded": false,
       "note": "TP2 hit - Manual recovery (missing trade)",
-      "closeTime": "2026-04-30 09:35:11"
+      "closeTime": "2026-04-30 09:35:11",
+      "coin": "XRP"
     },
     {
       "id": 10,
@@ -991,7 +1288,8 @@
       "timestamp": "2026-05-01T19:12:10-06:00",
       "seeded": false,
       "note": "TP2 hit - Manual recovery (missing trade)",
-      "closeTime": "2026-05-01 19:12:10"
+      "closeTime": "2026-05-01 19:12:10",
+      "coin": "BNB"
     },
     {
       "id": 11,
@@ -1006,7 +1304,8 @@
       "timestamp": "2026-05-04T01:42:16-06:00",
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
-      "closeTime": "2026-05-04 01:42:16"
+      "closeTime": "2026-05-04 01:42:16",
+      "coin": "BTC"
     },
     {
       "id": 12,
@@ -1021,7 +1320,8 @@
       "timestamp": "2026-05-04T01:42:16-06:00",
       "seeded": false,
       "note": "TP2 hit - Manual recovery (missing trade)",
-      "closeTime": "2026-05-04 01:42:16"
+      "closeTime": "2026-05-04 01:42:16",
+      "coin": "BTC"
     },
     {
       "id": 13,
@@ -1036,7 +1336,8 @@
       "timestamp": "2026-05-04T18:25:09-06:00",
       "seeded": false,
       "note": "TP2 hit - Manual recovery (missing trade)",
-      "closeTime": "2026-05-04 18:25:09"
+      "closeTime": "2026-05-04 18:25:09",
+      "coin": "XRP"
     },
     {
       "id": 14,
@@ -1051,7 +1352,8 @@
       "timestamp": "2026-05-04T22:11:27.183262",
       "seeded": false,
       "note": "TP2 hit - 30% position closed",
-      "closeTime": "2026-05-04 22:11:27"
+      "closeTime": "2026-05-04 22:11:27",
+      "coin": "BTC"
     },
     {
       "id": 15,
@@ -1066,7 +1368,8 @@
       "timestamp": "2026-05-04T23:30:00",
       "seeded": false,
       "note": "TP2 hit - 30% position closed",
-      "closeTime": "2026-05-04 23:30:00"
+      "closeTime": "2026-05-04 23:30:00",
+      "coin": "LINK"
     },
     {
       "id": 16,
@@ -1081,7 +1384,8 @@
       "timestamp": "2026-05-04T23:45:00",
       "seeded": false,
       "note": "TP2 hit - 30% position closed",
-      "closeTime": "2026-05-04 23:45:00"
+      "closeTime": "2026-05-04 23:45:00",
+      "coin": "LINK"
     },
     {
       "id": 17,
@@ -1096,7 +1400,8 @@
       "timestamp": "2026-05-05T00:15:00",
       "seeded": false,
       "note": "TP1 hit - 30% position closed",
-      "closeTime": "2026-05-05 00:15:00"
+      "closeTime": "2026-05-05 00:15:00",
+      "coin": "XRP"
     },
     {
       "id": 18,
@@ -1111,7 +1416,8 @@
       "timestamp": "2026-05-05T00:15:00",
       "seeded": false,
       "note": "TP1 hit - 30% position closed",
-      "closeTime": "2026-05-05 00:15:00"
+      "closeTime": "2026-05-05 00:15:00",
+      "coin": "XRP"
     },
     {
       "id": 19,
@@ -1126,7 +1432,8 @@
       "timestamp": "2026-05-05T00:15:00",
       "seeded": false,
       "note": "TP1 hit - 30% position closed",
-      "closeTime": "2026-05-05 00:15:00"
+      "closeTime": "2026-05-05 00:15:00",
+      "coin": "XRP"
     },
     {
       "id": 20,
@@ -1141,7 +1448,8 @@
       "timestamp": "2026-05-05T14:56:11-06:00",
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
-      "closeTime": "2026-05-05 14:56:11"
+      "closeTime": "2026-05-05 14:56:11",
+      "coin": "AVAX"
     },
     {
       "id": 21,
@@ -1156,7 +1464,8 @@
       "timestamp": "2026-05-05T14:56:11-06:00",
       "seeded": false,
       "note": "TP2 hit - Manual recovery",
-      "closeTime": "2026-05-05 14:56:11"
+      "closeTime": "2026-05-05 14:56:11",
+      "coin": "AVAX"
     },
     {
       "id": 22,
@@ -1171,7 +1480,8 @@
       "timestamp": "2026-05-05T15:16:21-06:00",
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
-      "closeTime": "2026-05-05 15:16:21"
+      "closeTime": "2026-05-05 15:16:21",
+      "coin": "AVAX"
     },
     {
       "id": 23,
@@ -1186,7 +1496,8 @@
       "timestamp": "2026-05-05T15:16:21-06:00",
       "seeded": false,
       "note": "TP2 hit - Manual recovery",
-      "closeTime": "2026-05-05 15:16:21"
+      "closeTime": "2026-05-05 15:16:21",
+      "coin": "AVAX"
     },
     {
       "id": 24,
@@ -1201,7 +1512,8 @@
       "timestamp": "2026-05-05T16:33:20-06:00",
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
-      "closeTime": "2026-05-05 16:33:20"
+      "closeTime": "2026-05-05 16:33:20",
+      "coin": "SOL"
     },
     {
       "id": 25,
@@ -1216,7 +1528,8 @@
       "timestamp": "2026-05-05T16:33:20-06:00",
       "seeded": false,
       "note": "TP2 hit - Manual recovery (missing trade)",
-      "closeTime": "2026-05-05 16:33:20"
+      "closeTime": "2026-05-05 16:33:20",
+      "coin": "SOL"
     },
     {
       "id": 26,
@@ -1231,7 +1544,8 @@
       "timestamp": "2026-05-05T18:01:37-06:00",
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
-      "closeTime": "2026-05-05 18:01:37"
+      "closeTime": "2026-05-05 18:01:37",
+      "coin": "ETH"
     },
     {
       "id": 27,
@@ -1246,7 +1560,8 @@
       "timestamp": "2026-05-05T18:51:57-06:00",
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
-      "closeTime": "2026-05-05 18:51:57"
+      "closeTime": "2026-05-05 18:51:57",
+      "coin": "ETH"
     },
     {
       "id": 28,
@@ -1261,7 +1576,8 @@
       "timestamp": "2026-05-05T19:00:00",
       "seeded": false,
       "note": "TP1 hit - 30% position closed (manual recovery)",
-      "closeTime": "2026-05-05 19:00:00"
+      "closeTime": "2026-05-05 19:00:00",
+      "coin": "BNB"
     },
     {
       "id": 29,
@@ -1276,7 +1592,8 @@
       "timestamp": "2026-05-05T19:00:00",
       "seeded": false,
       "note": "TP1 hit - 30% position closed (manual recovery)",
-      "closeTime": "2026-05-05 19:00:00"
+      "closeTime": "2026-05-05 19:00:00",
+      "coin": "BNB"
     },
     {
       "id": 30,
@@ -1290,7 +1607,8 @@
       "pnlUSDT": 9.27330301,
       "timestamp": "2026-05-05T21:44:04-06:00",
       "seeded": false,
-      "closeTime": "2026-05-05 21:44:04"
+      "closeTime": "2026-05-05 21:44:04",
+      "coin": "LINK"
     },
     {
       "id": 31,
@@ -1304,7 +1622,8 @@
       "pnlUSDT": 5.5611211,
       "timestamp": "2026-05-06T01:04:03-06:00",
       "seeded": false,
-      "closeTime": "2026-05-06 01:04:03"
+      "closeTime": "2026-05-06 01:04:03",
+      "coin": "LINK"
     },
     {
       "id": 32,
@@ -1318,7 +1637,8 @@
       "pnlUSDT": 1.36402739,
       "timestamp": "2026-05-06T04:20:03-06:00",
       "seeded": false,
-      "closeTime": "2026-05-06 04:20:03"
+      "closeTime": "2026-05-06 04:20:03",
+      "coin": "BTC"
     },
     {
       "id": 33,
@@ -1332,7 +1652,8 @@
       "pnlUSDT": 1.39849969,
       "timestamp": "2026-05-06T05:21:03-06:00",
       "seeded": false,
-      "closeTime": "2026-05-06 05:21:03"
+      "closeTime": "2026-05-06 05:21:03",
+      "coin": "ETH"
     },
     {
       "id": 34,
@@ -1346,7 +1667,8 @@
       "pnlUSDT": 2.63578272,
       "timestamp": "2026-05-06T06:46:02-06:00",
       "seeded": false,
-      "closeTime": "2026-05-06 06:46:02"
+      "closeTime": "2026-05-06 06:46:02",
+      "coin": "AVAX"
     },
     {
       "id": 35,
@@ -1361,7 +1683,8 @@
       "timestamp": "2026-05-06T16:34:21-06:00",
       "seeded": false,
       "note": "TP1 hit - Manual recovery",
-      "closeTime": "2026-05-06 16:34:21"
+      "closeTime": "2026-05-06 16:34:21",
+      "coin": "LINK"
     },
     {
       "id": 36,
@@ -1376,7 +1699,8 @@
       "timestamp": "2026-05-07T00:06:57-06:00",
       "seeded": false,
       "note": "TP1 hit - AVAX Slot 1 (Mayo 7 9:56 AM)",
-      "closeTime": "2026-05-07 00:06:57"
+      "closeTime": "2026-05-07 00:06:57",
+      "coin": "AVAX"
     },
     {
       "id": 37,
@@ -1391,7 +1715,8 @@
       "timestamp": "2026-05-08T09:56:00-06:00",
       "seeded": false,
       "note": "TP1 hit - 30% position closed",
-      "closeTime": "2026-05-08 09:56:00"
+      "closeTime": "2026-05-08 09:56:00",
+      "coin": "AVAX"
     },
     {
       "id": 38,
@@ -1406,7 +1731,8 @@
       "timestamp": "2026-05-08T11:33:00-06:00",
       "seeded": false,
       "note": "TP2 hit - Telegram notification (11:33-11:36 AM)",
-      "closeTime": "2026-05-08 11:33:00"
+      "closeTime": "2026-05-08 11:33:00",
+      "coin": "SOL"
     },
     {
       "id": 39,
@@ -1421,7 +1747,8 @@
       "timestamp": "2026-05-08T11:33:00-06:00",
       "seeded": false,
       "note": "TP2 hit - Telegram notification (11:33-11:36 AM)",
-      "closeTime": "2026-05-08 11:33:00"
+      "closeTime": "2026-05-08 11:33:00",
+      "coin": "SOL"
     },
     {
       "id": 40,
@@ -1436,7 +1763,8 @@
       "timestamp": "2026-05-08T11:34:00-06:00",
       "seeded": false,
       "note": "TP1 hit - Telegram notification (11:33-11:36 AM)",
-      "closeTime": "2026-05-08 11:34:00"
+      "closeTime": "2026-05-08 11:34:00",
+      "coin": "LINK"
     },
     {
       "id": 41,
@@ -1451,7 +1779,8 @@
       "timestamp": "2026-05-08T11:36:00-06:00",
       "seeded": false,
       "note": "TP2 hit - Telegram notification (11:33-11:36 AM)",
-      "closeTime": "2026-05-08 11:36:00"
+      "closeTime": "2026-05-08 11:36:00",
+      "coin": "AVAX"
     },
     {
       "id": 42,
@@ -1466,7 +1795,8 @@
       "timestamp": "2026-05-08T11:36:00-06:00",
       "seeded": false,
       "note": "TP2 hit - Telegram notification (11:33-11:36 AM)",
-      "closeTime": "2026-05-08 11:36:00"
+      "closeTime": "2026-05-08 11:36:00",
+      "coin": "AVAX"
     },
     {
       "id": 43,
@@ -1480,7 +1810,8 @@
       "pnlUSDT": 28.33085706,
       "timestamp": "2026-05-08T11:54:03-06:00",
       "seeded": false,
-      "closeTime": "2026-05-08 11:54:03"
+      "closeTime": "2026-05-08 11:54:03",
+      "coin": "LINK"
     },
     {
       "id": 44,
@@ -1494,7 +1825,8 @@
       "pnlUSDT": 0.4515,
       "timestamp": "2026-05-08T12:36:03-06:00",
       "seeded": false,
-      "closeTime": "2026-05-08 12:36:03"
+      "closeTime": "2026-05-08 12:36:03",
+      "coin": "AVAX"
     },
     {
       "id": 45,
@@ -1508,7 +1840,8 @@
       "pnlUSDT": 1.40913967,
       "timestamp": "2026-05-08T13:13:02-06:00",
       "seeded": false,
-      "closeTime": "2026-05-08 13:13:02"
+      "closeTime": "2026-05-08 13:13:02",
+      "coin": "SOL"
     },
     {
       "id": 46,
@@ -1522,7 +1855,8 @@
       "pnlUSDT": 5.0568316,
       "timestamp": "2026-05-08T15:26:02-06:00",
       "seeded": false,
-      "closeTime": "2026-05-08 15:26:02"
+      "closeTime": "2026-05-08 15:26:02",
+      "coin": "AVAX"
     },
     {
       "id": 47,
@@ -1536,7 +1870,8 @@
       "pnlUSDT": 2.06385006,
       "timestamp": "2026-05-08T19:16:02-06:00",
       "seeded": false,
-      "closeTime": "2026-05-08 19:16:02"
+      "closeTime": "2026-05-08 19:16:02",
+      "coin": "AVAX"
     },
     {
       "id": 48,
@@ -1550,7 +1885,8 @@
       "pnlUSDT": 4.28314679,
       "timestamp": "2026-05-08T19:16:04-06:00",
       "seeded": false,
-      "closeTime": "2026-05-08 19:16:04"
+      "closeTime": "2026-05-08 19:16:04",
+      "coin": "AVAX"
     },
     {
       "id": 49,
@@ -1564,7 +1900,8 @@
       "pnlUSDT": 13.11371847,
       "timestamp": "2026-05-08T19:43:03-06:00",
       "seeded": false,
-      "closeTime": "2026-05-08 19:43:03"
+      "closeTime": "2026-05-08 19:43:03",
+      "coin": "SOL"
     },
     {
       "id": 50,
@@ -1578,7 +1915,8 @@
       "pnlUSDT": 1.71539993,
       "timestamp": "2026-05-08T19:53:02-06:00",
       "seeded": false,
-      "closeTime": "2026-05-08 19:53:02"
+      "closeTime": "2026-05-08 19:53:02",
+      "coin": "SOL"
     },
     {
       "id": 51,
@@ -1592,7 +1930,8 @@
       "pnlUSDT": 14.05593,
       "timestamp": "2026-05-08T20:44:02-06:00",
       "seeded": false,
-      "closeTime": "2026-05-08 20:44:02"
+      "closeTime": "2026-05-08 20:44:02",
+      "coin": "LINK"
     },
     {
       "id": 52,
@@ -1606,7 +1945,8 @@
       "pnlUSDT": 1.7311,
       "timestamp": "2026-05-10T02:26:02-06:00",
       "seeded": false,
-      "closeTime": "2026-05-10 02:26:02"
+      "closeTime": "2026-05-10 02:26:02",
+      "coin": "AVAX"
     },
     {
       "id": 53,
@@ -1620,7 +1960,8 @@
       "pnlUSDT": 2.521715,
       "timestamp": "2026-05-10T03:03:03-06:00",
       "seeded": false,
-      "closeTime": "2026-05-10 03:03:03"
+      "closeTime": "2026-05-10 03:03:03",
+      "coin": "SOL"
     },
     {
       "id": 54,
@@ -1634,7 +1975,8 @@
       "pnlUSDT": 0.76076,
       "timestamp": "2026-05-10T09:24:02-06:00",
       "seeded": false,
-      "closeTime": "2026-05-10 09:24:02"
+      "closeTime": "2026-05-10 09:24:02",
+      "coin": "LINK"
     },
     {
       "id": 55,
@@ -1648,7 +1990,8 @@
       "pnlUSDT": 3.4968,
       "timestamp": "2026-05-10T10:35:02-06:00",
       "seeded": false,
-      "closeTime": "2026-05-10 10:35:02"
+      "closeTime": "2026-05-10 10:35:02",
+      "coin": "XRP"
     },
     {
       "id": 56,
@@ -1662,7 +2005,8 @@
       "pnlUSDT": 3.04179,
       "timestamp": "2026-05-10T10:36:03-06:00",
       "seeded": false,
-      "closeTime": "2026-05-10 10:36:03"
+      "closeTime": "2026-05-10 10:36:03",
+      "coin": "AVAX"
     },
     {
       "id": 57,
@@ -1676,7 +2020,8 @@
       "pnlUSDT": 5.11676,
       "timestamp": "2026-05-10T10:55:03-06:00",
       "seeded": false,
-      "closeTime": "2026-05-10 10:55:03"
+      "closeTime": "2026-05-10 10:55:03",
+      "coin": "XRP"
     },
     {
       "id": 58,
@@ -1690,7 +2035,8 @@
       "pnlUSDT": 1.26984,
       "timestamp": "2026-05-10T11:34:02-06:00",
       "seeded": false,
-      "closeTime": "2026-05-10 11:34:02"
+      "closeTime": "2026-05-10 11:34:02",
+      "coin": "LINK"
     },
     {
       "id": 59,
@@ -1704,7 +2050,8 @@
       "pnlUSDT": 3.797445,
       "timestamp": "2026-05-10T12:03:02-06:00",
       "seeded": false,
-      "closeTime": "2026-05-10 12:03:02"
+      "closeTime": "2026-05-10 12:03:02",
+      "coin": "SOL"
     },
     {
       "id": 60,
@@ -1718,7 +2065,8 @@
       "pnlUSDT": 15.3326,
       "timestamp": "2026-05-10T13:26:02-06:00",
       "seeded": false,
-      "closeTime": "2026-05-10 13:26:02"
+      "closeTime": "2026-05-10 13:26:02",
+      "coin": "AVAX"
     },
     {
       "id": 61,
@@ -1732,7 +2080,8 @@
       "pnlUSDT": 1.244631,
       "timestamp": "2026-05-10T13:42:03-06:00",
       "seeded": false,
-      "closeTime": "2026-05-10 13:42:03"
+      "closeTime": "2026-05-10 13:42:03",
+      "coin": "BNB"
     },
     {
       "id": 62,
@@ -1746,7 +2095,8 @@
       "pnlUSDT": 6.11802,
       "timestamp": "2026-05-10T17:02:02-06:00",
       "seeded": false,
-      "closeTime": "2026-05-10 17:02:02"
+      "closeTime": "2026-05-10 17:02:02",
+      "coin": "BNB"
     },
     {
       "id": 63,
@@ -1760,7 +2110,8 @@
       "pnlUSDT": 18.4419,
       "timestamp": "2026-05-11T13:40:36-06:00",
       "seeded": false,
-      "closeTime": "2026-05-11 13:40:36"
+      "closeTime": "2026-05-11 13:40:36",
+      "coin": "SOL"
     },
     {
       "id": 64,
@@ -1774,7 +2125,8 @@
       "pnlUSDT": 4.58896,
       "timestamp": "2026-05-11T17:41:42-06:00",
       "seeded": false,
-      "closeTime": "2026-05-11 17:41:42"
+      "closeTime": "2026-05-11 17:41:42",
+      "coin": "BNB"
     },
     {
       "id": 65,
@@ -1788,7 +2140,8 @@
       "pnlUSDT": 1.290597,
       "timestamp": "2026-05-12T19:18:25-06:00",
       "closeTime": "2026-05-12 19:18:25",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 66,
@@ -1802,7 +2155,8 @@
       "pnlUSDT": 6.7727,
       "timestamp": "2026-05-12T21:13:10-06:00",
       "closeTime": "2026-05-12 21:13:10",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 67,
@@ -1816,7 +2170,8 @@
       "pnlUSDT": 0.215418,
       "timestamp": "2026-05-12T21:17:02-06:00",
       "closeTime": "2026-05-12 21:17:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 68,
@@ -1830,7 +2185,8 @@
       "pnlUSDT": 2.10672,
       "timestamp": "2026-05-13T03:24:03-06:00",
       "closeTime": "2026-05-13 03:24:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 69,
@@ -1844,7 +2200,8 @@
       "pnlUSDT": 8.01336,
       "timestamp": "2026-05-14T12:15:03-06:00",
       "closeTime": "2026-05-14 12:15:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 70,
@@ -1858,7 +2215,8 @@
       "pnlUSDT": 17.155,
       "timestamp": "2026-05-14T12:25:22-06:00",
       "closeTime": "2026-05-14 12:25:22",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 71,
@@ -1872,7 +2230,8 @@
       "pnlUSDT": 0.8828015,
       "timestamp": "2026-05-14T13:05:03-06:00",
       "closeTime": "2026-05-14 13:05:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 72,
@@ -1886,7 +2245,8 @@
       "pnlUSDT": 0.767514,
       "timestamp": "2026-05-14T13:15:02-06:00",
       "closeTime": "2026-05-14 13:15:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 73,
@@ -1900,7 +2260,8 @@
       "pnlUSDT": 2.371002,
       "timestamp": "2026-05-15T05:02:03-06:00",
       "closeTime": "2026-05-15 05:02:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 74,
@@ -1914,7 +2275,8 @@
       "pnlUSDT": -6.35180923,
       "timestamp": "2026-05-15T07:53:02-06:00",
       "closeTime": "2026-05-15 07:53:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "SOL"
     },
     {
       "id": 75,
@@ -1928,7 +2290,8 @@
       "pnlUSDT": -0.63036229,
       "timestamp": "2026-05-15T08:11:02-06:00",
       "closeTime": "2026-05-15 08:11:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 76,
@@ -1942,7 +2305,8 @@
       "pnlUSDT": -0.39196523,
       "timestamp": "2026-05-15T08:11:04-06:00",
       "closeTime": "2026-05-15 08:11:04",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 77,
@@ -1956,7 +2320,8 @@
       "pnlUSDT": -1.85206731,
       "timestamp": "2026-05-16T00:23:02-06:00",
       "closeTime": "2026-05-16 00:23:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "SOL"
     },
     {
       "id": 78,
@@ -1970,7 +2335,8 @@
       "pnlUSDT": -4.12559477,
       "timestamp": "2026-05-16T01:06:21-06:00",
       "closeTime": "2026-05-16 01:06:21",
-      "seeded": false
+      "seeded": false,
+      "coin": "AVAX"
     },
     {
       "id": 79,
@@ -1984,7 +2350,8 @@
       "pnlUSDT": -7.96589261,
       "timestamp": "2026-05-16T01:21:02-06:00",
       "closeTime": "2026-05-16 01:21:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 80,
@@ -1998,7 +2365,8 @@
       "pnlUSDT": -6.10483778,
       "timestamp": "2026-05-16T01:44:03-06:00",
       "closeTime": "2026-05-16 01:44:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 81,
@@ -2012,7 +2380,8 @@
       "pnlUSDT": -3.32841161,
       "timestamp": "2026-05-16T01:56:17-06:00",
       "closeTime": "2026-05-16 01:56:17",
-      "seeded": false
+      "seeded": false,
+      "coin": "AVAX"
     },
     {
       "id": 82,
@@ -2026,7 +2395,8 @@
       "pnlUSDT": -1.32045921,
       "timestamp": "2026-05-16T03:26:02-06:00",
       "closeTime": "2026-05-16 03:26:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "AVAX"
     },
     {
       "id": 83,
@@ -2040,7 +2410,8 @@
       "pnlUSDT": -1.68592915,
       "timestamp": "2026-05-16T03:53:02-06:00",
       "closeTime": "2026-05-16 03:53:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "SOL"
     },
     {
       "id": 84,
@@ -2054,7 +2425,8 @@
       "pnlUSDT": -26.6146195,
       "timestamp": "2026-05-16T03:54:02-06:00",
       "closeTime": "2026-05-16 03:54:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 85,
@@ -2068,7 +2440,8 @@
       "pnlUSDT": -8.46682547,
       "timestamp": "2026-05-16T09:24:02-06:00",
       "closeTime": "2026-05-16 09:24:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 86,
@@ -2082,7 +2455,8 @@
       "pnlUSDT": -2.55726888,
       "timestamp": "2026-05-17T19:30:02-06:00",
       "closeTime": "2026-05-17 19:30:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "BTC"
     },
     {
       "id": 87,
@@ -2096,7 +2470,8 @@
       "pnlUSDT": -3.56898979,
       "timestamp": "2026-05-17T19:35:03-06:00",
       "closeTime": "2026-05-17 19:35:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 88,
@@ -2110,7 +2485,8 @@
       "pnlUSDT": -9.70805598,
       "timestamp": "2026-05-18T08:40:02-06:00",
       "closeTime": "2026-05-18 08:40:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "BTC"
     },
     {
       "id": 89,
@@ -2124,7 +2500,8 @@
       "pnlUSDT": -3.62956973,
       "timestamp": "2026-05-18T12:41:03-06:00",
       "closeTime": "2026-05-18 12:41:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 90,
@@ -2138,7 +2515,8 @@
       "pnlUSDT": -11.58111321,
       "timestamp": "2026-05-18T13:01:03-06:00",
       "closeTime": "2026-05-18 13:01:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 91,
@@ -2152,7 +2530,8 @@
       "pnlUSDT": 0.275849,
       "timestamp": "2026-05-20T20:36:03-06:00",
       "closeTime": "2026-05-20 20:36:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "AVAX"
     },
     {
       "id": 92,
@@ -2166,7 +2545,8 @@
       "pnlUSDT": 0.22897541,
       "timestamp": "2026-05-21T02:06:03-06:00",
       "closeTime": "2026-05-21 02:06:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "AVAX"
     },
     {
       "id": 93,
@@ -2180,7 +2560,8 @@
       "pnlUSDT": 0.443674,
       "timestamp": "2026-05-21T11:33:03-06:00",
       "closeTime": "2026-05-21 11:33:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "SOL"
     },
     {
       "id": 94,
@@ -2194,7 +2575,8 @@
       "pnlUSDT": 0.18539855,
       "timestamp": "2026-05-21T22:26:02-06:00",
       "closeTime": "2026-05-21 22:26:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "AVAX"
     },
     {
       "id": 95,
@@ -2208,7 +2590,8 @@
       "pnlUSDT": 0.492462,
       "timestamp": "2026-05-21T22:26:05-06:00",
       "closeTime": "2026-05-21 22:26:05",
-      "seeded": false
+      "seeded": false,
+      "coin": "AVAX"
     },
     {
       "id": 96,
@@ -2222,7 +2605,8 @@
       "pnlUSDT": 0.642488,
       "timestamp": "2026-05-22T06:44:02-06:00",
       "closeTime": "2026-05-22 06:44:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 97,
@@ -2236,7 +2620,8 @@
       "pnlUSDT": 0.37674,
       "timestamp": "2026-05-22T07:04:02-06:00",
       "closeTime": "2026-05-22 07:04:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 98,
@@ -2250,7 +2635,8 @@
       "pnlUSDT": 1.004003,
       "timestamp": "2026-05-22T07:14:03-06:00",
       "closeTime": "2026-05-22 07:14:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 99,
@@ -2264,7 +2650,8 @@
       "pnlUSDT": -13.28721321,
       "timestamp": "2026-05-22T18:40:02-06:00",
       "closeTime": "2026-05-22 18:40:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "BTC"
     },
     {
       "id": 100,
@@ -2278,7 +2665,8 @@
       "pnlUSDT": -6.48411264,
       "timestamp": "2026-05-22T23:35:04-06:00",
       "closeTime": "2026-05-22 23:35:04",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 101,
@@ -2292,7 +2680,8 @@
       "pnlUSDT": -2.38718765,
       "timestamp": "2026-05-23T01:31:02-06:00",
       "closeTime": "2026-05-23 01:31:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 102,
@@ -2306,7 +2695,8 @@
       "pnlUSDT": -12.08574005,
       "timestamp": "2026-05-23T01:55:02-06:00",
       "closeTime": "2026-05-23 01:55:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 103,
@@ -2320,7 +2710,8 @@
       "pnlUSDT": -10.78552027,
       "timestamp": "2026-05-23T02:04:03-06:00",
       "closeTime": "2026-05-23 02:04:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 104,
@@ -2334,7 +2725,8 @@
       "pnlUSDT": 1.35704135,
       "timestamp": "2026-05-23T09:11:02-06:00",
       "closeTime": "2026-05-23 09:11:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 105,
@@ -2348,7 +2740,8 @@
       "pnlUSDT": 2.9053266,
       "timestamp": "2026-05-23T15:11:03-06:00",
       "closeTime": "2026-05-23 15:11:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 106,
@@ -2362,7 +2755,8 @@
       "pnlUSDT": 9.684422,
       "timestamp": "2026-05-23T15:11:04-06:00",
       "closeTime": "2026-05-23 15:11:04",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 107,
@@ -2376,7 +2770,8 @@
       "pnlUSDT": -1.9201029,
       "timestamp": "2026-05-27T21:21:03-06:00",
       "closeTime": "2026-05-27 21:21:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 108,
@@ -2390,7 +2785,8 @@
       "pnlUSDT": -7.50016623,
       "timestamp": "2026-05-27T21:24:02-06:00",
       "closeTime": "2026-05-27 21:24:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 109,
@@ -2404,7 +2800,8 @@
       "pnlUSDT": -3.41216699,
       "timestamp": "2026-05-27T21:24:03-06:00",
       "closeTime": "2026-05-27 21:24:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 110,
@@ -2418,7 +2815,8 @@
       "pnlUSDT": -1.69644765,
       "timestamp": "2026-05-27T21:25:03-06:00",
       "closeTime": "2026-05-27 21:25:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 111,
@@ -2432,7 +2830,8 @@
       "pnlUSDT": -1.3666442,
       "timestamp": "2026-05-27T21:31:02-06:00",
       "closeTime": "2026-05-27 21:31:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 112,
@@ -2446,7 +2845,8 @@
       "pnlUSDT": -3.59824908,
       "timestamp": "2026-05-27T21:43:02-06:00",
       "closeTime": "2026-05-27 21:43:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "SOL"
     },
     {
       "id": 113,
@@ -2460,7 +2860,8 @@
       "pnlUSDT": -12.4142784,
       "timestamp": "2026-05-27T21:51:02-06:00",
       "closeTime": "2026-05-27 21:51:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 114,
@@ -2474,7 +2875,8 @@
       "pnlUSDT": -11.85597665,
       "timestamp": "2026-05-27T22:00:03-06:00",
       "closeTime": "2026-05-27 22:00:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "BTC"
     },
     {
       "id": 115,
@@ -2488,7 +2890,8 @@
       "pnlUSDT": -5.70070136,
       "timestamp": "2026-05-27T23:54:02-06:00",
       "closeTime": "2026-05-27 23:54:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 116,
@@ -2502,7 +2905,8 @@
       "pnlUSDT": -6.45643797,
       "timestamp": "2026-05-28T00:42:02-06:00",
       "closeTime": "2026-05-28 00:42:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 117,
@@ -2516,7 +2920,8 @@
       "pnlUSDT": -1.72839365,
       "timestamp": "2026-05-28T00:42:04-06:00",
       "closeTime": "2026-05-28 00:42:04",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 118,
@@ -2530,7 +2935,8 @@
       "pnlUSDT": 0.978957,
       "timestamp": "2026-05-28T09:45:02-06:00",
       "closeTime": "2026-05-28 09:45:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 119,
@@ -2544,7 +2950,8 @@
       "pnlUSDT": 1.2995815,
       "timestamp": "2026-05-28T11:53:02-06:00",
       "closeTime": "2026-05-28 11:53:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "SOL"
     },
     {
       "id": 120,
@@ -2558,7 +2965,8 @@
       "pnlUSDT": 0.40303445,
       "timestamp": "2026-05-28T12:11:02-06:00",
       "closeTime": "2026-05-28 12:11:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 121,
@@ -2572,7 +2980,8 @@
       "pnlUSDT": 1.685034,
       "timestamp": "2026-05-28T12:35:03-06:00",
       "closeTime": "2026-05-28 12:35:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 122,
@@ -2586,7 +2995,8 @@
       "pnlUSDT": -22.54886948,
       "timestamp": "2026-05-29T08:40:02-06:00",
       "closeTime": "2026-05-29 08:40:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "BTC"
     },
     {
       "id": 123,
@@ -2600,7 +3010,8 @@
       "pnlUSDT": 0.17896355,
       "timestamp": "2026-05-29T11:24:03-06:00",
       "closeTime": "2026-05-29 11:24:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 124,
@@ -2614,7 +3025,8 @@
       "pnlUSDT": 7.93626,
       "timestamp": "2026-05-29T19:15:02-06:00",
       "closeTime": "2026-05-29 19:15:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 125,
@@ -2628,7 +3040,8 @@
       "pnlUSDT": 1.670592,
       "timestamp": "2026-05-29T23:42:02-06:00",
       "closeTime": "2026-05-29 23:42:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 126,
@@ -2642,7 +3055,8 @@
       "pnlUSDT": 0.952476,
       "timestamp": "2026-05-29T23:42:04-06:00",
       "closeTime": "2026-05-29 23:42:04",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 127,
@@ -2656,7 +3070,8 @@
       "pnlUSDT": 1.585152,
       "timestamp": "2026-05-30T00:02:02-06:00",
       "closeTime": "2026-05-30 00:02:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 128,
@@ -2670,7 +3085,8 @@
       "pnlUSDT": 0.909324,
       "timestamp": "2026-05-30T00:02:04-06:00",
       "closeTime": "2026-05-30 00:02:04",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 129,
@@ -2684,7 +3100,8 @@
       "pnlUSDT": 0.4564,
       "timestamp": "2026-05-30T00:34:03-06:00",
       "closeTime": "2026-05-30 00:34:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 130,
@@ -2698,7 +3115,8 @@
       "pnlUSDT": 0.3087,
       "timestamp": "2026-05-30T00:34:04-06:00",
       "closeTime": "2026-05-30 00:34:04",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 131,
@@ -2712,7 +3130,8 @@
       "pnlUSDT": 6.39552,
       "timestamp": "2026-05-30T01:32:03-06:00",
       "closeTime": "2026-05-30 01:32:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 132,
@@ -2726,7 +3145,8 @@
       "pnlUSDT": 3.70272,
       "timestamp": "2026-05-30T01:32:05-06:00",
       "closeTime": "2026-05-30 01:32:05",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 133,
@@ -2740,7 +3160,8 @@
       "pnlUSDT": 0.408765,
       "timestamp": "2026-05-30T08:42:02-06:00",
       "closeTime": "2026-05-30 08:42:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 134,
@@ -2754,7 +3175,8 @@
       "pnlUSDT": 1.039311,
       "timestamp": "2026-05-30T09:12:02-06:00",
       "closeTime": "2026-05-30 09:12:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 135,
@@ -2768,7 +3190,8 @@
       "pnlUSDT": 1.74447,
       "timestamp": "2026-05-30T10:12:02-06:00",
       "closeTime": "2026-05-30 10:12:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 136,
@@ -2782,7 +3205,8 @@
       "pnlUSDT": 11.75988,
       "timestamp": "2026-05-30T10:32:02-06:00",
       "closeTime": "2026-05-30 10:32:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 137,
@@ -2796,7 +3220,8 @@
       "pnlUSDT": 0.784125,
       "timestamp": "2026-05-30T10:32:05-06:00",
       "closeTime": "2026-05-30 10:32:05",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 138,
@@ -2810,7 +3235,8 @@
       "pnlUSDT": 3.0685,
       "timestamp": "2026-05-30T10:42:02-06:00",
       "closeTime": "2026-05-30 10:42:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 139,
@@ -2824,7 +3250,8 @@
       "pnlUSDT": 8.66502,
       "timestamp": "2026-05-30T12:02:02-06:00",
       "closeTime": "2026-05-30 12:02:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 140,
@@ -2838,7 +3265,8 @@
       "pnlUSDT": 0.61,
       "timestamp": "2026-05-30T14:16:34.594056",
       "seeded": false,
-      "closeTime": "2026-05-30 14:16:34"
+      "closeTime": "2026-05-30 14:16:34",
+      "coin": "LINK"
     },
     {
       "id": 141,
@@ -2852,7 +3280,8 @@
       "pnlUSDT": 0.770784,
       "timestamp": "2026-05-30T20:22:03-06:00",
       "closeTime": "2026-05-30 20:22:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 142,
@@ -2866,7 +3295,8 @@
       "pnlUSDT": 0.51023,
       "timestamp": "2026-05-30T20:22:04-06:00",
       "closeTime": "2026-05-30 20:22:04",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 143,
@@ -2880,7 +3310,8 @@
       "pnlUSDT": -3.23324029,
       "timestamp": "2026-05-31T20:02:03-06:00",
       "closeTime": "2026-05-31 20:02:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 144,
@@ -2894,7 +3325,8 @@
       "pnlUSDT": -40.47670479,
       "timestamp": "2026-06-01T06:10:02-06:00",
       "closeTime": "2026-06-01 06:10:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "BTC"
     },
     {
       "id": 145,
@@ -2908,7 +3340,8 @@
       "pnlUSDT": -5.7184455,
       "timestamp": "2026-06-01T10:12:02-06:00",
       "closeTime": "2026-06-01 10:12:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 146,
@@ -2922,7 +3355,8 @@
       "pnlUSDT": -3.26980625,
       "timestamp": "2026-06-01T10:12:04-06:00",
       "closeTime": "2026-06-01 10:12:04",
-      "seeded": false
+      "seeded": false,
+      "coin": "BNB"
     },
     {
       "id": 147,
@@ -2936,7 +3370,8 @@
       "pnlUSDT": -9.72704287,
       "timestamp": "2026-06-01T10:13:03-06:00",
       "closeTime": "2026-06-01 10:13:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "SOL"
     },
     {
       "id": 148,
@@ -2950,7 +3385,8 @@
       "pnlUSDT": -2.68553748,
       "timestamp": "2026-06-01T20:15:02-06:00",
       "closeTime": "2026-06-01 20:15:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 149,
@@ -2964,7 +3400,8 @@
       "pnlUSDT": -1.62184706,
       "timestamp": "2026-06-01T23:55:02-06:00",
       "closeTime": "2026-06-01 23:55:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 150,
@@ -2978,7 +3415,8 @@
       "pnlUSDT": -2.79,
       "timestamp": "2026-06-02T11:10:04-06:00",
       "seeded": false,
-      "closeTime": "2026-06-02 11:10:04"
+      "closeTime": "2026-06-02 11:10:04",
+      "coin": "AVAX"
     },
     {
       "id": 151,
@@ -2992,7 +3430,8 @@
       "pnlUSDT": -1.49,
       "timestamp": "2026-06-02T11:10:16-06:00",
       "seeded": false,
-      "closeTime": "2026-06-02 11:10:16"
+      "closeTime": "2026-06-02 11:10:16",
+      "coin": "AVAX"
     },
     {
       "id": 152,
@@ -3006,7 +3445,8 @@
       "pnlUSDT": -4.02,
       "timestamp": "2026-06-02T11:10:17-06:00",
       "seeded": false,
-      "closeTime": "2026-06-02 11:10:17"
+      "closeTime": "2026-06-02 11:10:17",
+      "coin": "AVAX"
     },
     {
       "id": 153,
@@ -3020,7 +3460,8 @@
       "pnlUSDT": -13.59924122,
       "timestamp": "2026-06-03T12:21:02-06:00",
       "closeTime": "2026-06-03 12:21:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 154,
@@ -3034,7 +3475,8 @@
       "pnlUSDT": -5.28345324,
       "timestamp": "2026-06-03T12:21:04-06:00",
       "closeTime": "2026-06-03 12:21:04",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 155,
@@ -3048,7 +3490,8 @@
       "pnlUSDT": -9.61226325,
       "timestamp": "2026-06-03T12:21:20-06:00",
       "closeTime": "2026-06-03 12:21:20",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 156,
@@ -3062,7 +3505,8 @@
       "pnlUSDT": -19.29418784,
       "timestamp": "2026-06-03T12:47:55-06:00",
       "closeTime": "2026-06-03 12:47:55",
-      "seeded": false
+      "seeded": false,
+      "coin": "SOL"
     },
     {
       "id": 157,
@@ -3076,7 +3520,8 @@
       "pnlUSDT": -9.64464368,
       "timestamp": "2026-06-03T12:47:57-06:00",
       "closeTime": "2026-06-03 12:47:57",
-      "seeded": false
+      "seeded": false,
+      "coin": "SOL"
     },
     {
       "id": 158,
@@ -3090,7 +3535,8 @@
       "pnlUSDT": -5.73827629,
       "timestamp": "2026-06-03T12:48:29-06:00",
       "closeTime": "2026-06-03 12:48:29",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 159,
@@ -3104,7 +3550,8 @@
       "pnlUSDT": -8.69424744,
       "timestamp": "2026-06-03T12:48:40-06:00",
       "closeTime": "2026-06-03 12:48:40",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 160,
@@ -3118,7 +3565,8 @@
       "pnlUSDT": -2.03672198,
       "timestamp": "2026-06-03T13:25:31-06:00",
       "closeTime": "2026-06-03 13:25:31",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 161,
@@ -3136,7 +3584,8 @@
       "note": "SL cruzado - Emergency close ejecutado por Perrobotillo",
       "orderId": 7772860776,
       "tp1Partial": true,
-      "tp1Proceeds": 5.01
+      "tp1Proceeds": 5.01,
+      "coin": "LINK"
     },
     {
       "id": 162,
@@ -3150,7 +3599,8 @@
       "pnlUSDT": 0.888314,
       "timestamp": "2026-06-05T15:05:03-06:00",
       "closeTime": "2026-06-05 15:05:03",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 163,
@@ -3164,7 +3614,8 @@
       "pnlUSDT": 0.395836,
       "timestamp": "2026-06-05T15:06:02-06:00",
       "closeTime": "2026-06-05 15:06:02",
-      "seeded": false
+      "seeded": false,
+      "coin": "AVAX"
     },
     {
       "id": 164,
@@ -3178,7 +3629,8 @@
       "pnlUSDT": -7.09282987,
       "timestamp": "2026-06-05T22:08:48-06:00",
       "closeTime": "2026-06-05 22:08:48",
-      "seeded": false
+      "seeded": false,
+      "coin": "SOL"
     },
     {
       "id": 165,
@@ -3192,7 +3644,8 @@
       "pnlUSDT": 0.207123,
       "timestamp": "2026-06-06T00:02:50-06:00",
       "closeTime": "2026-06-06 00:02:50",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 166,
@@ -3206,7 +3659,8 @@
       "pnlUSDT": 2.41128069,
       "timestamp": "2026-06-07T02:28:23-06:00",
       "closeTime": "2026-06-07 02:28:23",
-      "seeded": false
+      "seeded": false,
+      "coin": "BTC"
     },
     {
       "id": 167,
@@ -3220,7 +3674,8 @@
       "pnlUSDT": 0.45340385,
       "timestamp": "2026-06-07T23:58:49-06:00",
       "closeTime": "2026-06-07 23:58:49",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 168,
@@ -3234,7 +3689,8 @@
       "pnlUSDT": 0.86436,
       "timestamp": "2026-06-08T00:01:38-06:00",
       "closeTime": "2026-06-08 00:01:38",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 169,
@@ -3248,7 +3704,8 @@
       "pnlUSDT": 1.40732,
       "timestamp": "2026-06-08T00:05:19-06:00",
       "closeTime": "2026-06-08 00:05:19",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 170,
@@ -3262,7 +3719,8 @@
       "pnlUSDT": 0.9132435,
       "timestamp": "2026-06-08T00:05:27-06:00",
       "closeTime": "2026-06-08 00:05:27",
-      "seeded": false
+      "seeded": false,
+      "coin": "LINK"
     },
     {
       "id": 171,
@@ -3276,7 +3734,8 @@
       "pnlUSDT": 1.001169,
       "timestamp": "2026-06-08T00:11:49-06:00",
       "closeTime": "2026-06-08 00:11:49",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 172,
@@ -3290,7 +3749,8 @@
       "pnlUSDT": 1.0360896,
       "timestamp": "2026-06-08T00:19:38-06:00",
       "closeTime": "2026-06-08 00:19:38",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 173,
@@ -3304,7 +3764,8 @@
       "pnlUSDT": 0.3770445,
       "timestamp": "2026-06-08T01:13:20-06:00",
       "closeTime": "2026-06-08 01:13:20",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 174,
@@ -3318,7 +3779,8 @@
       "pnlUSDT": 0.975146,
       "timestamp": "2026-06-08T01:13:59-06:00",
       "closeTime": "2026-06-08 01:13:59",
-      "seeded": false
+      "seeded": false,
+      "coin": "ETH"
     },
     {
       "id": 175,
@@ -3332,7 +3794,8 @@
       "pnlUSDT": 0.992936,
       "timestamp": "2026-06-08T05:21:46-06:00",
       "closeTime": "2026-06-08 05:21:46",
-      "seeded": false
+      "seeded": false,
+      "coin": "SOL"
     },
     {
       "id": 176,
@@ -3346,7 +3809,8 @@
       "pnlUSDT": 0.626247,
       "timestamp": "2026-06-08T06:57:24-06:00",
       "closeTime": "2026-06-08 06:57:24",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 177,
@@ -3360,7 +3824,8 @@
       "pnlUSDT": -0.53377978,
       "timestamp": "2026-06-10T12:44:34-06:00",
       "closeTime": "2026-06-10 12:44:34",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 178,
@@ -3374,7 +3839,8 @@
       "pnlUSDT": -0.5312198,
       "timestamp": "2026-06-10T12:50:29-06:00",
       "closeTime": "2026-06-10 12:50:29",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 179,
@@ -3388,7 +3854,8 @@
       "pnlUSDT": -0.54273971,
       "timestamp": "2026-06-10T13:12:36-06:00",
       "closeTime": "2026-06-10 13:12:36",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 180,
@@ -3402,7 +3869,8 @@
       "pnlUSDT": -0.53633976,
       "timestamp": "2026-06-10T13:20:20-06:00",
       "closeTime": "2026-06-10 13:20:20",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 181,
@@ -3416,7 +3884,8 @@
       "pnlUSDT": -0.53377972,
       "timestamp": "2026-06-10T13:32:00-06:00",
       "closeTime": "2026-06-10 13:32:00",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 182,
@@ -3430,7 +3899,8 @@
       "pnlUSDT": -0.53505974,
       "timestamp": "2026-06-10T13:41:24-06:00",
       "closeTime": "2026-06-10 13:41:24",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 183,
@@ -3444,7 +3914,8 @@
       "pnlUSDT": -0.55425972,
       "timestamp": "2026-06-10T13:50:19-06:00",
       "closeTime": "2026-06-10 13:50:19",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 184,
@@ -3458,7 +3929,8 @@
       "pnlUSDT": -0.54785974,
       "timestamp": "2026-06-10T14:40:35-06:00",
       "closeTime": "2026-06-10 14:40:35",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 185,
@@ -3472,7 +3944,8 @@
       "pnlUSDT": -0.64256748,
       "timestamp": "2026-06-10T15:10:34-06:00",
       "closeTime": "2026-06-10 15:10:34",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 186,
@@ -3486,7 +3959,8 @@
       "pnlUSDT": -0.6246596,
       "timestamp": "2026-06-10T15:20:24-06:00",
       "closeTime": "2026-06-10 15:20:24",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 187,
@@ -3500,7 +3974,8 @@
       "pnlUSDT": -0.60929963,
       "timestamp": "2026-06-10T15:40:33-06:00",
       "closeTime": "2026-06-10 15:40:33",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 188,
@@ -3514,7 +3989,8 @@
       "pnlUSDT": -0.63105958,
       "timestamp": "2026-06-10T15:50:22-06:00",
       "closeTime": "2026-06-10 15:50:22",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 189,
@@ -3528,7 +4004,8 @@
       "pnlUSDT": -0.62337964,
       "timestamp": "2026-06-10T16:10:15-06:00",
       "closeTime": "2026-06-10 16:10:15",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 190,
@@ -3542,7 +4019,8 @@
       "pnlUSDT": -0.66048704,
       "timestamp": "2026-06-10T16:20:18-06:00",
       "closeTime": "2026-06-10 16:20:18",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 191,
@@ -3556,7 +4034,8 @@
       "pnlUSDT": -0.64001963,
       "timestamp": "2026-06-10T16:30:21-06:00",
       "closeTime": "2026-06-10 16:30:21",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 192,
@@ -3570,7 +4049,8 @@
       "pnlUSDT": -0.59649969,
       "timestamp": "2026-06-10T16:40:25-06:00",
       "closeTime": "2026-06-10 16:40:25",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 193,
@@ -3584,7 +4064,8 @@
       "pnlUSDT": -1.73309506,
       "timestamp": "2026-06-10T16:47:33-06:00",
       "closeTime": "2026-06-10 16:47:33",
-      "seeded": false
+      "seeded": false,
+      "coin": "AVAX"
     },
     {
       "id": 194,
@@ -3598,7 +4079,8 @@
       "pnlUSDT": -0.57089977,
       "timestamp": "2026-06-10T16:50:21-06:00",
       "closeTime": "2026-06-10 16:50:21",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 195,
@@ -3612,7 +4094,8 @@
       "pnlUSDT": -0.59776708,
       "timestamp": "2026-06-10T16:54:28-06:00",
       "closeTime": "2026-06-10 16:54:28",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 196,
@@ -3626,7 +4109,8 @@
       "pnlUSDT": 21.3876,
       "timestamp": "2026-06-12T09:07:24-06:00",
       "closeTime": "2026-06-12 09:07:24",
-      "seeded": false
+      "seeded": false,
+      "coin": "SOL"
     },
     {
       "id": 197,
@@ -3640,7 +4124,8 @@
       "pnlUSDT": 0.26231283,
       "timestamp": "2026-06-13T15:41:24-06:00",
       "closeTime": "2026-06-13 15:41:24",
-      "seeded": false
+      "seeded": false,
+      "coin": "BTC"
     },
     {
       "id": 198,
@@ -3654,7 +4139,8 @@
       "pnlUSDT": 8.4483,
       "timestamp": "2026-06-13T15:45:40-06:00",
       "closeTime": "2026-06-13 15:45:40",
-      "seeded": false
+      "seeded": false,
+      "coin": "SOL"
     },
     {
       "id": 199,
@@ -3669,7 +4155,8 @@
       "timestamp": "2026-06-13T17:52:44.935871",
       "closeTime": "2026-06-13 17:52:44",
       "seeded": false,
-      "note": "Grid Bot - SL por rango desactualizado (precio $609 < SL $617)"
+      "note": "Grid Bot - SL por rango desactualizado (precio $609 < SL $617)",
+      "coin": "BNB"
     },
     {
       "id": 200,
@@ -3683,7 +4170,8 @@
       "pnlUSDT": 3.06195,
       "timestamp": "2026-06-14T19:44:56-06:00",
       "closeTime": "2026-06-14 19:44:56",
-      "seeded": false
+      "seeded": false,
+      "coin": "XRP"
     },
     {
       "id": 201,
@@ -3698,7 +4186,8 @@
       "timestamp": "2026-06-15T09:57:03.380015",
       "closeTime": "2026-06-15 09:57:03",
       "seeded": false,
-      "note": "Grid Bot - Auto TP/SL"
+      "note": "Grid Bot - Auto TP/SL",
+      "coin": "XRP"
     },
     {
       "id": 202,
@@ -3713,7 +4202,8 @@
       "timestamp": "2026-06-15T10:26:04.998854",
       "closeTime": "2026-06-15 10:26:04",
       "seeded": false,
-      "note": "Grid Bot - Auto GRID/TP"
+      "note": "Grid Bot - Auto GRID/TP",
+      "coin": "XRP"
     },
     {
       "id": 203,
@@ -3728,7 +4218,8 @@
       "timestamp": "2026-06-15T20:28:02.080001",
       "closeTime": "2026-06-15 20:28:02",
       "seeded": false,
-      "note": "Grid Bot - Auto GRID/SL"
+      "note": "Grid Bot - Auto GRID/SL",
+      "coin": "LINK"
     },
     {
       "id": 204,
@@ -3743,7 +4234,8 @@
       "timestamp": "2026-06-15T22:33:47.348431",
       "closeTime": "2026-06-15 22:33:47",
       "seeded": false,
-      "note": "Grid Bot - Auto GRID/SL"
+      "note": "Grid Bot - Auto GRID/SL",
+      "coin": "LINK"
     },
     {
       "id": 205,
@@ -3758,7 +4250,8 @@
       "timestamp": "2026-06-15T23:04:28.431948",
       "closeTime": "2026-06-15 23:04:28",
       "seeded": false,
-      "note": "Grid Bot - Auto GRID/SL"
+      "note": "Grid Bot - Auto GRID/SL",
+      "coin": "SOL"
     },
     {
       "id": 206,
@@ -3773,7 +4266,8 @@
       "timestamp": "2026-06-15T23:04:40.026909",
       "closeTime": "2026-06-15 23:04:40",
       "seeded": false,
-      "note": "Grid Bot - Auto GRID/SL"
+      "note": "Grid Bot - Auto GRID/SL",
+      "coin": "XRP"
     },
     {
       "id": 207,
@@ -3788,7 +4282,8 @@
       "timestamp": "2026-06-16T17:27:29.880670",
       "closeTime": "2026-06-16 17:27:29",
       "seeded": false,
-      "note": "Grid Bot - Auto GRID/SL"
+      "note": "Grid Bot - Auto GRID/SL",
+      "coin": "BNB"
     },
     {
       "symbol": "AVAX",
@@ -3808,7 +4303,8 @@
       "source": "BOT",
       "strategy": "SPOT",
       "status": "CLOSED_TP1",
-      "id": 208
+      "id": 208,
+      "coin": "AVAX"
     },
     {
       "id": 209,
@@ -3825,7 +4321,8 @@
       "closeTime": "2026-07-14 03:04:00",
       "orderId": "5619967983",
       "note": "TP2 hit - recovered",
-      "seeded": false
+      "seeded": false,
+      "coin": "AVAX"
     },
     {
       "id": 210,
@@ -3848,7 +4345,8 @@
       "feeBuy": 0.0,
       "feeSell": 0.0,
       "executedBy": "RECOVERY",
-      "seeded": true
+      "seeded": true,
+      "coin": "BTC"
     },
     {
       "id": 211,
@@ -3871,7 +4369,8 @@
       "feeBuy": 0.0,
       "feeSell": 0.0,
       "executedBy": "RECOVERY",
-      "seeded": true
+      "seeded": true,
+      "coin": "BTC"
     },
     {
       "id": 218,
@@ -3892,7 +4391,8 @@
       "feeBuy": 4.221e-05,
       "feeSell": 0.0,
       "seeded": false,
-      "note": "TP1 recovered - manual history backfill after bugfix"
+      "note": "TP1 recovered - manual history backfill after bugfix",
+      "coin": "SOL"
     },
     {
       "id": 227,
@@ -3906,7 +4406,8 @@
       "orderId": null,
       "timestamp": "2026-08-03T20:49:08.760422",
       "source": "BOT",
-      "note": "TP1 ejecutado notificado por Telegram"
+      "note": "TP1 ejecutado notificado por Telegram",
+      "coin": "AVAX"
     },
     {
       "id": 228,
@@ -3920,7 +4421,8 @@
       "orderId": null,
       "timestamp": "2026-08-03T20:58:05.296263",
       "source": "BOT",
-      "note": "CLOSED_TP2 notificado por Telegram"
+      "note": "CLOSED_TP2 notificado por Telegram",
+      "coin": "AVAX"
     },
     {
       "id": 229,
@@ -3934,7 +4436,8 @@
       "orderId": null,
       "timestamp": "2026-08-03T20:58:05.296282",
       "source": "BOT",
-      "note": "CLOSED_TP3 notificado por Telegram"
+      "note": "CLOSED_TP3 notificado por Telegram",
+      "coin": "AVAX"
     },
     {
       "id": 230,
@@ -3954,7 +4457,8 @@
       "executedBy": "BOT",
       "feeBuy": 1.5e-05,
       "feeSell": 0.0,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "BNB"
     },
     {
       "id": 231,
@@ -3974,7 +4478,8 @@
       "executedBy": "BOT",
       "feeBuy": 4.2e-05,
       "feeSell": 0.0,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "BNB"
     },
     {
       "id": 232,
@@ -3994,7 +4499,8 @@
       "executedBy": "BOT",
       "feeBuy": 1.343e-05,
       "feeSell": 0.0,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "SOL"
     },
     {
       "id": 233,
@@ -4014,7 +4520,8 @@
       "executedBy": "BOT",
       "feeBuy": 1.227e-05,
       "feeSell": 0.0,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "SOL"
     },
     {
       "id": 234,
@@ -4034,7 +4541,8 @@
       "executedBy": "BOT",
       "feeBuy": 1.343e-05,
       "feeSell": 1.623e-05,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "SOL"
     },
     {
       "id": 235,
@@ -4054,7 +4562,8 @@
       "executedBy": "BOT",
       "feeBuy": 1.2e-05,
       "feeSell": 0.0,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "ETH"
     },
     {
       "id": 236,
@@ -4074,7 +4583,8 @@
       "executedBy": "BOT",
       "feeBuy": 1.5e-05,
       "feeSell": 1.6e-05,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "LINK"
     },
     {
       "id": 237,
@@ -4094,7 +4604,8 @@
       "executedBy": "BOT",
       "feeBuy": 1.2e-05,
       "feeSell": 1.5e-05,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "LINK"
     },
     {
       "id": 238,
@@ -4114,7 +4625,8 @@
       "executedBy": "BOT",
       "feeBuy": 1.8e-05,
       "feeSell": 1.7e-05,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "LINK"
     },
     {
       "id": 239,
@@ -4134,7 +4646,8 @@
       "executedBy": "BOT",
       "feeBuy": 1.5e-05,
       "feeSell": 1.6e-05,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "LINK"
     },
     {
       "id": 240,
@@ -4154,7 +4667,8 @@
       "executedBy": "BOT",
       "feeBuy": 1.5e-05,
       "feeSell": 1.6e-05,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "LINK"
     },
     {
       "id": 241,
@@ -4174,7 +4688,8 @@
       "executedBy": "BOT",
       "feeBuy": 1.5e-05,
       "feeSell": 1.6e-05,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "LINK"
     },
     {
       "id": 242,
@@ -4194,7 +4709,8 @@
       "executedBy": "BOT",
       "feeBuy": 1.343e-05,
       "feeSell": 1.623e-05,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "SOL"
     },
     {
       "id": 243,
@@ -4214,7 +4730,8 @@
       "executedBy": "BOT",
       "feeBuy": 1.5e-05,
       "feeSell": 1.6e-05,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "BNB"
     },
     {
       "id": 244,
@@ -4234,7 +4751,8 @@
       "executedBy": "BOT",
       "feeBuy": 3.334e-05,
       "feeSell": 1.623e-05,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "LINK"
     },
     {
       "id": 245,
@@ -4254,7 +4772,8 @@
       "executedBy": "BOT",
       "feeBuy": 6.729e-05,
       "feeSell": 6.729e-05,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "BTC"
     },
     {
       "id": 246,
@@ -4274,7 +4793,8 @@
       "executedBy": "BOT",
       "feeBuy": 1.5e-05,
       "feeSell": 1.6e-05,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "LINK"
     },
     {
       "id": 247,
@@ -4294,7 +4814,8 @@
       "executedBy": "BOT",
       "feeBuy": 1.5e-05,
       "feeSell": 1.6e-05,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "LINK"
     },
     {
       "id": 248,
@@ -4314,7 +4835,8 @@
       "executedBy": "BOT",
       "feeBuy": 1.5e-05,
       "feeSell": 1.6e-05,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "LINK"
     },
     {
       "id": 249,
@@ -4334,7 +4856,8 @@
       "executedBy": "BOT",
       "feeBuy": 8.346e-05,
       "feeSell": 1.6e-05,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "LINK"
     },
     {
       "id": 250,
@@ -4354,7 +4877,8 @@
       "executedBy": "BOT",
       "feeBuy": 7.098e-05,
       "feeSell": 1.6e-05,
-      "rawResponseSize": 0
+      "rawResponseSize": 0,
+      "coin": "LINK"
     },
     {
       "id": 251,
@@ -4369,10 +4893,11 @@
       "timestamp": "2026-08-16T23:52:41.161596",
       "orderId": null,
       "reason": "SL HIT",
-      "closeType": "CLOSED_SL"
+      "closeType": "CLOSED_SL",
+      "coin": "SOL"
     }
   ],
-  "updatedAt": "2026-08-19T09:20:02.487554",
+  "updatedAt": "2026-08-19T09:36:05.839605",
   "bySymbol": {
     "AVAX": {
       "trades": 37,
@@ -4412,7 +4937,7 @@
     "null": {
       "trades": 1,
       "wins": 1,
-      "netPnL": 0.93203358
+      "netPnL": 0.41108267
     }
   },
   "byDay": {
@@ -4742,9 +5267,9 @@
       "netPnL": 1.24522409
     },
     "2026-08-19": {
-      "trades": 32,
-      "wins": 32,
-      "netPnL": 17.99392856
+      "trades": 46,
+      "wins": 46,
+      "netPnL": 37.66402005
     }
   },
   "lastUpdated": "2026-08-14T20:42:49.220903"
