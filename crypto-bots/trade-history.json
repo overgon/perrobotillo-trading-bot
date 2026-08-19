@@ -19,7 +19,7 @@
   "trades": [
     {
       "id": 287,
-      "symbol": null,
+      "symbol": "BTC",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 63115.61,
@@ -35,7 +35,7 @@
     },
     {
       "id": 286,
-      "symbol": null,
+      "symbol": "BNB",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1885.1,
@@ -51,7 +51,7 @@
     },
     {
       "id": 285,
-      "symbol": null,
+      "symbol": "BNB",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -67,7 +67,7 @@
     },
     {
       "id": 284,
-      "symbol": null,
+      "symbol": "BNB",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -83,7 +83,7 @@
     },
     {
       "id": 283,
-      "symbol": null,
+      "symbol": "BTC",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 63115.61,
@@ -99,7 +99,7 @@
     },
     {
       "id": 282,
-      "symbol": null,
+      "symbol": "XRP",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1.004,
@@ -115,7 +115,7 @@
     },
     {
       "id": 281,
-      "symbol": null,
+      "symbol": "XRP",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1.0037,
@@ -131,7 +131,7 @@
     },
     {
       "id": 280,
-      "symbol": null,
+      "symbol": "AVAX",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 74.18,
@@ -147,7 +147,7 @@
     },
     {
       "id": 279,
-      "symbol": null,
+      "symbol": "BNB",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -163,7 +163,7 @@
     },
     {
       "id": 278,
-      "symbol": null,
+      "symbol": "BTC",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 63115.61,
@@ -179,7 +179,7 @@
     },
     {
       "id": 277,
-      "symbol": null,
+      "symbol": "BTC",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 63115.61,
@@ -195,7 +195,7 @@
     },
     {
       "id": 276,
-      "symbol": null,
+      "symbol": "BTC",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 63115.61,
@@ -211,7 +211,7 @@
     },
     {
       "id": 275,
-      "symbol": null,
+      "symbol": "AVAX",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 74.18,
@@ -227,7 +227,7 @@
     },
     {
       "id": 274,
-      "symbol": null,
+      "symbol": "BTC",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 63115.61,
@@ -243,7 +243,7 @@
     },
     {
       "id": 273,
-      "symbol": null,
+      "symbol": "AVAX",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 74.18,
@@ -259,7 +259,7 @@
     },
     {
       "id": 272,
-      "symbol": null,
+      "symbol": "BTC",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 63115.61,
@@ -275,7 +275,7 @@
     },
     {
       "id": 271,
-      "symbol": null,
+      "symbol": "BTC",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 64165.42,
@@ -291,7 +291,7 @@
     },
     {
       "id": 270,
-      "symbol": null,
+      "symbol": "AVAX",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 74.18,
@@ -307,7 +307,7 @@
     },
     {
       "id": 269,
-      "symbol": null,
+      "symbol": "AVAX",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 74.18,
@@ -323,7 +323,7 @@
     },
     {
       "id": 268,
-      "symbol": null,
+      "symbol": "BTC",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 63150.0,
@@ -339,7 +339,7 @@
     },
     {
       "id": 267,
-      "symbol": null,
+      "symbol": "AVAX",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 74.18,
@@ -355,7 +355,7 @@
     },
     {
       "id": 266,
-      "symbol": null,
+      "symbol": "AVAX",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 74.18,
@@ -371,7 +371,7 @@
     },
     {
       "id": 265,
-      "symbol": null,
+      "symbol": "AVAX",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 74.18,
@@ -387,7 +387,7 @@
     },
     {
       "id": 264,
-      "symbol": null,
+      "symbol": "AVAX",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 74.18,
@@ -403,7 +403,7 @@
     },
     {
       "id": 263,
-      "symbol": null,
+      "symbol": "AVAX",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 74.18,
@@ -419,7 +419,7 @@
     },
     {
       "id": 262,
-      "symbol": null,
+      "symbol": "AVAX",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 76.28,
@@ -435,7 +435,7 @@
     },
     {
       "id": 261,
-      "symbol": null,
+      "symbol": "AVAX",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 74.18,
@@ -451,7 +451,7 @@
     },
     {
       "id": 260,
-      "symbol": null,
+      "symbol": "AVAX",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 76.06,
@@ -467,7 +467,7 @@
     },
     {
       "id": 259,
-      "symbol": null,
+      "symbol": "BNB",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -483,7 +483,7 @@
     },
     {
       "id": 258,
-      "symbol": null,
+      "symbol": "AVAX",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 74.18,
@@ -499,7 +499,7 @@
     },
     {
       "id": 257,
-      "symbol": null,
+      "symbol": "LINK",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 9.476,
@@ -515,7 +515,7 @@
     },
     {
       "id": 256,
-      "symbol": null,
+      "symbol": "LINK",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 9.479,
@@ -4408,11 +4408,6 @@
       "trades": 47,
       "wins": 21,
       "netPnL": 18.21098698
-    },
-    "null": {
-      "trades": 1,
-      "wins": 1,
-      "netPnL": 1.56718712
     },
     "null": {
       "trades": 1,
