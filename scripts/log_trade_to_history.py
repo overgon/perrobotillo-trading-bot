@@ -46,7 +46,7 @@ def _resolve_symbol_from_slot(slot_id, workspace=WORKSPACE):
                         key, val = line.split('=', 1)
                         key = key.strip()
                         val = val.strip()
-                        # Buscar claves como BTC_SYMBOL o COIN_BTC
+                        # Buscar claves como BTC_SYMBOL or COIN_BTC
                         if key.endswith(f'_{sid}') or key.endswith('_symbol'):
                             # Extraer coin del slotId
                             coin = SLOT_TO_COIN.get(sid)
@@ -60,6 +60,31 @@ def _resolve_symbol_from_slot(slot_id, workspace=WORKSPACE):
             return SLOT_TO_COIN.get(int(slot_id), "UNKNOWN")
         except Exception:
             return "UNKNOWN"
+
+def _resolve_symbol_from_price(entry_price):
+    """🔧 FIX ROOT CAUSE: validate symbol from entryPrice when env var conflicts.
+
+    Bot sometimes passes wrong SYMBOL env (BTC) for altcoin closes.
+    Use entryPrice ranges to identify the real coin.
+    Returns the coin with highest confidence, or None if ambiguous.
+    """
+    PRICE_RANGES = {
+        "BTC": (30000, 100000),
+        "ETH": (1000, 5000),
+        "BNB": (250, 700),
+        "SOL": (75, 250),
+        "AVAX": (5.5, 20),
+        "LINK": (3, 5.4),
+    }
+    candidates = []
+    for coin, (lo, hi) in PRICE_RANGES.items():
+        if lo <= entry_price <= hi:
+            candidates.append(coin)
+    # If price matches exactly one coin range → definitive
+    if len(candidates) == 1:
+        return candidates[0]
+    # Ambiguous (e.g. AVAX ~$6 overlaps with price range) — prefer more specific
+    return None
 
 def main():
     if len(sys.argv) < 7:
@@ -96,6 +121,12 @@ def main():
             symbol = symbol.replace("USDT", "")
     if not symbol:
         symbol = _resolve_symbol_from_slot(slot_id, WORKSPACE)
+    # 🔧 FIX ROOT CAUSE: validate symbol against entryPrice — bot sometimes passes
+    # wrong SYMBOL env (BTC) for other coins. entryPrice ~$6 = AVAX/LINK, not BTC.
+    symbol_from_price = _resolve_symbol_from_price(entry)
+    if symbol_from_price and symbol_from_price != symbol:
+        print(f"  ⚠️ SYMBOL mismatch: env='{symbol}' slot={_resolve_symbol_from_slot(slot_id, WORKSPACE)} price=${entry} → confiable: {symbol_from_price}")
+        symbol = symbol_from_price
 
     # ✅ Now check duplicates with resolved symbol
     existing = sum(
