@@ -87,9 +87,16 @@ def main():
     next_id = max((t.get("id", 0) for t in trades), default=0) + 1
 
     dup_key = f"{close_type}|{slot_id}|{close_type}|{datetime.now().strftime('%Y-%m-%dT%H:%M')}"
+    # 🔧 FIX: symbol MUST be resolved BEFORE deduplication + by_symbol keys
+    # (prevents None key corrupting JSON → silent write failure → missing trades)
+    symbol = os.environ.get("SYMBOL")
+    if not symbol:
+        symbol = _resolve_symbol_from_slot(slot_id, WORKSPACE)
+
+    # ✅ Now check duplicates with resolved symbol
     existing = sum(
         1 for t in trades
-        if t.get("symbol") == os.environ.get("SYMBOL")
+        if t.get("symbol") == symbol
         and t.get("slotId") == int(slot_id)
         and t.get("closeType") == close_type
         and (t.get("timestamp", "")[:16] == datetime.now().strftime('%Y-%m-%dT%H:%M'))
@@ -100,13 +107,6 @@ def main():
 
     timestamp = datetime.now().isoformat()
     close_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-    # 🔧 FIX: symbol fallback from slotId using per-coin-config.env
-    # If SYMBOL env var is missing (e.g. script fired by cron without context),
-    # derive the symbol from slotId via coin configuration mapping
-    symbol = os.environ.get("SYMBOL")
-    if not symbol:
-        symbol = _resolve_symbol_from_slot(slot_id, WORKSPACE)
 
     wins = sum(1 for t in trades if (t.get("pnlUSDT") or 0) > 0)
     losses = sum(1 for t in trades if (t.get("pnlUSDT") or 0) <= 0)
@@ -154,6 +154,8 @@ def main():
     data["updatedAt"] = datetime.now().isoformat()
 
     symbol_key = os.environ.get("SYMBOL")
+    if not symbol_key:
+        symbol_key = _resolve_symbol_from_slot(slot_id, WORKSPACE)
     day_key = datetime.now().strftime('%Y-%m-%d')
     by_symbol = data.get("bySymbol", {})
     by_day = data.get("byDay", {})
@@ -175,12 +177,31 @@ def main():
     data["bySymbol"] = by_symbol
     data["byDay"] = by_day
 
+    # Escritura atomica con retry y backup de seguridad
     temp_file = HISTORY_FILE.with_suffix('.tmp')
-    with open(temp_file, 'w') as f:
-        json.dump(data, f, indent=2)
-        f.flush()
-        os.fsync(f.fileno())
-    temp_file.replace(HISTORY_FILE)
+    write_success = False
+    for attempt in range(1, 4):  # intentos 1,2,3
+        try:
+            with open(temp_file, 'w') as f:
+                json.dump(data, f, indent=2)
+                f.flush()
+                os.fsync(f.fileno())
+            temp_file.replace(HISTORY_FILE)
+            # Verificar que se escribió correctamente
+            with open(HISTORY_FILE) as vf:
+                json.load(vf)  # raises si corrupto
+            write_success = True
+            break
+        except Exception as write_err:
+            print(f"  ⚠️ Write failed (attempt {attempt}/3): {write_err}")
+    if not write_success:
+        # Último recurso: escribir directamente + backup
+        backup = HISTORY_FILE.with_suffix('.bak')
+        if HISTORY_FILE.exists():
+            HISTORY_FILE.replace(backup)
+        with open(HISTORY_FILE, 'w') as f:
+            json.dump(data, f, indent=2)
+        print(f"  ⚠️ Escritura de emergencia completada (backup en {backup})")
 
     print(f"  📜 Trade logged to history: #{next_id} {symbol} {close_type} PnL=${pnl:+.2f} source={source} orderId={order_id or 'n/a'}")
 

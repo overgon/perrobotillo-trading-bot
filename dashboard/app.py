@@ -641,6 +641,17 @@ def api_portfolio():
 @app.route('/api/status')
 def api_status():
     """API endpoint para estado completo"""
+    # Build status dict (NOT a jsonify — we add headers below)
+    status = _api_status_data()
+    response = jsonify(status)
+    # 🔧 FIX: disable cache so frontend always sees fresh trade history
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+
+def _api_status_data():
+    """Build the full status dict (pure dict, no jsonify)"""
     import time as _time
     _t0 = _time.time()
     _mark = lambda label: print(f"[PERF api_status] {label}: {_time.time()-_t0:.3f}s")
@@ -710,7 +721,10 @@ def api_status():
     hours_until = seconds_until // 3600
     minutes_until = (seconds_until % 3600) // 60
     
-    return jsonify({
+    # 🔧 FIX ROOT CAUSE: _api_status_data() MUST return a plain dict (no jsonify)
+    # Otherwise api_status() does jsonify(dict) OK, but if we return jsonify(...)
+    # here, Flask wraps a Response inside a Response → TypeError 500
+    return {
         'portfolio': {
             'value': portfolio_value,
             'value_mx': portfolio_value * get_mxn_rate(),
@@ -724,7 +738,7 @@ def api_status():
             'ready': ready_slots,
             'percentage': round((active_slots / total_slots * 100) if total_slots > 0 else 0, 1)
         },
-        'grid': {  # 🆕 Grid Trading Status
+        'grid': {
             'status': grid_status.get('status', 'inactive'),
             'totalBots': grid_status.get('totalBots', 0),
             'totalOrders': grid_status.get('totalOrders', 0),
@@ -767,7 +781,7 @@ def api_status():
         },
         'circuitBreakerStatus': _load_circuit_breaker_status(),
         'timestamp': now.isoformat()
-    })
+    }
 
 @app.route('/api/prices')
 def api_prices():
