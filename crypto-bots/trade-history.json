@@ -70,8 +70,8 @@
     },
     {
       "id": 330,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1885.1,
@@ -87,8 +87,8 @@
     },
     {
       "id": 329,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1885.1,
@@ -104,8 +104,8 @@
     },
     {
       "id": 328,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -121,8 +121,8 @@
     },
     {
       "id": 327,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -138,8 +138,8 @@
     },
     {
       "id": 326,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -155,8 +155,8 @@
     },
     {
       "id": 325,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -173,7 +173,7 @@
     {
       "id": 324,
       "symbol": "ETHUSDT",
-      "coin": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -190,7 +190,7 @@
     {
       "id": 323,
       "symbol": "ETHUSDT",
-      "coin": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -207,7 +207,7 @@
     {
       "id": 322,
       "symbol": "ETHUSDT",
-      "coin": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -223,8 +223,8 @@
     },
     {
       "id": 321,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1885.1,
@@ -240,8 +240,8 @@
     },
     {
       "id": 320,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1885.1,
@@ -257,8 +257,8 @@
     },
     {
       "id": 319,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -274,8 +274,8 @@
     },
     {
       "id": 318,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -291,8 +291,8 @@
     },
     {
       "id": 317,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -308,8 +308,8 @@
     },
     {
       "id": 316,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -325,8 +325,8 @@
     },
     {
       "id": 315,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1885.1,
@@ -342,8 +342,8 @@
     },
     {
       "id": 314,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1885.1,
@@ -359,8 +359,8 @@
     },
     {
       "id": 313,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -376,8 +376,8 @@
     },
     {
       "id": 312,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -393,8 +393,8 @@
     },
     {
       "id": 311,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -410,8 +410,8 @@
     },
     {
       "id": 310,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "ETHUSDT",
+      "coin": "ETH",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -444,7 +444,7 @@
     },
     {
       "id": 308,
-      "symbol": "BTC",
+      "symbol": "ETHUSDT",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1885.1,
@@ -457,11 +457,11 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "ETH"
     },
     {
       "id": 307,
-      "symbol": "BTC",
+      "symbol": "ETHUSDT",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1885.1,
@@ -474,11 +474,11 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "ETH"
     },
     {
       "id": 306,
-      "symbol": "BTC",
+      "symbol": "ETHUSDT",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -491,11 +491,11 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "ETH"
     },
     {
       "id": 305,
-      "symbol": "BTC",
+      "symbol": "ETHUSDT",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -508,11 +508,11 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "ETH"
     },
     {
       "id": 304,
-      "symbol": "BTC",
+      "symbol": "ETHUSDT",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -525,11 +525,11 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "ETH"
     },
     {
       "id": 303,
-      "symbol": "BTC",
+      "symbol": "ETHUSDT",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -542,7 +542,7 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "ETH"
     },
     {
       "id": 302,
@@ -648,7 +648,7 @@
     },
     {
       "id": 296,
-      "symbol": "BTC",
+      "symbol": "ETHUSDT",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1885.1,
@@ -661,11 +661,11 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "ETH"
     },
     {
       "id": 295,
-      "symbol": "BTC",
+      "symbol": "ETHUSDT",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1885.1,
@@ -678,11 +678,11 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "ETH"
     },
     {
       "id": 294,
-      "symbol": "BTC",
+      "symbol": "ETHUSDT",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -695,11 +695,11 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "ETH"
     },
     {
       "id": 293,
-      "symbol": "BTC",
+      "symbol": "ETHUSDT",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -712,11 +712,11 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "ETH"
     },
     {
       "id": 292,
-      "symbol": "BTC",
+      "symbol": "ETHUSDT",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -729,11 +729,11 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "ETH"
     },
     {
       "id": 291,
-      "symbol": "BTC",
+      "symbol": "ETHUSDT",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -746,7 +746,7 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "ETH"
     },
     {
       "id": 290,
@@ -818,7 +818,7 @@
     },
     {
       "id": 286,
-      "symbol": "BNB",
+      "symbol": "ETHUSDT",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 1885.1,
@@ -831,11 +831,11 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BNB"
+      "coin": "ETH"
     },
     {
       "id": 285,
-      "symbol": "BNB",
+      "symbol": "ETHUSDT",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -848,11 +848,11 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BNB"
+      "coin": "ETH"
     },
     {
       "id": 284,
-      "symbol": "BNB",
+      "symbol": "ETHUSDT",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -865,7 +865,7 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BNB"
+      "coin": "ETH"
     },
     {
       "id": 283,
@@ -937,7 +937,7 @@
     },
     {
       "id": 279,
-      "symbol": "BNB",
+      "symbol": "ETHUSDT",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1891.89,
@@ -950,7 +950,7 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BNB"
+      "coin": "ETH"
     },
     {
       "id": 278,
@@ -1277,7 +1277,7 @@
     },
     {
       "id": 259,
-      "symbol": "BNB",
+      "symbol": "ETHUSDT",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1888.35,
@@ -1290,7 +1290,7 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BNB"
+      "coin": "ETH"
     },
     {
       "id": 258,
