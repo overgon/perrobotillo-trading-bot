@@ -587,6 +587,19 @@ def _load_circuit_breaker_status():
         }
 
 # ════════════════════════════════════════════════════════
+# 🔧 SANITIZADOR JSON (debe estar al nivel módulo, no dentro de jsonify)
+# ════════════════════════════════════════════════════════
+def _sanitize_json(obj):
+    """Recursive sanitizer: convert all None values to empty strings for JSON-safe Flask jsonify"""
+    if obj is None:
+        return ''
+    if isinstance(obj, dict):
+        return {k: _sanitize_json(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_sanitize_json(v) for v in obj]
+    return obj
+
+# ════════════════════════════════════════════════════════
 # RUTAS
 # ════════════════════════════════════════════════════════
 
@@ -733,7 +746,7 @@ def api_status():
                 2
             ),
             'net_pnl': trade_history.get('netPnLUSDT', 0),
-            'trades': (trade_history.get('trades', []) or [])[:10]
+            'trades': (trade_history.get('trades', []) or []) if request.args.get('_force_full') else (trade_history.get('trades', []) or [])[:10]
         },
         'cashout': {
             'total_usdt': cashout_history.get('totalUSDT', 0),

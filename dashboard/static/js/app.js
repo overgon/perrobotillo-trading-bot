@@ -56,8 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadData(forceHistory = false) {
     try {
+        // 🔧 FIX: force request full trade history when showAllTrades is toggled
         const url = new URL(CONFIG.API_URL, window.location.origin);
-        if (forceHistory) url.searchParams.set('_hl', Date.now());
+        if (forceHistory) {
+            url.searchParams.set('_force_full', '1');
+        }
         const response = await fetch(url.toString());
         const data = await response.json();
         lastData = data;
