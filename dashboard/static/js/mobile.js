@@ -78,14 +78,18 @@ document.addEventListener('DOMContentLoaded', () => {
 // 📡 DATA LOADING
 // ════════════════════════════════════════════════════════
 
-async function loadData() {
+async function loadData(forceHistory = false) {
     try {
-        console.log('📡 Loading data...');
-        // Add cache buster to force fresh data
-        const url = CONFIG.CACHE_BUSTER 
+        console.log('📡 Loading data...', forceHistory ? '🔧 FORCE FULL HISTORY' : '');
+        // 🔧 FIX: when showAllTrades=true, request full trade history from backend
+        const baseUrl = CONFIG.CACHE_BUSTER 
             ? `${CONFIG.API_URL}?t=${Date.now()}` 
             : CONFIG.API_URL;
-        const response = await fetch(url, {
+        const url = new URL(baseUrl, window.location.origin);
+        if (forceHistory) {
+            url.searchParams.set('_force_full', '1');
+        }
+        const response = await fetch(url.toString(), {
             cache: 'no-cache',
             headers: { 'Cache-Control': 'no-cache' }
         });
@@ -100,7 +104,7 @@ async function loadData() {
         updateTradesTable({ history: data.history });
         updateTimestamp(data.timestamp);
         
-        console.log('✅ Data updated:', new Date(data.timestamp).toLocaleTimeString());
+        console.log('✅ Data updated:', new Date(data.timestamp).toLocaleTimeString(), 'trades:', data.history?.trades?.length || 0);
     } catch (error) {
         console.error('❌ Error loading data:', error);
     }
@@ -632,6 +636,7 @@ function toggleAllTrades() {
     if (btn) {
         btn.textContent = showAllTrades ? '📋 Ver menos trades' : `📋 Ver más trades (${lastData?.history?.trades?.length || 0})`;
     }
-    loadData();
+    // 🔧 FIX: pass _force_full=1 when showing all trades (matches app.js behavior)
+    loadData(showAllTrades);
 }
 
