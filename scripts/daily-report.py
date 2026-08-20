@@ -114,7 +114,12 @@ def get_portfolio_total():
         return 0.0, 0.0
 
 def get_pnl_24h_by_coin():
-    """Obtiene P&L 24h por moneda desde trade-history.json y PnL no realizado de slots activos"""
+    """Obtiene P&L 24h por moneda desde trade-history.json.
+    
+    NOTA: solo incluye trades CERRADOS en las últimas 24h.
+    El P&L no realizado de slots activos NO se suma aquí para evitar
+    confundir el reporte diario; los activos se muestran por separado.
+    """
     pnl_data = {coin: {'pnl_24h': 0, 'trades': 0, 'win': 0, 'loss': 0} for coin in COINS}
     try:
         history_file = CRYPTO_BOTS_DIR / "trade-history.json"
@@ -142,54 +147,6 @@ def get_pnl_24h_by_coin():
                             pnl_data[coin]["win"] += 1
                         else:
                             pnl_data[coin]["loss"] += 1
-
-        # Complemento: PnL no realizado desde slots activos con precio local cacheado
-        try:
-            import requests as _requests
-            price_cache = {}
-            try:
-                r = _requests.get("http://127.0.0.1:8080/api/status", timeout=5)
-                if r.status_code == 200:
-                    data = r.json()
-                    grid = data.get('grid', {}).get('bots', {})
-                    for coin in COINS:
-                        bot = grid.get(coin, {})
-                        if bot.get('price'):
-                            price_cache[coin] = float(bot['price'])
-            except Exception:
-                pass
-
-            for coin in COINS:
-                if coin in price_cache:
-                    continue
-                try:
-                    r = _requests.get(f"https://api.binance.com/api/v3/ticker/price?symbol={coin}USDT", timeout=3)
-                    if r.status_code == 200:
-                        price_cache[coin] = float(r.json().get('price', 0) or 0)
-                except Exception:
-                    pass
-
-            for coin in COINS:
-                state_file = CRYPTO_BOTS_DIR / f"{coin}-trade-state.json"
-                if not state_file.exists():
-                    continue
-                state = json.loads(state_file.read_text())
-                active_slots = [s for s in state.get('slots', []) if s.get('status') == 'ACTIVE']
-                if not active_slots:
-                    continue
-                current_price = price_cache.get(coin, 0)
-                for slot in active_slots:
-                    entry = float(slot.get('entryPrice', 0) or 0)
-                    qty = float(slot.get('quantity', 0) or 0)
-                    usdt_spent = float(slot.get('usdtSpent', 0) or 0)
-                    if entry <= 0 or qty <= 0:
-                        continue
-                    avg_cost = usdt_spent / qty if usdt_spent > 0 else entry
-                    pnl = qty * (current_price - avg_cost) if current_price > 0 else 0
-                    pnl_data[coin]["pnl_24h"] = round(pnl_data[coin]["pnl_24h"] + pnl, 4)
-                    pnl_data[coin]["trades"] += 1
-        except Exception:
-            pass
 
         for coin in COINS:
             pnl_data[coin]["pnl_24h"] = round(pnl_data[coin]["pnl_24h"], 4)
