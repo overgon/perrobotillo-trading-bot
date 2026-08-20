@@ -371,12 +371,26 @@ def generate_report():
     
     # Trades ayer
     report.append("📈 <b>TRADES DE AYER</b>")
-    global_wins, global_losses, global_total = get_win_rate(days=1)
-    global_win_rate = (global_wins / global_total * 100) if global_total > 0 else 0.0
-    report.append(f"   Total: {global_total} trades")
-    report.append(f"   Wins: {global_wins} | Losses: {global_losses}")
-    report.append(f"   Win Rate: <b>{global_win_rate:.1f}%</b>")
-    report.append(f"   P&L: <b>${total_pnl:+,.2f}</b>")
+    if yesterday_trades:
+        wins = sum(1 for t in yesterday_trades if 'TP' in t.get('line', ''))
+        losses = sum(1 for t in yesterday_trades if 'SL' in t.get('line', ''))
+        win_rate = (wins / max(len(yesterday_trades), 1)) * 100
+        pnl_sum = 0.0
+        for t in yesterday_trades:
+            try:
+                pnl_val = float(t.get('line', '').split('PnL=')[1].split()[0])
+            except Exception:
+                pnl_val = 0.0
+            pnl_sum += pnl_val
+    else:
+        wins = 0
+        losses = 0
+        win_rate = 0.0
+        pnl_sum = 0.0
+    report.append(f"   Total: {len(yesterday_trades)} trades")
+    report.append(f"   Wins: {wins} | Losses: {losses}")
+    report.append(f"   Win Rate: <b>{win_rate:.1f}%</b>")
+    report.append(f"   P&L: <b>${pnl_sum:+,.2f}</b>")
     report.append("")
     
     # Trades activos
