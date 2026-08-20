@@ -677,6 +677,11 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     width: 100%;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 999 !important;
 }
 
 .view-more-btn:active {
