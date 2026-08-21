@@ -155,13 +155,15 @@ class OptimizedMLPipeline:
         """
         Feature selection usando SelectKBest con mutual information
         
-        k: Número de features a seleccionar (default: sqrt(n_features))
+        k: Número de features a seleccionar (default: sqrt(n_features) o override por moneda)
         """
         
         n_features = X.shape[1]
         
+        # Override por moneda: LINK/XRP usan features reducidas para mitigar overfitting por volumen ruidoso
+        coin_k_override = {'LINK': 10, 'XRP': 14}
         if k is None:
-            k = int(np.sqrt(n_features))  # Regla: sqrt(n_features)
+            k = coin_k_override.get(self.coin, int(np.sqrt(n_features)))
         
         print(f"\n🔍 FEATURE SELECTION")
         print(f"   Features originales: {n_features}")
@@ -216,9 +218,25 @@ class OptimizedMLPipeline:
         
         # Feature selection (opcional)
         if self.use_feature_selection:
-            selected_indices = self.select_best_features(X, y, feature_cols_clean)
-            X = X[:, selected_indices]
-            self.selected_features = [feature_cols_clean[i] for i in selected_indices]
+            # LINK: excluir features de volumen para reducir overfitting ruidoso
+            if self.coin == 'LINK':
+                vol_features = [c for c in feature_cols_clean if 'volume' in c.lower()]
+                non_vol_features = [c for c in feature_cols_clean if c not in vol_features]
+                if non_vol_features:
+                    non_vol_idx = [feature_cols_clean.index(c) for c in non_vol_features]
+                    X = X[:, non_vol_idx]
+                    print(f"   🔧 LINK: excluyendo {len(vol_features)} features de volumen, usando {len(non_vol_features)} features de precio/indicadores")
+                    selected_indices = self.select_best_features(X, y, non_vol_features)
+                    X = X[:, selected_indices]
+                    self.selected_features = [non_vol_features[i] for i in selected_indices]
+                else:
+                    selected_indices = self.select_best_features(X, y, feature_cols_clean)
+                    X = X[:, selected_indices]
+                    self.selected_features = [feature_cols_clean[i] for i in selected_indices]
+            else:
+                selected_indices = self.select_best_features(X, y, feature_cols_clean)
+                X = X[:, selected_indices]
+                self.selected_features = [feature_cols_clean[i] for i in selected_indices]
             print(f"   Después de feature selection: {X.shape[1]} features")
         
         # Train/test split

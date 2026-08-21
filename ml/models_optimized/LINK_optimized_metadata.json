@@ -1,6 +1,6 @@
 {
   "coin": "LINK",
-  "trained_at": "2026-08-20T21:14:48.064024",
+  "trained_at": "2026-08-21T08:47:22.646404",
   "config": {
     "max_features": "sqrt",
     "max_depth": 8,
@@ -12,18 +12,18 @@
   },
   "use_feature_selection": true,
   "n_features_original": 216,
-  "n_features_selected": 14,
+  "n_features_selected": 10,
   "samples": 711,
   "metrics": {
-    "accuracy": 0.7342657342657343,
-    "precision": 0.8694162979877266,
-    "recall": 0.7342657342657343,
-    "f1": 0.7804432737168163,
-    "cv_mean": 0.7519736842105262,
-    "cv_std": 0.050365973418409475,
-    "train_score": 0.7869718309859155,
-    "test_score": 0.7342657342657343,
-    "overfitting_gap": 0.05270609672018123
+    "accuracy": 0.6993006993006993,
+    "precision": 0.8704240440410653,
+    "recall": 0.6993006993006993,
+    "f1": 0.760580412370072,
+    "cv_mean": 0.7360902255639098,
+    "cv_std": 0.057003805940892334,
+    "train_score": 0.778169014084507,
+    "test_score": 0.6993006993006993,
+    "overfitting_gap": 0.07886831478380774
   },
   "is_optimized": true
 }
