@@ -46,6 +46,28 @@ OPTIMIZED_CONFIG = {
     'random_state': 42
 }
 
+# Overrides por moneda para casos con overfitting alto
+COIN_CONFIG_OVERRIDES = {
+    'LINK': {
+        'max_depth': 6,
+        'min_samples_split': 30,
+        'min_samples_leaf': 15,
+        'n_estimators': 200,
+        'max_features': 'sqrt',
+        'class_weight': 'balanced',
+        'random_state': 42
+    },
+    'XRP': {
+        'max_depth': 6,
+        'min_samples_split': 30,
+        'min_samples_leaf': 15,
+        'n_estimators': 200,
+        'max_features': 'sqrt',
+        'class_weight': 'balanced',
+        'random_state': 42
+    }
+}
+
 COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
 
 # ════════════════════════════════════════════════════════
@@ -213,13 +235,14 @@ class OptimizedMLPipeline:
         
         # Crear modelo optimizado
         print(f"\n🤖 Entrenando Random Forest optimizado...")
-        print(f"   max_depth: {OPTIMIZED_CONFIG['max_depth']}")
-        print(f"   min_samples_split: {OPTIMIZED_CONFIG['min_samples_split']}")
-        print(f"   min_samples_leaf: {OPTIMIZED_CONFIG['min_samples_leaf']}")
-        print(f"   max_features: {OPTIMIZED_CONFIG['max_features']}")
-        print(f"   n_estimators: {OPTIMIZED_CONFIG['n_estimators']}")
+        config = COIN_CONFIG_OVERRIDES.get(self.coin, OPTIMIZED_CONFIG)
+        print(f"   max_depth: {config.get('max_depth', OPTIMIZED_CONFIG['max_depth'])}")
+        print(f"   min_samples_split: {config.get('min_samples_split', OPTIMIZED_CONFIG['min_samples_split'])}")
+        print(f"   min_samples_leaf: {config.get('min_samples_leaf', OPTIMIZED_CONFIG['min_samples_leaf'])}")
+        print(f"   max_features: {config.get('max_features', OPTIMIZED_CONFIG['max_features'])}")
+        print(f"   n_estimators: {config.get('n_estimators', OPTIMIZED_CONFIG['n_estimators'])}")
         
-        self.model = RandomForestClassifier(**OPTIMIZED_CONFIG)
+        self.model = RandomForestClassifier(**config)
         self.model.fit(X_train_scaled, y_train)
         
         # Evaluar
