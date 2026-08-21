@@ -99,11 +99,15 @@ def repair_slot(slot, coin, slot_id):
     has_position = has_active_position(slot)
     tp3_done = slot.get("tp3Done", False)
     
-    # Caso 0: Estados CLOSED_* → trade terminado, reconvertir a READY limpio
-    # Esto incluye: CLOSED_TRAILING, CLOSED_TP1, CLOSED_TP2, CLOSED_TP3, CLOSED_SL
-    if current_status.startswith("CLOSED_"):
+    # Caso 0: Estados CLOSED_* o CLOSED sin guion bajo → trade terminado, reconvertir a READY limpio
+    # Esto incluye: CLOSED_TRAILING, CLOSED_TP1, CLOSED_TP2, CLOSED_TP3, CLOSED_SL, y CLOSED sin suffix
+    if current_status.startswith("CLOSED_") or current_status == "CLOSED":
         repairs.append(f"Estado '{current_status}' → 'READY'")
         slot["status"] = "READY"
+        # Limpiar flags de TP al cerrar
+        for key in ["tp1Done", "tp2Done", "tp3Done"]:
+            if key in slot:
+                slot[key] = False
         clean_slot_data(slot)
         return slot, repairs
 
