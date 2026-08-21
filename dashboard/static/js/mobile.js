@@ -61,7 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Cargar precios primero
     loadPrices().then(() => {
-        loadData();
+        // Cargar datos iniciales con historial completo de trades
+        loadData(true);
     });
     
     // Refresh intervals
@@ -580,13 +581,19 @@ function updateTradesTable(data) {
         const pnlClass = trade.pnlUSDT >= 0 ? 'profit' : 'loss';
         const pnlColor = trade.pnlUSDT >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
         const closeType = trade.closeType || 'UNKNOWN';
+        const side = (trade.side || trade.entryPrice ? 'BUY' : '');
+        const dateStr = trade.timestamp ? new Date(trade.timestamp).toLocaleDateString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '--';
         
         html += `
             <tr>
                 <td>#${trade.id}</td>
                 <td><strong>${trade.symbol}</strong></td>
+                <td>${side}</td>
+                <td>${trade.entryPrice != null ? trade.entryPrice.toFixed(2) : '--'}</td>
+                <td>${trade.exitPrice != null ? trade.exitPrice.toFixed(2) : '--'}</td>
                 <td style="color: ${pnlColor}">${trade.pnlUSDT != null ? (trade.pnlUSDT >= 0 ? '+' : '') + '$' + trade.pnlUSDT.toFixed(2) : '--'}</td>
                 <td><span class="status-badge ${pnlClass}">${closeType}</span></td>
+                <td>${dateStr}</td>
             </tr>
         `;
     });
