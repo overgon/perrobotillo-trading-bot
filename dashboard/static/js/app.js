@@ -747,23 +747,7 @@ function toggleAllTrades() {
     if (btn) {
         btn.textContent = showAllTrades ? '📋 Ver menos trades' : '📋 Ver más trades';
     }
-    // 🔧 FIX: request full trade history when toggling to show more
-    const url = new URL(CONFIG.API_URL, window.location.origin);
-    if (showAllTrades) {
-        url.searchParams.set('_full', '1');
-        url.searchParams.set('_t', Date.now());
-    } else {
-        url.searchParams.delete('_full');
-        url.searchParams.set('_t', Date.now());
-    }
-    fetch(url.toString())
-        .then(r => r.json())
-        .then(data => {
-            lastData = data;
-            updateTradesTable({ history: data.history });
-            console.log(`📋 Showing ${showAllTrades ? 'all' : '10'} trades`);
-        })
-        .catch(err => console.error('Error refreshing trades:', err));
+    loadData(showAllTrades);
 }
 
 
