@@ -6340,24 +6340,6 @@
       "reason": "SL HIT",
       "closeType": "CLOSED_SL",
       "coin": "SOL"
-    },
-    {
-      "id": 379,
-      "coin": "AVAX",
-      "symbol": "AVAX",
-      "type": "LONG",
-      "side": "BUY",
-      "entryPrice": 7.318,
-      "exitPrice": 7.864,
-      "pnlUSDT": 1.570553,
-      "closeType": "CLOSED_TP3",
-      "closeTime": "2026-08-21 16:49:18",
-      "timestamp": "2026-08-21T16:49:18.128807",
-      "slotId": 1,
-      "source": "BOT",
-      "quantity": 2.87647,
-      "reason": null,
-      "orderId": null
     }
   ],
   "updatedAt": "2026-08-21T16:11:03.490403",
