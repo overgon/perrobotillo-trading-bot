@@ -82,14 +82,15 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadData(forceHistory = false) {
     try {
         console.log('📡 Loading data...', forceHistory ? '🔧 FORCE FULL HISTORY' : '');
-        // 🔧 FIX: when showAllTrades=true, request full trade history from backend
-        const baseUrl = CONFIG.CACHE_BUSTER 
-            ? `${CONFIG.API_URL}?t=${Date.now()}` 
-            : CONFIG.API_URL;
-        const url = new URL(baseUrl, window.location.origin);
+        // Construir URL correctamente sin romper query params
+        const url = new URL(CONFIG.API_URL, window.location.origin);
+        if (CONFIG.CACHE_BUSTER) {
+            url.searchParams.set('t', Date.now());
+        }
         if (forceHistory) {
             url.searchParams.set('_force_full', '1');
         }
+        console.log('🔗 Request URL:', url.toString());
         const response = await fetch(url.toString(), {
             cache: 'no-cache',
             headers: { 'Cache-Control': 'no-cache' }
