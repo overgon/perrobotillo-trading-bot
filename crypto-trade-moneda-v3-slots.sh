@@ -1250,13 +1250,11 @@ El slot buscará nueva entrada 🚀"
                     # Slot existente o reciclaje desactivado -> mantener estrategia
                     local pnl_partial=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
                     notify "TP1_HIT|$SYMBOL|$slot_id" "✅ TP1 - $SYMBOL
-
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${current_price}
 Vendido: $sell_qty_fmt
 P&L parcial: \$${pnl_partial}
 Queda para TP3 🎯
-
 Quedan 65% para TP2/TP3 🎯"
                 fi
             else
@@ -1370,7 +1368,7 @@ El slot sigue activo y reintentará en próximos ciclos."
                 
                 # BUG-036 FIX: Enviar Telegram TP2
                 log "  📱 DEBUG: Preparando notificación TP2..."
-                notify "TP2_HIT|$SYMBOL|$slot_id" "$(printf '✅ TP2 - %s\n\nSlot: %d / %d\nExit: $%s\nVendido: %s\nP&L parcial: $%.2f\nQueda para TP3 🎯' "$SYMBOL" "$slot_id" "$MAX_SLOTS" "$current_price" "$sell_qty_fmt" "$pnl_partial")"
+                notify "TP2_HIT|$SYMBOL|$slot_id" "$(printf '✅ TP2 - %s\nSlot: %d / %d\nExit: $%s\nVendido: %s\nP&L parcial: $%.2f\nQueda para TP3 🎯' "$SYMBOL" "$slot_id" "$MAX_SLOTS" "$current_price" "$sell_qty_fmt" "$pnl_partial")"
                 log "  📱 DEBUG: notify TP2 completado"
             else
                 local error=$(echo "$sell_result" | jq -r '.msg // "Unknown error"')
