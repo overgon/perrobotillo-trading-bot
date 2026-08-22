@@ -9,18 +9,69 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 400,
-  "totalWins": 304,
+  "totalTrades": 403,
+  "totalWins": 307,
   "totalLosses": 96,
-  "totalProfitUSDT": 675.86159926,
+  "totalProfitUSDT": 678.62402301,
   "totalLossUSDT": -466.65746822,
-  "netPnLUSDT": 209.20413104,
-  "winRate": 76.0,
+  "netPnLUSDT": 211.96655479,
+  "winRate": 76.18,
   "trades": [
     {
+      "id": 403,
+      "symbol": "XRP",
+      "coin": "XRP",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 1.4471,
+      "exitPrice": 1.5443,
+      "quantity": 9.5485,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 0.9281142,
+      "timestamp": "2026-08-21T21:05:04.482665",
+      "closeTime": "2026-08-21 21:05:04",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 402,
+      "symbol": "XRP",
+      "coin": "XRP",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 1.4388,
+      "exitPrice": 1.5429,
+      "quantity": 12.5905,
+      "closeType": "CLOSED_TP2",
+      "pnlUSDT": 1.31067105,
+      "timestamp": "2026-08-21T21:05:02.790049",
+      "closeTime": "2026-08-21 21:05:02",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 401,
+      "symbol": "AVAX",
+      "coin": "AVAX",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 7.851,
+      "exitPrice": 8.054,
+      "quantity": 2.5795,
+      "closeType": "CLOSED_TP1",
+      "pnlUSDT": 0.5236385,
+      "timestamp": "2026-08-21T20:56:02.812293",
+      "closeTime": "2026-08-21 20:56:02",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
       "id": 400,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "XRP",
+      "coin": "XRP",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 1.4471,
@@ -36,8 +87,8 @@
     },
     {
       "id": 399,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "XRP",
+      "coin": "XRP",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 1.4388,
@@ -1141,8 +1192,8 @@
     },
     {
       "id": 334,
-      "symbol": "BTC",
-      "coin": "BTC",
+      "symbol": "BNB",
+      "coin": "BNB",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 606.06,
@@ -1566,7 +1617,7 @@
     },
     {
       "id": 309,
-      "symbol": "BTC",
+      "symbol": "SOL",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 76.28,
@@ -1579,7 +1630,7 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "SOL"
     },
     {
       "id": 308,
@@ -1702,7 +1753,7 @@
     },
     {
       "id": 301,
-      "symbol": "BTC",
+      "symbol": "AVAX",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 6.368,
@@ -1715,11 +1766,11 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "AVAX"
     },
     {
       "id": 300,
-      "symbol": "BTC",
+      "symbol": "AVAX",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 6.39,
@@ -1732,11 +1783,11 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "AVAX"
     },
     {
       "id": 299,
-      "symbol": "BTC",
+      "symbol": "AVAX",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 6.39,
@@ -1749,11 +1800,11 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "AVAX"
     },
     {
       "id": 298,
-      "symbol": "BTC",
+      "symbol": "AVAX",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 6.376,
@@ -1766,11 +1817,11 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "AVAX"
     },
     {
       "id": 297,
-      "symbol": "BTC",
+      "symbol": "SOL",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 76.06,
@@ -1783,7 +1834,7 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "SOL"
     },
     {
       "id": 296,
@@ -6580,12 +6631,12 @@
       "coin": "SOL"
     }
   ],
-  "updatedAt": "2026-08-21T20:55:05.192020",
+  "updatedAt": "2026-08-21T21:05:04.482915",
   "bySymbol": {
     "BTC": {
-      "trades": 136,
-      "wins": 123,
-      "netPnL": 110.6921764
+      "trades": 139,
+      "wins": 126,
+      "netPnL": 113.45460015
     },
     "ETHUSDT": {
       "trades": 3,
@@ -6965,9 +7016,9 @@
       "netPnL": 21.25718596
     },
     "2026-08-21": {
-      "trades": 41,
-      "wins": 41,
-      "netPnL": 120.22101568
+      "trades": 44,
+      "wins": 44,
+      "netPnL": 122.98343943
     }
   },
   "lastUpdated": "2026-08-14T20:42:49.220903"

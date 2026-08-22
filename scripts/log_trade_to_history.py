@@ -75,6 +75,7 @@ def _resolve_symbol_from_price(entry_price):
         "SOL": (75, 250),
         "AVAX": (5.5, 20),
         "LINK": (3, 5.4),
+        "XRP": (0.4, 3.0),
     }
     candidates = []
     for coin, (lo, hi) in PRICE_RANGES.items():
