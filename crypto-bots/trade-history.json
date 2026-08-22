@@ -9,14 +9,48 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 403,
-  "totalWins": 307,
+  "totalTrades": 405,
+  "totalWins": 309,
   "totalLosses": 96,
-  "totalProfitUSDT": 678.62402301,
+  "totalProfitUSDT": 679.93783124,
   "totalLossUSDT": -466.65746822,
-  "netPnLUSDT": 211.96655479,
-  "winRate": 76.18,
+  "netPnLUSDT": 213.28036302,
+  "winRate": 76.3,
   "trades": [
+    {
+      "id": 405,
+      "symbol": "XRP",
+      "coin": "XRP",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 1.4388,
+      "exitPrice": 1.5491,
+      "quantity": 6.7795,
+      "closeType": "TP3",
+      "pnlUSDT": 0.57009708,
+      "timestamp": "2026-08-21T21:15:02.717286",
+      "closeTime": "2026-08-21 21:15:02",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 404,
+      "symbol": "XRP",
+      "coin": "XRP",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 1.4388,
+      "exitPrice": 1.5485,
+      "quantity": 6.7795,
+      "closeType": "CLOSED_TP3",
+      "pnlUSDT": 0.74371115,
+      "timestamp": "2026-08-21T21:15:02.597893",
+      "closeTime": "2026-08-21 21:15:02",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
     {
       "id": 403,
       "symbol": "XRP",
@@ -6629,14 +6663,32 @@
       "reason": "SL HIT",
       "closeType": "CLOSED_SL",
       "coin": "SOL"
+    },
+    {
+      "id": 406,
+      "coin": "XRP",
+      "symbol": "XRP",
+      "type": "LONG",
+      "side": "BUY",
+      "entryPrice": 1.4471,
+      "exitPrice": 1.5767,
+      "pnlUSDT": 0.666338,
+      "closeType": "CLOSED_TP3",
+      "closeTime": "2026-08-21 21:26:50",
+      "timestamp": "2026-08-21T21:26:50.166492",
+      "slotId": 2,
+      "source": "BOT",
+      "quantity": 5.1415,
+      "reason": null,
+      "orderId": null
     }
   ],
-  "updatedAt": "2026-08-21T21:05:04.482915",
+  "updatedAt": "2026-08-21T21:15:02.717531",
   "bySymbol": {
     "BTC": {
-      "trades": 139,
-      "wins": 126,
-      "netPnL": 113.45460015
+      "trades": 141,
+      "wins": 128,
+      "netPnL": 114.76840838
     },
     "ETHUSDT": {
       "trades": 3,
@@ -7016,9 +7068,9 @@
       "netPnL": 21.25718596
     },
     "2026-08-21": {
-      "trades": 44,
-      "wins": 44,
-      "netPnL": 122.98343943
+      "trades": 46,
+      "wins": 46,
+      "netPnL": 124.29724766
     }
   },
   "lastUpdated": "2026-08-14T20:42:49.220903"
