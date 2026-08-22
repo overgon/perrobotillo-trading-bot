@@ -82,12 +82,10 @@ notify_tp1_hit() {
     local recycling="${7:-false}"
     
     local msg="✅ TP1 HIT - $symbol [35%] 🎯
-
 Slot: $slot_id / $max_slots
 Exit: \$${exit_price}
 Qty: $quantity (35%)
-P&L: \$${pnl}
-"
+PnL: \$${pnl}"
     
     if [ "$recycling" = "true" ]; then
         msg="$msg
@@ -107,13 +105,11 @@ notify_tp2_hit() {
     local exit_price="$4" quantity="$5" pnl="$6"
     
     send_telegram "✅ TP2 HIT - $symbol [30%] 🎯
-
 Slot: $slot_id / $max_slots
 Exit: \$${exit_price}
 Qty: $quantity (30%)
-P&L Parcial: \$${pnl}
+PnL Parcial: \$${pnl}
 ACUMULADO: 5% 📈
-
 Queda 35% para TP3 🎯"
 }
 
@@ -124,14 +120,11 @@ notify_tp3_hit() {
     local pnl_icon="${8:-✅}"
     
     send_telegram "${pnl_icon} TP3 HIT - $symbol [${tp3_percentage}] 🎯
-
 Slot: $slot_id / $max_slots
 Exit: \$${exit_price}
 Qty: $quantity
 ACUMULADO: 5% 📈
-
-P&L Total: \$${pnl_total}
-
+PnL Total: \$${pnl_total}
 ✅ Slot cerrado y disponible 🎯"
 }
 
@@ -141,11 +134,9 @@ notify_sl_hit() {
     local pnl_icon="${6:-🛑}"
     
     send_telegram "${pnl_icon} SL HIT - $symbol
-
 Slot: $slot_id / $max_slots
 Exit: \$${exit_price}
-P&L: \$${pnl}
-
+PnL: \$${pnl}
 El slot está disponible para próximo trade. 🛡️"
 }
 
@@ -155,12 +146,10 @@ notify_scalp_hit() {
     local pnl_icon="${7:-🎯}"
     
     send_telegram "${pnl_icon} SCALP HIT - $symbol 🎯
-
 Slot: $slot_id / $max_slots
 Exit: \$${exit_price}
-P&L: \$${pnl}
+PnL: \$${pnl}
 Target: ${target}%
-
 ✅ Ganancia rápida en mercado lateral 🚀"
 }
 
@@ -170,12 +159,10 @@ notify_trailing_stop() {
     local pnl_icon="${7:-✅}"
     
     send_telegram "${pnl_icon} TRAILING STOP - $symbol
-
 Slot: $slot_id / $max_slots
 Exit: \$${exit_price}
-P&L: \$${pnl}
+PnL: \$${pnl}
 Razón: $reason
-
 ✅ Ganancias aseguradas 🛡️"
 }
 
