@@ -281,28 +281,28 @@ def main():
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 🐕 Slot Health Manager completado")
 
 def build_telegram_notification(repaired_slots, inconsistent_slots):
-    """Construye mensaje HTML para Telegram."""
-    msg = "🐕 <b>Slot Health Manager - Reporte</b>\n\n"
-    
+    """Construye mensaje compacto para Telegram."""
+    lines = ["🐕 **Slot Health Manager**", ""]
+
     if repaired_slots:
-        msg += "🔧 <b>Reparaciones:</b>\n"
+        lines.append("🔧 **Reparaciones:**")
         for repair in repaired_slots:
-            msg += f"├ {repair['coin']} Slot {repair['slot']}\n"
+            lines.append(f"├ {repair['coin']} Slot {repair['slot']}")
             for r in repair['repairs']:
-                msg += f"│  • {r}\n"
-        msg += "\n"
-    
+                lines.append(f"│  • {r}")
+        lines.append("")
+
     if inconsistent_slots:
-        msg += "⚠️ <b>Inconsistencias:</b>\n"
+        lines.append("⚠️ **Inconsistencias:**")
         for inc in inconsistent_slots:
-            msg += f"├ {inc['coin']} Slot {inc['slot']}\n"
+            lines.append(f"├ {inc['coin']} Slot {inc['slot']}")
             for i in inc['issues']:
-                msg += f"│  • {i}\n"
-        msg += "\n"
-    
-    msg += f"🕒 <i>{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>"
-    
-    return msg
+                lines.append(f"│  • {i}")
+        lines.append("")
+
+    lines.append(f"🕒 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} 🐕")
+
+    return "\n".join(lines)
 
 if __name__ == "__main__":
     main()

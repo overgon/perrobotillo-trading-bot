@@ -76,10 +76,9 @@ trades_executed = data.get('tradesExecuted', 0)
 status = data.get('status', 'unknown')
 
 # Header
-report = "🐕 *GRID TRADING REPORT* 🐕\n"
-report += f"📊 Status: *{status.upper()}*\n"
-report += f"⏰ Update: {datetime.now().strftime('%H:%M:%S')}\n"
-report += "━━━━━━━━━━━━━━━━━━━━━━\n\n"
+report = "🐕 **GRID TRADING REPORT**\n"
+report += f"📊 Status: *{status.upper()}* | ⏰ {datetime.now().strftime('%H:%M:%S')}\n"
+report += "━━━━━━━━━━━━━━━━━━\n"
 
 # Bot status
 for coin, info in bots.items():
@@ -89,17 +88,15 @@ for coin, info in bots.items():
         range_low = info.get('range', {}).get('low', 0)
         range_high = info.get('range', {}).get('high', 0)
         balance = info.get('balanceUSDT', 0)
-        
+
         emoji = "🟢" if orders > 0 else "🟡"
-        report += f"{emoji} *{coin}* @ \${price:,.2f}\n"
-        report += f"   Orders: {orders} | Rango: \${range_low:,.0f}-\${range_high:,.0f}\n"
-        report += f"   Balance: \${balance:.2f} USDT\n\n"
+        report += f"{emoji} *{coin}* | ${price:,.2f} | Orders: {orders}\n"
+        report += f"   Rango: ${range_low:,.0f}-${range_high:,.0f} | Bal: ${balance:.2f} USDT\n"
 
 # Summary
-report += "━━━━━━━━━━━━━━━━━━━━━━\n"
-report += f"📈 Total Orders: *{total_orders}*\n"
-report += f"💰 Trades Ejecutados: *{trades_executed}*\n"
-report += f"📊 P&L Total: *\${total_pnl:.2f} USDT*\n"
+report += "━━━━━━━━━━━━━━━━━━\n"
+report += f"📈 Orders: *{total_orders}* | Trades: *{trades_executed}*\n"
+report += f"💰 PnL Total: *${total_pnl:.2f} USDT* 🐕\n"
 
 print(report)
 ENDPYTHON

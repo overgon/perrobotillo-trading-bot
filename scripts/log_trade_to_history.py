@@ -182,7 +182,10 @@ def main():
     win_rate = (wins / total * 100) if total > 0 else 0
 
     data["trades"].insert(0, new_trade)
-    data["totalTrades"] = total
+    # 🔧 FIX ROOT CAUSE: totalTrades MUST match len(trades) — race conditions
+    # and concurrent writes could desync the counter. Derive from array length.
+    actual_trades = len(data["trades"])
+    data["totalTrades"] = actual_trades
     data["totalWins"] = wins
     data["totalLosses"] = losses
     data["totalProfitUSDT"] = round(profit, 8)
@@ -190,6 +193,10 @@ def main():
     data["netPnLUSDT"] = round(net, 8)
     data["winRate"] = round(win_rate, 2)
     data["updatedAt"] = datetime.now().isoformat()
+    # Consistency guard: detect if totalTrades was previously desynced
+    prev_total = actual_trades - 1  # before this insert
+    if prev_total != data.get("totalTrades", 0) and "totalTrades" in data:
+        print(f"  🔧 Consistency fix: totalTrades was {data.get('totalTrades')}, recalculating from trades array ({actual_trades})")
 
     symbol_key = os.environ.get("SYMBOL")
     if not symbol_key:

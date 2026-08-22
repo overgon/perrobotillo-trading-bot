@@ -295,19 +295,9 @@ if [ "$LAST_MODE" != "$MARKET_MODE" ] && [ -n "$LAST_MODE" ]; then
     # Enviar alerta por Telegram
     if [ -f "${WORKSPACE}/lib/send-telegram.sh" ]; then
         source "${WORKSPACE}/lib/send-telegram.sh"
-        send_telegram "🚨 CAMBIO DE MODO DE MERCADO
-
-De: ${LAST_MODE}
-A: ${MARKET_MODE}
-
+        send_telegram "🚨 CAMBIO DE MODO: ${LAST_MODE} → ${MARKET_MODE}
 Razón: ${MARKET_REASON}
-
-Nueva configuración:
-TP1: +${TP1}%
-TP2: +${TP2}%
-TP3: +${TP3}%
-SL: -${SL}%
-Position: ${POSITION_SIZE}%"
+TP1/TP2/TP3: +${TP1}%/+${TP2}%/+${TP3}% | SL: -${SL}% | Pos: ${POSITION_SIZE}% 🐕"
     fi
 fi
 

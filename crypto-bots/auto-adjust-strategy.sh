@@ -241,9 +241,9 @@ fi
 # Notificación única final
 MSG_FINAL=""
 if [ "$CB_ALLOWED" = "false" ]; then
-    MSG_FINAL=$(printf "🧠 AUTO-ADJUST FINAL\n\n🎯 Modo: %s\n📝 Razón: %s\n🛑 Circuit breaker activo: parámetros defensivos\n\n⚙️ TP1/2/3: +%s/%s/%s%% | SL: -%s%%\n💰 Position: %s%%\n\n📊 BTC: \$%s | RSI: %s | F&G: %s (%s)\n🤖 ML: %s | %s\n\n✅ Ajuste aplicado" "$FINAL_MODE" "$MARKET_REASON" "$TP1" "$TP2" "$TP3" "$SL" "$POSITION_SIZE" "$BTC_PRICE" "$RSI" "$FG_VALUE" "$FG_CLASS" "$ML_CONFIDENCE" "$OVERRIDE")
+    MSG_FINAL=$(printf "🧠 AUTO-ADJUST | Modo: %s (CB activo)\n📝 %s\n⚙️ TP1/2/3: +%s/%s/%s%% | SL: -%s%% | Pos: %s%%\n📊 BTC: \\$%s | RSI: %s | F&G: %s (%s) | ML: %s %s\n✅ Ajuste aplicado" "$FINAL_MODE" "$MARKET_REASON" "$TP1" "$TP2" "$TP3" "$SL" "$POSITION_SIZE" "$BTC_PRICE" "$RSI" "$FG_VALUE" "$FG_CLASS" "$ML_CONFIDENCE" "$OVERRIDE")
 else
-    MSG_FINAL=$(printf "🧠 AUTO-ADJUST FINAL\n\n🎯 Modo: %s | %s\n📝 Razón: %s\n\n⚙️ TP1/2/3: +%s/%s/%s%% | SL: -%s%%\n💰 Position: %s%%\n\n📊 BTC: \$%s | RSI: %s | F&G: %s (%s)\n🤖 ML: %s\n\n✅ Ajuste aplicado" "$FINAL_MODE" "$OVERRIDE" "$MARKET_REASON" "$TP1" "$TP2" "$TP3" "$SL" "$POSITION_SIZE" "$BTC_PRICE" "$RSI" "$FG_VALUE" "$FG_CLASS" "$ML_CONFIDENCE")
+    MSG_FINAL=$(printf "🧠 AUTO-ADJUST | %s %s\n📝 %s\n⚙️ TP1/2/3: +%s/%s/%s%% | SL: -%s%% | Pos: %s%%\n📊 BTC: \\$%s | RSI: %s | F&G: %s (%s) | ML: %s\n✅ Ajuste aplicado" "$FINAL_MODE" "$OVERRIDE" "$MARKET_REASON" "$TP1" "$TP2" "$TP3" "$SL" "$POSITION_SIZE" "$BTC_PRICE" "$RSI" "$FG_VALUE" "$FG_CLASS" "$ML_CONFIDENCE")
 fi
 
 if [ -f "${WORKSPACE}/lib/send-telegram.sh" ]; then

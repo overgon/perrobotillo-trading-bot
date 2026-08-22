@@ -365,6 +365,10 @@ def get_trade_history():
                 reverse=True
             )
             data['trades'] = trades
+            # 🔧 DEFENSIVE: ensure totalTrades matches actual array length
+            if data.get('totalTrades') != len(trades):
+                print(f"  🔧 Consistency: totalTrades {data.get('totalTrades')} != len(trades) {len(trades)}, fixing")
+                data['totalTrades'] = len(trades)
             _set_mem_cache('trade_history', data, ttl=5)
             return data
         except Exception as e:
@@ -752,7 +756,7 @@ def _api_status_data():
             'by_coin': pnl_by_coin
         },
         'history': {
-            'total_trades': trade_history.get('totalTrades', 0),
+            'total_trades': len(trade_history.get('trades', [])),  # 🔧 DEFENSIVE: use array length as truth
             'win_rate': round(
                 sum(1 for t in trade_history.get('trades', []) if (t.get('pnlUSDT') is not None and isinstance(t.get('pnlUSDT'), (int, float)) and t['pnlUSDT'] > 0))
                 / max(sum(1 for t in trade_history.get('trades', []) if (t.get('pnlUSDT') is not None and isinstance(t.get('pnlUSDT'), (int, float)))), 1)

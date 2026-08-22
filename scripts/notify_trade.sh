@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 🔔 Notificación de trade cerrado a Telegram
+# 🔔 Notificación de trade cerrado a Telegram - Optimizado v2
 # Uso: notify_trade.sh <symbol> <closeType> <pnl> <tradeId> <entry> <exit>
 set -euo pipefail
 
@@ -28,22 +28,19 @@ if [[ -z "$TOKEN" || -z "$CHAT_ID" ]]; then
     exit 1
 fi
 
-# Formatear mensaje
+# Formatear PnL con signo
 PNL_SIGN="+"; [[ $(echo "$PNL < 0" | bc -l 2>/dev/null || echo 0) -eq 1 ]] && PNL_SIGN="-" || PNL_SIGN="+"
 
-MSG="${MSG_PREFIX:-}📜 Perrobotillo Trade Cerrado
-
-🪙 ${SYMBOL} | ${CLOSE_TYPE}
-💰 P&L: ${PNL_SIGN}$${PNL}
-🆔 Trade #${TRADE_ID}
-📈 Entrada: \$${ENTRY} → Salida: \$${EXIT}
-⏰ $(date '+%Y-%m-%d %H:%M:%S') CST"
+# 📱 Mensaje compacto - una sola línea + separador
+MSG="📜 ${SYMBOL} ${CLOSE_TYPE} [Slot ${TRADE_ID}]
+Exit: \$${EXIT} | Entrada: \$${ENTRY} | PnL: ${PNL_SIGN}\$${PNL}
+$(date '+%H:%M:%S') CST 🐕"
 
 # Enviar a Telegram
 curl -s -X POST "https://api.telegram.org/bot${TOKEN}/sendMessage" \
     -d chat_id="${CHAT_ID}" \
-    -d text="$MSG" \
+    -d text="${MSG}" \
     -d parse_mode="Markdown" \
     >/dev/null 2>&1 || true
 
-echo "✅ Notificación enviada: ${SYMBOL} ${CLOSE_TYPE} PnL=\$${PNL}"
+echo "✅ Enviado: ${SYMBOL} ${CLOSE_TYPE} PnL=${PNL_SIGN}\$${PNL}"

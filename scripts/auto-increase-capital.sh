@@ -234,51 +234,27 @@ case $ACTION in
     "INCREASE")
         log "🔄 Ejecutando aumento de position size..."
         update_config $NEW_POSITION
-        
-        # Notificar por Telegram
-        send_telegram "💰 AUTO-INCREASE CAPITAL - AUMENTO EJECUTADO
 
-📊 Win Rate: ${WINRATE}% (Excelente)
-💵 Capital: \$${TOTAL_CAPITAL} USDT
-
-🎯 Position Size:
-   Antes: ${CURRENT_POSITION}%
-   Ahora: ${NEW_POSITION}% (+${INCREMENT_STEP}%)
-
-✅ Aumento automático completado
-📈 Monitoreando win rate..."
+        send_telegram "💰 CAPITAL UP - ${NEW_POSITION}% position
+WR: ${WINRATE}% | Capital: \$${TOTAL_CAPITAL} USDT
+${CURRENT_POSITION}% → ${NEW_POSITION}% (+${INCREMENT_STEP}%) ✅"
         ;;
     
     "DECREASE")
         log "🔄 Ejecutando reducción de position size..."
         update_config $NEW_POSITION
-        
-        # Notificar por Telegram
-        send_telegram "⚠️ AUTO-INCREASE CAPITAL - REDUCCIÓN EJECUTADA
 
-📊 Win Rate: ${WINRATE}% (Bajo)
-💵 Capital: \$${TOTAL_CAPITAL} USDT
-
-🎯 Position Size:
-   Antes: ${CURRENT_POSITION}%
-   Ahora: ${NEW_POSITION}% (-${INCREMENT_STEP}%)
-
-⚠️ Reducción automática por win rate bajo
-📉 Monitorear de cerca..."
+        send_telegram "📉 CAPITAL DOWN - ${NEW_POSITION}% position
+WR: ${WINRATE}% | Capital: \$${TOTAL_CAPITAL} USDT
+${CURRENT_POSITION}% → ${NEW_POSITION}% (-${INCREMENT_STEP}%) ⚠️"
         ;;
     
     "WAIT_CAPITAL")
         log "⏳ Esperando más capital para aumentar..."
-        
-        # Notificar solo si es la primera vez
+
         if [ ! -f "$PROGRESS_FILE" ]; then
-            send_telegram "⏳ AUTO-INCREASE CAPITAL - ESPERANDO CAPITAL
-
-💵 Capital actual: \$${TOTAL_CAPITAL} USDT
-💵 Capital mínimo: \$${MIN_CAPITAL_FOR_INCREASE} USDT
-📊 Faltan: \$$(echo "$MIN_CAPITAL_FOR_INCREASE - $TOTAL_CAPITAL" | bc) USDT
-
-⏳ Cuando el capital sea suficiente y win rate sea excelente → Aumento automático"
+            send_telegram "⏳ ESPERANDO CAPITAL
+\$${TOTAL_CAPITAL} USDT (faltan \$$(echo "$MIN_CAPITAL_FOR_INCREASE - $TOTAL_CAPITAL" | bc) para \$${MIN_CAPITAL_FOR_INCREASE}) 🐕"
         fi
         ;;
     

@@ -325,33 +325,13 @@ main() {
 
     if [[ "${DRY_RUN}" != "1" ]]; then
       if [[ "${ACTION}" == INCREASE* ]]; then
-        send_telegram "📈 AUTO CAPITAL MANAGER - AUMENTO AUTOMÁTICO
-
-🤖 El bot analizó tu capital y decidió aumentar:
-
-💵 USDT Disponible: ${usdt_balance} USDT
-📊 Win Rate: ${current_win_rate}%
-
-🎯 Position Size:
-   Antes: ${CURRENT_POSITION}%
-   Ahora: ${NEW_POSITION}%
-
-✅ Aumento automático completado
-📈 Monitoreando win rate..."
+        send_telegram "📈 CAPITAL UP - ${NEW_POSITION}% position
+USDT: ${usdt_balance} | WR: ${current_win_rate}%
+${CURRENT_POSITION}% → ${NEW_POSITION}% ✅"
       else
-        send_telegram "📉 AUTO CAPITAL MANAGER - REDUCCIÓN AUTOMÁTICA
-
-🤖 El bot analizó tu capital y decidió reducir:
-
-💵 USDT Disponible: ${usdt_balance} USDT
-📊 Win Rate: ${current_win_rate}%
-
-🎯 Position Size:
-   Antes: ${CURRENT_POSITION}%
-   Ahora: ${NEW_POSITION}%
-
-✅ Reducción automática completada
-🛡️  Riesgo controlado"
+        send_telegram "📉 CAPITAL DOWN - ${NEW_POSITION}% position
+USDT: ${usdt_balance} | WR: ${current_win_rate}%
+${CURRENT_POSITION}% → ${NEW_POSITION}% 🛡️"
       fi
     fi
   else

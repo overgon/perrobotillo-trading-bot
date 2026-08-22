@@ -279,82 +279,45 @@ if [ -z "$WORST_COIN" ]; then
 fi
 
 # Encabezado
-MESSAGE="🐕 <b>REPORTE MENSUAL - ${MONTH_NAME_PREV^^} ${YEAR_MONTH_PREV}</b>
-📅 Generado: ${REPORT_DATE}
+MESSAGE="🐕 **REPORTE MENSUAL** ${MONTH_NAME_PREV^^} ${YEAR_MONTH_PREV}
+📅 ${REPORT_DATE}
 
-━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━
 
-<b>🏆 TOP PERFORMANCE DEL MES</b>
+🏆 MEJOR: ${BEST_COIN} | PnL: $${BEST_PNL} USDT
+🥉 PEOR: ${WORST_COIN} | PnL: $${WORST_PNL} USDT
 
-🥇 <b>Mejor Moneda:</b> ${BEST_COIN}
-   └─ P&L: <b>$${BEST_PNL} USDT</b>
-
-🥉 <b>Peor Moneda:</b> ${WORST_COIN}
-   └─ P&L: <b>$${WORST_PNL} USDT</b>
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-<b>📊 RENDIMIENTOS POR MONEDA</b>"
+📊 RENDIMIENTOS POR MONEDA"
 
 # Tabla de rendimientos
-MESSAGE="${MESSAGE}
-
-<b>Moneda</b> │ <b>P&L</b> │ <b>Trades</b> │ <b>Win Rate</b>
-───────────┼─────────┼──────────┼───────────"
-
 for coin in "${COINS[@]}"; do
     pnl=${MONTHLY_PNL[$coin]}
     trades=${TRADES_COUNT[$coin]}
     winrate=${WIN_RATES[$coin]}
-    
-    # Icono según P&L positivo/negativo
+
     if [ -n "$pnl" ] && [ "$pnl" != "0" ]; then
-        is_positive=$(awk "BEGIN {print ($pnl > 0) ? 1 : 0}")
-        is_negative=$(awk "BEGIN {print ($pnl < 0) ? 1 : 0}")
-        
-        if [ "$is_positive" -eq 1 ]; then
+        if awk "BEGIN {exit !($pnl > 0)}"; then
             icon="🟢"
-        elif [ "$is_negative" -eq 1 ]; then
-            icon="🔴"
         else
-            icon="⚪"
+            icon="🔴"
         fi
     else
         icon="⚪"
     fi
-    
+
     MESSAGE="${MESSAGE}
-${icon} <b>${coin}</b> │ \$${pnl} │ ${trades} │ ${winrate}"
+${icon} ${coin} | \\$${pnl} | ${trades} trades | ${winrate}"
 done
 
-# Resumen total
 MESSAGE="${MESSAGE}
 
-━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━
+📈 RESUMEN
+├─ PnL Total: \\$${TOTAL_PNL} USDT
+├─ Trades: ${TOTAL_TRADES} | W:${TOTAL_WINS} ✅ L:${TOTAL_LOSSES} ❌
+└─ Win Rate: ${TOTAL_WIN_RATE}
 
-<b>📈 RESUMEN DEL MES</b>
-
-├─ <b>P&L Total:</b> \$${TOTAL_PNL} USDT
-├─ <b>Total Trades:</b> ${TOTAL_TRADES}
-├─ <b>Wins:</b> ${TOTAL_WINS} ✅
-├─ <b>Losses:</b> ${TOTAL_LOSSES} ❌
-├─ <b>Win Rate Global:</b> ${TOTAL_WIN_RATE}"
-
-# Footer
-MESSAGE="${MESSAGE}
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-🤖 <b>ESTADO DEL SISTEMA</b>
-├─ API Binance: ✅ Conectada
-├─ Emergency Close: ✅ Protegido
-├─ Drawdown Alert: ✅ Activo
-└─ IP Monitor: ✅ Activo
-
-──────────────────────
-
-🐕 <i>Perrobotillo Trading Bot</i>
-<i>\"¡Nunca confiar, siempre verificar!\"</i>"
+🤖 Perrobotillo v2.1"
 
 # ════════════════════════════════════════════════════════
 # ENVIAR Y GUARDAR REPORTE
@@ -372,27 +335,27 @@ fi
 # Guardar copia del reporte en archivo
 REPORT_FILE="$CRYPTO_BOTS_DIR/monthly-report-${YEAR_MONTH_PREV}.md"
 cat > "$REPORT_FILE" << EOF
-# 🐕 Reporte Mensual de Trading - ${MONTH_NAME_PREV^^} ${YEAR_MONTH_PREV}
+# 🐕 Reporte Mensual - ${MONTH_NAME_PREV^^} ${YEAR_MONTH_PREV}
 
 _Generado: ${REPORT_DATE}_
 
 ---
 
-## 🏆 Top Performance del Mes
+## 🏆 Top Performance
 
 ### 🥇 Mejor Moneda
 - **Moneda:** ${BEST_COIN}
-- **P&L:** \$${BEST_PNL} USDT
+- **PnL:** \$${BEST_PNL} USDT
 
 ### 🥉 Peor Moneda
 - **Moneda:** ${WORST_COIN}
-- **P&L:** \$${WORST_PNL} USDT
+- **PnL:** \$${WORST_PNL} USDT
 
 ---
 
 ## 📊 Rendimientos por Moneda
 
-| Moneda | P&L (USDT) | Trades | Win Rate |
+| Moneda | PnL (USDT) | Trades | Win Rate |
 |--------|------------|--------|----------|
 EOF
 
@@ -407,9 +370,9 @@ cat >> "$REPORT_FILE" << EOF
 
 ---
 
-## 📈 Resumen del Mes
+## 📈 Resumen Mensual
 
-- **P&L Total:** \$${TOTAL_PNL} USDT
+- **PnL Total:** \$${TOTAL_PNL} USDT
 - **Total Trades:** ${TOTAL_TRADES}
 - **Wins:** ${TOTAL_WINS} ✅
 - **Losses:** ${TOTAL_LOSSES} ❌
@@ -426,8 +389,8 @@ cat >> "$REPORT_FILE" << EOF
 
 ---
 
-_Generado por Perrobotillo Trading Bot 🐕_  
-*"¡Nunca confiar, siempre verificar!"*
+_Generado por Perrobotillo Trading Bot 🐕_
+_"¡Nunca confiar, siempre verificar!"_
 EOF
 
 log "💾 Reporte guardado en: $REPORT_FILE"

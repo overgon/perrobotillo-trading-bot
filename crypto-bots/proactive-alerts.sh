@@ -292,19 +292,12 @@ if [ "$should_alert" = "true" ]; then
     
     log "   🚨 ALERTA: $consecutive_losses pérdidas consecutivas (-\$${total_loss})"
     
-    send_telegram "🚨 ALERTA TEMPRANA - RACHA DE PÉRDIDAS
-
-⚠️ Se detectaron *$consecutive_losses pérdidas consecutivas*
-
-💰 Pérdida acumulada: \$${total_loss} USDT
-🪙 Monedas afectadas: $coins
-
-*Recomendaciones:*
-• Considerar pausar trading temporalmente
-• Revisar si hay patrón común en las pérdidas
-• Esperar próxima señal de alta confianza
-
-*Nunca confiar, siempre verificar!* 🐕"
+    send_telegram "🚨 ALERTA - RACHA DE PÉRDIDAS
+${consecutive_losses} pérdidas consecutivas | PnL: -\\$${total_loss} USDT
+🪙 ${coins}
+• Pausar trading temporalmente
+• Revisar patrones comunes en pérdidas
+• Esperar señal de alta confianza 🐕"
     
     # Actualizar estado
     alerts_state=$(echo "$alerts_state" | jq ".last_alert.consecutive_losses = \"$alert_key\"")
@@ -329,20 +322,11 @@ if [ "$should_alert" = "true" ]; then
     
     log "   🚨 ALERTA: Win Rate ${win_rate}% (<${MIN_WINRATE_THRESHOLD}%)"
     
-    send_telegram "🚨 ALERTA TEMPRANA - WIN RATE BAJO
-
-⚠️ Win Rate en últimos 10 trades: *${win_rate}%*
-
-📊 Stats:
-• Pérdidas: $losses_count/10
-• PnL total: \$${total_pnl} USDT
-
-*Recomendaciones:*
-• El modelo puede estar desactualizado
-• Considerar retrain manual si WR < 40%
-• Monitorear próximas 24h de cerca
-
-*Riesgo:* Continuando con WR bajo puede erosionar ganancias. 🐕"
+    send_telegram "🚨 ALERTA - WIN RATE BAJO
+WR: ${win_rate}% (<${MIN_WINRATE_THRESHOLD}%) | PnL: \\$${total_pnl} USDT
+${losses_count}/10 pérdidas
+• Modelo desactualizado? Retrain manual si WR < 40%
+• Monitorear 24h 🐕"
     
     # Actualizar estado
     alerts_state=$(echo "$alerts_state" | jq ".last_alert.low_winrate_time = $alert_time")
@@ -368,22 +352,9 @@ if [ "$should_alert" = "true" ]; then
     
     log "   🚨 ALERTA: Pérdida diaria \$${daily_loss} USDT (umbral: ${DAILY_LOSS_ALERT}%)"
     
-    send_telegram "🚨 ALERTA TEMPRANA - PÉRDIDA DIARIA
-
-⚠️ Pérdida acumulada hoy: *\$${daily_loss} USDT*
-
-📊 Trades perdedores: $trades_count
-🪙 Monedas: $coins
-
-*Límite diario:* 3% (~\$15 USDT con capital actual)
-*Faltan para límite:* ~\$$(awk "BEGIN {printf \"%.2f\", 15 - $daily_loss}") USDT
-
-*Acciones recomendadas:*
-• Reducir position size 50%
-• Pausar monedas con peor performance
-• Considerar emergency close si se acerca a 2.5%
-
-*¡Protege el capital!* 🐕"
+    send_telegram "🚨 ALERTA - PÉRDIDA DIARIA
+\\$${daily_loss} USDT acumulados hoy | \\$$(awk "BEGIN {printf \"%.2f\", 15 - $daily_loss}") faltan para límite 3%
+${trades_count} trades perdedores | ${coins} 🐕"
     
     # Actualizar estado solo si no habíamos notificado hoy
     if [ "$notified" = "false" ]; then

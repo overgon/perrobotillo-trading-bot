@@ -156,12 +156,15 @@ restart_grid_bots() {
     if ps -p $pid > /dev/null 2>&1; then
         log "INFO" "✅ Grid bots reiniciados (PID: $pid)"
         save_state "ok" "restart_grid_bots" "PID: $pid"
-        send_telegram "✅ <b>Grid Bots Reiniciados</b>\n\nPID: $pid\nSistema recuperado ✅\n\n🐕 Watchdog"
+        send_telegram "✅ GRID BOTS REINICIADOS
+PID: $pid | Sistema recuperado 🐕"
         return 0
     else
         log "ERROR" "❌ Falló reinicio de grid bots"
         save_state "error" "restart_grid_bots" "Process died"
-        send_telegram "🚨 <b>ALERTA CRÍTICA</b>\n\n❌ Falló reinicio de grid bots\nPID: $pid no sobrevivió\n\nRequiere atención manual inmediata 🆘\n\n🐕 Watchdog"
+        send_telegram "🚨 ALERTA CRÍTICA
+Grid bots restart falló (PID $pid no sobrevivió)
+Atención manual inmediata 🆘 🐕"
         return 1
     fi
 }
@@ -182,13 +185,15 @@ rebalance_portfolio() {
         # Extraer resumen para notificación
         local trades_done=$(echo "$result" | grep -oP '\d+ orders executed' | grep -oP '\d+' || echo "0")
         if [ "$trades_done" -gt 0 ]; then
-            send_telegram "📊 <b>Rebalanceo Completado</b>\n\nTrades ejecutados: $trades_done\nPortfolio optimizado ✅\n\n🐕 Perrobotillo Watchdog"
+        send_telegram "📊 REBALANCEO COMPLETADO
+        ${trades_done} trades ejecutados | Portfolio optimizado 🐕"
         fi
         return 0
     else
         log "ERROR" "❌ Falló rebalanceo: $result"
         save_state "error" "rebalance_portfolio" "$result"
-        send_telegram "⚠️ <b>Rebalanceo Fallido</b>\n\nError: $(echo "$result" | tail -3)\n\nRequiere revisión 🔧"
+        send_telegram "⚠️ REBALANCEO FALLIDO
+$(echo "$result" | tail -3) 🔧"
         return 1
     fi
 }

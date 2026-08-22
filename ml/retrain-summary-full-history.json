@@ -1,0 +1,48 @@
+{
+  "trained_at": "2026-08-19T14:34:00.864763",
+  "total_trades": 333,
+  "total_profit_trades": 237,
+  "win_rate_overall": 0.7117117117117117,
+  "per_coin": {
+    "BTC": {
+      "trades": 71,
+      "accuracy": 0.9333333333333333,
+      "f1_macro": 0.88
+    },
+    "ETH": {
+      "trades": 29,
+      "accuracy": 1.0,
+      "f1_macro": 1.0
+    },
+    "BNB": {
+      "trades": 46,
+      "accuracy": 1.0,
+      "f1_macro": 1.0
+    },
+    "SOL": {
+      "trades": 35,
+      "accuracy": 0.8571428571428571,
+      "f1_macro": 0.8444444444444444
+    },
+    "LINK": {
+      "trades": 52,
+      "accuracy": 1.0,
+      "f1_macro": 1.0
+    },
+    "XRP": {
+      "trades": 49,
+      "accuracy": 0.9,
+      "f1_macro": 0.898989898989899
+    },
+    "AVAX": {
+      "trades": 51,
+      "accuracy": 1.0,
+      "f1_macro": 1.0
+    }
+  },
+  "features": [
+    "entryPrice",
+    "move_pct"
+  ],
+  "window_pips": 500
+}

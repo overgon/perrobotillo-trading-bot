@@ -98,20 +98,11 @@ if [ "$status" = "MANTENIMIENTO_ENCONTRADO" ]; then
     if [ "$notified_id" != "$id" ]; then
         log "🚨 Mantenimiento detectado: $title"
         
-        send_telegram "🔧 BINANCE MAINTENANCE DETECTADO
-
-⚠️ *Anuncio oficial de Binance*
-
-📝 Título: $title
-📅 Fecha: $(date -d "@$((date / 1000))" '+%Y-%m-%d %H:%M' 2>/dev/null || echo "$date")
-
-*Acciones recomendadas:*
+        send_telegram "🔧 BINANCE MAINTENANCE
+⚠️ *Anuncio oficial: $title*
+ID: $id - $(date -d "@$((date / 1000))" '+%Y-%m-%d %H:%M' 2>/dev/null || echo "$date")
 • Monitorear trades activos
-• Considerar pausar nuevas operaciones
-• Estar atento a trading halts
-
-ID: $id
-*Nunca confiar, siempre verificar!* 🐕"
+• Considerar pausar nuevas operaciones 🐕"
         
         # Guardar estado
         echo "{\"last_notified_id\": \"$id\", \"notified_at\": \"$(date -Iseconds)\", \"title\": \"$title\"}" > "$STATE_FILE"

@@ -141,41 +141,22 @@ if [ "$logs_size_mb" -gt "$MAX_LOGS_MB" ]; then
     log ""
     log "🚨 ALERTA: Logs > ${MAX_LOGS_MB}MB (actual: ${logs_size_mb}MB)"
     
-    send_telegram "<b>🚨 ALERTA: Logs Excedidos</b>
-
-📊 <b>Tamaño actual:</b> ${logs_size_mb}MB
-⚠️  <b>Límite:</b> ${MAX_LOGS_MB}MB
-
-<b>Acciones tomadas:</b>
-• Eliminados logs > 30 días
-• Eliminados .gz > 7 días
-• Trade logs limitados a 7 días
-
-<b>Recomendación:</b>
-Revisar logs más grandes:
-<code>du -sh /home/overgon/.openclaw/logs/* | sort -hr</code>
-
-🐕 Perrobotillo Trading Bot"
+    send_telegram "🚨 LOGS EXCEDIDOS - ${logs_size_mb}MB > ${MAX_LOGS_MB}MB límite
+• Logs >30d eliminados
+• .gz >7d eliminados
+• Trade logs limitados a 7d
+Revisar: du -sh ~/.openclaw/logs/* | sort -hr 🐕"
 fi
 
 if [ "$disk_usage" -gt "$MAX_DISK_PERCENT" ]; then
     log ""
     log "🚨 ALERTA: Disco > ${MAX_DISK_PERCENT}% (actual: ${disk_usage}%)"
-    
-    send_telegram "<b>🚨 ALERTA: Disco Lleno</b>
 
-💾 <b>Uso actual:</b> ${disk_usage}%
-⚠️  <b>Límite:</b> ${MAX_DISK_PERCENT}%
-
-<b>Acciones tomadas:</b>
+    send_telegram "🚨 DISCO LLENO - ${disk_usage}% uso
+Límite: ${MAX_DISK_PERCENT}%
 • Housekeeping ejecutado
 • Logs antiguos eliminados
-
-<b>Acción requerida:</b>
-Revisar archivos grandes:
-<code>du -ah /home | sort -rh | head -20</code>
-
-🐕 Perrobotillo Trading Bot"
+Revisar: du -ah /home | sort -rh | head -20 🐕"
 fi
 
 # 9. Resumen final

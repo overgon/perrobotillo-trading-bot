@@ -227,18 +227,8 @@ check_and_resume_coin() {
         rm -f "$pause_flag"
         
         # Notificar
-        send_telegram "✅ TRADING REANUDADO - $coin
-|
-📊 Performance: $perf_msg
-📈 Mercado: $market_msg
-|
-🚀 Bot reactivado automáticamente - Monitoreando TPs...
-
-*Criterios:*
-• Win Rate últimos 10 trades ≥ 50% O 5+ wins consecutivos
-• BTC en tendencia alcista (precio > EMA12 > EMA50) y volumen aceptable
-
-¡Nunca confiar, siempre verificar! 🐕"
+        send_telegram "✅ TRADING REANUDADO ${coin}
+Perf: ${perf_msg} | Mercado: ${market_msg} 🚀"
         
         return 0
     else

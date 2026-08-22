@@ -98,19 +98,24 @@
     <section class="trades-section">
         <h2 class="section-title">📜 Trades Recientes</h2>
         <div class="trades-container">
-            <table class="trades-table">
+            <table class="trades-table" id="tradesTable">
                 <thead>
                     <tr>
-                        <th>#</th>
+                        <th>ID</th>
                         <th>Coin</th>
+                        <th>Type</th>
+                        <th>Entry</th>
+                        <th>Exit</th>
                         <th>P&L</th>
                         <th>Status</th>
+                        <th>Date</th>
                     </tr>
                 </thead>
                 <tbody id="tradesTableBody">
-                    <!-- Se llena con JS -->
+                    <tr><td colspan="8" class="loading-row">Cargando trades...</td></tr>
                 </tbody>
             </table>
+            <button class="view-more-btn" id="viewMoreBtn" onclick="toggleAllTrades()">📋 Ver más trades</button>
         </div>
     </section>
 

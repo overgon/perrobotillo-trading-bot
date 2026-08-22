@@ -307,10 +307,9 @@ def reconcile():
     # Enviar alerta Telegram si hubo zombies
     zombie_count = sum(1 for f in findings if f["type"] == "ZOMBIE_SLOTS")
     if zombie_count > 0:
-        alert_msg = f"🚨 *RECONCILIACIÓN - Zombies Detectados*\n\n"
-        alert_msg += f"Se encontraron {zombie_count} monedas con slots zombie.\n"
-        alert_msg += f"Auto-fix aplicado: {len(fixes_applied)} slots reseteados a READY.\n\n"
-        alert_msg += f"_Revisá el log para más detalles._"
+        alert_msg = f"🚨 RECONCILIACIÓN - Zombies Detectados\n"
+        alert_msg += f"{zombie_count} monedas con slots zombie | Auto-fix: {len(fixes_applied)} reseteados a READY\n"
+        alert_msg += f"Revisá el log para más detalles 🐕"
         
         print(f"\n📤 Enviando alerta Telegram...")
         send_telegram_alert(alert_msg)

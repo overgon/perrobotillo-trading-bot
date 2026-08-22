@@ -1,69 +1,72 @@
 {
-  "timestamp": "2026-08-18T14:00:37.211436",
+  "timestamp": "2026-08-22T12:00:44.375378",
   "model_accuracy": 0.9970238095238095,
   "predictions": {
     "BTC": {
       "market_mode": "LATERAL",
-      "confidence": 1.0,
+      "confidence": 0.991,
       "probabilities": {
-        "BEAR": 0.0,
+        "BEAR": 0.009,
         "BULL": 0.0,
-        "LATERAL": 1.0
+        "LATERAL": 0.991
       }
     },
     "ETH": {
       "market_mode": "LATERAL",
-      "confidence": 1.0,
+      "confidence": 0.963,
       "probabilities": {
-        "BEAR": 0.0,
+        "BEAR": 0.037,
         "BULL": 0.0,
-        "LATERAL": 1.0
+        "LATERAL": 0.963
       }
     },
     "BNB": {
       "market_mode": "LATERAL",
-      "confidence": 1.0,
+      "confidence": 0.982,
       "probabilities": {
-        "BEAR": 0.0,
+        "BEAR": 0.018,
         "BULL": 0.0,
-        "LATERAL": 1.0
+        "LATERAL": 0.982
       }
     },
     "SOL": {
       "market_mode": "LATERAL",
-      "confidence": 0.944,
+      "confidence": 0.98,
       "probabilities": {
-        "BEAR": 0.0,
-        "BULL": 0.056,
-        "LATERAL": 0.944
+        "BEAR": 0.02,
+        "BULL": 0.0,
+        "LATERAL": 0.98
       }
     },
     "LINK": {
       "market_mode": "LATERAL",
-      "confidence": 1.0,
+      "confidence": 0.963,
       "probabilities": {
-        "BEAR": 0.0,
+        "BEAR": 0.037,
         "BULL": 0.0,
-        "LATERAL": 1.0
+        "LATERAL": 0.963
       }
     },
     "XRP": {
       "market_mode": "LATERAL",
-      "confidence": 1.0,
+      "confidence": 0.745,
       "probabilities": {
-        "BEAR": 0.0,
+        "BEAR": 0.255,
         "BULL": 0.0,
-        "LATERAL": 1.0
+        "LATERAL": 0.745
       }
     },
     "AVAX": {
       "market_mode": "LATERAL",
-      "confidence": 1.0,
+      "confidence": 0.944,
       "probabilities": {
-        "BEAR": 0.0,
+        "BEAR": 0.056,
         "BULL": 0.0,
-        "LATERAL": 1.0
+        "LATERAL": 0.944
       }
     }
-  }
+  },
+  "recommended_mode": "LATERAL",
+  "discrepancy": true,
+  "reason": "ML LATERAL vs Auto-Adjust BULL"
 }

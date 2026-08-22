@@ -2,8 +2,9 @@
 # ════════════════════════════════════════════════════════
 # 🐕 PERROBOTILLO - REPORTE DIARIO DE TRADING
 # ════════════════════════════════════════════════════════
-# Ejecutar: 9:00 AM diario
-# Envía: Portfolio total, P&L 24h, trades del día, trades activos, status sistema
+# Ejecutar: 9:00 AM diario (cron)
+# Envía: Portfolio total, PnL 24h, trades del día, trades activos, status sistema
+# Formato: compacto, sin comillas extra, PnL (no P&L)
 # ════════════════════════════════════════════════════════
 
 import json
@@ -19,6 +20,7 @@ SECRETS_DIR = Path.home() / ".openclaw" / "secrets"
 
 COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
 
+
 def load_env_file(filepath):
     """Carga variables de entorno desde archivo .env"""
     env_vars = {}
@@ -31,13 +33,14 @@ def load_env_file(filepath):
                     env_vars[key.strip()] = value.strip()
     return env_vars
 
+
 def get_telegram_config():
     """Obtiene configuración de Telegram"""
     try:
         config_file = Path.home() / ".openclaw" / "openclaw.json"
-        chat_id = "7543955537"  # Default from USER.md
+        chat_id = "7543955537"
         token = ""
-        
+
         if config_file.exists():
             with open(config_file, 'r') as f:
                 config = json.load(f)
@@ -46,29 +49,30 @@ def get_telegram_config():
                 chat_ids = telegram.get('chatIds', [])
                 if chat_ids:
                     chat_id = chat_ids[0]
-        
+
         return token, chat_id
     except Exception as e:
         print(f"Error getting Telegram config: {e}", file=sys.stderr)
         return "", "7543955537"
 
+
 def send_telegram(message):
     """Envía mensaje a Telegram"""
     token, chat_id = get_telegram_config()
-    
+
     if not token:
         print("❌ No Telegram token found", file=sys.stderr)
         return False
-    
+
     try:
         import requests
         url = f"https://api.telegram.org/bot{token}/sendMessage"
         data = {
             'chat_id': chat_id,
             'text': message,
-            'parse_mode': 'HTML'
+            'parse_mode': 'Markdown'
         }
-        
+
         response = requests.post(url, json=data, timeout=15)
         if response.status_code == 200:
             print("✅ Reporte enviado a Telegram")
@@ -80,10 +84,10 @@ def send_telegram(message):
         print(f"❌ Error enviando Telegram: {e}", file=sys.stderr)
         return False
 
+
 def get_portfolio_total():
-    """Obtiene portfolio total en USDT y MXN desde dashboard + cache local"""
+    """Obtiene portfolio total en USDT y MXN"""
     try:
-        # 1) Fuente principal: dashboard local, ya incluye toda la cartera
         import requests as _requests
         try:
             r = _requests.get("http://127.0.0.1:8080/api/portfolio", timeout=10)
@@ -96,7 +100,6 @@ def get_portfolio_total():
                     return round(total_usdt, 2), round(total_mxn, 2)
         except Exception as e:
             print(f"⚠️ Dashboard portfolio unavailable: {e}", file=sys.stderr)
-        # 2) Fallback: cache local si existe
         for p in [CRYPTO_BOTS_DIR / "portfolio-snapshot.json", CRYPTO_BOTS_DIR.parent / "portfolio_cache.json"]:
             try:
                 if p.exists():
@@ -107,19 +110,14 @@ def get_portfolio_total():
                         return round(total_usdt, 2), round(total_usdt * mxn_rate, 2)
             except Exception:
                 pass
-        # 3) Si todo falla, no devolver 0; dejar valor actual para forzar inspección
         return 0.0, 0.0
     except Exception as e:
         print(f"Error getting portfolio: {e}", file=sys.stderr)
         return 0.0, 0.0
 
+
 def get_pnl_24h_by_coin():
-    """Obtiene P&L 24h por moneda desde trade-history.json.
-    
-    NOTA: solo incluye trades CERRADOS en las últimas 24h.
-    El P&L no realizado de slots activos NO se suma aquí para evitar
-    confundir el reporte diario; los activos se muestran por separado.
-    """
+    """Obtiene PnL 24h por moneda desde trade-history.json"""
     pnl_data = {coin: {'pnl_24h': 0, 'trades': 0, 'win': 0, 'loss': 0} for coin in COINS}
     try:
         history_file = CRYPTO_BOTS_DIR / "trade-history.json"
@@ -152,18 +150,18 @@ def get_pnl_24h_by_coin():
             pnl_data[coin]["pnl_24h"] = round(pnl_data[coin]["pnl_24h"], 4)
         return pnl_data
     except Exception as e:
-        print(f"Error getting P&L: {e}", file=sys.stderr)
+        print(f"Error getting PnL: {e}", file=sys.stderr)
         return {coin: {'pnl_24h': 0, 'trades': 0, 'win': 0, 'loss': 0} for coin in COINS}
 
+
 def get_yesterday_trades():
-    """Obtiene trades del día anterior desde trade-history.json y logs"""
+    """Obtiene trades del día anterior desde trade-history.json"""
     trades = []
-    
+
     try:
         yesterday = datetime.now() - timedelta(days=1)
         yesterday_str = yesterday.strftime('%Y-%m-%d')
-        
-        # Fuente principal: trade-history.json
+
         history_file = CRYPTO_BOTS_DIR / "trade-history.json"
         if history_file.exists():
             with open(history_file) as f:
@@ -183,8 +181,7 @@ def get_yesterday_trades():
                         'coin': t.get('symbol'),
                         'line': f"{t.get('closeTime')} {t.get('symbol')} slot{t.get('slotId')} {t.get('closeType')} PnL={t.get('pnlUSDT')}"
                     })
-        
-        # Fallback: logs de cron en ~/.openclaw/logs/
+
         if not trades:
             for coin in COINS:
                 log_file = Path.home() / ".openclaw" / "logs" / f"cron-{coin}.log"
@@ -197,14 +194,15 @@ def get_yesterday_trades():
                                         'coin': coin,
                                         'line': line.strip()
                                     })
-        
+
         return trades
     except Exception as e:
         print(f"Error getting trades: {e}", file=sys.stderr)
         return []
 
+
 def get_active_trades():
-    """Obtiene trades activos con status leyendo los archivos de estado por moneda"""
+    """Obtiene trades activos con status leyendo state files"""
     active = []
     try:
         for coin in COINS:
@@ -212,7 +210,6 @@ def get_active_trades():
             if not state_file.exists():
                 continue
             state = json.loads(state_file.read_text())
-            active_slots = []
             for slot in state.get("slots", []):
                 if slot.get("status") == "ACTIVE":
                     entry = float(slot.get("entryPrice", 0) or 0)
@@ -228,7 +225,7 @@ def get_active_trades():
                     except Exception:
                         current = entry
                     pnl = quantity * (current - avg_cost)
-                    active_slots.append({
+                    active.append({
                         "coin": coin,
                         "slotId": slot.get("slotId"),
                         "entry": entry,
@@ -237,11 +234,11 @@ def get_active_trades():
                         "orderId": slot.get("orderId"),
                         "pnl": pnl,
                     })
-            active.extend(active_slots)
     except Exception as e:
         print(f"Error getting active trades: {e}", file=sys.stderr)
         return []
     return active
+
 
 def get_system_status():
     """Verifica estado del sistema"""
@@ -251,9 +248,8 @@ def get_system_status():
         'alerts': [],
         'orders_active': 0
     }
-    
+
     try:
-        # Conteo real de trades activos desde state files
         active_count = 0
         for coin in COINS:
             state_file = CRYPTO_BOTS_DIR / f"{coin}-trade-state.json"
@@ -262,8 +258,7 @@ def get_system_status():
             state = json.loads(state_file.read_text())
             active_count += sum(1 for s in state.get("slots", []) if s.get("status") == "ACTIVE")
         status['orders_active'] = active_count
-        
-        # Verificar IP whitelist
+
         ip_log = LOGS_DIR / "ip-whitelist.log"
         if ip_log.exists():
             with open(ip_log, 'r') as f:
@@ -271,8 +266,7 @@ def get_system_status():
                 if any('ERROR' in line or 'FAIL' in line for line in lines):
                     status['ip'] = '⚠️ Revisar'
                     status['alerts'].append('IP whitelist requiere atención')
-        
-        # Verificar API
+
         api_log = LOGS_DIR / "binance-api.log"
         if api_log.exists():
             with open(api_log, 'r') as f:
@@ -281,15 +275,16 @@ def get_system_status():
                 if error_count > 5:
                     status['api'] = '⚠️ Rate limit'
                     status['alerts'].append(f'{error_count} errores API recientes')
-        
+
         return status
     except Exception as e:
         print(f"Error checking system: {e}", file=sys.stderr)
         status['alerts'].append(f'Error verificando sistema: {e}')
         return status
 
+
 def get_win_rate(days=1):
-    """Calcula win rate de los últimos N días desde trade-history.json"""
+    """Calcula win rate de los últimos N días"""
     history_file = CRYPTO_BOTS_DIR / 'trade-history.json'
     if not history_file.exists():
         return 0, 0, 0
@@ -314,12 +309,12 @@ def get_win_rate(days=1):
     except Exception:
         return 0, 0, 0
 
+
 def generate_report():
-    """Genera el reporte diario completo"""
+    """Genera el reporte diario compacto v2"""
     now = datetime.now()
     date_str = now.strftime('%A %Y-%m-%d')
-    
-    # Obtener datos
+
     total_usdt, total_mxn = get_portfolio_total()
     try:
         import concurrent.futures
@@ -331,46 +326,9 @@ def generate_report():
     yesterday_trades = get_yesterday_trades()
     active_trades = get_active_trades()
     system = get_system_status()
-    
-    # Calcular totales
+
     total_pnl = sum(d['pnl_24h'] for d in pnl_data.values())
-    total_trades = sum(d['trades'] for d in pnl_data.values())
-    if yesterday_trades:
-        wins = sum(1 for t in yesterday_trades if 'TP' in t['line'])
-        losses = sum(1 for t in yesterday_trades if 'SL' in t['line'])
-        win_rate = (wins / max(len(yesterday_trades), 1)) * 100
-    else:
-        wins = 0
-        losses = 0
-        win_rate = 0.0
-    
-    # Construir mensaje
-    report = []
-    report.append("🐕 <b>REPORTE DIARIO DE TRADING</b> 🐕")
-    report.append(f"📅 {date_str} - 9:00 AM")
-    report.append("")
-    report.append("━━━━━━━━━━━━━━━━━━━━━━")
-    report.append("")
-    
-    # Portfolio
-    report.append("💰 <b>PORTFOLIO TOTAL</b>")
-    report.append(f"   USDT: <b>${total_usdt:,.2f}</b>")
-    report.append(f"   MXN: <b>${total_mxn:,.0f}</b>")
-    report.append("")
-    
-    # P&L 24h por moneda
-    report.append("📊 <b>P&L 24H POR MONEDA</b>")
-    for coin in COINS:
-        data = pnl_data.get(coin, {})
-        pnl = data.get('pnl_24h', 0)
-        emoji = "🟢" if pnl >= 0 else "🔴"
-        report.append(f"   {emoji} {coin}: ${pnl:+,.2f}")
-    report.append(f"   ─────────────")
-    report.append(f"   Total: <b>${total_pnl:+,.2f}</b>")
-    report.append("")
-    
-    # Trades ayer
-    report.append("📈 <b>TRADES DE AYER</b>")
+
     if yesterday_trades:
         wins = sum(1 for t in yesterday_trades if 'TP' in t.get('line', ''))
         losses = sum(1 for t in yesterday_trades if 'SL' in t.get('line', ''))
@@ -383,72 +341,66 @@ def generate_report():
                 pnl_val = 0.0
             pnl_sum += pnl_val
     else:
-        wins = 0
-        losses = 0
-        win_rate = 0.0
-        pnl_sum = 0.0
-    report.append(f"   Total: {len(yesterday_trades)} trades")
-    report.append(f"   Wins: {wins} | Losses: {losses}")
-    report.append(f"   Win Rate: <b>{win_rate:.1f}%</b>")
-    report.append(f"   P&L: <b>${pnl_sum:+,.2f}</b>")
-    report.append("")
-    
-    # Trades activos
-    report.append("🎯 <b>TRADES ACTIVOS</b>")
+        wins, losses, win_rate, pnl_sum = 0, 0, 0.0, 0.0
+
+    lines = []
+    lines.append("🐕 **REPORTE DIARIO** - 📅 %s" % date_str)
+    lines.append("━━━━━━━━━━━━━━━━━━━━━━")
+    lines.append("")
+    lines.append("💰 **PORTAFOLIO**")
+    lines.append(f"USDT: ${total_usdt:,.2f} | MXN: ${total_mxn:,.0f}")
+    lines.append(f"PnL 24h: ${total_pnl:+,.2f} ({win_rate:.0f}% WR)")
+    lines.append("")
+    lines.append("📊 **PnL 24H POR MONEDA**")
+    for coin in COINS:
+        data = pnl_data.get(coin, {})
+        pnl = data.get('pnl_24h', 0)
+        emoji = "🟢" if pnl >= 0 else "🔴"
+        lines.append(f"{emoji} {coin}: ${pnl:+,.2f}")
+    lines.append("")
+    lines.append("📈 **AYER**")
+    lines.append(f"Trades: {len(yesterday_trades)} | W:{wins} L:{losses} | PnL: ${pnl_sum:+,.2f}")
+    lines.append("")
     if active_trades:
+        lines.append("🎯 **ACTIVOS**")
         for trade in active_trades:
             coin = trade.get('coin', '?')
             entry = trade.get('entry', 0)
             current = trade.get('current', 0)
             pnl = trade.get('pnl', 0)
             emoji = "🟢" if pnl >= 0 else "🔴"
-            report.append(f"   {emoji} {coin}: Entry ${entry:.2f} → ${current:.2f} ({pnl:+.2f})")
-    else:
-        report.append("   Sin trades activos")
-    report.append("")
-    
-    # Sistema
-    report.append("🛡️ <b>ESTADO DEL SISTEMA</b>")
-    report.append(f"   API Binance: {system['api']}")
-    report.append(f"   IP Whitelist: {system['ip']}")
-    report.append(f"   Órdenes Activas: {system['orders_active']}")
-    
+            lines.append(f"{emoji} {coin}: ${entry:.2f} → ${current:.2f} ({pnl:+.2f})")
+        lines.append("")
+    lines.append("🛡️ **SISTEMA**")
+    lines.append(f"API: {system['api']} | IP: {system['ip']} | Órdenes: {system['orders_active']}")
     if system['alerts']:
-        report.append("")
-        report.append("⚠️ <b>ALERTAS:</b>")
         for alert in system['alerts']:
-            report.append(f"   • {alert}")
-    
-    report.append("")
-    report.append("━━━━━━━━━━━━━━━━━━━━━━")
-    report.append("🤖 <i>Perrobotillo Trading Bot v2.1</i>")
-    
-    return "\n".join(report)
+            lines.append(f"⚠️ {alert}")
+    lines.append("━━━━━━━━━━━━━━━━━━━━━━")
+    lines.append("🤖 Perrobotillo v2.1")
+
+    return "\n".join(lines)
+
 
 def main():
     print(f"🐕 Generando reporte diario - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    
+
     report = generate_report()
-    
-    # Imprimir en consola
     print("\n" + report + "\n")
-    
-    # Enviar a Telegram
     send_telegram(report)
-    
-    # Guardar copia local
+
     today = datetime.now().strftime('%Y-%m-%d')
     report_file = CRYPTO_BOTS_DIR / f"daily-report-{today}.md"
-    
+
     try:
         with open(report_file, 'w') as f:
-            # Convertir HTML a markdown simple para archivo
             md_report = report.replace('<b>', '**').replace('</b>', '**')
             md_report = md_report.replace('<i>', '_').replace('</i>', '_')
             f.write(md_report)
         print(f"✅ Reporte guardado: {report_file}")
     except Exception as e:
         print(f"⚠️ No se pudo guardar el reporte: {e}", file=sys.stderr)
+
 
 if __name__ == "__main__":
     main()
