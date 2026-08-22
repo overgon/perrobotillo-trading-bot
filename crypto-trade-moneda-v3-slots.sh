@@ -963,20 +963,15 @@ execute_long() {
         [ -n "$fee_buy" ] && _fee_display="$fee_buy"
 
         local open_msg="🟢 LONG V3 SLOT $slot_id - $SYMBOL [$CURRENT_MODE]
-
 📦 Slot: $slot_id / $MAX_SLOTS
 💰 Entry: $fill_price | Qty: $quantity BTC
 💸 Costo: $usdt_spent | Fee: $_fee_display
-
 🎯 TPs:
    TP1: $tp1 (+${TP1_PERCENT}%)
    TP2: $tp2 (+${TP2_PERCENT}%)
    TP3: $tp3 (+${TP3_PERCENT}%)
-
 🛡️ SL: $sl (-${STOP_LOSS_PERCENT}%)
-
 $ml_section
-
 🚀 Trade activo - Monitoreando TPs... 🕵️"
         
         notify "OPEN|LONG|$SYMBOL|$slot_id" "$open_msg"
