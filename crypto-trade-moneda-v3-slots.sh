@@ -1540,7 +1540,6 @@ El slot permanece activo."
                 fi
                 
                 local tp3_msg="🎯 TP3 - $SYMBOL [Cierre total]
-
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${exit_price}
 Vendido: $sell_qty_fmt
