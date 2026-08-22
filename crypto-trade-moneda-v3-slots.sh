@@ -1233,12 +1233,10 @@ Target: ${SCALP_TARGET_PERCENT}%
                     update_slot_field "$slot_id" "timestamp" "null"
 
                     notify "TP1_HIT|$SYMBOL|$slot_id" "✅ TP1 HIT - $SYMBOL [35%] 🎯
-
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${current_price}
 Qty: $sell_qty_fmt (35%)
 PnL: \$${pnl}
-
 🔄 MODO RECICLAJE ACTIVADO
 El slot buscará nueva entrada 🚀"
                 else
@@ -1256,10 +1254,8 @@ Quedan 65% para TP2/TP3 🎯"
                 local error=$(echo "$sell_result" | jq -r '.msg // "Unknown error"')
                 log "  ❌ TP1 venta falló: $error"
                 notify "TP1_FAIL|$SYMBOL|$slot_id" "⚠️ TP1 FALLÓ - $SYMBOL
-
 Slot: $slot_id
 Error: $error
-
 El slot sigue activo y reintentará en próximos ciclos."
             fi
         fi
