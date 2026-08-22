@@ -57,18 +57,14 @@ notify_order_opened() {
     local mode="${15}"
     
     send_telegram "🟢 ORDEN ABIERTA - $symbol [$mode]
-
 Slot: $slot_id / $max_slots
 Entry: \$${fill_price} | Qty: $quantity
 Costo: \$${usdt_spent} | Fee: -\$${fee_buy}
-
 Objetivos:
 TP1: \$${tp1} (+${tp1_pct}%)
 TP2: \$${tp2} (+${tp2_pct}%)
 TP3: \$${tp3} (+${tp3_pct}%)
-
 Stop Loss: \$${sl}
-
 🚀 Trade activo - Monitoreando TPs..."
 }
 
