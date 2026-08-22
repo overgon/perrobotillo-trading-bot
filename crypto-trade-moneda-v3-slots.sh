@@ -537,7 +537,7 @@ update_slot_field() {
 # ============================================
 
 # ============================================
-# 💰 ACTUALIZAR P&L DESPUÉS DE CIERRE
+# 💰 ACTUALIZAR PnL DESPUÉS DE CIERRE
 # ============================================
 
 update_pnl_after_close() {
@@ -550,7 +550,7 @@ update_pnl_after_close() {
     
     init_daily_pnl
     
-    # Calcular P&L
+    # Calcular PnL
     local pnl=$(awk -v e="$entry_price" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" \
         'BEGIN { 
             if (e > 0) {
@@ -564,7 +564,7 @@ update_pnl_after_close() {
     # LOG TO HISTORY (NEW)
     log_trade_to_history "$slot_id" "$close_type" "$entry_price" "$exit_price" "$quantity" "$pnl"
     
-    # Leer P&L actual
+    # Leer PnL actual
     local current_pnl=$(jq -r '.netProfitUSDT // 0' "$DAILY_PNL_FILE")
     local current_trades=$(jq -r '.trades // 0' "$DAILY_PNL_FILE")
     local current_wins=$(jq -r '.wins // 0' "$DAILY_PNL_FILE")
@@ -610,7 +610,7 @@ update_pnl_after_close() {
 }
 EOF
     
-    log "  📊 P&L actualizado: Trades=$new_trades, Wins=$new_wins, Net=\$$new_pnl"
+    log "  📊 PnL actualizado: Trades=$new_trades, Wins=$new_wins, Net=\$$new_pnl"
 }
 
 
@@ -1032,7 +1032,7 @@ check_slot_tp_sl() {
                     log "  ✅ SCALP ejecutado exitosamente - Slot cerrado"
                     update_slot_status "$slot_id" "CLOSED_SCALP"
                     
-                    # Calcular P&L
+                    # Calcular PnL
                     local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
                     local fee_bnb=$(echo "$sell_result" | jq -r '.fills[0].commission // 0')
                     local fee_asset=$(echo "$sell_result" | jq -r '.fills[0].commissionAsset // "USDT"')
@@ -1041,7 +1041,7 @@ check_slot_tp_sl() {
                         fee_usd=$(awk -v b="$fee_bnb" -v p="$exit_price" 'BEGIN {printf "%.8f", b * p}')
                     fi
                     
-                    # Calcular P&L ANTES de guardar
+                    # Calcular PnL ANTES de guardar
                     local pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
                     
                     # LOG TRADE TO HISTORY
@@ -1060,10 +1060,10 @@ check_slot_tp_sl() {
                         fi
                     fi
                     
-                    # Actualizar P&L diario
+                    # Actualizar PnL diario
                     update_pnl_after_close "$slot_id" "SCALP" "$entry" "$exit_price" "$quantity" "$fee_usd"
                     
-                    # P&L para notificación
+                    # PnL para notificación
                     local pnl_display=$(awk -v p="$pnl" 'BEGIN {printf "%.2f", p}')
                     local pnl_icon="🟢"
                     [ $(echo "$pnl < 0" | bc -l) -eq 1 ] && pnl_icon="🔴"
@@ -1073,7 +1073,7 @@ check_slot_tp_sl() {
 
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${exit_price}
-P&L: \$${pnl_display}
+PnL: \$${pnl_display}
 Target: ${SCALP_TARGET_PERCENT}%
 
 ✅ Ganancia rápida en mercado lateral 🚀"
@@ -1176,7 +1176,7 @@ Target: ${SCALP_TARGET_PERCENT}%
                 log "  ✅ TP1 ejecutado exitosamente ($sell_qty_fmt)"
                     register_capital_move "$SYMBOL" "TP1" "$sell_value" "$sell_qty" "$current_price" "$sell_order_id" "TP1 Slot $slot_id"
                 
-                # Calcular P&L ANTES de guardar en histórico
+                # Calcular PnL ANTES de guardar en histórico
                 local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
                 
                 # LOG TRADE TO HISTORY
@@ -1237,7 +1237,7 @@ Target: ${SCALP_TARGET_PERCENT}%
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${current_price}
 Qty: $sell_qty_fmt (35%)
-P&L: \$${pnl}
+PnL: \$${pnl}
 
 🔄 MODO RECICLAJE ACTIVADO
 El slot buscará nueva entrada 🚀"
@@ -1248,7 +1248,7 @@ El slot buscará nueva entrada 🚀"
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${current_price}
 Vendido: $sell_qty_fmt
-P&L parcial: \$${pnl_partial}
+PnL parcial: \$${pnl_partial}
 Queda para TP3 🎯
 Quedan 65% para TP2/TP3 🎯"
                 fi
@@ -1309,7 +1309,7 @@ El slot sigue activo y reintentará en próximos ciclos."
                 log "  ✅ TP2 ejecutado exitosamente ($sell_qty_fmt)"
                     register_capital_move "$SYMBOL" "TP2" "$sell_value" "$sell_qty" "$current_price" "$sell_order_id" "TP2 Slot $slot_id"
                 
-                # Calcular P&L ANTES de guardar en histórico
+                # Calcular PnL ANTES de guardar en histórico
                 local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
                 
                 # LOG TRADE TO HISTORY
@@ -1358,12 +1358,12 @@ El slot sigue activo y reintentará en próximos ciclos."
                     log "  ✅ Trailing stop ATR activado (${trailing_percent}%)"
                 fi
                 
-                # Calcular P&L parcial para notificación
+                # Calcular PnL parcial para notificación
                 local pnl_partial=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
                 
                 # BUG-036 FIX: Enviar Telegram TP2
                 log "  📱 DEBUG: Preparando notificación TP2..."
-                notify "TP2_HIT|$SYMBOL|$slot_id" "$(printf '✅ TP2 - %s\nSlot: %d / %d\nExit: $%s\nVendido: %s\nP&L parcial: $%.2f\nQueda para TP3 🎯' "$SYMBOL" "$slot_id" "$MAX_SLOTS" "$current_price" "$sell_qty_fmt" "$pnl_partial")"
+                notify "TP2_HIT|$SYMBOL|$slot_id" "$(printf '✅ TP2 - %s\nSlot: %d / %d\nExit: $%s\nVendido: %s\nPnL parcial: $%.2f\nQueda para TP3 🎯' "$SYMBOL" "$slot_id" "$MAX_SLOTS" "$current_price" "$sell_qty_fmt" "$pnl_partial")"
                 log "  📱 DEBUG: notify TP2 completado"
             else
                 local error=$(echo "$sell_result" | jq -r '.msg // "Unknown error"')
@@ -1471,7 +1471,7 @@ El slot permanece activo."
                 log "  ✅ TP3 ejecutado exitosamente ($sell_qty_fmt) - CIERRE TOTAL 📈"
                     register_capital_move "$SYMBOL" "TP3" "$sell_value" "$sell_qty" "$current_price" "$sell_order_id" "TP3 Slot $slot_id CIERRE TOTAL"
                 
-                # Calcular P&L ANTES de guardar en histórico
+                # Calcular PnL ANTES de guardar en histórico
                 local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$quantity" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
                 
                 # LOG TRADE TO HISTORY
@@ -1507,7 +1507,7 @@ El slot permanece activo."
                 # Resetear contador de fallos TP3 tras éxito
                 update_slot_field "$slot_id" "tp3FailCount" "0"
                 
-                # Actualizar P&L
+                # Actualizar PnL
                 local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
                 local fee_bnb=$(echo "$sell_result" | jq -r '.fills[0].commission // 0')
                 local fee_asset=$(echo "$sell_result" | jq -r '.fills[0].commissionAsset // "USDT"')
@@ -1518,7 +1518,7 @@ El slot permanece activo."
                 update_pnl_after_close "$slot_id" "TP3" "$entry" "$exit_price" "$quantity" "$fee_usd"
                 log "  📱 DEBUG: Después de update_pnl, antes de send_telegram" "$entry" "$exit_price" "$quantity" "$fee_usd"
                 
-                # Calcular P&L total para notificación
+                # Calcular PnL total para notificación
                 local pnl_total=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
                 local pnl_icon="🟢"
                 [ $(echo "$pnl_total > 0" | bc -l) -eq 1 ] || pnl_icon="🔴"
@@ -1544,7 +1544,7 @@ El slot permanece activo."
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${exit_price}
 Vendido: $sell_qty_fmt
-P&L: \$${pnl_total}
+PnL: \$${pnl_total}
 Mantiene 5% acumulado 📈"
 
                 notify "TP3_HIT|$SYMBOL|$slot_id" "$tp3_msg"
@@ -1587,7 +1587,7 @@ Mantiene 5% acumulado 📈"
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$$final_exit
 Vendido: $final_sell_qty
-P&L: \$$(awk -v p="$final_pnl" 'BEGIN {printf "%.2f", p}')
+PnL: \$$(awk -v p="$final_pnl" 'BEGIN {printf "%.2f", p}')
 ✅ Cierre forzado por balance insuficiente"
                             forced_close_success=true
                         fi
@@ -1651,7 +1651,7 @@ Razón: Balance insuficiente en el primer fallo
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$$final_exit
 Vendido: $final_sell_qty
-P&L: \$$(awk -v p="$final_pnl" 'BEGIN {printf "%.2f", p}')
+PnL: \$$(awk -v p="$final_pnl" 'BEGIN {printf "%.2f", p}')
 ✅ Cierre forzado tras 3 fallos"
                             forced_close_success=true
                         fi
@@ -1703,7 +1703,7 @@ ACUMULADO: 5% se queda HODL 📈
         register_capital_move "$SYMBOL" "SL" "$sell_value" "$sell_qty" "$current_price" "$sell_order_id" "SL Slot $slot_id"
                 update_slot_status "$slot_id" "CLOSED_SL"
                 
-                # Actualizar P&L
+                # Actualizar PnL
                 local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
                 local fee_bnb=$(echo "$sell_result" | jq -r '.fills[0].commission // 0')
                 local fee_asset=$(echo "$sell_result" | jq -r '.fills[0].commissionAsset // "USDT"')
@@ -1712,7 +1712,7 @@ ACUMULADO: 5% se queda HODL 📈
                     fee_usd=$(awk -v b="$fee_bnb" -v p="$current_price" 'BEGIN {printf "%.8f", b * p}')
                 fi
                 
-                # Calcular P&L ANTES de guardar en histórico
+                # Calcular PnL ANTES de guardar en histórico
                 local pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
                 
                 # LOG TRADE TO HISTORY
@@ -1729,10 +1729,10 @@ ACUMULADO: 5% se queda HODL 📈
                 log "  🛑 SL ejecutado"
                 update_slot_field "$slot_id" "status" "CLOSED_SL"
                 
-                # Actualizar P&L diario
+                # Actualizar PnL diario
                 update_pnl_after_close "$slot_id" "SL" "$entry" "$exit_price" "$quantity" "$fee_usd"
                 
-                # Calcular P&L para notificación
+                # Calcular PnL para notificación
                 local pnl_display=$(awk -v p="$pnl" 'BEGIN {printf "%.2f", p}')
                 local pnl_icon="🔴"
                 [ $(echo "$pnl > 0" | bc -l) -eq 1 ] && pnl_icon="🟢"
@@ -1742,7 +1742,7 @@ ACUMULADO: 5% se queda HODL 📈
 
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${exit_price}
-P&L: \$${pnl_display}
+PnL: \$${pnl_display}
 
 Slot disponible 🔄"
                 
@@ -1775,7 +1775,7 @@ execute_trailing_stop() {
 
     if [ "$sell_status" = "FILLED" ]; then
 
-        # Calcular P&L antes de update de estado para armar la alerta
+        # Calcular PnL antes de update de estado para armar la alerta
         local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
         local fee_bnb=$(echo "$sell_result" | jq -r '.fills[0].commission // 0')
         local fee_asset=$(echo "$sell_result" | jq -r '.fills[0].commissionAsset // "USDT"')
@@ -1793,7 +1793,7 @@ execute_trailing_stop() {
 
     Slot: $slot_id / $MAX_SLOTS
     Exit: \$${trailing_exit_display}
-    P&L: \$${trailing_pnl_display}
+    PnL: \$${trailing_pnl_display}
     Razón: $reason
 
     ✅ Ganancias aseguradas 🛡️"
@@ -1817,7 +1817,7 @@ execute_trailing_stop() {
             fi
         fi
         
-        # Actualizar P&L
+        # Actualizar PnL
         local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
         local fee_bnb=$(echo "$sell_result" | jq -r '.fills[0].commission // 0')
         local fee_asset=$(echo "$sell_result" | jq -r '.fills[0].commissionAsset // "USDT"')
@@ -1826,16 +1826,16 @@ execute_trailing_stop() {
             fee_usd=$(awk -v b="$fee_bnb" -v p="$exit_price" 'BEGIN {printf "%.8f", b * p}')
         fi
         
-        # Calcular P&L ANTES de guardar en histórico
+        # Calcular PnL ANTES de guardar en histórico
         local pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
         
         # LOG TRADE TO HISTORY
         log_trade_to_history "$slot_id" "CLOSED_TRAILING" "$entry" "$exit_price" "$quantity" "$pnl"
         
-        # Actualizar P&L diario
+        # Actualizar PnL diario
         update_pnl_after_close "$slot_id" "TRAILING" "$entry" "$exit_price" "$quantity" "$fee_usd"
         
-        # Calcular P&L para notificación
+        # Calcular PnL para notificación
         local pnl_display=$(awk -v p="$pnl" 'BEGIN {printf "%.2f", p}')
         local pnl_icon="🟢"
         [ $(echo "$pnl < 0" | bc -l) -eq 1 ] && pnl_icon="🔴"
@@ -1853,7 +1853,7 @@ execute_trailing_stop() {
 
 Slot: $slot_id / $MAX_SLOTS
 Exit: \$${exit_price}
-P&L: \$${pnl_display}
+PnL: \$${pnl_display}
 Razón: $reason
 
 ✅ Ganancias aseguradas 🛡️"
@@ -2049,11 +2049,11 @@ show_trade_history() {
     echo "  Win Rate: ${win_rate}%"
     echo "  Profit Total: +\$${total_profit}"
     echo "  Loss Total: \$${total_loss}"
-    echo "  Net P&L: \$${net_pnl}"
+    echo "  Net PnL: \$${net_pnl}"
     echo ""
     echo "📜 ÚLTIMOS 10 TRADES"
     echo "─────────────────────────────────────────────────────────"
-    printf "%-4s %-6s %-6s %-8s %-10s %-10s\n" "ID" "Coin" "Tipo" "P&L" "Cierre" "Fecha"
+    printf "%-4s %-6s %-6s %-8s %-10s %-10s\n" "ID" "Coin" "Tipo" "PnL" "Cierre" "Fecha"
     echo "─────────────────────────────────────────────────────────"
     
     jq -r '.trades | sort_by(-.id) | .[0:10] | .[] | "\(.id)\t\(.symbol)\t\(.type)\t\(.pnlUSDT)\t\(.closeType)\t\(.timestamp | split("T")[0])"' "$HISTORY_FILE" | \
