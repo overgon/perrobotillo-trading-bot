@@ -36,8 +36,8 @@
     },
     {
       "id": 416,
-      "symbol": "AVAX",
-      "coin": "AVAX",
+      "symbol": "LINK",
+      "coin": "LINK",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 11.805,
