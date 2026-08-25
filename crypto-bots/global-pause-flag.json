@@ -1,6 +1,6 @@
 {
-  "pause_until": "2026-08-23 09:52:01",
+  "pause_until": "2026-08-26 05:15:01",
   "triggered_by": "losses_count",
-  "losses_24h": 6,
-  "total_loss": "-4.89901992"
+  "losses_24h": 4,
+  "total_loss": "-3.41801196"
 }

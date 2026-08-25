@@ -68,14 +68,16 @@ def _resolve_symbol_from_price(entry_price):
     Use entryPrice ranges to identify the real coin.
     Returns the coin with highest confidence, or None if ambiguous.
     """
+        # 🔧 FIX: Updated PRICE_RANGES to match actual market prices (2026-08)
+    # Previous ranges were stale (LINK was $3-5.4 but now ~$11.5)
     PRICE_RANGES = {
-        "BTC": (30000, 100000),
-        "ETH": (1000, 5000),
-        "BNB": (250, 700),
-        "SOL": (75, 250),
-        "AVAX": (5.5, 20),
-        "LINK": (3, 5.4),
-        "XRP": (0.4, 3.0),
+        "BTC": (20000, 120000),
+        "ETH": (800, 8000),
+        "BNB": (200, 1000),
+        "SOL": (40, 500),
+        "AVAX": (5.0, 30),
+        "LINK": (5.0, 30),
+        "XRP": (0.2, 5.0),
     }
     candidates = []
     for coin, (lo, hi) in PRICE_RANGES.items():

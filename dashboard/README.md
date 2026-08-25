@@ -1,395 +1,326 @@
-# 🐕 Perrobotillo Dashboard - Cyberpunk Edition
+# 🐕 Perrobotillo Trading Bot — FASE 1 v2.1
 
-**Dashboard avanzado de monitoreo para Perrobotillo Trading Bot**
+**Bot de trading automatizado para Binance** con ML, circuit breaker, dashboard cyberpunk y notificaciones en vivo.
+
+> **"Nunca confiar, siempre verificar." — Jefe**
 
 ---
 
-## 🔒 SEGURIDAD - AUTENTICACIÓN
+## 🏗️ ARQUITECTURA DEL SISTEMA
 
-El dashboard requiere autenticación HTTP Basic.
-
-### 🔑 Configurar Usuario y Contraseña
-
-**Ejecuta el script de setup:**
-```bash
-cd /home/overgon/.openclaw/workspace/dashboard
-./setup-auth.sh
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Raspberry Pi 5                       │
+│                   (Cron-based, no systemd)             │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  📊 Dashboard (Flask)           ML Pipeline              │
+│  ├── app.py                    ├── market-predictions   │
+│  ├── static/js/                ├── models_optimized/   │
+│  │  ├── app.js                 ├── auto-retrain-v2.py    │
+│  │  ├── mobile.js              └── ml_validator_wrapper  │
+│  └── templates/                                         │
+│                                                         │
+│  🤖 Trading Bot                   🔔 Notificaciones     │
+│  ├── crypto-trade-moneda-v3-      ├── notify.sh          │
+│  │   slots.sh                     ├── send-telegram.sh   │
+│  ├── auto-adjust-strategy.sh      └── telegram-notif..   │
+│  ├── global-circuit-breaker.sh                            │
+│  ├── ip-monitor.sh                                       │
+│  └── market-sentiment.sh                                 │
+│                                                         │
+│  📈 Reports                         💾 Data              │
+│  ├── daily-report.py               ├── trade-history.json │
+│  ├── monthly-report.sh             ├── *-trade-state.json │
+│  └── housekeeping.sh               └── portfolio-*.json  │
+└─────────────────────────────────────────────────────────┘
 ```
 
-El script te pedirá:
-1. Usuario deseado
-2. Contraseña (mínimo 6 caracteres)
-3. Confirmación de contraseña
+---
 
-**Opción manual:**
-```bash
-htpasswd -cb .htpasswd tu_usuario tu_contraseña
-```
+## 🎯 CARACTERÍSTICAS PRINCIPALES
 
-### 📋 Credenciales por defecto (si no has configurado)
-- **Usuario:** `overgon`
-- **Contraseña:** La que hayas configurado en el setup
+| Característica | Detalle |
+|---|---|
+| **Monedas** | 7: BTC, ETH, BNB, SOL, LINK, XRP, AVAX |
+| **Slots** | 21 (3 por moneda) |
+| **Exchange** | Binance Spot |
+| **ML** | RandomForest classifier (7 modelos, 72-94% accuracy) |
+| **CB** | Circuit Breaker (6 losses/24h → pausa trading) |
+| **Cron** | No systemd — todo via cron (`*/5`, `0 * *`, etc.) |
+| **Notify** | Telegram con `--data-urlencode` + `parse_mode=Markdown` |
+| **IP Watch** | Monitor hourly, alerta inmediata si cambia |
 
 ---
 
 ## 🚀 INICIO RÁPIDO
 
-### 1. Configurar autenticación (primera vez)
+### 1. Configurar credenciales
 ```bash
-cd /home/overgon/.openclaw/workspace/dashboard
-./setup-auth.sh
+# Secrets viven en:
+# - secrets/binance.env  (API keys — NUNCA subir a GitHub)
+# - secrets/telegram.env (Bot token + chat ID)
+cp secrets/binance.env.example secrets/binance.env
+cp secrets/telegram.env.example secrets/telegram.env
+# Editar con tus credenciales
 ```
 
-### 2. Iniciar el Dashboard
-
+### 2. Iniciar el dashboard
 ```bash
-cd /home/overgon/.openclaw/workspace/dashboard
-./start.sh
+cd dashboard
+./setup-auth.sh    # Configurar usuario/password
+./start.sh         # O: systemd service
+# Acceso: http://localhost:8080
+# Red local: http://192.168.3.215:8080
 ```
 
-### 2. Acceder desde el navegador
-
-**Desde la Raspberry Pi:**
-```
-http://localhost:8080
-```
-
-**Desde tu PC/Móvil en la misma red:**
-```
-http://192.168.3.215:8080
+### 3. Verificar cron jobs
+```bash
+crontab -l
+# Expected:
+# */5 * * * *  → global-circuit-breaker.sh (CB monitor)
+# 0 * * * *    → ip-monitor.sh (IP whitelist check)
+# 0 9 * * *    → daily-report.py (reporte diario 9 AM)
+# 0 3 * * 0   → auto-retrain-v2.py (ML retraining Sunday 3 AM)
 ```
 
 ---
 
-## 📊 FEATURES
+## 📊 DASHBOARD
 
-### ✅ En Tiempo Real (auto-refresh cada 10s)
+### Autenticación
+- HTTP Basic Auth vía `dashboard/.htpasswd`
+- Setup: `cd dashboard && ./setup-auth.sh`
 
-- 💰 **Portfolio Total** - USDT y MXN
-- 📈 **P&L 24h** - Ganancias/pérdidas del día
-- 🎯 **21 Slots Activos** - 3 por moneda (BTC, ETH, BNB, SOL, LINK, XRP, AVAX)
-- 📊 **Barras de Progreso** - Distancia a TP1/TP2/TP3
-- 💹 **Precios en Vivo** - Desde Binance API
-- 📉 **Histórico de Trades** - Últimos 10 trades
-- 🏆 **Win Rate** - Estadísticas de performance
-- 🔧 **System Status** - API, IP Whitelist, Gateway
+### URLs
+| Contexto | URL |
+|---|---|
+| Local (Raspberry Pi) | `http://localhost:8080` |
+| Red local | `http://192.168.3.215:8080` |
+| Externo (ngrok) | `https://*.ngrok-free.dev` |
 
-### 🎨 Diseño Cyberpunk
-
-- 🌐 Grid animado en background
-- 💙 Colores neón (azul, pink, purple)
-- ⚡ Efectos de scanlines
-- 🔊 Alertas sonoras (cuando está cerca de TP)
-- 📱 Responsive (PC, tablet, móvil)
-
----
-
-## 🎯 SECCIONES DEL DASHBOARD
-
-### 1. Portfolio Overview
-- Total del portfolio en USDT y MXN
-- P&L de 24 horas con porcentaje
-- Win Rate actual (W/L)
-- Total de trades y P&L neto
-
-### 2. Active Slots
-Cada slot muestra:
-- Moneda y número de slot
-- Status (ACTIVE / READY / CLOSED)
-- Entry Price vs Current Price
-- P&L en tiempo real ($ y %)
-- TP1, TP2, TP3 targets
-- **Barra de progreso** a TP1 (solo activos)
-
-### 3. Price Charts
-- Precios actuales de todas las coins
-- Actualización cada 5 segundos
-- Cambio 24h en porcentaje
-
-### 4. Recent Trades
-- Últimos 10 trades cerrados
-- Entry, Exit, P&L
-- Tipo de cierre (TP1/TP2/TP3/SL/TRAILING)
-- Fecha del trade
-
-### 5. System Status
-- API Binance: Online/Offline
-- IP Whitelist: Tu IP pública
-- Gateway OpenClaw: Status
-- Última actualización
+### API Endpoints
+| Endpoint | Descripción |
+|---|---|
+| `/api/data` | Portfolio, slots, trades, system status |
+| `/api/prices` | Precios en vivo desde Binance |
+| `/api/status` | Circuit breaker + health check |
+| `/api/health` | Health check del servidor |
 
 ---
 
-## ⚙️ CONFIGURACIÓN
+## 🧠 ML PIPELINE
 
-### Cambiar puerto
+### Modelos
+- 7 modelos RandomForest (uno por moneda) en `ml/models_optimized/`
+- Features: SMA50, RSI(max_5/10/20), ROC(max_10)
+- LINK: 5 features críticas (overfitting arreglado, gap 3.32%)
 
-Editar `app.py`:
-```python
-app.run(
-    host='0.0.0.0',
-    port=8080,  # Cambiar aquí
-    debug=False,
-    threaded=True
-)
+### Retraining
+```bash
+# Manual
+python3 ml/auto-retrain-v2.py
+
+# Cron (Sunday 3 AM)
+0 3 * * 0  /home/.../ml/auto-retrain-v2.py
 ```
 
-### Cambiar refresh interval
-
-Editar `static/js/app.js`:
-```javascript
-const CONFIG = {
-    REFRESH_INTERVAL: 10000, // Cambiar aquí (ms)
-    ...
-};
-```
-
-### Habilitar alertas sonoras
-
-Las alertas suenan cuando una coin está a <0.5% de TP1.
-
-Para cambiar el umbral, editar `static/js/app.js`:
-```javascript
-if (distance > 0 && distance < 0.5) {  // Cambiar 0.5
-    triggerAlert(coin, slotId, distance);
-}
-```
+### Validation
+- `ml_validator_wrapper.py` valida pause flag antes de aprobar trades
+- Fallback: SMA20/50 + RSI + vol, posición al 25% si confidence < 60%
 
 ---
 
-## 🔧 TROUBLESHOOTING
+## 🛡️ CIRCUIT BREAKER
 
-### "Flask not found"
+| Componente | Archivo |
+|---|---|
+| Configuración | `crypto-bots/global-pause-flag.json` |
+| Monitor (5 min) | `crypto-bots/global-circuit-breaker.sh` |
+| Dashboard sync | `crypto-bots/dashboard-circuit-breaker-status.json` |
+
+- **Trigger**: 6 losses/24h → pausa nuevos trades hasta N horas después
+- **SL/TP**: Siguen ejecutándose durante pausa
+- **ML Validator**: Rechaza todos los trades si CB activo (`approved: False, reason: PAUSE FLAG ACTIVO`)
+
+---
+
+## 🕵️ IP MONITOR
+
 ```bash
-pip3 install flask --break-system-packages
+# Script
+crypto-bots/ip-monitor.sh
+
+# Cron: cada hora
+0 * * * * bash crypto-bots/ip-monitor.sh
+
+# Providers (dual):
+# 1. ipify.org
+# 2. api4.ip.works (fallback)
 ```
 
-### "Port already in use"
+- Registra IP en `crypto-bots/last-known-ip.txt`
+- Notifica via Telegram si cambia (para Binance IP Whitelist)
+
+---
+
+## 📈 REPORTE DIARIO
+
 ```bash
-# Matar proceso usando el puerto 8080
-sudo lsof -ti:8080 | xargs kill -9
+# Ejecutar manualmente
+python3 scripts/daily-report.py
+
+# Cron: 9 AM diario
+0 9 * * * python3 scripts/daily-report.py
 ```
 
-### "Cannot access from network"
+Incluye:
+- Portfolio total (USDT + MXN)
+- PnL 24h por moneda
+- Trades del día anterior (win rate, PnL)
+- Trades activos
+- Estado del sistema (API, IP, órdenes)
+
+---
+
+## 🔧 COMANDOS ÚTILES
+
 ```bash
-# Verificar IP de la Raspberry Pi
-hostname -I
+# Ver trades en history
+jq '.trades[-5:]' crypto-bots/trade-history.json
 
-# Asegurarte que el firewall permite el puerto 8080
-sudo ufw allow 8080
-```
+# Contar trades activos
+jq '.slots[] | select(.status=="ACTIVE") | .symbol' crypto-bots/XRP-trade-state.json
 
-### Dashboard no actualiza
-- Verificar que el bot de trading esté corriendo
-- Verificar conexión a internet
-- Revisar logs: `tail -f logs/trade-*.log`
+# Dashboard en vivo
+tail -f logs/dashboard-stdout.log
 
-### Error de autenticación (WORKSPACE)
+# IP pública actual
+curl -s https://api.ipify.org
 
-Si las credenciales no funcionan, verifica que `app.py` tenga:
-```python
-WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
-```
-
-**NO debe tener:**
-```python
-WORKSPACE = "$HOME/.openclaw/workspace"  # ❌ Esto no funciona
-```
-
-**Fix automático:**
-```bash
-sed -i 's|WORKSPACE = "\$HOME|WORKSPACE = os.path.expanduser("~|g' app.py
+# Ver circuit breaker status
+cat crypto-bots/global-pause-flag.json
 ```
 
 ---
 
-## 🛑 DETENER EL DASHBOARD
+## 💾 ESTRUCTURA DE ARCHIVOS
 
-**Si estás usando systemd (recomendado):**
-```bash
-sudo systemctl stop perrobotillo-dashboard.service
 ```
-
-**Si estás corriendo manualmente:**
-Presionar `Ctrl+C` en la terminal donde está corriendo.
-
----
-
-## ⚡ AUTO-INICIO (SYSTEMD)
-
-Para que el dashboard y ngrok arranquen automáticamente al iniciar el sistema o después de un corte de luz:
-
-### Instalación automática
-
-```bash
-cd /home/overgon/.openclaw/workspace/dashboard
-sudo ./install-systemd-services.sh
-```
-
-Esto creará dos servicios:
-- `perrobotillo-dashboard.service` - El dashboard Flask
-- `perrobotillo-ngrok.service` - El túnel ngrok (depende del dashboard)
-
-### Comandos útiles
-
-```bash
-# Ver status
-sudo systemctl status perrobotillo-dashboard.service
-sudo systemctl status perrobotillo-ngrok.service
-
-# Ver logs
-tail -f ~/.openclaw/logs/dashboard-stdout.log
-tail -f ~/.openclaw/logs/ngrok-stdout.log
-
-# Reiniciar servicios
-sudo systemctl restart perrobotillo-dashboard.service
-sudo systemctl restart perrobotillo-ngrok.service
-
-# Detener servicios
-sudo systemctl stop perrobotillo-dashboard.service
-sudo systemctl stop perrobotillo-ngrok.service
-
-# Habilitar auto-inicio (ya lo hace el script de instalación)
-sudo systemctl enable perrobotillo-dashboard.service
-sudo systemctl enable perrobotillo-ngrok.service
-```
-
-### Verificar que están activos
-
-```bash
-systemctl list-units | grep perrobotillo
-```
-
-Deberías ver:
-- `perrobotillo-dashboard.service` ✅ active running
-- `perrobotillo-ngrok.service` ✅ active running
-- `perrobotillo-tp-monitor.service` ✅ active running
-
----
-
-## 📱 ACCESO REMOTO
-
-### Desde tu móvil (misma red WiFi):
-```
-http://192.168.3.215:8080
-```
-
-### Desde tu PC (misma red):
-```
-http://192.168.3.215:8080
-```
-
-### Acceso externo con Ngrok (HTTPS)
-
-**Iniciar con ngrok:**
-```bash
-cd /home/overgon/.openclaw/workspace/dashboard
-./start-with-ngrok.sh
-```
-
-Esto te dará una URL pública tipo:
-```
-https://algo-random.ngrok-free.dev
-```
-
-**Requisitos:**
-- Tener ngrok instalado: `https://ngrok.com`
-- Autenticar ngrok: `ngrok config add-authtoken <tu-token>`
-
-**Para acceso externo (fuera de casa):**
-Se requiere configurar:
-1. Port forwarding en tu router
-2. O usar Tailscale/VPN
-3. O usar ngrok (recomendado)
-
----
-
-## 🎨 PERSONALIZACIÓN
-
-### Cambiar colores
-
-Editar `static/css/style.css`:
-```css
-:root {
-    --neon-blue: #00f3ff;      /* Cambiar */
-    --neon-pink: #ff00ff;      /* Cambiar */
-    --neon-purple: #bc13fe;    /* Cambiar */
-    --neon-green: #0aff00;     /* Cambiar */
-    --neon-red: #ff003c;       /* Cambiar */
-}
-```
-
-### Cambiar logo
-
-Editar `templates/index.html`:
-```html
-<div class="logo-icon">🐕</div>  <!-- Cambiar emoji -->
-```
-
-O agregar una imagen:
-```html
-<img src="{{ url_for('static', filename='images/logo.png') }}" class="logo-icon">
+workspace/
+├── crypto-bots/
+│   ├── crypto-trade-moneda-v3-slots.sh    # Bot principal
+│   ├── auto-adjust-strategy.sh            # Strategy engine
+│   ├── ml-market-validator.sh             # ML validator
+│   ├── market-sentiment.sh                # F&G + EMAs + RSI
+│   ├── global-circuit-breaker.sh          # CB monitor
+│   ├── ip-monitor.sh                      # IP whitelist monitor
+│   ├── notify.sh                          # Telegram notifications
+│   ├── trade-history.json                 # 437+ trades
+│   ├── dynamic-config.env                 # Active strategy params
+│   ├── market-mode.conf                   # Current market classification
+│   ├── global-pause-flag.json             # CB state
+│   ├── last-known-ip.txt                  # Registered public IP
+│   └── *-trade-state.json                 # Slot states per coin
+│
+├── ml/
+│   ├── models_optimized/                  # 7 trained models (.pkl)
+│   ├── market-classifier.py               # ML classifier
+│   ├── ml_validator_wrapper.py            # Trade validation
+│   ├── auto-retrain-v2.py                 # Retraining script
+│   └── market-predictions.json            # Latest predictions
+│
+├── scripts/
+│   ├── daily-report.py                    # Daily report
+│   ├── log_trade_to_history.py            # Trade logger w/ dedup
+│   ├── housekeeping.py                    # Cleanup
+│   └── binance-maintenance-monitor.sh     # Exchange downtime check
+│
+├── dashboard/
+│   ├── app.py                             # Flask app
+│   ├── setup-auth.sh                      # Auth setup
+│   ├── templates/
+│   └── static/
+│       ├── css/style.css                  # Cyberpunk theme
+│       └── js/
+│           ├── app.js                     # Desktop dashboard
+│           └── mobile.js                  # Mobile dashboard + CB status
+│
+├── lib/
+│   ├── send-telegram.sh                   # curl --data-urlencode
+│   └── telegram-notifications.sh          # Notification helpers
+│
+├── logs/                                  # All logs
+└── secrets/                               # NEVER COMMITTED
+    ├── binance.env                        # API keys
+    └── telegram.env                       # Bot token + chat ID
 ```
 
 ---
 
-## 📊 API ENDPOINTS
+## 📊 REPORTAS AUTOMÁTICAS
 
-El dashboard expone estos endpoints para uso externo:
+### Diario (9:00 AM CST)
+- Portfolio total (USDT + MXN)
+- **PnL 24h** por moneda (corregido: timezone UTC)
+- Trades del día anterior (win rate, PnL)
+- Trades activos con status actual
+- Estado del sistema (API, IP, alertas)
 
-### `/api/data`
-Datos completos del portfolio y slots.
+### Semanal (ML)
+- Model accuracy por moneda
+- Retraining status
+- Overfitting gap (objetivo < 5%)
 
-```json
-{
-  "timestamp": "2026-05-03T13:30:00",
-  "portfolio": {
-    "total_usdt": 2628.74,
-    "total_mxn": 45976.73
-  },
-  "coins": {...},
-  "prices": {...},
-  "history": {...},
-  "system": {...}
-}
-```
+---
 
-### `/api/prices`
-Solo precios actuales (más rápido).
+## 🔒 SEGURIDAD
 
-```json
-{
-  "BTCUSDT": "78741.01000000",
-  "ETHUSDT": "2328.44000000",
-  ...
-}
-```
+- **API keys**: Solo en `secrets/binance.env`, nunca en repo ✅
+- **Git**: SSH-only, firma `Perrobotron Aterrorizar!!` ✅
+- **IP Whitelist**: Binance con IP dinámica — monitor hourly ✅
+- **Circuit Breaker**: Pausa automática si drawdown ⚠️
+- **Telegram**: `--data-urlencode` + `parse_mode=Markdown` (evita HTTP 400)
 
-### `/api/health`
-Health check del servidor.
+---
 
-```json
-{
-  "status": "ok",
-  "timestamp": "2026-05-03T13:30:00"
-}
-```
+## ⚙️ CONFIGURACIÓN DEL BOT
+
+### Parámetros por modo de mercado
+| Mode | TP1 | TP2 | TP3 | SL | Posición |
+|---|---|---|---|---|---|
+| **BULL** | +3.0% | +6.0% | +10.0% | -4.0% | 25% |
+| **BEAR** | +1.0% | +3.0% | +5.0% | -3.0% | 15% |
+| **LATERAL** | +1.5% | +3.0% | +5.0% | -3.5% | 20% |
+| **CB ON** | +1.5% | +3.0% | +5.0% | -3.5% | 10% |
+
+---
+
+## 🛠️ TROUBLESHOOTING
+
+| Problema | Solución |
+|---|---|
+| Dashboard HTTP 400 en notificaciones | `curl` usa `--data-urlencode`, no `-d` |
+| `totalTrades` mismatch | Derivado de `len(trades)`, nunca counter |
+| Trades duplicados en history | `log_trade_to_history.py` dedup (key: symbol:slotId:closeTime:pnl) |
+| Dashboard no refresca | Verificar que Flask esté corriendo: `curl localhost:8080/api/health` |
+| ML stale predicciones | `ml/auto-retrain-v2.py` o `update-ml-predictions.sh` |
 
 ---
 
 ## 🐕 CRÉDITOS
 
-**Desarrollado por:** Perrobotillo 🐕  
+**Desarrollado por:** [Perrobotron](https://t.me/perrobotron) 🐕  
 **Para:** Jefe (Rull Ox)  
-**Versión:** 1.0 Cyberpunk Edition  
-**Fecha:** 2026-05-03
+**Versión:** FASE 1 v2.1  
+**Fecha:** 2026-08-24
 
-*"Nunca confiar, siempre verificar"*
+*"'Nunca confiar, siempre verificar.' — Perrobotron Aterrorizar!!"*
 
 ---
 
 <div align="center">
 
-**🚀 Enjoy the dashboard, Jefe!**
+**🚀 El bot está vivo, Jefe. ¡A operar se ha dicho!**
 
 </div>
