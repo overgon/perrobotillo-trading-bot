@@ -1,17 +1,46 @@
 {
-  "last_retrain": "2026-06-22T09:59:51.841514",
-  "trade_count_at_retrain": 220,
-  "retrain_count": 10,
-  "last_cron_failure": "2026-08-23 03:00:02",
-  "cron_fix_applied": "2026-08-25",
-  "fix_details": "script: ml-retrain.py -> auto-retrain-v2.py, timeout: 600 -> 3600s, curl: -d -> --data-urlencode",
+  "last_retrain": "2026-08-25T13:48:07",
+  "trade_count_at_retrain": 711,
+  "retrain_count": 11,
+  "method": "manual_validation",
+  "fix_validated": true,
+  "fix_details": "cron: ml-retrain.py -> auto-retrain-v2.py, timeout 600 -> 3600s, curl -d -> --data-urlencode",
+  "cron_failure_resolved": "2026-08-23 03:00:02 timeout killed ml-retrain.py -> FIXED (30s completion)",
+  "training_time_seconds": 30,
   "model_accuracy": {
-    "BNB": "94.41%",
-    "ETH": "91.61%",
-    "SOL": "92.31%",
-    "XRP": "90.21%",
     "BTC": "88.81%",
-    "AVAX": "83.22%",
-    "LINK": "80.42%"
+    "ETH": "90.91%",
+    "BNB": "94.41%",
+    "SOL": "90.21%",
+    "LINK": "68.53%",
+    "XRP": "90.91%",
+    "AVAX": "81.82%"
+  },
+  "model_cv": {
+    "BTC": "88.75% (+/-3.52%)",
+    "ETH": "89.80% (+/-3.96%)",
+    "BNB": "94.02% (+/-2.25%)",
+    "SOL": "91.88% (+/-5.01%)",
+    "LINK": "69.05% (+/-7.22%)",
+    "XRP": "92.07% (+/-3.80%)",
+    "AVAX": "77.47% (+/-5.30%)"
+  },
+  "overfitting_gap": {
+    "BTC": "3.10% (OK)",
+    "ETH": "0.99% (OK)",
+    "BNB": "2.25% (OK)",
+    "SOL": "3.63% (OK)",
+    "LINK": "6.47% (WARN - 5 features)",
+    "XRP": "3.99% (OK)",
+    "AVAX": "2.51% (OK)"
+  },
+  "model_features": {
+    "BTC": 14,
+    "ETH": 14,
+    "BNB": 14,
+    "SOL": 14,
+    "LINK": 5,
+    "XRP": 14,
+    "AVAX": 14
   }
 }
