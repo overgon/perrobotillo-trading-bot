@@ -1,114 +1,326 @@
-# 🐕 Perrobotillo Trading Bot
+# 🐕 Perrobotillo Trading Bot — FASE 1 v2.1
 
-**Bot de trading automatizado para Binance con Machine Learning**
+**Bot de trading automatizado para Binance** con ML, circuit breaker, dashboard cyberpunk y notificaciones en vivo.
 
-[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org)
-[![Binance](https://img.shields.io/badge/Binance-API-yellow.svg)](https://binance.com)
-[![License](https://img.shields.io/badge/License-Private-red.svg)]()
-[![Phase](https://img.shields.io/badge/Fase-SLOT_V3%20Operativa-brightgreen.svg)]()
+> **"Nunca confiar, siempre verificar." — Jefe**
 
 ---
 
-## 📋 Descripción
+## 🏗️ ARQUITECTURA DEL SISTEMA
 
-Perrobotillo es un bot de trading de criptomonedas enfocado en **estabilidad y operación real**, no en exámenes académicos. Hoy opera con **3 monedas activas** (BNB, AVAX, SOL), **9 slots**, y un flujo probado de ejecución, notificación y monitoreo.
-
-Componentes actuales:
-- ✅ **Bot principal multi-slot**: `crypto-trade-moneda-v3-slots.sh`
-- ✅ **ML Validator + Auto-retrain semanal**: domingos 3 AM
-- ✅ **Monitor TP/SL**: `tp-monitor.sh` y `check-tp.py`
-- ✅ **Dashboard local**: puerto 8080
-- ✅ **Recaudación/reconciliación**: `reconcile-binance-state.py`
-
-Inspirado en herramientas open-source, pero adaptado a la operativa real con **reglas estrictas**, logging y trazabilidad.
-
----
-
-## 🎯 Estado actual del sistema
-
-### Bots activos
-- **Coins:** BNB, AVAX, SOL
-- **Slots por coin:** 3
-- **Modo:** LATERAL (ajustado por `market-mode.conf`)
-- **TP/SL:** Valores por defecto + overrides por moneda
-
-### ML / validación
-- **Modelos:** Random Forest optimizado, guardados en `ml/models_optimized/`
-- **Último retrain:** 2026-07-14, **7/7 monedas OK**
-- **Cron retrain:** domingos 03:00
-- **Criterio extra:** reentrena si hay ≥10 trades nuevos desde el último entrenamiento
-
-### Datos clave
-- **Spot operativo:** ~210.09 USDT
-- **Portfolio total:** ~2,481.71 USDT
-- **IP pública:** 187.188.230.63 autorizada
-
----
-
-## 🚀 Instalación
-
-### Prerequisites
-```bash
-python3 --version
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Raspberry Pi 5                       │
+│                   (Cron-based, no systemd)             │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  📊 Dashboard (Flask)           ML Pipeline              │
+│  ├── app.py                    ├── market-predictions   │
+│  ├── static/js/                ├── models_optimized/   │
+│  │  ├── app.js                 ├── auto-retrain-v2.py    │
+│  │  ├── mobile.js              └── ml_validator_wrapper  │
+│  └── templates/                                         │
+│                                                         │
+│  🤖 Trading Bot                   🔔 Notificaciones     │
+│  ├── crypto-trade-moneda-v3-      ├── notify.sh          │
+│  │   slots.sh                     ├── send-telegram.sh   │
+│  ├── auto-adjust-strategy.sh      └── telegram-notif..   │
+│  ├── global-circuit-breaker.sh                            │
+│  ├── ip-monitor.sh                                       │
+│  └── market-sentiment.sh                                 │
+│                                                         │
+│  📈 Reports                         💾 Data              │
+│  ├── daily-report.py               ├── trade-history.json │
+│  ├── monthly-report.sh             ├── *-trade-state.json │
+│  └── housekeeping.sh               └── portfolio-*.json  │
+└─────────────────────────────────────────────────────────┘
 ```
 
-### Configuración
+---
+
+## 🎯 CARACTERÍSTICAS PRINCIPALES
+
+| Característica | Detalle |
+|---|---|
+| **Monedas** | 7: BTC, ETH, BNB, SOL, LINK, XRP, AVAX |
+| **Slots** | 21 (3 por moneda) |
+| **Exchange** | Binance Spot |
+| **ML** | RandomForest classifier (7 modelos, 72-94% accuracy) |
+| **CB** | Circuit Breaker (6 losses/24h → pausa trading) |
+| **Cron** | No systemd — todo via cron (`*/5`, `0 * *`, etc.) |
+| **Notify** | Telegram con `--data-urlencode` + `parse_mode=Markdown` |
+| **IP Watch** | Monitor hourly, alerta inmediata si cambia |
+
+---
+
+## 🚀 INICIO RÁPIDO
+
+### 1. Configurar credenciales
 ```bash
+# Secrets viven en:
+# - secrets/binance.env  (API keys — NUNCA subir a GitHub)
+# - secrets/telegram.env (Bot token + chat ID)
 cp secrets/binance.env.example secrets/binance.env
-# Editar con tus API keys
+cp secrets/telegram.env.example secrets/telegram.env
+# Editar con tus credenciales
 ```
 
-### Ejecutar bot principal
+### 2. Iniciar el dashboard
 ```bash
-./crypto-trade-moneda-v3-slots.sh AVAX
-./crypto-trade-moneda-v3-slots.sh BNB
-./crypto-trade-moneda-v3-slots.sh SOL
+cd dashboard
+./setup-auth.sh    # Configurar usuario/password
+./start.sh         # O: systemd service
+# Acceso: http://localhost:8080
+# Red local: http://192.168.3.215:8080
 ```
 
-### Dashboard
+### 3. Verificar cron jobs
 ```bash
-# Acceso local con autenticación
-curl http://127.0.0.1:8080/api/portfolio
+crontab -l
+# Expected:
+# */5 * * * *  → global-circuit-breaker.sh (CB monitor)
+# 0 * * * *    → ip-monitor.sh (IP whitelist check)
+# 0 9 * * *    → daily-report.py (reporte diario 9 AM)
+# 0 3 * * 0   → auto-retrain-v2.py (ML retraining Sunday 3 AM)
 ```
 
 ---
 
-## 📁 Estructura del proyecto
+## 📊 DASHBOARD
+
+### Autenticación
+- HTTP Basic Auth vía `dashboard/.htpasswd`
+- Setup: `cd dashboard && ./setup-auth.sh`
+
+### URLs
+| Contexto | URL |
+|---|---|
+| Local (Raspberry Pi) | `http://localhost:8080` |
+| Red local | `http://192.168.3.215:8080` |
+| Externo (ngrok) | `https://*.ngrok-free.dev` |
+
+### API Endpoints
+| Endpoint | Descripción |
+|---|---|
+| `/api/data` | Portfolio, slots, trades, system status |
+| `/api/prices` | Precios en vivo desde Binance |
+| `/api/status` | Circuit breaker + health check |
+| `/api/health` | Health check del servidor |
+
+---
+
+## 🧠 ML PIPELINE
+
+### Modelos
+- 7 modelos RandomForest (uno por moneda) en `ml/models_optimized/`
+- Features: SMA50, RSI(max_5/10/20), ROC(max_10)
+- LINK: 5 features críticas (overfitting arreglado, gap 3.32%)
+
+### Retraining
+```bash
+# Manual
+python3 ml/auto-retrain-v2.py
+
+# Cron (Sunday 3 AM)
+0 3 * * 0  /home/.../ml/auto-retrain-v2.py
+```
+
+### Validation
+- `ml_validator_wrapper.py` valida pause flag antes de aprobar trades
+- Fallback: SMA20/50 + RSI + vol, posición al 25% si confidence < 60%
+
+---
+
+## 🛡️ CIRCUIT BREAKER
+
+| Componente | Archivo |
+|---|---|
+| Configuración | `crypto-bots/global-pause-flag.json` |
+| Monitor (5 min) | `crypto-bots/global-circuit-breaker.sh` |
+| Dashboard sync | `crypto-bots/dashboard-circuit-breaker-status.json` |
+
+- **Trigger**: 6 losses/24h → pausa nuevos trades hasta N horas después
+- **SL/TP**: Siguen ejecutándose durante pausa
+- **ML Validator**: Rechaza todos los trades si CB activo (`approved: False, reason: PAUSE FLAG ACTIVO`)
+
+---
+
+## 🕵️ IP MONITOR
+
+```bash
+# Script
+crypto-bots/ip-monitor.sh
+
+# Cron: cada hora
+0 * * * * bash crypto-bots/ip-monitor.sh
+
+# Providers (dual):
+# 1. ipify.org
+# 2. api4.ip.works (fallback)
+```
+
+- Registra IP en `crypto-bots/last-known-ip.txt`
+- Notifica via Telegram si cambia (para Binance IP Whitelist)
+
+---
+
+## 📈 REPORTE DIARIO
+
+```bash
+# Ejecutar manualmente
+python3 scripts/daily-report.py
+
+# Cron: 9 AM diario
+0 9 * * * python3 scripts/daily-report.py
+```
+
+Incluye:
+- Portfolio total (USDT + MXN)
+- PnL 24h por moneda
+- Trades del día anterior (win rate, PnL)
+- Trades activos
+- Estado del sistema (API, IP, órdenes)
+
+---
+
+## 🔧 COMANDOS ÚTILES
+
+```bash
+# Ver trades en history
+jq '.trades[-5:]' crypto-bots/trade-history.json
+
+# Contar trades activos
+jq '.slots[] | select(.status=="ACTIVE") | .symbol' crypto-bots/XRP-trade-state.json
+
+# Dashboard en vivo
+tail -f logs/dashboard-stdout.log
+
+# IP pública actual
+curl -s https://api.ipify.org
+
+# Ver circuit breaker status
+cat crypto-bots/global-pause-flag.json
+```
+
+---
+
+## 💾 ESTRUCTURA DE ARCHIVOS
 
 ```
-/workspace
-├── crypto-trade-moneda-v3-slots.sh   # Bot principal
+workspace/
 ├── crypto-bots/
-│   ├── market-mode.conf              # Modo de mercado + overrides por moneda
-│   └── *.trade-state.json            # Estado local de slots
+│   ├── crypto-trade-moneda-v3-slots.sh    # Bot principal
+│   ├── auto-adjust-strategy.sh            # Strategy engine
+│   ├── ml-market-validator.sh             # ML validator
+│   ├── market-sentiment.sh                # F&G + EMAs + RSI
+│   ├── global-circuit-breaker.sh          # CB monitor
+│   ├── ip-monitor.sh                      # IP whitelist monitor
+│   ├── notify.sh                          # Telegram notifications
+│   ├── trade-history.json                 # 437+ trades
+│   ├── dynamic-config.env                 # Active strategy params
+│   ├── market-mode.conf                   # Current market classification
+│   ├── global-pause-flag.json             # CB state
+│   ├── last-known-ip.txt                  # Registered public IP
+│   └── *-trade-state.json                 # Slot states per coin
+│
 ├── ml/
-│   ├── ml_pipeline.py                # Pipeline base
-│   ├── ml_pipeline_optimized.py      # Pipeline anti-overfitting
-│   ├── ml_validator_wrapper.py       # Validator integrado
-│   ├── auto-retrain-v2.py            # Auto-retrain semanal
-│   └── models_optimized/             # Modelos entrenados
-├── dashboard/
-│   ├── app.py                        # API /api/portfolio y /api/status
-│   └── static/js/app.js              # Frontend
+│   ├── models_optimized/                  # 7 trained models (.pkl)
+│   ├── market-classifier.py               # ML classifier
+│   ├── ml_validator_wrapper.py            # Trade validation
+│   ├── auto-retrain-v2.py                 # Retraining script
+│   └── market-predictions.json            # Latest predictions
+│
 ├── scripts/
-│   ├── reconcile-binance-state.py    # Reconciliación Binance ↔ state
-│   ├── tp-monitor.sh                 # Monitor TP/SL
-│   └── check-tp.py                   # Respaldo monitor TP/SL
-├── .archive/                         # Historial/documentación obsoleta
-└── logs/                             # Logs del sistema
+│   ├── daily-report.py                    # Daily report
+│   ├── log_trade_to_history.py            # Trade logger w/ dedup
+│   ├── housekeeping.py                    # Cleanup
+│   └── binance-maintenance-monitor.sh     # Exchange downtime check
+│
+├── dashboard/
+│   ├── app.py                             # Flask app
+│   ├── setup-auth.sh                      # Auth setup
+│   ├── templates/
+│   └── static/
+│       ├── css/style.css                  # Cyberpunk theme
+│       └── js/
+│           ├── app.js                     # Desktop dashboard
+│           └── mobile.js                  # Mobile dashboard + CB status
+│
+├── lib/
+│   ├── send-telegram.sh                   # curl --data-urlencode
+│   └── telegram-notifications.sh          # Notification helpers
+│
+├── logs/                                  # All logs
+└── secrets/                               # NEVER COMMITTED
+    ├── binance.env                        # API keys
+    └── telegram.env                       # Bot token + chat ID
 ```
 
 ---
 
-## ⏰ Automatización actual
+## 📊 REPORTAS AUTOMÁTICAS
 
-- **Bots:** systemd por moneda + watchdog
-- **Reconciliación:** cada 15 min
-- **ML retrain:** domingos 03:00
-- **Reporte diario:** 09:00
-- **Housekeeping:** mensual
+### Diario (9:00 AM CST)
+- Portfolio total (USDT + MXN)
+- **PnL 24h** por moneda (corregido: timezone UTC)
+- Trades del día anterior (win rate, PnL)
+- Trades activos con status actual
+- Estado del sistema (API, IP, alertas)
 
-Si querés dato operativo, el punto más útil ahora mismo es **`crypto-trade-moneda-v3-slots.sh`**, **`ml/auto-retrain-v2.py`** y **`scripts/reconcile-binance-state.py`**.
+### Semanal (ML)
+- Model accuracy por moneda
+- Retraining status
+- Overfitting gap (objetivo < 5%)
+
+---
+
+## 🔒 SEGURIDAD
+
+- **API keys**: Solo en `secrets/binance.env`, nunca en repo ✅
+- **Git**: SSH-only, firma `Perrobotron Aterrorizar!!` ✅
+- **IP Whitelist**: Binance con IP dinámica — monitor hourly ✅
+- **Circuit Breaker**: Pausa automática si drawdown ⚠️
+- **Telegram**: `--data-urlencode` + `parse_mode=Markdown` (evita HTTP 400)
+
+---
+
+## ⚙️ CONFIGURACIÓN DEL BOT
+
+### Parámetros por modo de mercado
+| Mode | TP1 | TP2 | TP3 | SL | Posición |
+|---|---|---|---|---|---|
+| **BULL** | +3.0% | +6.0% | +10.0% | -4.0% | 25% |
+| **BEAR** | +1.0% | +3.0% | +5.0% | -3.0% | 15% |
+| **LATERAL** | +1.5% | +3.0% | +5.0% | -3.5% | 20% |
+| **CB ON** | +1.5% | +3.0% | +5.0% | -3.5% | 10% |
+
+---
+
+## 🛠️ TROUBLESHOOTING
+
+| Problema | Solución |
+|---|---|
+| Dashboard HTTP 400 en notificaciones | `curl` usa `--data-urlencode`, no `-d` |
+| `totalTrades` mismatch | Derivado de `len(trades)`, nunca counter |
+| Trades duplicados en history | `log_trade_to_history.py` dedup (key: symbol:slotId:closeTime:pnl) |
+| Dashboard no refresca | Verificar que Flask esté corriendo: `curl localhost:8080/api/health` |
+| ML stale predicciones | `ml/auto-retrain-v2.py` o `update-ml-predictions.sh` |
+
+---
+
+## 🐕 CRÉDITOS
+
+**Desarrollado por:** [Perrobotron](https://t.me/perrobotron) 🐕  
+**Para:** Jefe (Rull Ox)  
+**Versión:** FASE 1 v2.1  
+**Fecha:** 2026-08-24
+
+*"'Nunca confiar, siempre verificar.' — Perrobotron Aterrorizar!!"*
+
+---
+
+<div align="center">
+
+**🚀 El bot está vivo, Jefe. ¡A operar se ha dicho!**
+
+</div>
