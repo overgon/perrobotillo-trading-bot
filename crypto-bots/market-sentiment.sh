@@ -149,9 +149,9 @@ echo ""
 echo "🔍 Analizando modo de mercado..."
 
 # Convertir a float para comparaciones
-BTC_PRICE_F=$(echo "$BTC_PRICE" | sed 's/[^0-9.]//g')
-EMA20_F=$(echo "$EMA20" | sed 's/[^0-9.]//g')
-FG_VALUE_F=$(echo "$FG_VALUE" | sed 's/[^0-9.]//g')
+BTC_PRICE_F=$(echo "$BTC_PRICE" | tr -d ',')
+EMA20_F=$(echo "$EMA20" | tr -d ',')
+FG_VALUE_F=$(echo "$FG_VALUE" | tr -d ',')
 RSI_F=$(echo "$RSI" | sed 's/[^0-9.]//g')
 
 # Determinar modo

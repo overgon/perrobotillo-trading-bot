@@ -75,8 +75,8 @@ def _resolve_symbol_from_price(entry_price):
         "ETH": (800, 8000),
         "BNB": (200, 1000),
         "SOL": (40, 500),
-        "AVAX": (5.0, 30),
-        "LINK": (5.0, 30),
+        "AVAX": (4.0, 12.0),  # AVAX ~$7.5 — non-overlapping with LINK
+        "LINK": (6.0, 30.0),  # LINK ~$11.5 — starts above AVAX max
         "XRP": (0.2, 5.0),
     }
     candidates = []

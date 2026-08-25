@@ -9,14 +9,71 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 438,
+  "totalTrades": 441,
   "totalWins": 333,
-  "totalLosses": 105,
+  "totalLosses": 108,
   "totalProfitUSDT": 701.96729663,
-  "totalLossUSDT": -473.84960273,
-  "netPnLUSDT": 227.25644981,
-  "winRate": 76.03,
+  "totalLossUSDT": -476.28883113,
+  "netPnLUSDT": 224.81722141,
+  "winRate": 75.51,
   "trades": [
+    {
+      "id": 443,
+      "symbol": "AVAX",
+      "coin": "AVAX",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 7.521,
+      "exitPrice": 7.31,
+      "quantity": 2.51,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -0.52965803,
+      "timestamp": "2026-08-25T15:16:03.074671",
+      "closeTime": "2026-08-25 15:16:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "_corrected_at": "2026-08-25T16:45:00",
+      "_correction_reason": "Symbol mismatch: BTC\u2192AVAX (entry $7.5x is AVAX price range)"
+    },
+    {
+      "id": 442,
+      "symbol": "AVAX",
+      "coin": "AVAX",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 7.528,
+      "exitPrice": 7.307,
+      "quantity": 4.21,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -0.9304499,
+      "timestamp": "2026-08-25T15:16:02.333718",
+      "closeTime": "2026-08-25 15:16:02",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "_corrected_at": "2026-08-25T16:45:00",
+      "_correction_reason": "Symbol mismatch: BTC\u2192AVAX (entry $7.5x is AVAX price range)"
+    },
+    {
+      "id": 441,
+      "symbol": "AVAX",
+      "coin": "AVAX",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 7.57,
+      "exitPrice": 7.371,
+      "quantity": 4.92,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -0.97912047,
+      "timestamp": "2026-08-25T14:46:02.426817",
+      "closeTime": "2026-08-25 14:46:02",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null,
+      "_corrected_at": "2026-08-25T16:45:00",
+      "_correction_reason": "Symbol mismatch: BTC\u2192AVAX (entry $7.5x is AVAX price range)"
+    },
     {
       "id": 440,
       "symbol": "LINK",
@@ -7230,12 +7287,12 @@
       "orderId": null
     }
   ],
-  "updatedAt": "2026-08-25T05:14:02.302844",
+  "updatedAt": "2026-08-25T15:16:03.075049",
   "bySymbol": {
     "BTC": {
-      "trades": 174,
+      "trades": 177,
       "wins": 152,
-      "netPnL": 128.74449517
+      "netPnL": 126.30526677
     },
     "ETHUSDT": {
       "trades": 3,
@@ -7630,9 +7687,9 @@
       "netPnL": 13.84922195
     },
     "2026-08-25": {
-      "trades": 3,
+      "trades": 6,
       "wins": 0,
-      "netPnL": -2.58618386
+      "netPnL": -5.02541226
     }
   },
   "lastUpdated": "2026-08-14T20:42:49.220903"
