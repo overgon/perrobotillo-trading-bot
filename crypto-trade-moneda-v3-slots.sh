@@ -1725,8 +1725,20 @@ ACUMULADO: 5% se queda HODL 📈
                 # LOG TRADE TO HISTORY
                 log_trade_to_history "$slot_id" "CLOSED_SL" "$entry" "$exit_price" "$quantity" "$pnl"
 
+                # 🔧 FIX: Resolve correct symbol using entry price to avoid $SYMBOL env var mismatch
+                # (e.g. $SYMBOL=AVAX when closing LINK trade due to previous loop)
+                local resolved_symbol="$SYMBOL"
+                resolved_symbol=$(python3 -c "
+import json
+entry = float('$entry')
+ranges = {'BTC':(20000,120000),'ETH':(800,8000),'BNB':(200,1000),'SOL':(40,500),'AVAX':(5,30),'LINK':(5,30),'XRP':(0.2,5)}
+for s,(lo,hi) in ranges.items():
+    if lo <= entry <= hi:
+        print(s); break
+" 2>/dev/null || echo "$SYMBOL")
+
                 # ✅ Verificación final de persistencia antes de continuar
-                local history_check=$(jq --arg sy "$SYMBOL" --argjson sid "$slot_id" --arg ct "CLOSED_SL" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType==$ct)] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)
+                local history_check=$(jq --arg sy "$resolved_symbol" --argjson sid "$slot_id" --arg ct "CLOSED_SL" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType==$ct)] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)
                 if [ "${history_check:-0}" = "0" ]; then
                     log "  ❌ SEGURIDAD: history no persistió CLOSED_SL tras reintento; abortando cierre para evitar pérdida de datos"
                     return 1
@@ -1817,7 +1829,7 @@ execute_trailing_stop() {
             log "  ⚠️ log_trade_to_history no persistió CLOSED_TRAILING; reintento forzado"
             sleep 1
             log_trade_to_history "$slot_id" "CLOSED_TRAILING" "$entry" "$exit_price" "$quantity" "$pnl"
-            trailing_history_check=$(jq --arg sy "$SYMBOL" --argjson sid "$slot_id" --arg ct "CLOSED_TRAILING" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType==$ct)] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)
+            trailing_history_check=$(jq --arg sy "$resolved_symbol" --argjson sid "$slot_id" --arg ct "CLOSED_TRAILING" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType==$ct)] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)
             if [ "$trailing_history_check" = "0" ]; then
                 log "  ❌ SEGURIDAD: history no persistió CLOSED_TRAILING tras reintento; abortando cierre para evitar pérdida de datos"
                 return 1
