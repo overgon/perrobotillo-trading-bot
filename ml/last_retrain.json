@@ -1,5 +1,17 @@
 {
   "last_retrain": "2026-06-22T09:59:51.841514",
   "trade_count_at_retrain": 220,
-  "retrain_count": 10
+  "retrain_count": 10,
+  "last_cron_failure": "2026-08-23 03:00:02",
+  "cron_fix_applied": "2026-08-25",
+  "fix_details": "script: ml-retrain.py -> auto-retrain-v2.py, timeout: 600 -> 3600s, curl: -d -> --data-urlencode",
+  "model_accuracy": {
+    "BNB": "94.41%",
+    "ETH": "91.61%",
+    "SOL": "92.31%",
+    "XRP": "90.21%",
+    "BTC": "88.81%",
+    "AVAX": "83.22%",
+    "LINK": "80.42%"
+  }
 }

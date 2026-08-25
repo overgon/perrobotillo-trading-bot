@@ -25,8 +25,8 @@ fi
 
 # Ejecutar re-entrenamiento
 cd "$WORKSPACE/ml"
-# Ejecutar con timeout de 10 minutos
-timeout 600 python3 ml-retrain.py
+# Ejecutar con timeout de 1 hora (7 modelos toman ~15 min)
+timeout 3600 python3 auto-retrain-v2.py
 exit_code=$?
 
 if [ $exit_code -eq 0 ]; then
@@ -49,7 +49,7 @@ Revisar logs: \`ml-retrain.log\`"
         
         curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             -d "chat_id=${TELEGRAM_CHAT_ID}" \
-            -d "text=${message}" \
+            --data-urlencode "text=${message}" \
             -d "parse_mode=Markdown" > /dev/null
     fi
 fi
