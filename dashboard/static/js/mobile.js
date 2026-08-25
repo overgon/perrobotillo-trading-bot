@@ -190,8 +190,9 @@ function updateSlots(data) {
     console.log('🔧 Updating slots, tradeStates:', Object.keys(tradeStates).length, 'coins');
     
     // 🟠 VERIFICAR CIRCUIT BREAKER STATUS
-    const circuitBreakerActive = data.circuitBreakerActive || false;
-    const circuitStatus = data.circuitStatus || 'NORMAL';
+    const cbStatus = data.circuitBreakerStatus || {};
+    const circuitBreakerActive = cbStatus.circuitBreakerActive || false;
+    const circuitStatus = cbStatus.status || 'NORMAL';
     const isEmergencyMode = circuitBreakerActive && (circuitStatus === 'GLOBAL_PAUSE' || circuitStatus === 'EMERGENCY_CONSERVATIVE');
     
     if (isEmergencyMode) {
@@ -549,6 +550,51 @@ function updateAutoAdjust(data) {
             countdownEl.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }, 1000);
     }
+}
+
+// ════════════════════════════════════════════════════════
+// 🛑 CIRCUIT BREAKER STATUS UPDATE
+// ════════════════════════════════════════════════════════
+
+function updateCircuitBreakerStatus(data) {
+    const cb = data.circuitBreakerStatus || {};
+    const cbLabel = document.getElementById('cbLabel');
+    const cbCountdown = document.getElementById('cbCountdown');
+    const cbBadge = document.getElementById('cbBadge');
+
+    if (!cbLabel || !cbCountdown || !cbBadge) return;
+
+    if (!cb || !cb.circuitBreakerActive) {
+        cbLabel.textContent = 'CB OFF';
+        cbCountdown.textContent = '';
+        cbBadge.className = 'cb-badge off';
+        return;
+    }
+
+    cbLabel.textContent = 'CB ON';
+    cbBadge.className = 'cb-badge on';
+
+    const until = cb.pauseUntil ? new Date(cb.pauseUntil) : null;
+    if (!until) {
+        cbCountdown.textContent = '';
+        return;
+    }
+
+    const update = () => {
+        const now = new Date();
+        const diff = until - now;
+        if (diff <= 0) {
+            cbCountdown.textContent = '⏳ EXPIRADO';
+            return;
+        }
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        cbCountdown.textContent = `⏳ ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    };
+
+    update();
+    setInterval(update, 1000);
 }
 
 // ════════════════════════════════════════════════════════

@@ -181,6 +181,32 @@ def main():
     total = len(trades) + 1
     win_rate = (wins / total * 100) if total > 0 else 0
 
+    # ✅ DEDUP: Skip if exact duplicate (same symbol+slot+closeTime+pnl)
+    # Also match on minute-level timestamp to catch race conditions
+    # where bot and log_trade_to_history fire within the same second
+    # but with slightly different millisecond precision (e.g. #437 vs #438)
+    close_time_str = str(new_trade.get("closeTime", ""))
+    minute_key_close = close_time_str[:16] if close_time_str else ""  # "2026-08-24 22:35"
+    
+    dedup_key = f"{new_trade.get('symbol','?')}:{new_trade.get('slotId','?')}:{close_time_str}:{new_trade.get('pnlUSDT',0)}"
+    existing = [t for t in trades if (
+        t.get("symbol") == new_trade.get("symbol") and
+        t.get("slotId") == new_trade.get("slotId") and
+        str(t.get("closeTime", "")) == close_time_str and
+        float(t.get("pnlUSDT", 0) or 0) == float(new_trade.get("pnlUSDT", 0) or 0)
+    )]
+    # Also check minute-level + same exitPrice + same pnl (race condition guard)
+    if not existing and minute_key_close:
+        existing = [t for t in trades if (
+            t.get("symbol") == new_trade.get("symbol") and
+            t.get("slotId") == new_trade.get("slotId") and
+            str(t.get("closeTime", ""))[:16] == minute_key_close and
+            float(t.get("pnlUSDT", 0) or 0) == float(new_trade.get("pnlUSDT", 0) or 0) and
+            float(t.get("exitPrice", 0) or 0) == float(new_trade.get("exitPrice", 0) or 0)
+        )]
+    if existing:
+        print(f"  ⏭️  DEDUP_SKIP: Trade already exists (key={dedup_key[:60]})")
+        return
     data["trades"].insert(0, new_trade)
     # 🔧 FIX ROOT CAUSE: totalTrades MUST match len(trades) — race conditions
     # and concurrent writes could desync the counter. Derive from array length.

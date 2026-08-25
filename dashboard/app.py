@@ -560,35 +560,90 @@ def get_market_mode():
     return {"MARKET_MODE": "LATERAL", "TP1": "2.5", "TP2": "5.0", "TP3": "7.0", "SL": "5.0"}
 
 def _load_circuit_breaker_status():
-    """Leer estado del Circuit Breaker desde el archivo de estado"""
-    try:
-        status_file = os.path.join(CRYPTO_BOTS, 'dashboard-circuit-breaker-status.json')
-        if not os.path.exists(status_file):
-            return {
-                'circuitBreakerActive': False,
-                'status': 'NORMAL',
-                'pauseUntil': None,
-                'triggeredBy': None,
-                'message': 'CB OFF'
-            }
-        with open(status_file, 'r') as f:
-            data = json.load(f)
-        return {
-            'circuitBreakerActive': bool(data.get('circuitBreakerActive', False)),
-            'status': data.get('status', 'NORMAL'),
-            'pauseUntil': data.get('pauseUntil'),
-            'triggeredBy': data.get('triggeredBy'),
-            'message': data.get('message', 'CB OFF')
-        }
-    except Exception as e:
-        print(f"Error reading circuit breaker status: {e}")
-        return {
-            'circuitBreakerActive': False,
-            'status': 'NORMAL',
-            'pauseUntil': None,
-            'triggeredBy': None,
-            'message': 'CB OFF'
-        }
+    """Leer estado del Circuit Breaker desde archivos de estado"""
+    import time as _time
+    
+    # 1. Leer status del dashboard JSON (actualizado on-demand por global-circuit-breaker.sh)
+    status = {
+        'circuitBreakerActive': False,
+        'status': 'NORMAL',
+        'pauseUntil': None,
+        'triggeredBy': None,
+        'message': 'CB OFF',
+        'countdown': None,
+        'pauseHours': None
+    }
+    
+    # Intentar leer global-pause-flag.json (fuente más confiable)
+    pause_file = os.path.join(CRYPTO_BOTS, 'global-pause-flag.json')
+    if os.path.exists(pause_file):
+        try:
+            with open(pause_file, 'r') as f:
+                pause_data = json.load(f)
+            
+            pause_until_str = pause_data.get('pause_until')
+            if pause_until_str:
+                # Parsear y verificar si el pause aún es válido
+                pause_until = datetime.fromisoformat(pause_until_str)
+                now = datetime.now()
+                remaining = (pause_until - now).total_seconds()
+                
+                if remaining > 0:
+                    # CB activo
+                    hours_left = remaining / 3600
+                    next_trigger_hour = pause_until.hour
+                    next_trigger_minute = pause_until.minute
+                    
+                    # Incluir timezone CST para JS new Date() (línea 637 de app.js)
+                    try:
+                        import pytz
+                        cst = pytz.timezone('America/Mexico_City')
+                        pause_until_cst = cst.localize(pause_until) if pause_until.tzinfo is None else pause_until
+                        pause_until_str_cst = pause_until_cst.isoformat()
+                    except ImportError:
+                        # Si no hay pytz, usar el string tal cual (JS lo interpreta como local)
+                        pause_until_str_cst = pause_until_str
+                    
+                    status.update({
+                        'circuitBreakerActive': True,
+                        'status': 'GLOBAL_PAUSE',
+                        'pauseUntil': pause_until_str_cst,
+                        'triggeredBy': pause_data.get('triggered_by', 'unknown'),
+                        'message': f"🔴 CB ON - {pause_data.get('losses_24h', 0)} losses en 24h",
+                        'losses24h': pause_data.get('losses_24h', 0),
+                        'totalLoss': pause_data.get('total_loss', '0'),
+                        'countdown': pause_until_str,
+                        'countdown_seconds': int(remaining),
+                        'pauseHours': round(hours_left, 1),
+                        'next_adjustment': pause_until_str_cst
+                    })
+                # else: pause expiró, dejar estado NORMAL
+                
+        except Exception as e:
+            print(f"Error reading pause flag: {e}")
+    
+    # También leer dashboard-circuit-breaker-status.json para metadata extra
+    status_file = os.path.join(CRYPTO_BOTS, 'dashboard-circuit-breaker-status.json')
+    if os.path.exists(status_file):
+        try:
+            with open(status_file, 'r') as f:
+                data = json.load(f)
+            # No sobreescribir campos del pause flag, pero usar como fallback
+            if not status['circuitBreakerActive']:
+                status.update({
+                    'circuitBreakerActive': bool(data.get('circuitBreakerActive', False)),
+                    'status': data.get('status', 'NORMAL'),
+                    'pauseUntil': data.get('pauseUntil'),
+                    'triggeredBy': data.get('triggeredBy'),
+                    'message': data.get('message', 'CB OFF'),
+                    'allowedOperations': data.get('allowedOperations', []),
+                    'blockedOperations': data.get('blockedOperations', []),
+                    'activatedAt': data.get('activatedAt')
+                })
+        except Exception as e:
+            print(f"Error reading circuit breaker status: {e}")
+    
+    return status
 
 # ════════════════════════════════════════════════════════
 # 🔧 SANITIZADOR JSON (debe estar al nivel módulo, no dentro de jsonify)

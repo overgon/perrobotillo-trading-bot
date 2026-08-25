@@ -26,7 +26,7 @@ send_telegram() {
         if [ -n "$bot_token" ] && [ -n "$chat_id" ]; then
             curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
                 -d "chat_id=${chat_id}" \
-                -d "text=$message" \
+                --data-urlencode "text=${message}" \
                 -d "parse_mode=HTML" > /dev/null
             return 0
         fi

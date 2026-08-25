@@ -23,7 +23,30 @@ if [ -f "$GLOBAL_PAUSE_FILE" ]; then
         
         if [ $now_epoch -lt $pause_epoch ]; then
             remaining_hours=$(( (pause_epoch - now_epoch) / 3600 ))
+            remaining_minutes=$(( (pause_epoch - now_epoch) / 60 % 60 ))
             
+            # 📱 ACTUALIZAR DASHBOARD STATUS - CB activo
+            python3 << CBEOF
+import json
+from datetime import datetime, timezone, timedelta
+cst = timezone(timedelta(hours=-6))
+status = {
+    "circuitBreakerActive": True,
+    "status": "GLOBAL_PAUSE",
+    "triggeredBy": "losses_count",
+    "message": "🔴 Circuit Breaker ON",
+    "pauseUntil": "$(echo "$pause_until" | python3 -c "import sys; from datetime import datetime, timezone, timedelta; cst = timezone(timedelta(hours=-6)); print(datetime.fromisoformat(sys.stdin.read().strip()).replace(tzinfo=cst).isoformat())")",
+    "losses24h": $(jq -r '.losses_24h // 0' "$GLOBAL_PAUSE_FILE" 2>/dev/null || echo 0),
+    "totalLoss": "$(jq -r '.total_loss // "0"' "$GLOBAL_PAUSE_FILE" 2>/dev/null)",
+    "allowedOperations": ["SL Management", "TP Management", "Emergency Close"],
+    "blockedOperations": ["New Entries", "DCA Operations"],
+    "activatedAt": datetime.now(cst).isoformat(),
+    "lastChecked": datetime.now(cst).isoformat()
+}
+with open("/home/overgon/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json", 'w') as f:
+    json.dump(status, f, indent=2)
+CBEOF
+
             # 🐕 FIX: Permitir gestión de trades activos (SL/TP) incluso con pause flag
             # Verificar si hay trades activos que necesitan gestión
             HAS_ACTIVE_TRADES=false

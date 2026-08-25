@@ -49,13 +49,15 @@ OPTIMIZED_CONFIG = {
 # Overrides por moneda para casos con overfitting alto
 COIN_CONFIG_OVERRIDES = {
     'LINK': {
-        'max_depth': 6,
-        'min_samples_split': 30,
-        'min_samples_leaf': 15,
-        'n_estimators': 200,
-        'max_features': 'sqrt',
+        'max_depth': 7,                # Balance entre expresividad y regularización
+        'min_samples_split': 40,       # Regularización moderada-alta
+        'min_samples_leaf': 20,        # Previene leaves muy pequeños
+        'n_estimators': 200,           # Balance estabilidad/velocidad
+        'max_features': 'log2',        # Usar log2 features por árbol (menos que sqrt)
+        'max_leaf_nodes': 20,          # Limitar hojas
         'class_weight': 'balanced',
-        'random_state': 42
+        'random_state': 123,           # Diferente seed para diversidad
+        'ccp_alpha': 0.005              # Pruning suave post-entrenamiento (ajustado para LINK ruidoso)
     },
     'XRP': {
         'max_depth': 6,
@@ -160,8 +162,8 @@ class OptimizedMLPipeline:
         
         n_features = X.shape[1]
         
-        # Override por moneda: LINK/XRP usan features reducidas para mitigar overfitting por volumen ruidoso
-        coin_k_override = {'LINK': 10, 'XRP': 14}
+        # Override por moneda: LINK usa features reducidas para mitigar overfitting
+        coin_k_override = {'LINK': 5, 'XRP': 14}
         if k is None:
             k = coin_k_override.get(self.coin, int(np.sqrt(n_features)))
         
@@ -226,7 +228,9 @@ class OptimizedMLPipeline:
                     non_vol_idx = [feature_cols_clean.index(c) for c in non_vol_features]
                     X = X[:, non_vol_idx]
                     print(f"   🔧 LINK: excluyendo {len(vol_features)} features de volumen, usando {len(non_vol_features)} features de precio/indicadores")
-                    selected_indices = self.select_best_features(X, y, non_vol_features)
+                    
+                    # LINK: usar solo 5 features críticas para reducir overfitting
+                    selected_indices = self.select_best_features(X, y, non_vol_features, k=5)
                     X = X[:, selected_indices]
                     self.selected_features = [non_vol_features[i] for i in selected_indices]
                 else:
@@ -315,7 +319,7 @@ class OptimizedMLPipeline:
         metadata = {
             'coin': self.coin,
             'trained_at': datetime.now().isoformat(),
-            'config': OPTIMIZED_CONFIG,
+            'config': config,  # ✅ Config actual (incluye overrides por moneda)
             'use_feature_selection': self.use_feature_selection,
             'n_features_original': len(feature_cols_clean),
             'n_features_selected': len(self.selected_features) if self.use_feature_selection else len(feature_cols_clean),

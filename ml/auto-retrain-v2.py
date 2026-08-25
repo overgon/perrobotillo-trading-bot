@@ -89,6 +89,12 @@ def check_if_retrain_needed(coin: str) -> bool:
         logger.warning(f"{coin}: {metric_key}={current_metric:.2%} < {threshold:.0%}, re-entrenando urgente")
         return True
     
+    # 3b. Verificar overfitting gap como criterio de re-entrenamiento
+    overfitting_gap = metadata.get('metrics', {}).get('overfitting_gap', 0)
+    if overfitting_gap > 0.08:  # Gap > 8%
+        logger.warning(f"{coin}: overfitting gap={overfitting_gap:.2%} > 8%, re-entrenando urgente")
+        return True
+    
     # 4. Verificar trades nuevos desde último entrenamiento
     try:
         last_count = metadata.get('last_trade_count', metadata.get('samples', 0))

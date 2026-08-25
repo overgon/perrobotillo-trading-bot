@@ -229,6 +229,18 @@ adapter_slot_trade_to_log_trade() {
 log_trade_to_history() {
     local slot_id="$1"
     local close_type="$2"
+    # ✅ FIX: Normalize close_type to always have CLOSED_ prefix
+    # This prevents duplicates where bot logs "CLOSED_SL" and notify.sh logs "SL"
+    case "$close_type" in
+        CLOSED_*) ;;  # Already has prefix
+        SL) close_type="CLOSED_SL" ;;
+        TP1) close_type="CLOSED_TP1" ;;
+        TP2) close_type="CLOSED_TP2" ;;
+        TP3) close_type="CLOSED_TP3" ;;
+        SCALP) close_type="CLOSED_SCALP" ;;
+        TRAILING) close_type="CLOSED_TRAILING" ;;
+        MANUAL) close_type="CLOSED_MANUAL" ;;
+    esac
     local entry_price="$3"
     local exit_price="$4"
     local quantity="$5"

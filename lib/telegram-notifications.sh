@@ -170,7 +170,7 @@ notify_system_status() {
 
     send_telegram "🔧 SYSTEM STATUS ${status}
 ${detail}
-\u2705 ${timestamp}"
+✅ ${timestamp}"
 }
 
 notify_daily_report() {

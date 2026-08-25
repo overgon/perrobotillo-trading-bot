@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 🔔 Notificación de trade cerrado a Telegram - Optimizado v2
+# 🔔 Notificación de trade cerrado a Telegram v2 - sin comillas extra
 # Uso: notify_trade.sh <symbol> <closeType> <pnl> <tradeId> <entry> <exit>
 set -euo pipefail
 
@@ -10,10 +10,8 @@ TRADE_ID="${4:-0}"
 ENTRY="${5:-0}"
 EXIT="${6:-0}"
 
-# Cargar secrets de Telegram
 TELEGRAM_SECRETS="/home/overgon/.openclaw/secrets/telegram.env"
 if [[ -f "$TELEGRAM_SECRETS" ]]; then
-    # shellcheck disable=SC1090
     source "$TELEGRAM_SECRETS"
 else
     echo "⚠️ telegram.env not found" >&2
@@ -32,15 +30,15 @@ fi
 PNL_SIGN="+"; [[ $(echo "$PNL < 0" | bc -l 2>/dev/null || echo 0) -eq 1 ]] && PNL_SIGN="-" || PNL_SIGN="+"
 
 # 📱 Mensaje compacto - una sola línea + separador
-MSG="📜 ${SYMBOL} ${CLOSE_TYPE} [Slot ${TRADE_ID}]
+MSG="📜 ${SYMBOL} ${CLOSE_TYPE} [Trade #${TRADE_ID}]
 Exit: \$${EXIT} | Entrada: \$${ENTRY} | PnL: ${PNL_SIGN}\$${PNL}
 $(date '+%H:%M:%S') CST 🐕"
 
-# Enviar a Telegram
+# Enviar a Telegram con --data-urlencode para evitar comillas extra
 curl -s -X POST "https://api.telegram.org/bot${TOKEN}/sendMessage" \
-    -d chat_id="${CHAT_ID}" \
-    -d text="${MSG}" \
-    -d parse_mode="Markdown" \
+    -d "chat_id=${CHAT_ID}" \
+    --data-urlencode "text=${MSG}" \
+    -d "parse_mode=Markdown" \
     >/dev/null 2>&1 || true
 
 echo "✅ Enviado: ${SYMBOL} ${CLOSE_TYPE} PnL=${PNL_SIGN}\$${PNL}"

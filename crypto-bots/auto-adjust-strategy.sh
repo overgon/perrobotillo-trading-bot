@@ -194,6 +194,13 @@ fi
 
 "${ML_VALIDATOR}"  # ML validator en crypto-bots/
 
+# ✅ FIX: El ML validator puede haber sobreescrito dynamic-config.env
+# Releer para sync memoria <-> archivo (evita discrepancia BULL vs LATERAL)
+if [ -f "$DYNAMIC_CONFIG" ]; then
+    source "$DYNAMIC_CONFIG"
+    echo "🔄 Sync post-ML: MARKET_MODE=$MARKET_MODE (leído de dynamic-config.env)"
+fi
+
 # ════════════════════════════════════════════════════════
 # PASO 4: RESULTADO FINAL + OVERRIDE + NOTIFICACIÓN
 # ════════════════════════════════════════════════════════
@@ -234,6 +241,11 @@ if [ -f "$ML_RESULT_FILE" ]; then
             echo "⚠️  Override ML descartado (modo extendido=$MARKET_MODE o métricas insuficientes)"
         fi
     fi
+
+# ✅ FIX: Si el ML validator ya sobrescribió dynamic-config.env, usar ese modo
+if [ "$FINAL_MODE" = "$MARKET_MODE" ] && [ -n "$ML_MODE" ] && [ "$ML_MODE" != "UNKNOWN" ]; then
+    FINAL_MODE="$MARKET_MODE"  # Sync con lo que validator escribió
+fi
 else
     OVERRIDE="⚠️ ML no disponible"
 fi

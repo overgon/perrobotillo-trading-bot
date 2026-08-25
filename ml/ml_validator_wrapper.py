@@ -27,6 +27,7 @@ from ml_pipeline import MLPipeline
 MIN_CONFIDENCE = 60  # Mínimo % para aprobar trade
 MODEL_DIR = Path("/home/overgon/.openclaw/workspace/ml/models_optimized")  # ✅ MODELOS OPTIMIZADOS
 FALLBACK_POSITION_PERCENT = 25
+GLOBAL_PAUSE_FILE = WORKSPACE / "crypto-bots" / "global-pause-flag.json"
 RISK_BLOCK_CONFIDENCE = 75  # Debajo de esto, ML puede bloquear como seguridad
 RISK_REVIEW_CONFIDENCE = 60  # Arriba de esto, ML solo sugiere y no bloquea
 
@@ -45,6 +46,34 @@ def validate_trade(coin: str, direction: str = "LONG", trade_type: str = "NORMAL
     
     Returns: dict con decisión y metadata
     """
+    
+    # ════════════════════════════════════════════════════════
+    # ⭐ VERIFICAR PAUSE FLAG (CIRCUIT BREAKER)
+    # ════════════════════════════════════════════════════════
+    # Si el CB está activo (pause_until futuro), RECHAZAR todos los trades nuevos
+    if GLOBAL_PAUSE_FILE.exists():
+        try:
+            from datetime import datetime as _dt
+            with open(GLOBAL_PAUSE_FILE, 'r') as f:
+                pause_data = json.load(f)
+            pause_until_str = pause_data.get('pause_until')
+            if pause_until_str:
+                pause_until = _dt.fromisoformat(pause_until_str)
+                now = _dt.now()
+                remaining = (pause_until - now).total_seconds()
+                if remaining > 0:
+                    return {
+                        'approved': False,
+                        'reason': f'FALLBACK: PAUSE FLAG ACTIVO - No abrir NUEVOS trades (restan {remaining/60:.0f} min)',
+                        'confidence': 0,
+                        'position_size': 0,
+                        'signal': 'WAIT',
+                        'source': 'CIRCUIT_BREAKER',
+                        'pauseRemaining': round(remaining / 60),
+                        'losses24h': pause_data.get('losses_24h', 0)
+                    }
+        except Exception:
+            pass  # Si falla, dejar pasar (no bloquear por errores)
     
     # Verificar si existe modelo entrenado OPTIMIZADO
     model_path = MODEL_DIR / f"{coin}_optimized_model.pkl"
