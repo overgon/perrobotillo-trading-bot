@@ -61,22 +61,25 @@ def _resolve_symbol_from_slot(slot_id, workspace=WORKSPACE):
         except Exception:
             return "UNKNOWN"
 
-def _resolve_symbol_from_price(entry_price):
+def _resolve_symbol_from_price(entry_price, slot_id=None):
     """🔧 FIX ROOT CAUSE: validate symbol from entryPrice when env var conflicts.
-
+    
     Bot sometimes passes wrong SYMBOL env (BTC) for altcoin closes.
     Use entryPrice ranges to identify the real coin.
     Returns the coin with highest confidence, or None if ambiguous.
+    
+    When slot_id is provided, use it to disambiguate overlapping price ranges
+    (e.g. AVAX $4-12 overlaps with LINK $6-30 for prices $6-12).
     """
-        # 🔧 FIX: Updated PRICE_RANGES to match actual market prices (2026-08)
+    # 🔧 FIX: Updated PRICE_RANGES to match actual market prices (2026-08)
     # Previous ranges were stale (LINK was $3-5.4 but now ~$11.5)
     PRICE_RANGES = {
         "BTC": (20000, 120000),
         "ETH": (800, 8000),
         "BNB": (200, 1000),
         "SOL": (40, 500),
-        "AVAX": (4.0, 12.0),  # AVAX ~$7.5 — non-overlapping with LINK
-        "LINK": (6.0, 30.0),  # LINK ~$11.5 — starts above AVAX max
+        "AVAX": (4.0, 12.0),  # AVAX ~$7.5 — overlaps with LINK in $6-12 range
+        "LINK": (6.0, 30.0),  # LINK ~$11.5 — starts above AVAX min
         "XRP": (0.2, 5.0),
     }
     candidates = []
@@ -86,7 +89,14 @@ def _resolve_symbol_from_price(entry_price):
     # If price matches exactly one coin range → definitive
     if len(candidates) == 1:
         return candidates[0]
-    # Ambiguous (e.g. AVAX ~$6 overlaps with price range) — prefer more specific
+    # Ambiguous (e.g. AVAX ~$6-12 overlaps with LINK $6-30) — use slot_id to disambiguate
+    if len(candidates) > 1 and slot_id is not None:
+        slot_coin = _resolve_symbol_from_slot(slot_id, WORKSPACE)
+        if slot_coin in candidates:
+            return slot_coin
+    # If still ambiguous, fall back to slot_id resolution
+    if len(candidates) == 0 and slot_id is not None:
+        return _resolve_symbol_from_slot(slot_id, WORKSPACE)
     return None
 
 def main():
@@ -125,8 +135,9 @@ def main():
     if not symbol:
         symbol = _resolve_symbol_from_slot(slot_id, WORKSPACE)
     # 🔧 FIX ROOT CAUSE: validate symbol against entryPrice — bot sometimes passes
-    # wrong SYMBOL env (BTC) for other coins. entryPrice ~$6 = AVAX/LINK, not BTC.
-    symbol_from_price = _resolve_symbol_from_price(entry)
+    # wrong SYMBOL env (BTC) for other coins. entryPrice ~$7.5 = AVAX, not BTC.
+    # Pass slot_id to disambiguate overlapping price ranges (AVAX/LINK)
+    symbol_from_price = _resolve_symbol_from_price(entry, slot_id)
     if symbol_from_price and symbol_from_price != symbol:
         print(f"  ⚠️ SYMBOL mismatch: env='{symbol}' slot={_resolve_symbol_from_slot(slot_id, WORKSPACE)} price=${entry} → confiable: {symbol_from_price}")
         symbol = symbol_from_price
