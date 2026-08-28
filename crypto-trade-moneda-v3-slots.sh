@@ -1728,13 +1728,51 @@ ACUMULADO: 5% se queda HODL 📈
         
         # Check SL - Stop Loss (cierra 100%)
         if (( $(echo "$current_price <= $sl" | bc -l) )); then
-            log "🛑 Slot $slot_id SL HIT: \$${current_price} <= \$${sl}"
-            local sell_result=$(place_sell_order_market "$SYMBOL" "$quantity")
+            log "🛑 Slot $slot_id SL HIT: $$${current_price} <= $$${sl}"
+            
+            # 🔧 FIX: Format quantity with stepSize before selling to prevent LOT_SIZE filter failure
+            local sell_qty_fmt=$(format_quantity "$SYMBOL" "$quantity")
+            
+            local sell_result=$(place_sell_order_market "$SYMBOL" "$sell_qty_fmt")
             log "  Resultado venta SL: $sell_result"
             local sell_status=$(echo "$sell_result" | jq -r '.status // "ERROR"')
+            
+            # 🔧 FIX: Retry with adjusted quantity if LOT_SIZE filter fails
+            if [ "$sell_status" = "ERROR" ] || [ -z "$sell_status" ]; then
+                local error_msg=$(echo "$sell_result" | jq -r '.msg // empty')
+                if echo "$error_msg" | grep -qi "LOT_SIZE"; then
+                    log "  ⚠️ LOT_SIZE error, retrying with floor-adjusted quantity..."
+                    # Round down to nearest stepSize multiple using awk
+                    local stepSize=$(curl -s -m 5 "${BINANCE}/api/v3/exchangeInfo?symbol=${SYMBOL}USDT" 2>/dev/null | jq -r '.symbols[0].filters[] | select(.filterType == "LOT_SIZE") | .stepSize' 2>/dev/null)
+                    [ -z "$stepSize" ] || [ "$stepSize" = "null" ] && stepSize="0.01000000"
+                    local sell_qty_retry=$(awk -v q="$quantity" -v s="$stepSize" 'BEGIN {printf "%.8f", int(q/s)*s}')
+                    sell_qty_retry=$(format_quantity "$SYMBOL" "$sell_qty_retry")
+                    log "  🔄 Retrying SL sell with qty: $quantity -> $sell_qty_retry"
+                    sell_result=$(place_sell_order_market "$SYMBOL" "$sell_qty_retry")
+                    log "  Resultado retry venta SL: $sell_result"
+                    sell_status=$(echo "$sell_result" | jq -r '.status // "ERROR"')
+                    # Update quantity for PnL calculation
+                    quantity="$sell_qty_retry"
+                fi
+            fi
+            
             if [ "$sell_status" = "FILLED" ]; then
                 log "  ✅ SL ejecutado exitosamente - Slot cerrado"
-        register_capital_move "$SYMBOL" "SL" "$sell_value" "$sell_qty" "$current_price" "$sell_order_id" "SL Slot $slot_id"
+                
+                # Extraer datos de la orden ejecutada
+                local sell_qty=$(echo "$sell_result" | jq -r '.executedQty // 0')
+                local sell_value=$(echo "$sell_result" | jq -r '.cummulativeQuoteQty // 0')
+                local sell_order_id=$(echo "$sell_result" | jq -r '.orderId // ""')
+                
+                # ✅ Verificar valores críticos antes de registrar
+                if [ -z "$sell_value" ] || [ "$sell_value" = "null" ]; then
+                    sell_value=$(awk -v q="$sell_qty" -v p="$current_price" 'BEGIN {printf "%.8f", q * p}')
+                fi
+                if [ -z "$sell_qty" ] || [ "$sell_qty" = "null" ]; then
+                    sell_qty="$quantity"
+                fi
+                
+                register_capital_move "$SYMBOL" "SL" "$sell_value" "$sell_qty" "$current_price" "$sell_order_id" "SL Slot $slot_id"
                 update_slot_status "$slot_id" "CLOSED_SL"
                 
                 # Actualizar PnL
