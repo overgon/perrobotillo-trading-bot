@@ -16,37 +16,98 @@ let countdownInterval = null;
 let showAllTrades = false;  // Show only 10 by default
 
 // ════════════════════════════════════════════════════════
-// 🔊 SOUND EFFECTS
+// 🔊 SOUND EFFECTS - TP Hits & Stop Loss
 // ════════════════════════════════════════════════════════
+
+let audioEnabled = false;  // Track if audio has been unlocked by user interaction
 
 const cashRegisterSound = new Audio('/static/sounds/cash-register.wav');
 cashRegisterSound.preload = 'auto';
+cashRegisterSound.volume = 1.0;
 
 const stopLossSound = new Audio('/static/sounds/stop-loss.mp3');
 stopLossSound.preload = 'auto';
+stopLossSound.volume = 1.0;
+
+// 🔓 Audio Unlock - browsers require user interaction before playing audio
+function initAudioUnlock() {
+    const unlock = () => {
+        if (audioEnabled) return;
+        
+        // Try to play silent sound to unlock audio context
+        Promise.all([
+            cashRegisterSound.play().then(() => {
+                cashRegisterSound.pause();
+                cashRegisterSound.currentTime = 0;
+            }).catch(e => console.log('🔊 Audio unlock attempt (cash register):', e)),
+            stopLossSound.play().then(() => {
+                stopLossSound.pause();
+                stopLossSound.currentTime = 0;
+            }).catch(e => console.log('🔊 Audio unlock attempt (stop loss):', e))
+        ]).then(() => {
+            audioEnabled = true;
+            console.log('✅ Audio unlocked by user interaction');
+            
+            // Hide sound enable banner
+            const banner = document.getElementById('soundEnableBanner');
+            if (banner) banner.style.display = 'none';
+            
+            // Remove event listeners
+            document.removeEventListener('click', unlock);
+            document.removeEventListener('touchstart', unlock);
+            document.removeEventListener('keydown', unlock);
+        });
+    };
+    
+    // Show sound enable banner
+    const banner = document.getElementById('soundEnableBanner');
+    if (banner) banner.style.display = 'block';
+    
+    // Multiple event types to cover all interaction methods
+    document.addEventListener('click', unlock, { once: false });
+    document.addEventListener('touchstart', unlock, { once: false });
+    document.addEventListener('keydown', unlock, { once: false });
+}
 
 function playCashRegister() {
+    if (!audioEnabled) {
+        console.log('🔇 Audio not unlocked - showing visual only');
+        return;
+    }
     cashRegisterSound.currentTime = 0;
     cashRegisterSound.volume = 1.0;
     const playPromise = cashRegisterSound.play();
     if (playPromise) {
         playPromise.then(() => console.log('💰 CASH REGISTER! TP HIT! 🔔'))
-            .catch(error => console.log('⚠️ Sound play failed:', error));
+            .catch(error => {
+                console.log('⚠️ Cash register sound failed:', error);
+                audioEnabled = false;
+                document.getElementById('soundEnableBanner').style.display = 'block';
+            });
     }
 }
 
 function playStopLoss() {
+    if (!audioEnabled) {
+        console.log('🔇 Audio not unlocked - showing visual only');
+        return;
+    }
     stopLossSound.currentTime = 0;
     stopLossSound.volume = 1.0;
     const playPromise = stopLossSound.play();
     if (playPromise) {
         playPromise.then(() => console.log('🛑 STOP LOSS HIT! 💀'))
-            .catch(error => console.log('⚠️ Sound play failed:', error));
+            .catch(error => {
+                console.log('⚠️ Stop loss sound failed:', error);
+                audioEnabled = false;
+                document.getElementById('soundEnableBanner').style.display = 'block';
+            });
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🐕 Perrobotillo Dashboard - Initializing...');
+    initAudioUnlock();
     loadPrices().then(() => {
         loadData();
     });
@@ -873,5 +934,5 @@ notificationStyle.textContent = `
 document.head.appendChild(notificationStyle);
 
 // Check every 5 seconds
-setInterval(checkTPNotifications, 30000);
+setInterval(checkTPNotifications, 5000);
 console.log('🔔 TP/SL Notification system initialized');
