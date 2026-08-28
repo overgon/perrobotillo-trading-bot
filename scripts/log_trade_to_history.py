@@ -226,9 +226,10 @@ def main():
     if prev_total != data.get("totalTrades", 0) and "totalTrades" in data:
         print(f"  🔧 Consistency fix: totalTrades was {data.get('totalTrades')}, recalculating from trades array ({actual_trades})")
 
-    symbol_key = os.environ.get("SYMBOL")
-    if not symbol_key:
-        symbol_key = _resolve_symbol_from_slot(slot_id, WORKSPACE)
+    # ✅ FIX: Use resolved symbol (not raw env var) for by_symbol aggregation
+    # Previously used os.environ.get("SYMBOL") which could be stale/wrong (e.g. BTC for LINK trades)
+    # The resolved `symbol` variable already has price-based correction applied
+    symbol_key = symbol
     day_key = datetime.now().strftime('%Y-%m-%d')
     by_symbol = data.get("bySymbol", {})
     by_day = data.get("byDay", {})
