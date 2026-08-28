@@ -254,7 +254,34 @@ log_trade_to_history() {
         return 0
     fi
 
-    "$WORKSPACE/scripts/log_trade_to_history.py" "$slot_id" "$close_type" "$entry_price" "$exit_price" "$quantity" "$pnl" "$order_id" "$source" "$reason"
+    # 🔧 FIX: Resolve symbol from slot_id + entry price BEFORE calling Python script
+    # This prevents symbol misattribution (e.g. LINK/SL registered as BTC)
+    # when SYMBOL env var is stale from a previous coin's loop iteration
+    local resolved_symbol="$SYMBOL"
+    
+    # Use Python to resolve symbol from entry price + slot mapping
+    resolved_symbol=$(python3 -c "
+import os, sys
+from pathlib import Path
+entry = float('$entry_price')
+# Price range mapping (same as in log_trade_to_history.py)
+RANGES = {'BTC':(20000,120000),'ETH':(800,8000),'BNB':(200,1000),'SOL':(40,500),'AVAX':(5,30),'LINK':(5,30),'XRP':(0.2,5)}
+# SLOT_TO_COIN mapping (same as in log_trade_to_history.py)
+SLOT_MAP = {1:'BTC',2:'BTC',3:'BTC',4:'ETH',5:'ETH',6:'ETH',7:'BNB',8:'BNB',9:'BNB',10:'SOL',11:'SOL',12:'SOL',13:'LINK',14:'LINK',15:'LINK',16:'XRP',17:'XRP',18:'XRP',19:'AVAX',20:'AVAX',21:'AVAX'}
+sid = int('$slot_id')
+candidates = [c for c,(lo,hi) in RANGES.items() if lo <= entry <= hi]
+if len(candidates) == 1:
+    print(candidates[0])
+elif len(candidates) > 1 and sid in SLOT_MAP:
+    print(SLOT_MAP[sid])
+else:
+    print(SLOT_MAP.get(sid, '$SYMBOL'))
+" 2>/dev/null || echo "$SYMBOL")
+    
+    log "  🔧 Resolved symbol: $resolved_symbol (slot_id=$slot_id, entryPrice=$entry_price)"
+    
+    # Pass resolved symbol via env var to override potentially stale SYMBOL
+    SYMBOL="$resolved_symbol" "$WORKSPACE/scripts/log_trade_to_history.py" "$slot_id" "$close_type" "$entry_price" "$exit_price" "$quantity" "$pnl" "$order_id" "$source" "$reason"
 }
 
 # ============================================
