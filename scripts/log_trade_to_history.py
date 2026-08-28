@@ -10,7 +10,12 @@ WORKSPACE = Path(os.environ.get("WORKSPACE", "/home/overgon/.openclaw/workspace"
 HISTORY_FILE = WORKSPACE / "crypto-bots" / "trade-history.json"
 COIN_CONFIG_FILE = WORKSPACE / "crypto-bots" / "per-coin-config.env"
 
-# Mapeo slotId → moneda basado en 7 monedas x 3 slots
+# 🔧 FIX: REMOVED hardcoded SLOT_TO_COIN that was WRONG - each coin uses
+# its own slots 1-3, not global slots 1-21. Now using SYMBOL env var
+# (resolved by the bash script before calling this Python script).
+# SLOT_TO_COIN mapping is now ONLY used as a last-resort fallback via
+# _resolve_symbol_from_slot() when SYMBOL env is empty AND entryPrice
+# doesn't definitively match a coin.
 SLOT_TO_COIN = {
     1: 'BTC', 2: 'BTC', 3: 'BTC',
     4: 'ETH', 5: 'ETH', 6: 'ETH',
@@ -20,6 +25,10 @@ SLOT_TO_COIN = {
     16: 'XRP', 17: 'XRP', 18: 'XRP',
     19: 'AVAX', 20: 'AVAX', 21: 'AVAX',
 }
+
+# 🔧 FIX: Per-coin slot assignment — each coin has its own slots 1-3
+# This is read from <SYMBOL>-trade-state.json which has slotId 1-3 per coin
+# We don't use SLOT_TO_COIN for resolution anymore, only SYMBOL env + entryPrice
 
 def _resolve_symbol_from_slot(slot_id, workspace=WORKSPACE):
     """🔧 Derive coin symbol from slotId as fallback when SYMBOL env is empty.
@@ -61,15 +70,16 @@ def _resolve_symbol_from_slot(slot_id, workspace=WORKSPACE):
         except Exception:
             return "UNKNOWN"
 
-def _resolve_symbol_from_price(entry_price, slot_id=None):
+def _resolve_symbol_from_price(entry_price, slot_id=None, symbol_env=None):
     """🔧 FIX ROOT CAUSE: validate symbol from entryPrice when env var conflicts.
     
     Bot sometimes passes wrong SYMBOL env (BTC) for altcoin closes.
     Use entryPrice ranges to identify the real coin.
     Returns the coin with highest confidence, or None if ambiguous.
     
-    When slot_id is provided, use it to disambiguate overlapping price ranges
-    (e.g. AVAX $4-12 overlaps with LINK $6-30 for prices $6-12).
+    When slot_id is provided, use it to disambiguate overlapping price ranges.
+    When price is ambiguous, fall back to symbol_env (resolved by bash script)
+    instead of hardcoded SLOT_TO_COIN (which is WRONG — each coin uses slots 1-3).
     """
     # 🔧 FIX: Updated PRICE_RANGES to match actual market prices (2026-08)
     # Previous ranges were stale (LINK was $3-5.4 but now ~$11.5)
@@ -89,11 +99,11 @@ def _resolve_symbol_from_price(entry_price, slot_id=None):
     # If price matches exactly one coin range → definitive
     if len(candidates) == 1:
         return candidates[0]
-    # Ambiguous (e.g. AVAX ~$6-12 overlaps with LINK $6-30) — use slot_id to disambiguate
-    if len(candidates) > 1 and slot_id is not None:
-        slot_coin = _resolve_symbol_from_slot(slot_id, WORKSPACE)
-        if slot_coin in candidates:
-            return slot_coin
+    # Ambiguous (e.g. AVAX ~$6-12 overlaps with LINK $6-30) — try symbol_env first
+    # (the bash script already resolved this correctly using entryPrice + SYMBOL)
+    if len(candidates) > 1:
+        if symbol_env and symbol_env in candidates:
+            return symbol_env
     # If still ambiguous, fall back to slot_id resolution
     if len(candidates) == 0 and slot_id is not None:
         return _resolve_symbol_from_slot(slot_id, WORKSPACE)
@@ -135,12 +145,17 @@ def main():
     if not symbol:
         symbol = _resolve_symbol_from_slot(slot_id, WORKSPACE)
     # 🔧 FIX ROOT CAUSE: validate symbol against entryPrice — bot sometimes passes
-    # wrong SYMBOL env (BTC) for other coins. entryPrice ~$7.5 = AVAX, not BTC.
-    # Pass slot_id to disambiguate overlapping price ranges (AVAX/LINK)
-    symbol_from_price = _resolve_symbol_from_price(entry, slot_id)
+    # wrong SYMBOL env (BTC) for other coins. entryPrice ~$11.5 = LINK, not BTC.
+    # Pass slot_id + symbol_env to disambiguate: price ranges first, then
+    # symbol_env (resolved by bash) second, then slot_id last resort
+    symbol_from_price = _resolve_symbol_from_price(entry, slot_id, symbol)
     if symbol_from_price and symbol_from_price != symbol:
         print(f"  ⚠️ SYMBOL mismatch: env='{symbol}' slot={_resolve_symbol_from_slot(slot_id, WORKSPACE)} price=${entry} → confiable: {symbol_from_price}")
         symbol = symbol_from_price
+    # 🆕 If _resolve_symbol_from_price returned None (ambiguous but symbol_env valid),
+    # keep the symbol_env value — it was resolved by bash script using same logic
+    # This handles the case where entryPrice $11.5 matches both AVAX and LINK ranges,
+    # but SYMBOL env already correctly says LINK
 
     # ✅ Now check duplicates with resolved symbol
     existing = sum(
