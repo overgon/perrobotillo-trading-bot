@@ -1,17 +1,8 @@
 {
-  "timestamp": "2026-08-25T14:00:09.028010",
+  "timestamp": "2026-08-30T18:00:48.345942",
   "model_accuracy": 0.9970238095238095,
   "predictions": {
     "BTC": {
-      "market_mode": "LATERAL",
-      "confidence": 0.964,
-      "probabilities": {
-        "BEAR": 0.036,
-        "BULL": 0.0,
-        "LATERAL": 0.964
-      }
-    },
-    "ETH": {
       "market_mode": "LATERAL",
       "confidence": 1.0,
       "probabilities": {
@@ -20,50 +11,61 @@
         "LATERAL": 1.0
       }
     },
-    "BNB": {
-      "market_mode": "LATERAL",
-      "confidence": 0.973,
+    "ETH": {
+      "market_mode": "BEAR",
+      "confidence": 0.773,
       "probabilities": {
-        "BEAR": 0.027,
+        "BEAR": 0.773,
         "BULL": 0.0,
-        "LATERAL": 0.973
+        "LATERAL": 0.227
+      }
+    },
+    "BNB": {
+      "market_mode": "BEAR",
+      "confidence": 0.701,
+      "probabilities": {
+        "BEAR": 0.701,
+        "BULL": 0.0,
+        "LATERAL": 0.299
       }
     },
     "SOL": {
-      "market_mode": "LATERAL",
-      "confidence": 0.9,
+      "market_mode": "BEAR",
+      "confidence": 0.843,
       "probabilities": {
-        "BEAR": 0.1,
+        "BEAR": 0.843,
         "BULL": 0.0,
-        "LATERAL": 0.9
+        "LATERAL": 0.157
       }
     },
     "LINK": {
-      "market_mode": "LATERAL",
-      "confidence": 0.898,
+      "market_mode": "BEAR",
+      "confidence": 0.947,
       "probabilities": {
-        "BEAR": 0.102,
+        "BEAR": 0.947,
         "BULL": 0.0,
-        "LATERAL": 0.898
+        "LATERAL": 0.053
       }
     },
     "XRP": {
-      "market_mode": "LATERAL",
-      "confidence": 0.964,
+      "market_mode": "BEAR",
+      "confidence": 0.853,
       "probabilities": {
-        "BEAR": 0.036,
+        "BEAR": 0.853,
         "BULL": 0.0,
-        "LATERAL": 0.964
+        "LATERAL": 0.147
       }
     },
     "AVAX": {
-      "market_mode": "LATERAL",
-      "confidence": 0.879,
+      "market_mode": "BEAR",
+      "confidence": 0.882,
       "probabilities": {
-        "BEAR": 0.121,
+        "BEAR": 0.882,
         "BULL": 0.0,
-        "LATERAL": 0.879
+        "LATERAL": 0.118
       }
     }
-  }
+  },
+  "recommended_mode": "LATERAL",
+  "discrepancy": false
 }

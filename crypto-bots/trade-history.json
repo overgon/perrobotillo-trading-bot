@@ -9,14 +9,167 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 446,
-  "totalWins": 335,
-  "totalLosses": 111,
-  "totalProfitUSDT": 702.76857216,
-  "totalLossUSDT": -479.42192299,
-  "netPnLUSDT": 222.48540508,
-  "winRate": 75.11,
+  "totalTrades": 455,
+  "totalWins": 336,
+  "totalLosses": 119,
+  "totalProfitUSDT": 703.54522216,
+  "totalLossUSDT": -487.3911989,
+  "netPnLUSDT": 215.29277917,
+  "winRate": 73.85,
   "trades": [
+    {
+      "id": 457,
+      "symbol": "AVAX",
+      "coin": "AVAX",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 7.371,
+      "exitPrice": 7.05,
+      "quantity": 4.19,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -1.34521894,
+      "timestamp": "2026-08-30T17:46:02.604983",
+      "closeTime": "2026-08-30 17:46:02",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 456,
+      "symbol": "LINK",
+      "coin": "LINK",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 11.528,
+      "exitPrice": 11.095,
+      "quantity": 2.76,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -1.19514202,
+      "timestamp": "2026-08-30T17:44:02.578031",
+      "closeTime": "2026-08-30 17:44:02",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 455,
+      "symbol": "AVAX",
+      "coin": "AVAX",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 7.376,
+      "exitPrice": 7.13,
+      "quantity": 4.93,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -1.21305372,
+      "timestamp": "2026-08-30T17:36:05.062058",
+      "closeTime": "2026-08-30 17:36:05",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 454,
+      "symbol": "AVAX",
+      "coin": "AVAX",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 7.33,
+      "exitPrice": 7.133,
+      "quantity": 5.84,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -1.15080453,
+      "timestamp": "2026-08-30T17:36:03.063344",
+      "closeTime": "2026-08-30 17:36:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 453,
+      "symbol": "XRP",
+      "coin": "XRP",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 1.3975,
+      "exitPrice": 1.3616,
+      "quantity": 41.21,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -1.47944648,
+      "timestamp": "2026-08-30T17:35:03.344279",
+      "closeTime": "2026-08-30 17:35:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 452,
+      "symbol": "SOL",
+      "coin": "SOL",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 105.5,
+      "exitPrice": 102.1,
+      "quantity": 0.148,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -0.50488363,
+      "timestamp": "2026-08-30T17:33:04.967676",
+      "closeTime": "2026-08-30 17:33:04",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 451,
+      "symbol": "SOL",
+      "coin": "SOL",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 105.37,
+      "exitPrice": 102.13,
+      "quantity": 0.175,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -0.56899154,
+      "timestamp": "2026-08-30T17:33:03.074404",
+      "closeTime": "2026-08-30 17:33:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 450,
+      "symbol": "XRP",
+      "coin": "XRP",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 1.3975,
+      "exitPrice": 1.4325,
+      "quantity": 22.19,
+      "closeType": "CLOSED_TP1",
+      "pnlUSDT": 0.77665,
+      "timestamp": "2026-08-30T12:35:03.039984",
+      "closeTime": "2026-08-30 12:35:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 449,
+      "symbol": "LINK",
+      "coin": "LINK",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 11.744,
+      "exitPrice": 11.398,
+      "quantity": 1.47839917,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -0.51173505,
+      "timestamp": "2026-08-28T13:14:03.135071",
+      "closeTime": "2026-08-28 13:14:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
     {
       "id": 448,
       "symbol": "LINK",
@@ -7372,12 +7525,12 @@
       "orderId": null
     }
   ],
-  "updatedAt": "2026-08-28T11:47:38.622076",
+  "updatedAt": "2026-08-30T17:46:02.605401",
   "bySymbol": {
     "BTC": {
-      "trades": 35,
+      "trades": 39,
       "wins": 22,
-      "netPnL": -94.54789246
+      "netPnL": -99.45211167
     },
     "ETHUSDT": {
       "trades": 3,
@@ -7390,9 +7543,9 @@
       "netPnL": 58.6562067
     },
     "XRP": {
-      "trades": 73,
-      "wins": 44,
-      "netPnL": 32.1375619
+      "trades": 75,
+      "wins": 45,
+      "netPnL": 31.43476542
     },
     "AVAX": {
       "trades": 80,
@@ -7400,9 +7553,9 @@
       "netPnL": 52.54932531
     },
     "LINK": {
-      "trades": 75,
+      "trades": 76,
       "wins": 57,
-      "netPnL": 15.3799459
+      "netPnL": 14.86821085
     },
     "ETH": {
       "trades": 67,
@@ -7410,9 +7563,9 @@
       "netPnL": 96.66158735
     },
     "SOL": {
-      "trades": 61,
+      "trades": 63,
       "wins": 50,
-      "netPnL": 62.50991447
+      "netPnL": 61.4360393
     },
     "BNBUSDT": {
       "trades": 2,
@@ -7782,9 +7935,14 @@
       "netPnL": 0.80127553
     },
     "2026-08-28": {
-      "trades": 3,
+      "trades": 4,
       "wins": 0,
-      "netPnL": -3.13309186
+      "netPnL": -3.64482691
+    },
+    "2026-08-30": {
+      "trades": 8,
+      "wins": 1,
+      "netPnL": -6.68089086
     }
   },
   "lastUpdated": "2026-08-14T20:42:49.220903"
