@@ -11,6 +11,7 @@ OPENCLAW_BASE="/home/overgon/.openclaw"
 LOGS_DIR="$OPENCLAW_BASE/logs"
 CRYPTO_BOTS_DIR="$WORKSPACE/crypto-bots"
 LOG_FILE="$LOGS_DIR/monthly-report.log"
+DOLLAR="$"
 
 # Configuración de Telegram
 send_telegram() {
@@ -282,8 +283,8 @@ MESSAGE="🐕 **REPORTE MENSUAL** ${MONTH_NAME_PREV^^} ${YEAR_MONTH_PREV}
 
 ━━━━━━━━━━━━━━━━━━
 
-🏆 MEJOR: ${BEST_COIN} | PnL: $${BEST_PNL} USDT
-🥉 PEOR: ${WORST_COIN} | PnL: $${WORST_PNL} USDT
+🏆 MEJOR: ${BEST_COIN} | PnL: ${DOLLAR}${BEST_PNL} USDT
+🥉 PEOR: ${WORST_COIN} | PnL: ${DOLLAR}${WORST_PNL} USDT
 
 📊 RENDIMIENTOS POR MONEDA"
 
@@ -304,14 +305,14 @@ for coin in "${COINS[@]}"; do
     fi
 
     MESSAGE="${MESSAGE}
-${icon} ${coin} | \\$${pnl} | ${trades} trades | ${winrate}"
+${icon} ${coin} | ${DOLLAR}${pnl} | ${trades} trades | ${winrate}"
 done
 
 MESSAGE="${MESSAGE}
 
 ━━━━━━━━━━━━━━━━━━
 📈 RESUMEN
-├─ PnL Total: \\$${TOTAL_PNL} USDT
+├─ PnL Total: ${DOLLAR}${TOTAL_PNL} USDT
 ├─ Trades: ${TOTAL_TRADES} | W:${TOTAL_WINS} ✅ L:${TOTAL_LOSSES} ❌
 └─ Win Rate: ${TOTAL_WIN_RATE}
 
@@ -343,11 +344,11 @@ _Generado: ${REPORT_DATE}_
 
 ### 🥇 Mejor Moneda
 - **Moneda:** ${BEST_COIN}
-- **PnL:** \$${BEST_PNL} USDT
+- **PnL:** ${DOLLAR}${BEST_PNL} USDT
 
 ### 🥉 Peor Moneda
 - **Moneda:** ${WORST_COIN}
-- **PnL:** \$${WORST_PNL} USDT
+- **PnL:** ${DOLLAR}${WORST_PNL} USDT
 
 ---
 
@@ -361,7 +362,7 @@ for coin in "${COINS[@]}"; do
     pnl=${MONTHLY_PNL[$coin]}
     trades=${TRADES_COUNT[$coin]}
     winrate=${WIN_RATES[$coin]}
-    echo "| ${coin} | \$${pnl} | ${trades} | ${winrate} |" >> "$REPORT_FILE"
+    echo "| ${coin} | ${DOLLAR}${pnl} | ${trades} | ${winrate} |" >> "$REPORT_FILE"
 done
 
 cat >> "$REPORT_FILE" << EOF
@@ -370,7 +371,7 @@ cat >> "$REPORT_FILE" << EOF
 
 ## 📈 Resumen Mensual
 
-- **PnL Total:** \$${TOTAL_PNL} USDT
+- **PnL Total:** ${DOLLAR}${TOTAL_PNL} USDT
 - **Total Trades:** ${TOTAL_TRADES}
 - **Wins:** ${TOTAL_WINS} ✅
 - **Losses:** ${TOTAL_LOSSES} ❌
