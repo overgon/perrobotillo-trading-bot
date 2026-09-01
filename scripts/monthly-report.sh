@@ -46,16 +46,15 @@ extract_coin_pnl() {
     local report_file=$1
     local coin=$2
     
-    # Buscar línea de la moneda y extraer P&L 24h (columna 5)
-    local pnl=$(grep "| ${coin} |" "$report_file" 2>/dev/null | \
-        awk -F'|' '{print $6}' | \
-        grep -oP '[+-]?\$?\d+\.?\d*' | \
-        head -1)
+    # Formato real del daily report: "🟢 BTC: $+3.80" o "🔴 BTC: $-1.45"
+    local pnl=$(grep -a "^.*${coin}:" "$report_file" 2>/dev/null | \
+        grep -oE '[+-]?\$[+-]?[\d]+\.?[\d]*' | \
+        head -1 | tr -d '$' | sed 's/^[+-]//')
     
     if [ -z "$pnl" ] || [ "$pnl" == "" ]; then
         echo "0"
     else
-        echo "$pnl" | tr -d '$'
+        echo "$pnl"
     fi
 }
 
@@ -71,8 +70,8 @@ count_monthly_trades() {
     fi
     
     # Contar cierres de trades (TP1, TP2, TP3, SL, Trailing Stop)
-    local count=$(grep "\[${year_month}-" "$log_file" 2>/dev/null | \
-        grep -cE "(TP[123] HIT|SL HIT|Trailing stop|Slot cerrado)" || echo "0")
+    local count=$(grep -a "\[${year_month}-" "$log_file" 2>/dev/null | \
+        grep -acE "(TP[123] HIT|SL HIT|Trailing stop|Slot cerrado)" || echo "0")
     
     echo "$count"
 }
@@ -89,10 +88,10 @@ calculate_win_rate() {
     fi
     
     # Contar wins y losses
-    local wins=$(grep "\[${year_month}-" "$log_file" 2>/dev/null | \
-        grep -cE "(TP[123] HIT)" 2>/dev/null || echo "0")
-    local losses=$(grep "\[${year_month}-" "$log_file" 2>/dev/null | \
-        grep -cE "(SL HIT|Trailing stop HIT)" 2>/dev/null || echo "0")
+    local wins=$(grep -a "\[${year_month}-" "$log_file" 2>/dev/null | \
+        grep -acE "(TP[123] HIT)" 2>/dev/null || echo "0")
+    local losses=$(grep -a "\[${year_month}-" "$log_file" 2>/dev/null | \
+        grep -acE "(SL HIT|Trailing stop HIT)" 2>/dev/null || echo "0")
     
     # Asegurar que sean numeros validos
     wins=${wins:-0}
@@ -187,10 +186,9 @@ for coin in "${COINS[@]}"; do
     # Sumar P&L de todos los reports del mes
     for report in "$CRYPTO_BOTS_DIR"/daily-report-${YEAR_MONTH_PREV}-*.md; do
         if [ -f "$report" ]; then
-            # Extraer P&L de la tabla de balances (primera ocurrencia de la moneda)
-            # Formato: | BTC | ... | +$7.47 | ...
-            daily_pnl=$(grep "| ${coin} |" "$report" 2>/dev/null | head -1 | \
-                awk -F'|' '{gsub(/[^0-9.-]/,"",$6); print $6}')
+            # Extraer P&L del formato: "🟢 BTC: $+3.80" o "🔴 LINK: $-1.45"
+            daily_pnl=$(grep -a "^.*${coin}:" "$report" 2>/dev/null | head -1 | \
+                grep -oE '[+-]?\$[+-]?[0-9]+\.?[0-9]*' | head -1 | tr -d '$' | sed 's/^[+-]//')
             
             if [ -n "$daily_pnl" ] && [ "$daily_pnl" != "" ]; then
                 coin_pnl=$(awk "BEGIN {printf \"%.2f\", $coin_pnl + $daily_pnl}")
@@ -211,8 +209,8 @@ for coin in "${COINS[@]}"; do
     WIN_RATES[$coin]=$winrate
     
     # Wins/Losses para total
-    wins=$(grep "\[${YEAR_MONTH_PREV}-" "$LOGS_DIR/trade-${coin}.log" 2>/dev/null | grep -cE "(TP[123] HIT)" 2>/dev/null | tr -d '\n\r ' || echo "0")
-    losses=$(grep "\[${YEAR_MONTH_PREV}-" "$LOGS_DIR/trade-${coin}.log" 2>/dev/null | grep -cE "(SL HIT|Trailing stop HIT)" 2>/dev/null | tr -d '\n\r ' || echo "0")
+    wins=$(grep -a "\[${YEAR_MONTH_PREV}-" "$LOGS_DIR/trade-${coin}.log" 2>/dev/null | grep -acE "(TP[123] HIT)" 2>/dev/null | tr -d '\n\r ' || echo "0")
+    losses=$(grep -a "\[${YEAR_MONTH_PREV}-" "$LOGS_DIR/trade-${coin}.log" 2>/dev/null | grep -acE "(SL HIT|Trailing stop HIT)" 2>/dev/null | tr -d '\n\r ' || echo "0")
     
     # Validar que sean numeros
     if ! [[ "$wins" =~ ^[0-9]+$ ]]; then wins=0; fi
