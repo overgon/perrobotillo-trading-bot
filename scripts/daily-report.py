@@ -103,23 +103,33 @@ def send_telegram(message):
 
 
 def parse_datetime_safe(ts_str):
-    """Parsea datetime de forma robusta, manejando timezone naive/aware"""
+    """Parsea datetime de forma robusta, manejando timezone naive/aware.
+    
+    FIX: closeTime timestamps from trade-history.json are in Mexico CST (UTC-6).
+    When no timezone is provided, assume CST (UTC-6) instead of UTC.
+    Previously assumed UTC, which shifted trade times 6 hours forward,
+    causing trades from early morning CST to fall outside the 24h cutoff window.
+    
+    Example: closeTime "2026-09-01 12:10:03" (CST) = 18:10:03 UTC.
+    Old code treated it as 12:10:03 UTC, excluding it from 24h PnL.
+    """
     if not ts_str:
         return None
     try:
-        # Intentar parsear con fromisoformat
         dt = datetime.fromisoformat(ts_str.replace('Z', '+00:00'))
-        # Si no tiene timezone, asumir UTC
         if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
+            dt = dt.replace(tzinfo=timezone(timedelta(hours=-6)))  # Mexico CST (UTC-6)
         return dt
     except Exception:
         try:
-            # Fallback: strptime
             dt = datetime.strptime(ts_str[:19], '%Y-%m-%dT%H:%M:%S')
-            return dt.replace(tzinfo=timezone.utc)
+            return dt.replace(tzinfo=timezone(timedelta(hours=-6)))
         except Exception:
-            return None
+            try:
+                dt = datetime.strptime(ts_str[:19], '%Y-%m-%d %H:%M:%S')
+                return dt.replace(tzinfo=timezone(timedelta(hours=-6)))
+            except Exception:
+                return None
 
 
 def get_portfolio_total():
@@ -201,16 +211,22 @@ def get_pnl_24h_by_coin():
 
 def get_yesterday_trades():
     """Obtiene trades del día anterior desde trade-history.json
-    FIX: timezone-aware comparison
+    
+    FIX: Use Mexico CST (UTC-6) for day boundaries, not UTC.
+    Trades logged with closeTime in CST format (e.g. "2026-09-01 19:46:02").
+    When report runs at Sep 2 06:00 CST, "yesterday" = Sep 1 in CST,
+    which includes trades up to 23:59 CST (= 05:59 UTC Sep 2).
+    Using UTC day boundaries would incorrectly exclude late afternoon CST trades.
     """
     trades = []
+    CST = timezone(timedelta(hours=-6))
 
     try:
-        yesterday = datetime.now() - timedelta(days=1)
-        yesterday_str = yesterday.strftime('%Y-%m-%d')
-        # ✅ Usar UTC para comparación consistente con datos almacenados
-        yesterday_utc = datetime.now(timezone.utc) - timedelta(days=1)
-        cutoff = yesterday_utc.replace(hour=0, minute=0, second=0, microsecond=0)
+        # ✅ Use CST for "yesterday" day boundaries (matches closeTime format)
+        yesterday_cst = datetime.now(CST) - timedelta(days=1)
+        yesterday_str = yesterday_cst.strftime('%Y-%m-%d')
+        # Cutoff: start of yesterday in CST, to start of today in CST
+        cutoff = yesterday_cst.replace(hour=0, minute=0, second=0, microsecond=0)
         cutoff_end = cutoff + timedelta(days=1)
 
         history_file = CRYPTO_BOTS_DIR / "trade-history.json"
@@ -218,16 +234,16 @@ def get_yesterday_trades():
             with open(history_file) as f:
                 data = json.load(f)
             for t in data.get("trades", []):
-                ts = t.get("closeTime", "") or t.get("timestamp", "") or ""
+                ts = t.get('closeTime', '') or t.get('timestamp', '') or ''
                 if not ts:
                     continue
-
                 dt = parse_datetime_safe(ts)
                 if dt is None:
                     continue
-
-                # ✅ Comparación timezone-aware
-                if cutoff <= dt < cutoff_end:
+                # Convert dt to CST for day comparison
+                dt_cst = dt.astimezone(CST)
+                # ✅ Comparison in CST (matches closeTime format)
+                if cutoff <= dt_cst < cutoff_end:
                     coin = t.get("symbol", "?")
                     close_type = t.get("closeType", "CLOSE")
                     slot_id = t.get("slotId", "?")
@@ -286,8 +302,13 @@ def get_active_trades():
                 if slot.get("status") == "ACTIVE":
                     entry = float(slot.get("entryPrice", 0) or 0)
                     quantity = float(slot.get("quantity", 0) or 0)
-                    usdt_spent = float(slot.get("usdtSpent", 0) or 0)
-                    avg_cost = usdt_spent / quantity if usdt_spent > 0 and quantity > 0 else entry
+                    # FIX: Use entryPrice directly as avg_cost.
+                    # usdtSpent/quantity was inflated by fees, causing avg_cost
+                    # to be ~2x the real entry price, producing incorrect PnL.
+                    # Example: BNB entry=694.34, usdtSpent=70.82, qty=0.0663
+                    # Old: avg_cost = 70.82/0.0663 = 1068.22 (WRONG, 2x entry)
+                    # New: avg_cost = entryPrice = 694.34 (CORRECT)
+                    avg_cost = entry
                     current = entry
                     try:
                         import requests as _requests
