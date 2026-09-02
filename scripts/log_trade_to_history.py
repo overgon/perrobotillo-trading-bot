@@ -81,15 +81,16 @@ def _resolve_symbol_from_price(entry_price, slot_id=None, symbol_env=None):
     When price is ambiguous, fall back to symbol_env (resolved by bash script)
     instead of hardcoded SLOT_TO_COIN (which is WRONG — each coin uses slots 1-3).
     """
-    # 🔧 FIX: Updated PRICE_RANGES to match actual market prices (2026-08)
-    # Previous ranges were stale (LINK was $3-5.4 but now ~$11.5)
+    # 🔧 FIX: Updated PRICE_RANGES to match actual market prices (2026-09)
+    # AVAX ~$7.5, LINK ~$11.5 — adjusted ranges to minimize overlap
+    # AVAX range lowered to 4.0-8.0 to avoid overlap with LINK (6.0-30.0)
     PRICE_RANGES = {
         "BTC": (20000, 120000),
         "ETH": (800, 8000),
         "BNB": (200, 1000),
         "SOL": (40, 500),
-        "AVAX": (4.0, 12.0),  # AVAX ~$7.5 — overlaps with LINK in $6-12 range
-        "LINK": (6.0, 30.0),  # LINK ~$11.5 — starts above AVAX min
+        "AVAX": (4.0, 8.0),  # AVAX ~$7.5 — tightened from 12.0 to avoid LINK overlap
+        "LINK": (8.0, 30.0),  # LINK ~$11.5 — starts above AVAX max
         "XRP": (0.2, 5.0),
     }
     candidates = []
@@ -99,14 +100,18 @@ def _resolve_symbol_from_price(entry_price, slot_id=None, symbol_env=None):
     # If price matches exactly one coin range → definitive
     if len(candidates) == 1:
         return candidates[0]
-    # Ambiguous (e.g. AVAX ~$6-12 overlaps with LINK $6-30) — try symbol_env first
+    # Ambiguous (e.g. price falls in multiple ranges) — try symbol_env first
     # (the bash script already resolved this correctly using entryPrice + SYMBOL)
     if len(candidates) > 1:
         if symbol_env and symbol_env in candidates:
             return symbol_env
-    # If still ambiguous, fall back to slot_id resolution
-    if len(candidates) == 0 and slot_id is not None:
-        return _resolve_symbol_from_slot(slot_id, WORKSPACE)
+        # symbol_env is stale (e.g. BTC) — fall through to slot_id fallback
+    # If price doesn't match any known range, or ambiguous with stale symbol_env
+    # fall back to slot_id resolution
+    if slot_id is not None:
+        resolved = _resolve_symbol_from_slot(slot_id, WORKSPACE)
+        if resolved and resolved != "UNKNOWN":
+            return resolved
     return None
 
 def main():
