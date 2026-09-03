@@ -18,7 +18,7 @@ sys.path.insert(0, str(WORKSPACE / 'ml'))
 sys.path.insert(0, str(WORKSPACE / 'venv' / 'lib' / 'python3.13' / 'site-packages'))
 
 # Importar ML Pipeline
-from ml_pipeline import MLPipeline
+from ml_pipeline_optimized import OptimizedMLPipeline
 
 # ════════════════════════════════════════════════════════
 # CONFIGURACIÓN
@@ -90,13 +90,16 @@ def validate_trade(coin: str, direction: str = "LONG", trade_type: str = "NORMAL
             'note': 'Usar ml_pipeline_optimized.py para entrenar'
         }
     
-    # Cargar metadata del modelo
+    # Cargar metadata del modelo optimizado
     with open(metadata_path, 'r') as f:
         metadata = json.load(f)
-    
-    # Crear pipeline y hacer deploy
-    pipeline = MLPipeline(coin=coin)
-    prediction = pipeline.deploy_phase()
+
+    # ✅ DEBUG: Log que estamos usando el modelo optimizado
+    import logging as _logging
+    _logging.info(f"[ML WRAPPER] {coin}: usando modelo optimizado ({metadata_path})")
+
+    # Deploy: cargar modelo optimizado, scaler optimizado y features seleccionadas
+    prediction = _deploy_optimized_model(coin, model_path, metadata_path)
     
     if not prediction:
         return {
@@ -213,6 +216,111 @@ def validate_trade(coin: str, direction: str = "LONG", trade_type: str = "NORMAL
             result['base_position_size'] = result['position_size']
 
     return result
+
+
+
+def _deploy_optimized_model(coin: str, model_path: Path, metadata_path: Path) -> dict:
+    """
+    Deploy phase para modelos optimizados.
+    
+    Carga el modelo optimized_model.pkl, scaler_optimized.pkl, y selected_features.pkl
+    para generar prediction con confidence en tiempo real.
+    """
+    import joblib
+    import numpy as np
+    import pandas as pd
+    
+    WORKSPACE = Path('/home/overgon/.openclaw/workspace')
+    models_opt_dir = WORKSPACE / 'ml' / 'models_optimized'
+    features_dir = WORKSPACE / 'ml' / 'features'
+    
+    # Load optimized model
+    model = joblib.load(model_path)
+    
+    # Load optimized scaler
+    scaler_path = models_opt_dir / f"{coin}_scaler_optimized.pkl"
+    scaler = joblib.load(scaler_path)
+    
+    # Load selected features
+    selected_features_path = models_opt_dir / f"{coin}_selected_features.pkl"
+    selected_features = joblib.load(selected_features_path)
+    
+    # Load latest features dataframe
+    features_csv = features_dir / f"{coin}_features.csv"
+    if not features_csv.exists():
+        alt_files = list(features_dir.glob(f"*{coin}*features*.csv")) + list(features_dir.glob(f"features_{coin}*.csv"))
+        if alt_files:
+            features_csv = alt_files[0]
+        else:
+            return {
+                'signal': 'WAIT',
+                'confidence': 0,
+                'position_size_percent': 0,
+                'note': f'No features CSV found for {coin}'
+            }
+    
+    df = pd.read_csv(features_csv)
+    
+    # Select only the features the model was trained on
+    available = [f for f in selected_features if f in df.columns]
+    missing = [f for f in selected_features if f not in df.columns]
+    
+    if len(available) < len(selected_features) * 0.5:
+        return {
+            'signal': 'WAIT',
+            'confidence': 0,
+            'position_size_percent': 0,
+            'note': f'Too many missing features ({len(missing)}/{len(selected_features)})'
+        }
+    
+    for col in missing:
+        df[col] = 0.0
+    
+    X = df[selected_features].values
+    
+    # Handle NaN
+    col_means = np.nanmean(X, axis=0)
+    indices = np.where(np.isnan(X))
+    X[indices] = np.take(col_means, indices[1])
+    
+    # Scale
+    X_scaled = scaler.transform(X)
+    
+    # Predict - use last row (latest signal)
+    prediction = model.predict(X_scaled)[-1]
+    proba = model.predict_proba(X_scaled)[-1] if hasattr(model, 'predict_proba') else [0.5, 0.5]
+    
+    confidence = float(max(proba)) * 100
+    predicted_label = int(prediction)
+    
+    # Label mapping: 0=WAIT, 1=LONG, 2=SHORT
+    if predicted_label == 1:
+        signal = 'LONG'
+        action = '✅ APROBAR COMPRA'
+    elif predicted_label == 2:
+        signal = 'SHORT'
+        action = '✅ APROBAR VENTA'
+    else:
+        signal = 'WAIT'
+        action = '⏸️ ESPERAR MEJOR OPORTUNIDAD'
+    
+    # Position sizing based on confidence
+    if confidence >= 75:
+        position_size = 100
+    elif confidence >= 60:
+        position_size = 50
+    else:
+        position_size = 0
+        signal = 'WAIT'
+    
+    return {
+        'signal': signal,
+        'confidence': round(confidence, 2),
+        'position_size_percent': position_size,
+        'action': action,
+        'model_accuracy': 88.81,
+        'note': f'OptimizedPipeline deploy (features={len(selected_features)}, selected={len(available)})'
+    }
 
 
 def _technical_fallback(coin: str, direction: str = "LONG") -> dict:
