@@ -55,9 +55,9 @@ case "$SYMBOL" in
     *) echo "❌ SYMBOL no soportado: $SYMBOL"; exit 1 ;;
 esac
 
-WORKSPACE="$HOME/.openclaw/workspace"
-SECRETS="/home/...rets"
-LOGS="$HOME/.openclaw/logs"
+WORKSPACE="${HOME:-/home/overgon}/.openclaw/workspace"
+SECRETS="$WORKSPACE/secrets"
+LOGS="$WORKSPACE/logs"
 BINANCE="https://api.binance.com"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAX_SLOTS=3
@@ -259,26 +259,27 @@ log_trade_to_history() {
     # when SYMBOL env var is stale from a previous coin's loop iteration
     local resolved_symbol="$SYMBOL"
     
-    # Use Python to resolve symbol from entry price + slot mapping
-    resolved_symbol=$(python3 -c "
-import os, sys
-from pathlib import Path
-entry = float('$entry_price')
-# Price range mapping (same as in log_trade_to_history.py)
-RANGES = {'BTC':(20000,120000),'ETH':(800,8000),'BNB':(200,1000),'SOL':(40,500),'AVAX':(5,30),'LINK':(5,30),'XRP':(0.2,5)}
-# SLOT_TO_COIN mapping (same as in log_trade_to_history.py)
-SLOT_MAP = {1:'BTC',2:'BTC',3:'BTC',4:'ETH',5:'ETH',6:'ETH',7:'BNB',8:'BNB',9:'BNB',10:'SOL',11:'SOL',12:'SOL',13:'LINK',14:'LINK',15:'LINK',16:'XRP',17:'XRP',18:'XRP',19:'AVAX',20:'AVAX',21:'AVAX'}
-sid = int('$slot_id')
+    # Use a temp Python script for robust symbol resolution (avoids inline -c escaping issues)
+    local _resolve_script="/tmp/.resolve_symbol_${$}.py"
+    cat > "$_resolve_script" <<PYTHON_SCRIPT
+import sys
+entry = float(sys.argv[1])
+slot_id = int(sys.argv[2])
+local_symbol = sys.argv[3]
+RANGES = {'BTC':(20000,120000),'ETH':(800,8000),'BNB':(200,1000),'SOL':(40,500),'AVAX':(4.0,8.0),'LINK':(8.0,30.0),'XRP':(0.2,5.0)}
 candidates = [c for c,(lo,hi) in RANGES.items() if lo <= entry <= hi]
 if len(candidates) == 1:
     print(candidates[0])
-elif len(candidates) > 1 and sid in SLOT_MAP:
-    print(SLOT_MAP[sid])
+elif len(candidates) > 1 and local_symbol in candidates:
+    print(local_symbol)
 else:
-    print(SLOT_MAP.get(sid, '$SYMBOL'))
-" 2>/dev/null || echo "$SYMBOL")
+    print(local_symbol)
+PYTHON_SCRIPT
+
+    resolved_symbol=$(python3 "$_resolve_script" "$entry_price" "$slot_id" "$SYMBOL" 2>/dev/null || echo "$SYMBOL")
+    rm -f "$_resolve_script"
     
-    log "  🔧 Resolved symbol: $resolved_symbol (slot_id=$slot_id, entryPrice=$entry_price)"
+    log "  Resolved symbol: $resolved_symbol (slot=$slot_id, entry=$entry_price)"
     
     # Pass resolved symbol via env var to override potentially stale SYMBOL
     SYMBOL="$resolved_symbol" "$WORKSPACE/scripts/log_trade_to_history.py" "$slot_id" "$close_type" "$entry_price" "$exit_price" "$quantity" "$pnl" "$order_id" "$source" "$reason"
@@ -789,12 +790,45 @@ place_sell_order_market() {
     local symbol="$1" quantity="$2"
     # FIX: recortar cantidad para evitar 'too much precision' de Binance
     quantity=$(awk -v q="$quantity" 'BEGIN {printf "%.8f", q}')
-    # Generate timestamp immediately before use
     local timestamp=$(date -u +%s%3N)
     local query_string="symbol=${symbol}USDT&side=SELL&type=MARKET&quantity=${quantity}&timestamp=${timestamp}&recvWindow=20000"
     local signature=$(get_signature "$query_string")
-    local result=$(curl -s -m 3 -X POST "${BINANCE}/api/v3/order?${query_string}&signature=${signature}" -H "X-MBX-APIKEY: ${BINANCE_API_KEY}")
-    echo "$result"
+
+    # FIX: timeout 15s + retry logic (matching buy function)
+    # 3s timeout was too short - Binance API can be slow, causing intermittent sell failures
+    local max_retries=2
+    local attempt=0
+    local result=""
+    local http_code=""
+
+    while [ $attempt -le $max_retries ]; do
+        result=$(curl -s -m 15 -w "\n%{http_code}" -X POST "${BINANCE}/api/v3/order?${query_string}&signature=${signature}" -H "X-MBX-APIKEY: ${BINANCE_API_KEY}")
+        http_code=$(echo "$result" | tail -1)
+
+        # Si HTTP 200 o error de Binance (no de red), salir del loop
+        if [ "$http_code" = "200" ] || [ "$http_code" = "403" ] || [ "$http_code" = "429" ]; then
+            break
+        fi
+
+        # HTTP 000 o error de red → retry
+        attempt=$((attempt + 1))
+        if [ $attempt -le $max_retries ]; then
+            log "⚠️  Sell retry $attempt/$max_retries (HTTP $http_code)..."
+            sleep 1
+        fi
+    done
+
+    http_code=$(echo "$result" | tail -1)
+    local body=$(echo "$result" | head -n -1)
+
+    # Log error si hay problema de HTTP
+    if [ "$http_code" != "200" ]; then
+        log "❌ Sell API HTTP error: $http_code (after $attempt retries)"
+        echo "{"code":"-9999","msg":"HTTP error $http_code"}"
+        return
+    fi
+
+    echo "$body"
 }
 
 # ============================================
@@ -2183,7 +2217,7 @@ execute_cycle() {
     
     GLOBAL_CB_SCRIPT="${WORKSPACE}/crypto-bots/global-circuit-breaker.sh"
     if [ -x "$GLOBAL_CB_SCRIPT" ]; then
-        global_status=$(bash "$GLOBAL_CB_SCRIPT" 2>&1)
+        global_status=$(bash "$GLOBAL_CB_SCRIPT" 2>"${WORKSPACE}/logs/cb-check-$(date +%Y%m%d-%H%M%S).log")
         global_result=$?
         
         if [ $global_result -ne 0 ]; then
