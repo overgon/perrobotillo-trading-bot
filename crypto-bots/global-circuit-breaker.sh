@@ -8,7 +8,7 @@
 # Output: OK_TO_TRADE o GLOBAL_PAUSE_XXH
 # ════════════════════════════════════════════════════════
 
-WORKSPACE="/home/overgon/.openclaw/workspace"
+WORKSPACE="${WORKSPACE:-$HOME/.openclaw/workspace}"
 TRADE_HISTORY="${WORKSPACE}/crypto-bots/trade-history.json"
 GLOBAL_PAUSE_FILE="${WORKSPACE}/crypto-bots/global-pause-flag.json"
 
@@ -172,7 +172,7 @@ status = {
     "activatedAt": datetime.now().isoformat(),
     "pauseUntil": "$pause_until",
     "losses24h": $losses_24h,
-    "message": f"🔴 Circuit Breaker ON - {losses_24h} losses en 24h",
+    "message": "🔴 Circuit Breaker ON - $losses_24h losses en 24h",
     "allowedOperations": ["SL Management", "TP Management", "Emergency Close"],
     "blockedOperations": ["New Entries", "DCA Operations"],
     "lastChecked": datetime.now().isoformat()
@@ -203,7 +203,7 @@ status = {
     "activatedAt": datetime.now().isoformat(),
     "pauseUntil": "$pause_until",
     "losses24h": $losses_24h,
-    "message": f"🔴 Circuit Breaker ON - \$${total_loss_24h} en 24h",
+    "message": "🔴 Circuit Breaker ON - $total_loss_24h en 24h",
     "allowedOperations": ["SL Management", "TP Management", "Emergency Close"],
     "blockedOperations": ["New Entries", "DCA Operations"],
     "lastChecked": datetime.now().isoformat()
@@ -235,7 +235,7 @@ status = {
     "activatedAt": datetime.now().isoformat(),
     "pauseUntil": "$pause_until",
     "losses24h": $losses_1h,
-    "message": f"🔴 Circuit Breaker ON - {losses_1h} losses en 1h",
+    "message": "🔴 Circuit Breaker ON - $losses_1h losses en 1h",
     "allowedOperations": ["SL Management", "TP Management", "Emergency Close"],
     "blockedOperations": ["New Entries", "DCA Operations"],
     "lastChecked": datetime.now().isoformat()
@@ -268,7 +268,7 @@ status = {
     "activatedAt": datetime.now().isoformat(),
     "pauseUntil": "$pause_until",
     "losses24h": $losses_24h,
-    "message": f"🔴 Circuit Breaker ON - ${loss_rate}% loss rate",
+    "message": "🔴 Circuit Breaker ON - $loss_rate% loss rate",
     "allowedOperations": ["SL Management", "TP Management", "Emergency Close"],
     "blockedOperations": ["New Entries", "DCA Operations"],
     "lastChecked": datetime.now().isoformat()
