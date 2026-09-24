@@ -3,8 +3,8 @@
   "status": "GLOBAL_PAUSE",
   "triggeredBy": "losses_count",
   "message": "\ud83d\udd34 Circuit Breaker ON",
-  "pauseUntil": "2026-08-31T05:34:02-06:00",
-  "losses24h": 2,
+  "pauseUntil": "2026-09-24T18:30:01-06:00",
+  "losses24h": 1,
   "totalLoss": "0",
   "allowedOperations": [
     "SL Management",
@@ -15,6 +15,6 @@
     "New Entries",
     "DCA Operations"
   ],
-  "activatedAt": "2026-08-30T18:16:01.777311-06:00",
-  "lastChecked": "2026-08-30T18:16:01.777330-06:00"
+  "activatedAt": "2026-09-24T08:36:01.231340-06:00",
+  "lastChecked": "2026-09-24T08:36:01.231363-06:00"
 }

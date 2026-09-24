@@ -998,9 +998,9 @@ execute_long() {
 
         # Actualizar slot
         update_slot_field "$slot_id" "status" "ACTIVE"
-        update_slot_field "$slot_id" "side" '"LONG"'
-        update_slot_field "$slot_id" "strategy" '"SLOT_V3"'
-        update_slot_field "$slot_id" "type" '"LONG"'
+        update_slot_field "$slot_id" "side" "LONG"
+        update_slot_field "$slot_id" "strategy" "SLOT_V3"
+        update_slot_field "$slot_id" "type" "LONG"
         update_slot_field "$slot_id" "orderId" "$order_id"
         update_slot_field "$slot_id" "entryPrice" "$fill_price"
         update_slot_field "$slot_id" "quantity" "$quantity"
@@ -1011,7 +1011,7 @@ execute_long() {
         update_slot_field "$slot_id" "tp1" "$tp1"
         update_slot_field "$slot_id" "tp2" "$tp2"
         update_slot_field "$slot_id" "tp3" "$tp3"
-        update_slot_field "$slot_id" "timestamp" "\"$(date -Iseconds)\""
+        update_slot_field "$slot_id" "timestamp" "$(date -Iseconds)"
         
         # BUG-038 FIX: Notificación de apertura con ML Decision
         log "  📱 DEBUG: Preparando notificación de apertura con ML info..."
@@ -1567,6 +1567,7 @@ El slot permanece activo."
                 
                 # Marcar slot como cerrado
                 update_slot_field "$slot_id" "status" "CLOSED_TP3"
+                update_slot_field "$slot_id" "timestamp" "$(date -Iseconds)"  # FIX: close timestamp for healbot
                 log "  ✅ Slot cerrado - TP3 completado (5% acumulado en Binance)"
                 
                 # Marcar TP3 como completado
@@ -1808,6 +1809,8 @@ ACUMULADO: 5% se queda HODL 📈
                 
                 register_capital_move "$SYMBOL" "SL" "$sell_value" "$sell_qty" "$current_price" "$sell_order_id" "SL Slot $slot_id"
                 update_slot_status "$slot_id" "CLOSED_SL"
+                # FIX: Update timestamp to close time for healbot 2hr timer
+                update_slot_field "$slot_id" "timestamp" "$(date -Iseconds)"
                 
                 # Actualizar PnL
                 local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
@@ -1918,6 +1921,7 @@ execute_trailing_stop() {
         log "  ✅ Trailing stop ejecutado exitosamente - Slot cerrado"
             register_capital_move "$SYMBOL" "TRAILING" "$sell_value" "$sell_qty" "$current_price" "$sell_order_id" "Trailing stop Slot $slot_id"
         update_slot_status "$slot_id" "CLOSED_TRAILING"
+        update_slot_field "$slot_id" "timestamp" "$(date -Iseconds)"  # FIX: close timestamp for healbot
         
         # LOG TRADE TO HISTORY
         log_trade_to_history "$slot_id" "CLOSED_TRAILING" "$entry" "$exit_price" "$quantity" "$pnl"
@@ -2209,6 +2213,14 @@ execute_cycle() {
     log "╚═══════════════════════════════════════════════════════╝"
 
     # ════════════════════════════════════════════════════════
+    # ============================================
+    # 🔄 HEALBOT: Resetear slots cerrados ANTES del CB check
+    # FIX: Moved from post-CB-check to prevent CLOSED_SL slots
+    # from being stuck indefinitely when global pause is active
+    # ============================================
+    init_slots
+    auto_reset_slots
+
     # 🛑 GLOBAL CIRCUIT BREAKER - OPTIMIZADO 2026-06-01
     # SKIP CYCLE: pause global activo, no se abren nuevas entradas
     # ════════════════════════════════════════════════════════
@@ -2289,8 +2301,6 @@ _Jefe, el bot está en pausa global._ 🐕" 2>/dev/null || true
     
     init_slots
     
-    # AUTO-RESET: Resetear slots si todos están cerrados
-    auto_reset_slots
     
     # Check active slots
     local active_count=$(get_active_slots_count)

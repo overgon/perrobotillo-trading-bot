@@ -111,24 +111,24 @@ fi
 # Sanity check de parámetros por modo
 case "$MARKET_MODE" in
     BULL)
-        [ "$POSITION_SIZE" -gt 25 ] && POSITION_SIZE=25
-        [ "$SL" -gt 10 ] && SL=10
+        if [ "$(echo "$POSITION_SIZE > 25" | bc -l 2>/dev/null || echo 0)" = "1" ]; then POSITION_SIZE=25; fi
+        if [ "$(echo "$SL > 10" | bc -l 2>/dev/null || echo 0)" = "1" ]; then SL=10; fi
         ;;
     BEAR)
-        [ "$POSITION_SIZE" -gt 15 ] && POSITION_SIZE=15
-        [ "$SL" -gt 5 ] && SL=5
+        if [ "$(echo "$POSITION_SIZE > 15" | bc -l 2>/dev/null || echo 0)" = "1" ]; then POSITION_SIZE=15; fi
+        if [ "$(echo "$SL > 5" | bc -l 2>/dev/null || echo 0)" = "1" ]; then SL=5; fi
         ;;
     VOLATILE_BULL)
         [ "$POSITION_SIZE" -gt 20 ] && POSITION_SIZE=20
-        [ "$SL" -gt 10 ] && SL=10
+        if [ "$(echo "$SL > 10" | bc -l 2>/dev/null || echo 0)" = "1" ]; then SL=10; fi
         ;;
     VOLATILE_BEAR)
-        [ "$POSITION_SIZE" -gt 15 ] && POSITION_SIZE=15
-        [ "$SL" -gt 5 ] && SL=5
+        if [ "$(echo "$POSITION_SIZE > 15" | bc -l 2>/dev/null || echo 0)" = "1" ]; then POSITION_SIZE=15; fi
+        if [ "$(echo "$SL > 5" | bc -l 2>/dev/null || echo 0)" = "1" ]; then SL=5; fi
         ;;
     LATERAL|*)
         [ "$POSITION_SIZE" -gt 20 ] && POSITION_SIZE=20
-        [ "$SL" -gt 5 ] && SL=5
+        if [ "$(echo "$SL > 5" | bc -l 2>/dev/null || echo 0)" = "1" ]; then SL=5; fi
         ;;
 esac
 
@@ -258,8 +258,13 @@ else
     MSG_FINAL=$(printf "🧠 AUTO-ADJUST | %s %s\n📝 %s\n⚙️ TP1/2/3: +%s/%s/%s%% | SL: -%s%% | Pos: %s%%\n📊 BTC: \\$%s | RSI: %s | F&G: %s (%s) | ML: %s\n✅ Ajuste aplicado" "$FINAL_MODE" "$OVERRIDE" "$MARKET_REASON" "$TP1" "$TP2" "$TP3" "$SL" "$POSITION_SIZE" "$BTC_PRICE" "$RSI" "$FG_VALUE" "$FG_CLASS" "$ML_CONFIDENCE")
 fi
 
-if [ -f "${WORKSPACE}/lib/send-telegram.sh" ]; then
-    source "${WORKSPACE}/lib/send-telegram.sh"
+# Cargar notify.sh para logging + dedup de notificaciones
+if [ -f "${SCRIPT_DIR}/notify.sh" ]; then
+    source "${SCRIPT_DIR}/notify.sh"
+fi
+# Use notify.sh which has notify.log + dedup
+if [ -f "${SCRIPT_DIR}/notify.sh" ]; then
+    source "${SCRIPT_DIR}/notify.sh"
     send_telegram "$MSG_FINAL"
 fi
 

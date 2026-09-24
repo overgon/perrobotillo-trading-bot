@@ -4,133 +4,125 @@
 # Envía reporte semanal del status del auto-retrain ML
 # ════════════════════════════════════════════════════════
 
-# NO usar set -e porque grep puede retornar 1 si no encuentra
+set +e
 
 WORKSPACE="/home/overgon/.openclaw/workspace"
 OPENCLAW_BASE="/home/overgon/.openclaw"
 LOG_FILE="$OPENCLAW_BASE/logs/ml-retrain-report.log"
-LAST_RETRAIN_JSON="$WORKSPACE/ml/ml-last-retrain.json"
-MODEL_METADATA="$WORKSPACE/ml/ml-validator-model.json"
-ML_RETRAIN_LOG="$OPENCLAW_BASE/logs/ml-retrain.log"
+MODELS_DIR="$WORKSPACE/ml/models_optimized"
 
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
-log "🤖 ML RETRAIN STATUS REPORT"
+log "╔════════════════════════════════════════════════════════╗"
+log "║  🧠 ML RETRAIN STATUS REPORT - Domingo 9 AM            ║"
+log "╚════════════════════════════════════════════════════════╝"
+log ""
 
-# Verificar archivos existentes
-if [ ! -f "$LAST_RETRAIN_JSON" ]; then
-    log "❌ Error: No existe last_retrain.json"
+# ═══════════════════════════════════════════
+# 1. Verificar metadatos de todos los modelos
+# ═══════════════════════════════════════════
+log "📊 STATUS POR MONEDA:"
+
+PASS=0; WARN=0; FAIL=0
+coin_lines=""
+
+for coin in BTC ETH BNB SOL LINK XRP AVAX; do
+    meta="$MODELS_DIR/${coin}_optimized_metadata.json"
+    if [ -f "$meta" ]; then
+        acc=$(jq -r '.metrics.accuracy * 100 | floor' "$meta" 2>/dev/null)
+        gap=$(jq -r '.metrics.overfitting_gap * 100 | floor' "$meta" 2>/dev/null)
+        cv=$(jq -r '.metrics.cv_mean * 100 | floor' "$meta" 2>/dev/null)
+        f1=$(jq -r '.metrics.f1 * 100 | floor' "$meta" 2>/dev/null)
+        trained_date=$(jq -r '.trained_at | split("T")[0]' "$meta" 2>/dev/null)
+
+        if [ "$gap" -lt 5 ] 2>/dev/null; then
+            status="✅"
+            PASS=$((PASS + 1))
+        else
+            status="⚠️"
+            WARN=$((WARN + 1))
+        fi
+
+        log "  ${coin}: acc=${acc}% gap=${gap}% cv=${cv}% f1=${f1}% trained=${trained_date} ${status}"
+        coin_lines="${coin_lines}├─ ${coin}: acc=${acc}% gap=${gap}% cv=${cv}% ${status}\n"
+    else
+        log "  ${coin}: ❌ Modelo no encontrado"
+        coin_lines="${coin_lines}├─ ${coin}: ❌ No modelo\n"
+        FAIL=$((FAIL + 1))
+    fi
+done
+
+log ""
+log "📊 RESUMEN: ${PASS}/7 OK | ${WARN}/7 Warn | ${FAIL}/7 Fail"
+log ""
+
+# ═══════════════════════════════════════════
+# 2. Enviar mensaje formateado para Telegram
+# ═══════════════════════════════════════════
+LAST_TRAIN_DATE=$(jq -r '.trained_at | split("T")[0]' "$MODELS_DIR/LINK_optimized_metadata.json" 2>/dev/null || echo "N/A")
+
+# Construir mensaje con echo para preservar newlines reales
+MESSAGE=$(echo -e "🧠 *ML VALIDATOR - REPORTE SEMANAL*
+
+📅 Última actualización: $LAST_TRAIN_DATE
+
+📊 *STATUS POR MONEDA:*
+$(echo -e "$coin_lines")
+📈 *Resumen:* ${PASS}/7 OK | ${WARN}/7 Warn | ${FAIL}/7 Fail
+⏰ *Próximo retrain:* Domingo 3:00 AM
+✅ *ML VALIDATOR Status:* OPERATIVO
+🤖 Perrobotillo Trading Bot v2.1")
+
+# ═══════════════════════════════════════════
+# 3. Enviar por Telegram
+# ═══════════════════════════════════════════
+log "--- ENVÍO DE NOTIFICACIÓN ---"
+
+# Cargar credenciales de telegram
+TELEGRAM_ENV="$WORKSPACE/secrets/telegram.env"
+if [ -f "$TELEGRAM_ENV" ]; then
+    source "$TELEGRAM_ENV"
+fi
+
+if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
+    log "❌ Error: TELEGRAM_BOT_TOKEN no configurado"
+    echo "$MESSAGE"
     exit 1
 fi
 
-# Leer última fecha de retrain
-LAST_RETRAIN=$(jq -r '.last_retrain' "$LAST_RETRAIN_JSON")
-TRADE_COUNT=$(jq -r '.trade_count_at_retrain' "$LAST_RETRAIN_JSON")
-RETRAIN_COUNT=$(jq -r '.retrain_count' "$LAST_RETRAIN_JSON")
-
-# Convertir fecha a formato legible
-LAST_RETRAIN_DATE=$(echo "$LAST_RETRAIN" | cut -d'T' -f1)
-LAST_RETRAIN_TIME=$(echo "$LAST_RETRAIN" | cut -d'T' -f2 | cut -d'.' -f1)
-
-# Calcular días desde último retrain
-LAST_RETRAIN_EPOCH=$(date -d "$LAST_RETRAIN_DATE" +%s 2>/dev/null || echo "0")
-NOW_EPOCH=$(date +%s)
-DAYS_SINCE=$(( (NOW_EPOCH - LAST_RETRAIN_EPOCH) / 86400 ))
-
-# Leer accuracy desde model_metadata.json (fuente confiable)
-CURRENT_ACCURACY="N/A"
-PREV_ACCURACY="N/A"
-MODEL_SIZE="N/A"
-if [ -f "$MODEL_METADATA" ]; then
-    ACCURACY_RAW=$(jq -r '.accuracy // empty' "$MODEL_METADATA" 2>/dev/null)
-    if [ -n "$ACCURACY_RAW" ]; then
-        # Convertir de 0.8052 a 80.52%
-        CURRENT_ACCURACY=$(echo "$ACCURACY_RAW * 100" | bc | xargs printf "%.2f%%")
-    fi
-fi
-
-# Calcular tamaño del modelo desde el archivo .pkl
-MODEL_PKL="$WORKSPACE/ml/ml-validator-model.pkl"
-if [ -f "$MODEL_PKL" ]; then
-    SIZE_BYTES=$(stat -c%s "$MODEL_PKL" 2>/dev/null || echo "0")
-    SIZE_MB=$(echo "scale=2; $SIZE_BYTES / 1048576" | bc)
-    # Asegurar formato con cero a la izquierda (0.48 en lugar de .48)
-    if [[ "$SIZE_MB" == .* ]]; then
-        SIZE_MB="0$SIZE_MB"
-    fi
-    MODEL_SIZE="${SIZE_MB}"
-fi
-
-# Leer accuracy anterior del log (penúltimo valor único)
-if [ -f "$ML_RETRAIN_LOG" ]; then
-    # Obtener accuracies únicos en orden
-    ALL_ACCURACIES=$(grep "Accuracy:" "$ML_RETRAIN_LOG" | grep -oP '\d+\.\d+' | awk '!seen[$0]++')
-    ACCURACY_COUNT=$(echo "$ALL_ACCURACIES" | wc -l)
-    if [ "$ACCURACY_COUNT" -ge 2 ]; then
-        PREV_ACC_RAW=$(echo "$ALL_ACCURACIES" | tail -2 | head -1)
-        CURR_ACC_RAW=$(echo "$ALL_ACCURACIES" | tail -1)
-        CURRENT_ACCURACY=$(printf "%.2f%%" "$CURR_ACC_RAW")
-        PREV_ACCURACY=$(printf "%.2f%%" "$PREV_ACC_RAW")
-    elif [ "$ACCURACY_COUNT" -eq 1 ]; then
-        CURR_ACC_RAW=$(echo "$ALL_ACCURACIES" | tail -1)
-        CURRENT_ACCURACY=$(printf "%.2f%%" "$CURR_ACC_RAW")
-    fi
-    # Leer trades (formato: "• Trades usados: 106")
-    # Fix: usar grep -oP para extraer solo números y manejar múltiples formatos
-    TRADES_USED=$(grep -E "Trades usados:|Trades usados:" "$ML_RETRAIN_LOG" | tail -1 | grep -oP '\d+' | head -1)
-    if [ -z "$TRADES_USED" ]; then
-        TRADES_USED="N/A"
-    fi
-    TRADES_NUEVOS=$(grep -E "Trades nuevos:|Trades nuevos:" "$ML_RETRAIN_LOG" | tail -1 | grep -oP '\d+' | head -1)
-    if [ -z "$TRADES_NUEVOS" ]; then
-        TRADES_NUEVOS="N/A"
+# Enviar usando send-telegram.sh (método probado)
+SEND_TELEGRAM="$WORKSPACE/lib/send-telegram.sh"
+if [ -f "$SEND_TELEGRAM" ]; then
+    "$SEND_TELEGRAM" "$MESSAGE" "Markdown" > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        log "✅ Notificación enviada por Telegram (via send-telegram.sh)"
+    else
+        log "⚠️ send-telegram.sh falló, retry con curl directo"
+        HTTP_CODE=$(curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=${MESSAGE}" \
+            -d "parse_mode=Markdown" \
+            -w "%{http_code}" -o /dev/null 2>/dev/null)
+        if [ "$HTTP_CODE" = "200" ]; then
+            log "✅ Notificación enviada por Telegram (HTTP $HTTP_CODE)"
+        else
+            log "❌ Error enviando Telegram (HTTP $HTTP_CODE)"
+        fi
     fi
 else
-    TRADES_USED="N/A"
-    TRADES_NUEVOS="N/A"
-fi
-
-# Calcular cambio en accuracy
-ACCURACY_CHANGE=""
-if [ -n "$PREV_ACCURACY" ] && [ "$PREV_ACCURACY" != "N/A" ]; then
-    # Remover % para calcular
-    PREV_NUM=$(echo "$PREV_ACCURACY" | tr -d '%')
-    CURR_NUM=$(echo "$CURRENT_ACCURACY" | tr -d '%')
-    DIFF=$(echo "$CURR_NUM - $PREV_NUM" | bc)
-    # Formatear DIFF con signo y ceros a la izquierda
-    DIFF_FORMATTED=$(printf "%.2f" "$DIFF")
-    if (( $(echo "$DIFF > 0" | bc -l) )); then
-        ACCURACY_CHANGE="📈 **+${DIFF_FORMATTED}%** vs retrain anterior"
-    elif (( $(echo "$DIFF < 0" | bc -l) )); then
-        ACCURACY_CHANGE="📉 **${DIFF_FORMATTED}%** vs retrain anterior"
+    log "❌ No se encontró send-telegram.sh, usando curl directo"
+    HTTP_CODE=$(curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+        -d "chat_id=${TELEGRAM_CHAT_ID}" \
+        --data-urlencode "text=${MESSAGE}" \
+        -d "parse_mode=Markdown" \
+        -w "%{http_code}" -o /dev/null 2>/dev/null)
+    if [ "$HTTP_CODE" = "200" ]; then
+        log "✅ Notificación enviada por Telegram (HTTP $HTTP_CODE)"
     else
-        ACCURACY_CHANGE="➡️ Sin cambio vs retrain anterior"
+        log "❌ Error enviando Telegram (HTTP $HTTP_CODE)"
     fi
 fi
 
-# Verificar próximo retrain (domingos 3 AM)
-TODAY=$(date +%A)
-NEXT_RETRAIN="Domingo 3:00 AM"
-
-# Construir mensaje para Telegram
-MESSAGE="🧠 ML VALIDATOR - REPORTE SEMANAL
-
-📅 **Última Ejecución:** $(jq -r '.last_retrain | split("T")[0]' $LAST_RETRAIN_JSON 2>/dev/null || echo "N/A") $(jq -r '.last_retrain | split("T")[1] | split(".")[0]' $LAST_RETRAIN_JSON 2>/dev/null || echo "N/A")
-
-📊 **STATS DEL MODELO:**
-├─ Accuracy: $(jq -r '.accuracy * 100 | floor' $LAST_RETRAIN_JSON 2>/dev/null || echo "N/A")% $(if [ $(jq -r '.accuracy_change > 0' $LAST_RETRAIN_JSON 2>/dev/null) = "true" ]; then echo "📈 +$(jq -r '.accuracy_change | . * 100 | floor' $LAST_RETRAIN_JSON)%"; elif [ $(jq -r '.accuracy_change < 0' $LAST_RETRAIN_JSON 2>/dev/null) = "true" ]; then echo "📉 $(jq -r '.accuracy_change | . * 100 | floor' $LAST_RETRAIN_JSON)%"; else echo "➡️"; fi)
-├─ Train samples: $(jq -r '.train_samples' $LAST_RETRAIN_JSON 2>/dev/null || echo "N/A")
-├─ Test samples: $(jq -r '.test_samples' $LAST_RETRAIN_JSON 2>/dev/null || echo "N/A")
-├─ Win Rate: $(jq -r '.win_rate | floor' $LAST_RETRAIN_JSON 2>/dev/null || echo "N/A")%
-├─ Total retrainings: $(jq -r '.retrain_count' $LAST_RETRAIN_JSON 2>/dev/null || echo "N/A")
-└─ Tamaño modelo: $(jq -r '.model_size_mb | . * 100 | floor / 100' $LAST_RETRAIN_JSON 2>/dev/null || echo "N/A") MB
-
-⏰ **Próximo retrain:** Domingo 3:00 AM
-
-✅ **ML VALIDATOR Status:** OPERATIVO
-
-───────────────────────────────
-
-🔮 **TP PREDICTION (LightGBM):**"
+exit 0

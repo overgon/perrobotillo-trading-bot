@@ -15,10 +15,10 @@ PWM_ENABLE="/sys/class/hwmon/hwmon2/pwm1_enable"
 # ════════════════════════════════════════════════════════
 
 TEMP_OFF=38      # Apagar ventilador (<38°C)
-TEMP_LOW=45      # Velocidad baja (38-45°C)
-TEMP_MED=60      # Velocidad media (45-60°C)
-TEMP_HIGH=70     # Velocidad alta (60-70°C)
-TEMP_MAX=75      # Velocidad máxima (>75°C)
+TEMP_LOW=50      # Velocidad baja (38-50°C) - Optimizado para menos ruido
+TEMP_MED=65      # Velocidad media (50-65°C) - Optimizado para menos ruido
+TEMP_HIGH=75     # Velocidad alta (65-75°C) - Máximo solo en caso de necesidad
+TEMP_MAX=80      # Velocidad máxima (>80°C) - Seguro límite RPi5 (throttling @ 85°C)
 
 # ════════════════════════════════════════════════════════
 # 🔧 FUNCIONES
@@ -50,10 +50,10 @@ if (( $(echo "$TEMP < $TEMP_OFF" | bc -l) )); then
     PWM=0
     STATUS="OFF"
 elif (( $(echo "$TEMP < $TEMP_LOW" | bc -l) )); then
-    PWM=80      # 31% - Muy bajo
+    PWM=40      # 16% - Muy bajo (reducido ruido al mínimo)
     STATUS="LOW"
 elif (( $(echo "$TEMP < $TEMP_MED" | bc -l) )); then
-    PWM=140     # 55% - Bajo
+    PWM=120     # 47% - Bajo (reducido ruido)
     STATUS="MEDIUM-LOW"
 elif (( $(echo "$TEMP < $TEMP_HIGH" | bc -l) )); then
     PWM=190     # 75% - Medio
@@ -72,7 +72,7 @@ if [ $PWM_DIFF -lt 0 ]; then
     PWM_DIFF=$((-PWM_DIFF))
 fi
 
-if [ $PWM_DIFF -gt 20 ] || { [ "$CURRENT_PWM" -eq 0 ] && [ "$PWM" -gt 0 ]; }; then
+if [ $PWM_DIFF -gt 30 ] || { [ "$CURRENT_PWM" -eq 0 ] && [ "$PWM" -gt 0 ]; }; then
     set_pwm $PWM
     log "🌡️ Temp: ${TEMP}°C | 🌀 Fan: ${PWM}/255 (${STATUS}) | Prev: ${CURRENT_PWM}"
 else

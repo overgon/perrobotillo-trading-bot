@@ -7,13 +7,14 @@
 # ════════════════════════════════════════════════════════
 
 import sys
+import os
 import json
 from pathlib import Path
 from datetime import datetime
 import logging
 
 # Agregar path al workspace
-sys.path.append('/home/overgon/.openclaw/workspace/ml')
+sys.path.append(os.path.join(os.path.expanduser('~'), '.openclaw', 'workspace', 'ml'))
 
 from ml_pipeline import run_pipeline_all_coins
 
@@ -21,7 +22,7 @@ from ml_pipeline import run_pipeline_all_coins
 # CONFIGURACIÓN
 # ════════════════════════════════════════════════════════
 
-WORKSPACE = Path("/home/overgon/.openclaw/workspace")
+WORKSPACE = Path(os.path.expanduser('~.openclaw/workspace'))
 LOGS_DIR = WORKSPACE / "logs"
 MODELS_DIR = WORKSPACE / "ml" / "models"
 
@@ -40,7 +41,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Parámetros de entrenamiento
-DAYS_HISTORICAL = 60  # 60 días de datos
+DAYS_HISTORICAL = 90  # Aumentado de 60 → 90: LINK/XRP necesitan más samples con 216 features
 MODEL_TYPE = "random_forest"  # random_forest, gradient_boosting, logistic_regression
 USE_SMOTE = True  # Balancear clases automáticamente
 

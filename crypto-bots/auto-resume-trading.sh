@@ -5,8 +5,8 @@
 # Criterios: Performance + Condiciones de Mercado
 # ════════════════════════════════════════════════════════
 
-WORKSPACE="/home/overgon/.openclaw/workspace"
-LOG_FILE="/home/overgon/.openclaw/logs/auto-resume.log"
+WORKSPACE="${WORKSPACE:-$HOME/.openclaw/workspace}"
+LOG_FILE="${WORKSPACE}/logs/auto-resume.log"
 TRADE_HISTORY="$WORKSPACE/crypto-bots/trade-history.json"
 DYNAMIC_CONFIG="$WORKSPACE/crypto-bots/dynamic-config.env"
 
@@ -22,7 +22,7 @@ log() {
 
 send_telegram() {
     local message="$1"
-    local config_json="/home/overgon/.openclaw/openclaw.json"
+    local config_json="${WORKSPACE}/../openclaw.json"
     local chat_id="7543955537"
     
     if [ -f "$config_json" ]; then

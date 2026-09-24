@@ -4,12 +4,15 @@
 # ════════════════════════════════════════════════════════
 # Fix: usa --data-urlencode para evitar comillas extra en Telegram
 # Características: dedup, retry exponencial, cola local persistente
+# ✅ FIX: send_telegram ahora carga token desde telegram.env si openclaw.json falla
+# ✅ FIX: curl -w usa \n literal correcto (no \\n escapado)
+# ✅ FIX: --max-time 10 para evitar hangs
 # ════════════════════════════════════════════════════════
 
 WORKSPACE="${WORKSPACE:-$HOME/.openclaw/workspace}"
-LOG_FILE="$HOME/.openclaw/logs/notify.log"
-DEDUP_DIR="$HOME/.openclaw/logs/notify-dedup"
-QUEUE_FILE="$HOME/.openclaw/logs/notify-queue.json"
+LOG_FILE="${WORKSPACE}/logs/notify.log"
+DEDUP_DIR="${WORKSPACE}/logs/notify-dedup"
+QUEUE_FILE="${WORKSPACE}/logs/notify-queue.json"
 DEDUP_WINDOW_SECONDS="${NOTIFY_DEDUP_WINDOW:-600}"
 CHAT_ID="${NOTIFY_CHAT_ID:-7543955537}"
 
@@ -41,30 +44,48 @@ is_duplicate() {
 
 send_telegram() {
     local message="$1"
+    local bot_token=""
     local config_file="$HOME/.openclaw/openclaw.json"
-    if [ ! -f "$config_file" ]; then
-        log "openclaw.json no encontrado"
-        return 1
+
+    # ✅ FIX: Intentar cargar desde openclaw.json primero
+    if [ -f "$config_file" ]; then
+        bot_token="$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)"
     fi
-    local bot_token
-    bot_token="$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)"
+
+    # ✅ FIX FALLBACK: Si no hay token, cargar desde secrets/telegram.env
     if [ -z "$bot_token" ] || [ "$bot_token" = "null" ]; then
-        log "Bot token no encontrado"
+        local env_file="$WORKSPACE/secrets/telegram.env"
+        if [ -f "$env_file" ]; then
+            source "$env_file"
+            bot_token="${TELEGRAM_BOT_TOKEN:-}"
+        fi
+    fi
+
+    if [ -z "$bot_token" ] || [ "$bot_token" = "null" ]; then
+        log "Bot token no encontrado (ni en openclaw.json ni en telegram.env)"
         return 1
     fi
-    local result
-    result="$(curl -s -w "\nHTTP_CODE:%{http_code}" -X POST \
+
+    # ✅ FIX: Usar printf para evitar issue con \\n en -w flag
+    local http_response
+    local curl_result
+    curl_result=$(curl -s --max-time 10 -w "\n%{http_code}" -X POST \
         "https://api.telegram.org/bot${bot_token}/sendMessage" \
         -d "chat_id=${CHAT_ID}" \
         --data-urlencode "text=${message}" \
-        -d "parse_mode=Markdown" 2>&1)"
+        -d "parse_mode=Markdown" 2>&1)
+
+    # Parsear: el último field es el HTTP code
     local code
-    code="$(echo "$result" | grep "HTTP_CODE:" | cut -d':' -f2)"
+    code=$(echo "$curl_result" | tail -1)
+    local body
+    body=$(echo "$curl_result" | head -n -1)
+
     if [ "$code" = "200" ]; then
         log "Telegram enviado"
         return 0
     else
-        log "Error Telegram: HTTP ${code}"
+        log "Error Telegram: HTTP ${code} | Body: ${body:0:100}"
         return 1
     fi
 }

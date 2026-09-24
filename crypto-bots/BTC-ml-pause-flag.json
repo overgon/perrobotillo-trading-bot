@@ -1,7 +1,1 @@
-{
-  "last_pause": "2026-09-02T12:00:07-06:00",
-  "pause_msg": "ML hist\u00f3rico confiado (confianza: 88.7%) - Se\u00f1al WAIT por condiciones de mercado, no por riesgo modelo",
-  "risk_level": "LOW_RISK",
-  "confidence": 88.7,
-  "last_validated": "2026-09-03T15:30:00-06:00"
-}
+{"last_pause": "2026-09-24T01:20:07-06:00", "pause_msg": "Riesgo alto - ML histórico recomienda pausar (confianza: 54.7%)", "risk_level": "HIGH_RISK"}

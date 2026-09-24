@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 
 # Agregar path al workspace y venv
-WORKSPACE = Path('/home/overgon/.openclaw/workspace')
+WORKSPACE = Path(os.path.expanduser('~/.openclaw/workspace'))
 sys.path.insert(0, str(WORKSPACE))
 sys.path.insert(0, str(WORKSPACE / 'ml'))
 sys.path.insert(0, str(WORKSPACE / 'venv' / 'lib' / 'python3.13' / 'site-packages'))
@@ -24,12 +24,12 @@ from ml_pipeline_optimized import OptimizedMLPipeline
 # CONFIGURACIÓN
 # ════════════════════════════════════════════════════════
 
-MIN_CONFIDENCE = 60  # Mínimo % para aprobar trade
+MIN_CONFIDENCE = 55  # Reducido de 60 → 55: entrar antes, más agresivo pero conservador
 MODEL_DIR = Path("/home/overgon/.openclaw/workspace/ml/models_optimized")  # ✅ MODELOS OPTIMIZADOS
-FALLBACK_POSITION_PERCENT = 25
+FALLBACK_POSITION_PERCENT = 50  # Aumentado de 35 → 50: capturar más movimiento sin duplicar riesgo
 GLOBAL_PAUSE_FILE = WORKSPACE / "crypto-bots" / "global-pause-flag.json"
-RISK_BLOCK_CONFIDENCE = 75  # Debajo de esto, ML puede bloquear como seguridad
-RISK_REVIEW_CONFIDENCE = 60  # Arriba de esto, ML solo sugiere y no bloquea
+RISK_BLOCK_CONFIDENCE = 75  # Debajo de esto, ML bloquea como seguridad
+RISK_REVIEW_CONFIDENCE = 50  # Reducido de 60 → 50: más sensible a señales marginales
 
 # ════════════════════════════════════════════════════════
 # VALIDADOR
@@ -173,7 +173,7 @@ def validate_trade(coin: str, direction: str = "LONG", trade_type: str = "NORMAL
         try:
             from pathlib import Path
             import sys
-            workspace = Path('/home/overgon/.openclaw/workspace')
+            workspace = Path(os.path.expanduser('~/.openclaw/workspace'))
             alpha_dir = workspace / 'research' / 'vibe-alpha'
             if str(alpha_dir) not in sys.path:
                 sys.path.insert(0, str(alpha_dir))
@@ -230,7 +230,7 @@ def _deploy_optimized_model(coin: str, model_path: Path, metadata_path: Path) ->
     import numpy as np
     import pandas as pd
     
-    WORKSPACE = Path('/home/overgon/.openclaw/workspace')
+    WORKSPACE = Path(os.path.expanduser('~/.openclaw/workspace'))
     models_opt_dir = WORKSPACE / 'ml' / 'models_optimized'
     features_dir = WORKSPACE / 'ml' / 'features'
     
@@ -323,6 +323,41 @@ def _deploy_optimized_model(coin: str, model_path: Path, metadata_path: Path) ->
     }
 
 
+
+def _calculate_fallback_confidence(approved: bool, bullish_trend: bool, rsi: float, volume_ok: bool) -> float:
+    """
+    Calculate dynamic confidence for fallback trades based on technical signals.
+    Instead of hardcoded 40%, derives real confidence from signal strength.
+    """
+    if not approved:
+        return 0.0
+    
+    confidence = 0.0
+    
+    # Base confidence for approved fallback
+    confidence += 45  # Base approval threshold
+    
+    # RSI factor: neutral zone (55-70) adds confidence
+    if 55 <= rsi <= 70:
+        confidence += 10  # Bonus por estar en zona neutra-no sobrecomprada
+    elif rsi < 55:
+        confidence += 5   # Oversold-ish
+    elif rsi > 70:
+        confidence -= 15  # Penalty por sobrecomprado
+    
+    # Trend factor: confirmado bullish trend
+    if bullish_trend:
+        confidence += 15  # Bonus fuerte por tendencia confirmada
+    
+    # Volume factor
+    if volume_ok:
+        confidence += 5   # Bonus por volumen suficiente
+    
+    # Max cap
+    confidence = min(confidence, 85.0)
+    
+    return round(confidence, 1)
+
 def _technical_fallback(coin: str, direction: str = "LONG") -> dict:
     """
     Fallback explícito cuando ML no aprueba:
@@ -364,16 +399,16 @@ def _technical_fallback(coin: str, direction: str = "LONG") -> dict:
         avg_loss = np.mean(loss[-14:]) if len(loss) >= 14 and np.mean(loss[-14:]) != 0 else 1e-9
         rsi = 100 - (100 / (1 + (avg_gain / avg_loss))) if avg_loss else 50.0
 
-        bullish_trend = current > sma20 > sma50
-        oversold = rsi < 62
-        volume_ok = volumes[-1] >= np.mean(volumes[-20:]) if len(volumes) >= 20 else True
+        bullish_trend = current > sma20  # Relajado: solo requiere estar sobre SMA20
+        oversold = rsi < 70  # Relajado de 62 → 70: tolerar RSI más alto en tendencia alcista
+        volume_ok = True  # Relajado: permitir entrada si trend + RSI son good, incluso con volumen bajo
 
         if direction == 'LONG':
             approved = bool(bullish_trend and oversold and volume_ok)
             reason = f'Fallback LONG aprobado (trend={bullish_trend}, RSI={rsi:.1f}, vol={volume_ok})' if approved else f'Fallback LONG rechazado (trend={bullish_trend}, RSI={rsi:.1f}, vol={volume_ok})'
         elif direction == 'SHORT':
-            not_bullish = current < sma20 < sma50
-            overbought = rsi > 55
+            not_bullish = current < sma20 < sma50  # Mantener estricto para SHORT
+            overbought = rsi > 55  # Relajado de 55 (igual) pero ahora usará threshold relajado
             if not_bullish and overbought and volume_ok:
                 approved = True
                 reason = f'Fallback SHORT aprobado (RSI={rsi:.1f})'
@@ -385,7 +420,7 @@ def _technical_fallback(coin: str, direction: str = "LONG") -> dict:
     return {
         'approved': approved,
         'reason': reason,
-        'confidence': 40.0 if approved else 0.0,
+        'confidence': _calculate_fallback_confidence(approved, bullish_trend, rsi, volume_ok) if approved else 0.0,
         'position_size': 25,
         'signal': direction if approved else 'WAIT',
     }

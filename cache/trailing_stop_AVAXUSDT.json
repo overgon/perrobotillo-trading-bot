@@ -1,16 +1,16 @@
 {
   "symbol": "AVAXUSDT",
   "timeframe": "1h",
-  "timestamp": "2026-08-30T18:00:47.022374",
-  "current_price": 7.086,
-  "atr": 0.07750000000000005,
-  "atr_percent": 1.093705898955688,
+  "timestamp": "2026-09-24T08:00:45.576188",
+  "current_price": 10.274,
+  "atr": 0.14621428571428602,
+  "atr_percent": 1.4231485858894883,
   "volatility_ratio": 1.0,
   "volatility_status": "BAJA",
   "multiplier": 2.0,
-  "trailing_stop_percent": 2.187411797911376,
-  "trailing_stop_value": 0.1550000000000001,
+  "trailing_stop_percent": 2.8462971717789767,
+  "trailing_stop_value": 0.29242857142857204,
   "min_trailing": 2.0,
   "max_trailing": 15.0,
-  "recommendation": "Usar trailing stop de 2.2% (BAJA volatilidad)"
+  "recommendation": "Usar trailing stop de 2.8% (BAJA volatilidad)"
 }

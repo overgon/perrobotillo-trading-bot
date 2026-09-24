@@ -12,8 +12,13 @@
 
 cat << 'EOF' | crontab -
 # ════════════════════════════════════════════════════════
-# Perrobotillo Trading Bot - Crontab Adaptado (25/08/2026)
+# Perrobotillo Trading Bot - Crontab Portátil ($WORKSPACE)
+# Variables: usar paths absolutos. Cron NO expande vars recursivamente,
+# así que PYTHON=/usr/bin/python3, NO PYTHON=$WORKSPACE/venv/bin/python3
 # ════════════════════════════════════════════════════════
+HOME=/home/overgon
+WORKSPACE=/home/overgon/.openclaw/workspace
+PYTHON=/usr/bin/python3
 
 # ════════════════════════════════════════════════════════
 # TRADING BOTS - 7 Monedas (cada 10 min, offsets escalonados)

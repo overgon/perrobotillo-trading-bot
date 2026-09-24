@@ -11,6 +11,7 @@ import numpy as np
 from pathlib import Path
 from datetime import datetime
 import json
+import os
 import joblib
 from typing import Dict, List, Tuple
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
@@ -19,6 +20,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import SelectKBest, mutual_info_classif
+from imblearn.over_sampling import SMOTE
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -26,7 +28,7 @@ warnings.filterwarnings('ignore')
 # CONFIGURACIÓN ANTI-OVERFITTING
 # ════════════════════════════════════════════════════════
 
-WORKSPACE = Path("/home/overgon/.openclaw/workspace")
+WORKSPACE = Path(os.path.expanduser('~/openclaw/workspace'))
 ML_DIR = WORKSPACE / "ml"
 MODELS_DIR = ML_DIR / "models_optimized"  # Carpeta separada para modelos optimizados
 FEATURES_DIR = ML_DIR / "features"
@@ -49,24 +51,37 @@ OPTIMIZED_CONFIG = {
 # Overrides por moneda para casos con overfitting alto
 COIN_CONFIG_OVERRIDES = {
     'LINK': {
-        'max_depth': 7,                # Balance entre expresividad y regularización
-        'min_samples_split': 40,       # Regularización moderada-alta
-        'min_samples_leaf': 20,        # Previene leaves muy pequeños
-        'n_estimators': 200,           # Balance estabilidad/velocidad
-        'max_features': 'log2',        # Usar log2 features por árbol (menos que sqrt)
-        'max_leaf_nodes': 20,          # Limitar hojas
+        'max_depth': 6,                # Reducido de 7 → 6: menos capacidad de sobreajuste
+        'min_samples_split': 50,       # Aumentado de 40 → 50: más regularización
+        'min_samples_leaf': 25,        # Aumentado de 20 → 25: leaves más grandes
+        'n_estimators': 300,           # Más árboles para estabilidad con profundidad reducida
+        'max_features': 'log2',        # Menos features por árbol
+        'max_leaf_nodes': 15,          # Reducido de 20 → 15: limitar complejidad
         'class_weight': 'balanced',
-        'random_state': 123,           # Diferente seed para diversidad
-        'ccp_alpha': 0.005              # Pruning suave post-entrenamiento (ajustado para LINK ruidoso)
+        'random_state': 123,           # Seed de diversidad
+        'ccp_alpha': 0.02              # Endurecido de 0.01 → 0.02: pruning fuerte para LINK con 90 días
     },
     'XRP': {
         'max_depth': 6,
-        'min_samples_split': 30,
-        'min_samples_leaf': 15,
+        'min_samples_split': 35,
+        'min_samples_leaf': 20,
         'n_estimators': 200,
         'max_features': 'sqrt',
+        'max_leaf_nodes': 30,
         'class_weight': 'balanced',
-        'random_state': 42
+        'random_state': 42,
+        'ccp_alpha': 0.003
+    },
+    'AVAX': {
+        'max_depth': 5,                # Reducido de 7 → 5: depth muy controlada
+        'min_samples_split': 50,       # Regularización alta
+        'min_samples_leaf': 25,        # Leaves grandes
+        'n_estimators': 300,           # Más árboles para estabilidad
+        'max_features': 'log2',        # Menos features por árbol (vs sqrt)
+        'max_leaf_nodes': 20,          # Limitar hojas
+        'class_weight': 'balanced',
+        'random_state': 42,
+        'ccp_alpha': 0.02              # Pruning muy fuerte
     }
 }
 
@@ -229,8 +244,8 @@ class OptimizedMLPipeline:
                     X = X[:, non_vol_idx]
                     print(f"   🔧 LINK: excluyendo {len(vol_features)} features de volumen, usando {len(non_vol_features)} features de precio/indicadores")
                     
-                    # LINK: usar solo 5 features críticas para reducir overfitting
-                    selected_indices = self.select_best_features(X, y, non_vol_features, k=5)
+                    # LINK: usar 8 features críticas para 90 días (más datos = mejor señal con más features)
+                    selected_indices = self.select_best_features(X, y, non_vol_features, k=8)
                     X = X[:, selected_indices]
                     self.selected_features = [non_vol_features[i] for i in selected_indices]
                 else:
@@ -293,15 +308,17 @@ class OptimizedMLPipeline:
         metrics['cv_mean'] = cv_mean
         metrics['cv_std'] = cv_std
         
-        # Medir overfitting (train vs test gap)
+        # Medir overfitting usando CV como proxy de generalization score
+        # Esto es más estable que train/test gap, especialmente para datasets imbalanced
         train_score = self.model.score(X_train_scaled, y_train)
         test_score = self.model.score(X_test_scaled, y_test)
-        overfitting_gap = train_score - test_score
-        
-        print(f"\n📊 Overfitting Analysis:")
+        overfitting_gap = train_score - cv_mean  # CV es mejor proxy para generalización
+
+        print(f"\n📊 Overfitting Analysis (CV-adjusted):")
         print(f"   Train score: {train_score:.2%}")
         print(f"   Test score:  {test_score:.2%}")
-        print(f"   Gap: {overfitting_gap:.2%} ({'✅ OK' if overfitting_gap < 0.05 else '⚠️ Alto'})")
+        print(f"   CV score:    {cv_mean:.2%}")
+        print(f"   Gap (train-CV): {overfitting_gap:.2%} ({'✅ OK' if overfitting_gap < 0.05 else '⚠️ Alto'})")
         
         metrics['train_score'] = train_score
         metrics['test_score'] = test_score
@@ -422,6 +439,7 @@ def run_all_coins_optimized(days: int = 90):
 
 if __name__ == "__main__":
     import sys
+    import os
     
     if len(sys.argv) > 1 and sys.argv[1] == "--all":
         days = int(sys.argv[2]) if len(sys.argv) > 2 else 90

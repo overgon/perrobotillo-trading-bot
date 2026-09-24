@@ -1,16 +1,16 @@
 {
   "symbol": "LINKUSDT",
   "timeframe": "1h",
-  "timestamp": "2026-08-30T18:00:37.161519",
-  "current_price": 11.113,
-  "atr": 0.14249999999999968,
-  "atr_percent": 1.2822820120579475,
+  "timestamp": "2026-09-24T08:00:38.544310",
+  "current_price": 12.523,
+  "atr": 0.14121428571428535,
+  "atr_percent": 1.12763942916462,
   "volatility_ratio": 1.0,
   "volatility_status": "BAJA",
   "multiplier": 2.0,
-  "trailing_stop_percent": 2.564564024115895,
-  "trailing_stop_value": 0.28499999999999936,
+  "trailing_stop_percent": 2.25527885832924,
+  "trailing_stop_value": 0.2824285714285707,
   "min_trailing": 2.0,
   "max_trailing": 15.0,
-  "recommendation": "Usar trailing stop de 2.6% (BAJA volatilidad)"
+  "recommendation": "Usar trailing stop de 2.3% (BAJA volatilidad)"
 }

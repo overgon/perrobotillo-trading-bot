@@ -1,6 +1,7 @@
 #!/bin/bash
 # ════════════════════════════════════════════════════════
 # 🐕 Perrobotillo ML - TP Recommendation Getter
+WORKSPACE="${WORKSPACE:-$HOME/.openclaw/workspace}"
 # ════════════════════════════════════════════════════════
 # Obtiene recomendación de TP para una moneda específica
 # Uso: ./get-tp-recommendation.sh BTC
@@ -8,9 +9,9 @@
 # ════════════════════════════════════════════════════════
 
 COIN="${1:-BTC}"
-RECOMMENDATIONS_FILE="/home/overgon/.openclaw/workspace/ml/tp-recommendations.json"
-PREDICTIONS_FILE="/home/overgon/.openclaw/workspace/ml/tp-predictions.json"
-LOG_FILE="/home/overgon/.openclaw/logs/ml-integration.log"
+RECOMMENDATIONS_FILE=${WORKSPACE}/workspace/ml/tp-recommendations.json
+PREDICTIONS_FILE=${WORKSPACE}/workspace/ml/tp-predictions.json
+LOG_FILE=${WORKSPACE}/logs/ml-integration.log
 
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"

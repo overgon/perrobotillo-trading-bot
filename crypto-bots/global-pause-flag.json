@@ -1,6 +1,6 @@
 {
-  "pause_until": "2026-08-31 05:34:02",
+  "pause_until": "2026-09-24 18:30:01",
   "triggered_by": "loss_rate",
-  "loss_rate": "66.66",
-  "losses_24h": 2
+  "loss_rate": "100.00",
+  "losses_24h": 1
 }
