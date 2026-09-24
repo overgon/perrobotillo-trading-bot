@@ -22,8 +22,8 @@
       "timestamp": null,
       "highestPrice": null,
       "trailingStop": null,
-      "side": "LONG",
-      "strategy": "SLOT_V3",
+      "side": "NONE",
+      "strategy": "NONE",
       "currentPrice": 6.796,
       "lastUpdate": "2026-08-21T17:51:05.009086"
     },
@@ -47,8 +47,8 @@
       "timestamp": null,
       "highestPrice": null,
       "trailingStop": null,
-      "side": "LONG",
-      "strategy": "SLOT_V3",
+      "side": "NONE",
+      "strategy": "NONE",
       "tp3FailCount": 0
     },
     {
@@ -71,13 +71,13 @@
       "timestamp": null,
       "highestPrice": null,
       "trailingStop": null,
-      "side": "LONG",
-      "strategy": "SLOT_V3",
+      "side": "NONE",
+      "strategy": "NONE",
       "tp3FailCount": 0,
       "exitPrice": 7.462,
       "closeType": "CLOSED_SL",
       "lastUpdate": "2026-08-22T09:51:15.644928"
     }
   ],
-  "lastUpdated": "2026-09-24T08:33:42.486404-06:00"
+  "lastUpdated": "2026-09-24T08:54:11.328990-06:00"
 }

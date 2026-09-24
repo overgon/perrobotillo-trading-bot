@@ -22,8 +22,8 @@
       "timestamp": null,
       "highestPrice": null,
       "trailingStop": null,
-      "side": "LONG",
-      "strategy": "SLOT_V3",
+      "side": "NONE",
+      "strategy": "NONE",
       "tp3FailCount": 0,
       "exitPrice": null,
       "closeType": null,
@@ -49,8 +49,8 @@
       "timestamp": null,
       "highestPrice": null,
       "trailingStop": null,
-      "side": "LONG",
-      "strategy": "SLOT_V3",
+      "side": "NONE",
+      "strategy": "NONE",
       "tp3FailCount": 0,
       "exitPrice": null,
       "closeType": null,
@@ -78,5 +78,5 @@
       "trailingStop": null
     }
   ],
-  "lastUpdated": "2026-09-24T08:33:42.486404-06:00"
+  "lastUpdated": "2026-09-24T08:54:11.328990-06:00"
 }
