@@ -81,31 +81,38 @@ def _resolve_symbol_from_price(entry_price, slot_id=None, symbol_env=None):
     When price is ambiguous, fall back to symbol_env (resolved by bash script)
     instead of hardcoded SLOT_TO_COIN (which is WRONG — each coin uses slots 1-3).
     """
-    # 🔧 FIX: Updated PRICE_RANGES to match actual market prices (2026-09)
-    # AVAX ~$7.5, LINK ~$11.5 — adjusted ranges to minimize overlap
-    # AVAX range lowered to 4.0-8.0 to avoid overlap with LINK (6.0-30.0)
+    # 🔧 FIX (2026-09-25): AVAX and LINK trade in overlapping ranges (both $5-30).
+    # Previous narrow ranges (AVAX:4-8, LINK:8-30) caused AVAX at $10.48 to be
+    # misidentified as LINK. Widen both to (4.0, 30.0). Trust symbol_env
+    # (authoritative from bash cron invocation) when price is plausible for it.
+    # Only override symbol_env when price is wildly outside its range.
     PRICE_RANGES = {
         "BTC": (20000, 120000),
         "ETH": (800, 8000),
         "BNB": (200, 1000),
         "SOL": (40, 500),
-        "AVAX": (4.0, 8.0),  # AVAX ~$7.5 — tightened from 12.0 to avoid LINK overlap
-        "LINK": (8.0, 30.0),  # LINK ~$11.5 — starts above AVAX max
+        "AVAX": (4.0, 30.0),  # 🔧 widened from (4.0, 8.0) — AVAX trades $7-13+ in practice
+        "LINK": (4.0, 30.0),  # 🔧 widened from (8.0, 30.0) — overlaps with AVAX by design
         "XRP": (0.2, 5.0),
     }
+    KNOWN_COINS = set(PRICE_RANGES.keys())
+    # If symbol_env is a known coin and price is plausible for it -> trust it.
+    # symbol_env is authoritative: bash knows which coin it's processing.
+    if symbol_env and symbol_env in KNOWN_COINS:
+        env_lo, env_hi = PRICE_RANGES[symbol_env]
+        if env_lo <= entry_price <= env_hi:
+            return symbol_env  # Price plausible for the env symbol -> trust it
+    # Price outside symbol_env's range OR symbol_env unknown -> use price-based candidates
     candidates = []
     for coin, (lo, hi) in PRICE_RANGES.items():
         if lo <= entry_price <= hi:
             candidates.append(coin)
-    # If price matches exactly one coin range → definitive
     if len(candidates) == 1:
         return candidates[0]
     # Ambiguous (e.g. price falls in multiple ranges) — try symbol_env first
-    # (the bash script already resolved this correctly using entryPrice + SYMBOL)
     if len(candidates) > 1:
         if symbol_env and symbol_env in candidates:
             return symbol_env
-        # symbol_env is stale (e.g. BTC) — fall through to slot_id fallback
     # If price doesn't match any known range, or ambiguous with stale symbol_env
     # fall back to slot_id resolution
     if slot_id is not None:

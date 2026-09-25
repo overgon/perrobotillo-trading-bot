@@ -22,8 +22,8 @@
       "timestamp": null,
       "highestPrice": null,
       "trailingStop": null,
-      "side": "NONE",
-      "strategy": "NONE",
+      "side": "LONG",
+      "strategy": "SLOT_V3",
       "currentPrice": 6.796,
       "lastUpdate": "2026-08-21T17:51:05.009086"
     },
@@ -74,10 +74,8 @@
       "side": "NONE",
       "strategy": "NONE",
       "tp3FailCount": 0,
-      "exitPrice": 7.462,
-      "closeType": "CLOSED_SL",
       "lastUpdate": "2026-08-22T09:51:15.644928"
     }
   ],
-  "lastUpdated": "2026-09-24T08:54:11.328990-06:00"
+  "lastUpdated": "2026-09-25T08:06:02-06:00"
 }

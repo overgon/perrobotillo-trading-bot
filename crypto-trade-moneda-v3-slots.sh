@@ -266,14 +266,34 @@ import sys
 entry = float(sys.argv[1])
 slot_id = int(sys.argv[2])
 local_symbol = sys.argv[3]
-RANGES = {'BTC':(20000,120000),'ETH':(800,8000),'BNB':(200,1000),'SOL':(40,500),'AVAX':(4.0,8.0),'LINK':(8.0,30.0),'XRP':(0.2,5.0)}
-candidates = [c for c,(lo,hi) in RANGES.items() if lo <= entry <= hi]
-if len(candidates) == 1:
-    print(candidates[0])
-elif len(candidates) > 1 and local_symbol in candidates:
-    print(local_symbol)
+# 🔧 FIX (2026-09-25): AVAX and LINK trade in overlapping price ranges in practice.
+# Previous narrow ranges (AVAX:4-8, LINK:8-30) caused AVAX at $10.48 to be
+# misidentified as LINK. Widen both to (4.0, 30.0) and trust local_symbol
+# (authoritative from cron invocation arg, NOT a leaked env var) when the
+# price is plausible for that coin. Only override when price is wildly outside
+# local_symbol's range — that is the real stale-env-var signal.
+KNOWN_COINS = {'BTC','ETH','BNB','SOL','AVAX','LINK','XRP'}
+RANGES = {'BTC':(20000,120000),'ETH':(800,8000),'BNB':(200,1000),'SOL':(40,500),'AVAX':(4.0,30.0),'LINK':(4.0,30.0),'XRP':(0.2,5.0)}
+if local_symbol in KNOWN_COINS:
+    lo, hi = RANGES[local_symbol]
+    if lo <= entry <= hi:
+        print(local_symbol)  # Price plausible for the coin being processed -> trust it
+    else:
+        # Price outside local_symbol range -> use price to find definitive match
+        candidates = [c for c,(lo,hi) in RANGES.items() if lo <= entry <= hi]
+        if len(candidates) == 1:
+            print(candidates[0])
+        else:
+            print(local_symbol)  # Ambiguous -> keep local_symbol as fallback
 else:
-    print(local_symbol)
+    # local_symbol unknown/empty -> use price ranges only
+    candidates = [c for c,(lo,hi) in RANGES.items() if lo <= entry <= hi]
+    if len(candidates) == 1:
+        print(candidates[0])
+    elif len(candidates) > 1:
+        print(local_symbol or candidates[0])
+    else:
+        print(local_symbol or 'UNKNOWN')
 PYTHON_SCRIPT
 
     resolved_symbol=$(python3 "$_resolve_script" "$entry_price" "$slot_id" "$SYMBOL" 2>/dev/null || echo "$SYMBOL")
@@ -1831,12 +1851,31 @@ ACUMULADO: 5% se queda HODL 📈
                 # (e.g. $SYMBOL=AVAX when closing LINK trade due to previous loop)
                 local resolved_symbol="$SYMBOL"
                 resolved_symbol=$(python3 -c "
-import json
+import sys
 entry = float('$entry')
-ranges = {'BTC':(20000,120000),'ETH':(800,8000),'BNB':(200,1000),'SOL':(40,500),'AVAX':(5,30),'LINK':(5,30),'XRP':(0.2,5)}
-for s,(lo,hi) in ranges.items():
+local_sym = '$SYMBOL'
+RANGES = {'BTC':(20000,120000),'ETH':(800,8000),'BNB':(200,1000),'SOL':(40,500),'AVAX':(4.0,30.0),'LINK':(4.0,30.0),'XRP':(0.2,5.0)}
+KNOWN = {'BTC','ETH','BNB','SOL','AVAX','LINK','XRP'}
+# 🔧 FIX (2026-09-25): trust local_symbol when price is plausible for it;
+# only override via price when local_symbol range doesn't match.
+if local_sym in KNOWN:
+    lo, hi = RANGES[local_sym]
     if lo <= entry <= hi:
-        print(s); break
+        print(local_sym)
+    else:
+        cands = [c for c,(lo,hi) in RANGES.items() if lo <= entry <= hi]
+        if len(cands) == 1:
+            print(cands[0])
+        else:
+            print(local_sym)
+else:
+    cands = [c for c,(lo,hi) in RANGES.items() if lo <= entry <= hi]
+    if len(cands) == 1:
+        print(cands[0])
+    elif len(cands) > 1:
+        print(local_sym or cands[0])
+    else:
+        print(local_sym or 'UNKNOWN')
 " 2>/dev/null || echo "$SYMBOL")
 
                 # ✅ Verificación final de persistencia antes de continuar

@@ -9,14 +9,32 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 490,
+  "totalTrades": 491,
   "totalWins": 345,
-  "totalLosses": 145,
+  "totalLosses": 146,
   "totalProfitUSDT": 733.71404196,
-  "totalLossUSDT": -548.73140237,
-  "netPnLUSDT": 184.98355862,
-  "winRate": 70.41,
+  "totalLossUSDT": -549.88465027,
+  "netPnLUSDT": 183.82939169,
+  "winRate": 70.26,
   "trades": [
+    {
+      "id": 493,
+      "symbol": "AVAX",
+      "coin": "AVAX",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 10.481,
+      "exitPrice": 10.219,
+      "quantity": 4.4,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -1.1532479,
+      "timestamp": "2026-09-25T08:06:02.647562",
+      "closeTime": "2026-09-25 08:06:02",
+      "source": "TELEGRAM_RECOVERY",
+      "orderId": null,
+      "reason": null,
+      "note": "RECOVERED: symbol mislabel (was LINK, corrected to AVAX via entryPrice + slotId cross-check)"
+    },
     {
       "id": 492,
       "symbol": "BTC",
@@ -189,8 +207,8 @@
     },
     {
       "id": 482,
-      "symbol": "LINK",
-      "coin": "LINK",
+      "symbol": "AVAX",
+      "coin": "AVAX",
       "slotId": 3,
       "type": "LONG",
       "entryPrice": 11.107,
@@ -200,14 +218,15 @@
       "pnlUSDT": -0.37160565,
       "timestamp": "2026-09-23T06:26:11.762369",
       "closeTime": "2026-09-23 06:26:11",
-      "source": "BOT",
+      "source": "TELEGRAM_RECOVERY",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "note": "RECOVERED: symbol mislabel (was LINK, corrected to AVAX)"
     },
     {
       "id": 481,
-      "symbol": "LINK",
-      "coin": "LINK",
+      "symbol": "AVAX",
+      "coin": "AVAX",
       "slotId": 2,
       "type": "LONG",
       "entryPrice": 11.101,
@@ -217,14 +236,15 @@
       "pnlUSDT": -0.57657506,
       "timestamp": "2026-09-23T06:26:04.845328",
       "closeTime": "2026-09-23 06:26:04",
-      "source": "BOT",
+      "source": "TELEGRAM_RECOVERY",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "note": "RECOVERED: symbol mislabel (was LINK, corrected to AVAX)"
     },
     {
       "id": 480,
-      "symbol": "LINK",
-      "coin": "LINK",
+      "symbol": "AVAX",
+      "coin": "AVAX",
       "slotId": 1,
       "type": "LONG",
       "entryPrice": 11.116,
@@ -234,9 +254,10 @@
       "pnlUSDT": -1.02378217,
       "timestamp": "2026-09-23T06:26:02.865425",
       "closeTime": "2026-09-23 06:26:02",
-      "source": "BOT",
+      "source": "TELEGRAM_RECOVERY",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "note": "RECOVERED: symbol mislabel (was LINK, corrected to AVAX)"
     },
     {
       "id": 479,
@@ -8120,526 +8141,464 @@
       "orderId": null
     }
   ],
-  "updatedAt": "2026-09-24T02:50:03.219348",
+  "updatedAt": "2026-09-25T10:50:15.075383",
   "bySymbol": {
     "AVAX": {
-      "trades": 86,
+      "trades": 90,
       "wins": 63,
-      "losses": 23,
-      "netPnL": 46.82239545
-    },
-    "BNB": {
-      "trades": 60,
-      "wins": 49,
-      "losses": 10,
-      "netPnL": 58.8739966
+      "netPnL": 43.69718467
     },
     "BTC": {
       "trades": 41,
       "wins": 22,
-      "losses": 16,
       "netPnL": -137.06478714
+    },
+    "XRP": {
+      "trades": 82,
+      "wins": 50,
+      "netPnL": 35.33734759
+    },
+    "BNB": {
+      "trades": 60,
+      "wins": 48,
+      "netPnL": 58.8739966
     },
     "ETH": {
       "trades": 71,
       "wins": 55,
-      "losses": 15,
       "netPnL": 113.617373
-    },
-    "LINK": {
-      "trades": 84,
-      "wins": 59,
-      "losses": 19,
-      "netPnL": 10.2193304
     },
     "SOL": {
       "trades": 66,
-      "wins": 51,
-      "losses": 12,
+      "wins": 50,
       "netPnL": 57.17698369
     },
-    "XRP": {
-      "trades": 82,
-      "wins": 51,
-      "losses": 29,
-      "netPnL": 35.33734759
+    "LINK": {
+      "trades": 81,
+      "wins": 57,
+      "netPnL": 12.19129328
     }
   },
   "byDay": {
-    "2026-04-23": {
-      "trades": 2,
-      "wins": 2,
-      "losses": 0,
-      "netPnL": 6.305956
-    },
-    "2026-04-24": {
-      "trades": 4,
-      "wins": 4,
-      "losses": 0,
-      "netPnL": 25.5402792
-    },
-    "2026-04-26": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 2.06456
-    },
-    "2026-04-27": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 2.86488
-    },
-    "2026-04-30": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 4.632
-    },
-    "2026-05-01": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 3.78963
-    },
-    "2026-05-04": {
-      "trades": 6,
-      "wins": 6,
-      "losses": 0,
-      "netPnL": 18.3471689714
-    },
-    "2026-05-05": {
-      "trades": 14,
-      "wins": 14,
-      "losses": 0,
-      "netPnL": 19.480848679999998
-    },
-    "2026-05-06": {
-      "trades": 5,
-      "wins": 5,
-      "losses": 0,
-      "netPnL": 12.5992894
-    },
-    "2026-05-07": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 0.2595222
-    },
-    "2026-05-08": {
-      "trades": 15,
-      "wins": 15,
-      "losses": 0,
-      "netPnL": 78.72782476
-    },
-    "2026-05-10": {
-      "trades": 11,
-      "wins": 11,
-      "losses": 0,
-      "netPnL": 44.431461
-    },
-    "2026-05-11": {
-      "trades": 2,
-      "wins": 2,
-      "losses": 0,
-      "netPnL": 23.03086
-    },
-    "2026-05-12": {
-      "trades": 3,
-      "wins": 3,
-      "losses": 0,
-      "netPnL": 8.278715
-    },
-    "2026-05-13": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 2.10672
-    },
-    "2026-05-14": {
-      "trades": 4,
-      "wins": 4,
-      "losses": 0,
-      "netPnL": 26.818675499999998
-    },
-    "2026-05-15": {
-      "trades": 4,
-      "wins": 1,
-      "losses": 3,
-      "netPnL": -5.00313475
-    },
-    "2026-05-16": {
-      "trades": 9,
-      "wins": 0,
-      "losses": 9,
-      "netPnL": -61.464637409999995
-    },
-    "2026-05-17": {
-      "trades": 2,
-      "wins": 0,
-      "losses": 2,
-      "netPnL": -6.12625867
-    },
-    "2026-05-18": {
-      "trades": 3,
-      "wins": 0,
-      "losses": 3,
-      "netPnL": -24.91873892
-    },
-    "2026-05-20": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 0.275849
-    },
-    "2026-05-21": {
-      "trades": 4,
-      "wins": 4,
-      "losses": 0,
-      "netPnL": 1.35050996
-    },
-    "2026-05-22": {
-      "trades": 5,
-      "wins": 3,
-      "losses": 2,
-      "netPnL": -17.74809485
-    },
-    "2026-05-23": {
-      "trades": 6,
-      "wins": 3,
-      "losses": 3,
-      "netPnL": -11.311658020000001
-    },
-    "2026-05-27": {
-      "trades": 9,
-      "wins": 0,
-      "losses": 9,
-      "netPnL": -49.464733460000005
-    },
-    "2026-05-28": {
-      "trades": 6,
-      "wins": 4,
-      "losses": 2,
-      "netPnL": -3.8182246699999993
-    },
-    "2026-05-29": {
-      "trades": 5,
-      "wins": 4,
-      "losses": 1,
-      "netPnL": -11.810577930000001
-    },
-    "2026-05-30": {
-      "trades": 16,
-      "wins": 16,
-      "losses": 0,
-      "netPnL": 42.718900999999995
-    },
-    "2026-05-31": {
+    "2026-09-25": {
       "trades": 1,
       "wins": 0,
-      "losses": 1,
-      "netPnL": -3.23324029
+      "netPnL": -1.1532479
     },
-    "2026-06-01": {
-      "trades": 6,
-      "wins": 0,
-      "losses": 6,
-      "netPnL": -63.49938395
-    },
-    "2026-06-02": {
-      "trades": 3,
-      "wins": 0,
-      "losses": 3,
-      "netPnL": -8.3
-    },
-    "2026-06-03": {
-      "trades": 9,
-      "wins": 0,
-      "losses": 9,
-      "netPnL": -113.11303494
-    },
-    "2026-06-05": {
-      "trades": 3,
-      "wins": 2,
-      "losses": 1,
-      "netPnL": -5.80867987
-    },
-    "2026-06-06": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 0.207123
-    },
-    "2026-06-07": {
-      "trades": 2,
-      "wins": 2,
-      "losses": 0,
-      "netPnL": 2.86468454
-    },
-    "2026-06-08": {
-      "trades": 9,
-      "wins": 9,
-      "losses": 0,
-      "netPnL": 8.1935556
-    },
-    "2026-06-10": {
-      "trades": 19,
-      "wins": 0,
-      "losses": 19,
-      "netPnL": -12.244772170000001
-    },
-    "2026-06-12": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 21.3876
-    },
-    "2026-06-13": {
-      "trades": 3,
-      "wins": 2,
-      "losses": 1,
-      "netPnL": 5.39061283
-    },
-    "2026-06-14": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 3.06195
-    },
-    "2026-06-15": {
-      "trades": 6,
-      "wins": 6,
-      "losses": 0,
-      "netPnL": 3.0709999999999997
-    },
-    "2026-06-16": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 0.0
-    },
-    "2026-06-30": {
-      "trades": 3,
-      "wins": 3,
-      "losses": 0,
-      "netPnL": 0.415363
-    },
-    "2026-07-13": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 0.1149
-    },
-    "2026-07-14": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 0.42
-    },
-    "2026-07-16": {
-      "trades": 2,
-      "wins": 0,
-      "losses": 2,
-      "netPnL": -2.32
-    },
-    "2026-07-23": {
-      "trades": 3,
-      "wins": 0,
-      "losses": 3,
-      "netPnL": -1.2709000000000001
-    },
-    "2026-07-24": {
-      "trades": 3,
-      "wins": 0,
-      "losses": 3,
-      "netPnL": -3.95
-    },
-    "2026-07-27": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 0.5287271
-    },
-    "2026-07-28": {
-      "trades": 3,
-      "wins": 1,
-      "losses": 2,
-      "netPnL": -3.29
-    },
-    "2026-07-30": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 0.80701377
-    },
-    "2026-07-31": {
-      "trades": 2,
-      "wins": 0,
-      "losses": 2,
-      "netPnL": -4.16
-    },
-    "2026-08-01": {
-      "trades": 2,
-      "wins": 0,
-      "losses": 2,
-      "netPnL": -1.8823354
-    },
-    "2026-08-04": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 0.07804811
-    },
-    "2026-08-05": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 0.39176354
-    },
-    "2026-08-08": {
-      "trades": 2,
-      "wins": 2,
-      "losses": 0,
-      "netPnL": 0.44902759999999997
-    },
-    "2026-08-09": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 0.47071905
-    },
-    "2026-08-10": {
+    "2026-09-24": {
       "trades": 1,
       "wins": 0,
-      "losses": 1,
-      "netPnL": -1.46530816
-    },
-    "2026-08-11": {
-      "trades": 6,
-      "wins": 6,
-      "losses": 0,
-      "netPnL": 1.5518555699999999
-    },
-    "2026-08-12": {
-      "trades": 1,
-      "wins": 0,
-      "losses": 1,
-      "netPnL": -9.93368331
-    },
-    "2026-08-14": {
-      "trades": 5,
-      "wins": 5,
-      "losses": 0,
-      "netPnL": 2.61898299
-    },
-    "2026-08-16": {
-      "trades": 1,
-      "wins": 0,
-      "losses": 1,
-      "netPnL": -2.22
-    },
-    "2026-08-17": {
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "netPnL": 0.55754251
-    },
-    "2026-08-18": {
-      "trades": 3,
-      "wins": 3,
-      "losses": 0,
-      "netPnL": 1.24522409
-    },
-    "2026-08-19": {
-      "trades": 85,
-      "wins": 85,
-      "losses": 0,
-      "netPnL": 115.36392572000003
-    },
-    "2026-08-20": {
-      "trades": 18,
-      "wins": 18,
-      "losses": 0,
-      "netPnL": 21.257185959999994
-    },
-    "2026-08-21": {
-      "trades": 48,
-      "wins": 48,
-      "losses": 0,
-      "netPnL": 125.53700851000002
-    },
-    "2026-08-22": {
-      "trades": 15,
-      "wins": 10,
-      "losses": 5,
-      "netPnL": 1.04593222
-    },
-    "2026-08-24": {
-      "trades": 14,
-      "wins": 13,
-      "losses": 1,
-      "netPnL": 15.512878149999997
-    },
-    "2026-08-25": {
-      "trades": 6,
-      "wins": 0,
-      "losses": 6,
-      "netPnL": -5.02541226
-    },
-    "2026-08-27": {
-      "trades": 2,
-      "wins": 2,
-      "losses": 0,
-      "netPnL": 0.8012755300000001
-    },
-    "2026-08-28": {
-      "trades": 4,
-      "wins": 0,
-      "losses": 4,
-      "netPnL": -3.64482691
-    },
-    "2026-08-30": {
-      "trades": 8,
-      "wins": 1,
-      "losses": 7,
-      "netPnL": -6.68089086
-    },
-    "2026-09-01": {
-      "trades": 9,
-      "wins": 0,
-      "losses": 9,
-      "netPnL": -26.94889057
-    },
-    "2026-09-02": {
-      "trades": 1,
-      "wins": 0,
-      "losses": 1,
-      "netPnL": -5.65605172
-    },
-    "2026-09-05": {
-      "trades": 2,
-      "wins": 2,
-      "netPnL": 3.2721039
-    },
-    "2026-09-11": {
-      "trades": 2,
-      "wins": 2,
-      "netPnL": 22.050495
-    },
-    "2026-09-22": {
-      "trades": 5,
-      "wins": 5,
-      "netPnL": 4.8462209
+      "netPnL": -5.41473501
     },
     "2026-09-23": {
       "trades": 15,
       "wins": 0,
       "netPnL": -23.32052617
     },
-    "2026-09-24": {
+    "2026-09-22": {
+      "trades": 5,
+      "wins": 5,
+      "netPnL": 4.8462209
+    },
+    "2026-09-11": {
+      "trades": 2,
+      "wins": 2,
+      "netPnL": 22.050495
+    },
+    "2026-09-05": {
+      "trades": 2,
+      "wins": 2,
+      "netPnL": 3.2721039
+    },
+    "2026-09-02": {
       "trades": 1,
       "wins": 0,
-      "netPnL": -5.41473501
+      "netPnL": -5.65605172
+    },
+    "2026-09-01": {
+      "trades": 9,
+      "wins": 0,
+      "netPnL": -26.94889057
+    },
+    "2026-08-30": {
+      "trades": 8,
+      "wins": 1,
+      "netPnL": -6.68089086
+    },
+    "2026-08-28": {
+      "trades": 4,
+      "wins": 0,
+      "netPnL": -3.64482691
+    },
+    "2026-08-27": {
+      "trades": 2,
+      "wins": 2,
+      "netPnL": 0.80127553
+    },
+    "2026-08-25": {
+      "trades": 6,
+      "wins": 0,
+      "netPnL": -5.02541226
+    },
+    "2026-08-24": {
+      "trades": 14,
+      "wins": 13,
+      "netPnL": 15.51287815
+    },
+    "2026-08-22": {
+      "trades": 15,
+      "wins": 10,
+      "netPnL": 1.04593222
+    },
+    "2026-08-21": {
+      "trades": 48,
+      "wins": 48,
+      "netPnL": 125.53700851
+    },
+    "2026-08-20": {
+      "trades": 18,
+      "wins": 18,
+      "netPnL": 21.25718596
+    },
+    "2026-08-19": {
+      "trades": 85,
+      "wins": 85,
+      "netPnL": 115.36392572
+    },
+    "2026-08-18": {
+      "trades": 3,
+      "wins": 3,
+      "netPnL": 1.24522409
+    },
+    "2026-08-17": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 0.55754251
+    },
+    "2026-08-01": {
+      "trades": 2,
+      "wins": 0,
+      "netPnL": -1.8823354
+    },
+    "2026-07-31": {
+      "trades": 2,
+      "wins": 0,
+      "netPnL": -4.16
+    },
+    "2026-07-30": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 0.80701377
+    },
+    "2026-07-28": {
+      "trades": 3,
+      "wins": 1,
+      "netPnL": -3.29
+    },
+    "2026-07-24": {
+      "trades": 3,
+      "wins": 0,
+      "netPnL": -3.95
+    },
+    "2026-07-23": {
+      "trades": 3,
+      "wins": 0,
+      "netPnL": -1.2709
+    },
+    "2026-04-23": {
+      "trades": 2,
+      "wins": 2,
+      "netPnL": 6.305956
+    },
+    "2026-04-24": {
+      "trades": 4,
+      "wins": 4,
+      "netPnL": 25.5402792
+    },
+    "2026-04-26": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 2.06456
+    },
+    "2026-04-27": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 2.86488
+    },
+    "2026-04-30": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 4.632
+    },
+    "2026-05-01": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 3.78963
+    },
+    "2026-05-04": {
+      "trades": 6,
+      "wins": 6,
+      "netPnL": 18.34716897
+    },
+    "2026-05-05": {
+      "trades": 14,
+      "wins": 14,
+      "netPnL": 19.48084868
+    },
+    "2026-05-06": {
+      "trades": 5,
+      "wins": 5,
+      "netPnL": 12.5992894
+    },
+    "2026-05-07": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 0.2595222
+    },
+    "2026-05-08": {
+      "trades": 15,
+      "wins": 15,
+      "netPnL": 78.72782476
+    },
+    "2026-05-10": {
+      "trades": 11,
+      "wins": 11,
+      "netPnL": 44.431461
+    },
+    "2026-05-11": {
+      "trades": 2,
+      "wins": 2,
+      "netPnL": 23.03086
+    },
+    "2026-05-12": {
+      "trades": 3,
+      "wins": 3,
+      "netPnL": 8.278715
+    },
+    "2026-05-13": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 2.10672
+    },
+    "2026-05-14": {
+      "trades": 4,
+      "wins": 4,
+      "netPnL": 26.8186755
+    },
+    "2026-05-15": {
+      "trades": 4,
+      "wins": 1,
+      "netPnL": -5.00313475
+    },
+    "2026-05-16": {
+      "trades": 9,
+      "wins": 0,
+      "netPnL": -61.46463741
+    },
+    "2026-05-17": {
+      "trades": 2,
+      "wins": 0,
+      "netPnL": -6.12625867
+    },
+    "2026-05-18": {
+      "trades": 3,
+      "wins": 0,
+      "netPnL": -24.91873892
+    },
+    "2026-05-20": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 0.275849
+    },
+    "2026-05-21": {
+      "trades": 4,
+      "wins": 4,
+      "netPnL": 1.35050996
+    },
+    "2026-05-22": {
+      "trades": 5,
+      "wins": 3,
+      "netPnL": -17.74809485
+    },
+    "2026-05-23": {
+      "trades": 6,
+      "wins": 3,
+      "netPnL": -11.31165802
+    },
+    "2026-05-27": {
+      "trades": 9,
+      "wins": 0,
+      "netPnL": -49.46473346
+    },
+    "2026-05-28": {
+      "trades": 6,
+      "wins": 4,
+      "netPnL": -3.81822467
+    },
+    "2026-05-29": {
+      "trades": 5,
+      "wins": 4,
+      "netPnL": -11.81057793
+    },
+    "2026-05-30": {
+      "trades": 16,
+      "wins": 16,
+      "netPnL": 42.718901
+    },
+    "2026-05-31": {
+      "trades": 1,
+      "wins": 0,
+      "netPnL": -3.23324029
+    },
+    "2026-06-01": {
+      "trades": 6,
+      "wins": 0,
+      "netPnL": -63.49938395
+    },
+    "2026-06-02": {
+      "trades": 3,
+      "wins": 0,
+      "netPnL": -8.3
+    },
+    "2026-06-03": {
+      "trades": 9,
+      "wins": 0,
+      "netPnL": -113.11303494
+    },
+    "2026-06-05": {
+      "trades": 3,
+      "wins": 2,
+      "netPnL": -5.80867987
+    },
+    "2026-06-06": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 0.207123
+    },
+    "2026-06-07": {
+      "trades": 2,
+      "wins": 2,
+      "netPnL": 2.86468454
+    },
+    "2026-06-08": {
+      "trades": 9,
+      "wins": 9,
+      "netPnL": 8.1935556
+    },
+    "2026-06-10": {
+      "trades": 19,
+      "wins": 0,
+      "netPnL": -12.24477217
+    },
+    "2026-06-12": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 21.3876
+    },
+    "2026-06-13": {
+      "trades": 3,
+      "wins": 2,
+      "netPnL": 5.39061283
+    },
+    "2026-06-14": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 3.06195
+    },
+    "2026-06-15": {
+      "trades": 6,
+      "wins": 2,
+      "netPnL": 3.071
+    },
+    "2026-06-16": {
+      "trades": 1,
+      "wins": 0,
+      "netPnL": 0
+    },
+    "2026-07-13": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 0.1149
+    },
+    "2026-07-14": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 0.42
+    },
+    "2026-07-16": {
+      "trades": 2,
+      "wins": 0,
+      "netPnL": -2.32
+    },
+    "2026-07-27": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 0.5287271
+    },
+    "2026-08-03": {
+      "trades": 3,
+      "wins": 3,
+      "netPnL": 2.895
+    },
+    "2026-08-04": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 0.07804811
+    },
+    "2026-08-05": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 0.39176354
+    },
+    "2026-08-08": {
+      "trades": 2,
+      "wins": 2,
+      "netPnL": 0.4490276
+    },
+    "2026-08-09": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 0.47071905
+    },
+    "2026-08-10": {
+      "trades": 1,
+      "wins": 0,
+      "netPnL": -1.46530816
+    },
+    "2026-06-30 13:34:35": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 0.145223
+    },
+    "2026-06-30 13:44:45": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 0.125065
+    },
+    "2026-06-30 13:54:40": {
+      "trades": 1,
+      "wins": 1,
+      "netPnL": 0.145075
+    },
+    "2026-08-11": {
+      "trades": 6,
+      "wins": 6,
+      "netPnL": 1.55185557
+    },
+    "2026-08-12": {
+      "trades": 1,
+      "wins": 0,
+      "netPnL": -9.93368331
+    },
+    "2026-08-14": {
+      "trades": 5,
+      "wins": 5,
+      "netPnL": 2.61898299
+    },
+    "2026-08-16": {
+      "trades": 1,
+      "wins": 0,
+      "netPnL": -2.22
     }
   },
   "lastUpdated": "2026-08-14T20:42:49.220903"
