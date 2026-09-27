@@ -28,7 +28,7 @@ warnings.filterwarnings('ignore')
 # CONFIGURACIÓN ANTI-OVERFITTING
 # ════════════════════════════════════════════════════════
 
-WORKSPACE = Path(os.path.expanduser('~/openclaw/workspace'))
+WORKSPACE = Path(os.path.expanduser('~/.openclaw/workspace'))
 ML_DIR = WORKSPACE / "ml"
 MODELS_DIR = ML_DIR / "models_optimized"  # Carpeta separada para modelos optimizados
 FEATURES_DIR = ML_DIR / "features"

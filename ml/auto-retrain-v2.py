@@ -22,9 +22,9 @@ from ml_pipeline import run_pipeline_all_coins
 # CONFIGURACIÓN
 # ════════════════════════════════════════════════════════
 
-WORKSPACE = Path(os.path.expanduser('~.openclaw/workspace'))
+WORKSPACE = Path(os.path.expanduser('~/.openclaw/workspace'))
 LOGS_DIR = WORKSPACE / "logs"
-MODELS_DIR = WORKSPACE / "ml" / "models"
+MODELS_DIR = WORKSPACE / "ml" / "models_optimized"
 
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -113,7 +113,9 @@ def check_if_retrain_needed(coin: str) -> bool:
         logger.info(f"{coin}: {new_trades} trades nuevos desde último entrenamiento, re-entrenando")
         return True
     
-    logger.info(f"{coin}: Modelo OK (accuracy: {accuracy:.2%}, edad: {days_old} días, nuevos: {new_trades})")
+    metric_label = metadata.get('primary_metric', 'accuracy')
+    metric_val = metadata.get('metrics', {}).get(metric_label, metadata.get('metrics', {}).get('accuracy', 0))
+    logger.info(f"{coin}: Modelo OK ({metric_label}: {metric_val:.2%}, edad: {days_old} días, nuevos: {new_trades})")
     return False
 
 
