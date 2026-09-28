@@ -150,10 +150,10 @@ def run_auto_retrain():
             
             # Cargar datos: priorizar ventana reciente cuando hay trades nuevos
             kwargs = {'days': DAYS_HISTORICAL}
+            current_count = 0
             try:
                 with open(MODELS_DIR / f"{coin}_optimized_metadata.json") as f:
                     last_count = json.load(f).get('last_trade_count', 0)
-                current_count = 0
                 trade_history_path = WORKSPACE / "crypto-bots/trade-history.json"
                 if trade_history_path.exists():
                     with open(trade_history_path) as f:
@@ -183,7 +183,7 @@ def run_auto_retrain():
                 if model_info_path.exists():
                     with open(model_info_path, 'r') as f:
                         meta = json.load(f)
-                    meta['last_trade_count'] = len(df)
+                    meta['last_trade_count'] = current_count
                     with open(model_info_path, 'w') as f:
                         json.dump(meta, f, indent=2)
             except Exception:
