@@ -95,6 +95,9 @@ class FeatureEngineer:
         if coin != "BTC":
             df = self._add_correlation_features(df, coin)
         
+        # 11. Market Context Features (BTC-based) — required by Fase 5 ML models
+        df = self._add_btc_context_features(df, coin)
+        
         # Limpiar NaN
         df.dropna(inplace=True)
         
@@ -374,6 +377,106 @@ class FeatureEngineer:
         
         return df
     
+    def _add_btc_context_features(self, df: pd.DataFrame, coin: str = "BTC") -> pd.DataFrame:
+        """
+        Agregar Market Context Features basadas en BTC.
+
+        Features: btc_ema_cross, fear_greed, market_mode, confidence_score
+        Requeridas por los modelos ML Fase 5 de Perrobotillo.
+
+        Lógica idéntica a PerrobotilloStrategy ml_confidence_proxy / fear_greed_proxy /
+        detected_market_mode (Fase 4 Optuna hyperparameters).
+        """
+        print("  ├─ Agregando market context features (BTC)...")
+
+        # --- Load BTC data (for BTC coin itself, use coin's data) ---
+        if coin == "BTC":
+            btc_df = df.copy()
+        else:
+            btc_file = DATA_DIR / "BTC_USDT_5m.csv"
+            if not btc_file.exists():
+                print("    ⚠️ No BTC data, filling market context defaults")
+                df['btc_ema_cross'] = 0.0
+                df['fear_greed'] = 50.0
+                df['market_mode'] = 1  # LATERAL
+                df['confidence_score'] = 50.0
+                return df
+            btc_df = pd.read_csv(btc_file, index_col='timestamp', parse_dates=True)
+
+        # --- Resample BTC 5m → 1h for market context ---
+        btc_1h = btc_df.resample('1h').agg({'open': 'first', 'high': 'max',
+                                             'low': 'min', 'close': 'last', 'volume': 'sum'}).dropna()
+
+        # --- Compute BTC EMAs and RSI on 1h, map back to 5m index ---
+        btc_close_1h = btc_1h['close']
+        btc_ema20_1h = btc_close_1h.ewm(span=20, adjust=False).mean()
+        btc_ema50_1h = btc_close_1h.ewm(span=50, adjust=False).mean()
+        btc_rsi_1h = ta.RSI(btc_1h, timeperiod=14)
+
+        # Forward-fill 1h values to 5m index
+        btc_ema20_5m = btc_ema20_1h.reindex(df.index, method='ffill')
+        btc_ema50_5m = btc_ema50_1h.reindex(df.index, method='ffill')
+        btc_rsi_5m = btc_rsi_1h.reindex(df.index, method='ffill')
+        btc_price_5m = btc_close_1h.reindex(df.index, method='ffill')
+
+        # --- 1. btc_ema_cross (EMA20 - EMA50) ---
+        df['btc_ema_cross'] = (btc_ema20_5m - btc_ema50_5m).fillna(0).reset_index(drop=True)
+        df['btc_ema_cross'].index = df.index
+
+        # --- 2. fear_greed_proxy (0-100) ---
+        fg = pd.Series(50.0, index=df.index)
+        bullish = (btc_price_5m > btc_ema20_5m) & (btc_ema20_5m > btc_ema50_5m)
+        bearish = (btc_price_5m < btc_ema20_5m) & (btc_ema20_5m < btc_ema50_5m)
+        fg[bullish] += 20
+        fg[bearish] -= 20
+        fg[btc_rsi_5m > 70] += 10
+        fg[btc_rsi_5m < 30] -= 10
+        cross_5m = btc_ema20_5m - btc_ema50_5m
+        fg[cross_5m > 0] += 5
+        fg[cross_5m <= 0] -= 5
+        df['fear_greed'] = fg.clip(0, 100).reset_index(drop=True)
+        df['fear_greed'].index = df.index
+
+        # --- 3. market_mode (0-5) ---
+        mode = pd.Series(1, index=df.index, dtype=int)  # 1 = LATERAL default
+        mode[btc_rsi_5m > 70] = 4       # VOLATILE_BULL
+        mode[btc_rsi_5m < 30] = 3       # VOLATILE_BEAR
+        mode[(fg < 40) & (btc_price_5m < btc_ema20_5m)] = 0  # BEAR
+        mode[(fg > 60) & (btc_price_5m > btc_ema20_5m)] = 2  # BULL
+        mode[(btc_price_5m > btc_ema20_5m) & (fg >= 40) & (fg <= 60)] = 5  # LATERAL_BULL
+        df['market_mode'] = mode.reset_index(drop=True)
+        df['market_mode'].index = df.index
+
+        # --- 4. confidence_score (ML proxy, 0-100) ---
+        # Uses Fase 4 Optuna hyperparameters: ema_fast=12, ema_slow=140,
+        # rsi_overbought=75, rsi_oversold=30, min_adx=20
+        ema_fast = df.get('ema_12', pd.Series(0, index=df.index))
+        ema_slow = df['close'].ewm(span=140, adjust=False).mean()
+        rsi_val = df.get('rsi', pd.Series(50, index=df.index))
+        vol_ratio = df.get('volume_ratio', pd.Series(1.0, index=df.index))
+        adx_val = df.get('adx', pd.Series(0, index=df.index))
+        btc_bullish = (btc_price_5m > btc_ema20_5m).reset_index(drop=True)
+        btc_bullish.index = df.index
+
+        score = pd.Series(50.0, index=df.index)
+        score[ema_fast > ema_slow] += 15
+        score[ema_fast <= ema_slow] -= 15
+        score[(rsi_val > 30) & (rsi_val < 75)] += 10
+        score[rsi_val > 75] -= 20
+        score[rsi_val < 30] -= 10
+        score[vol_ratio >= 1.0] += 5
+        score[vol_ratio < 1.0] -= 5
+        score[adx_val > 20] += 8
+        score[adx_val <= 20] -= 3
+        score[btc_bullish] += 7
+        score[~btc_bullish] -= 10
+        score[df['fear_greed'] > 60] += 5
+        score[df['fear_greed'] < 40] -= 10
+        df['confidence_score'] = score.clip(0, 100).reset_index(drop=True)
+        df['confidence_score'].index = df.index
+
+        return df
+
     def get_feature_importance_summary(self, df: pd.DataFrame) -> dict:
         """Resumen de features generados"""
         
