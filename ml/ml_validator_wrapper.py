@@ -116,7 +116,7 @@ def validate_trade(coin: str, direction: str = "LONG", trade_type: str = "NORMAL
     elif trade_type == "SWING":
         min_conf = 70  # Más exigente para swing
     else:
-        min_conf = MIN_CONFIDENCE  # 60% default
+        min_conf = MIN_CONFIDENCE  # 55% default (configurable)
     
     # Validar decisión
     result = {
@@ -307,11 +307,12 @@ def _deploy_optimized_model(coin: str, model_path: Path, metadata_path: Path) ->
     # Position sizing based on confidence
     if confidence >= 75:
         position_size = 100
-    elif confidence >= 60:
+    elif confidence >= MIN_CONFIDENCE:  # ✅ Usa global constant (55), no hardcoded 60
         position_size = 50
     else:
         position_size = 0
         signal = 'WAIT'
+        action = '⏸️ ESPERAR MEJOR OPORTUNIDAD'
     
     return {
         'signal': signal,
