@@ -101,7 +101,8 @@ async function loadData(forceHistory = false) {
         updatePortfolio({ portfolio: data.portfolio, history: data.history, pnl: data.pnl });
         updateSlots({ tradeStates: data.tradeStates || {}, prices: lastPrices });
         updateSystemStatus({ market_mode: data.market_mode, system: data.system });
-        updateAutoAdjust({ auto_adjust: data.auto_adjust, market_mode: data.market_mode });
+        updateAutoAdjust({ auto_adjust: data.auto_adjust, market_mode: data.market_mode, coin_configs: data.coin_configs });
+        updateCoinConfigs(data.coin_configs);
         updateCircuitBreakerStatus(data);
         updateTradesTable({ history: data.history });
         updateTimestamp(data.timestamp);
@@ -471,15 +472,6 @@ function updateSystemStatus(data) {
         modeElement.textContent = marketMode.MARKET_MODE || 'LATERAL';
     }
     
-    const configElement = document.getElementById('marketConfig');
-    if (configElement) {
-        const tp1 = marketMode.TP1 || '2.5';
-        const tp2 = marketMode.TP2 || '5.0';
-        const tp3 = marketMode.TP3 || '7.0';
-        const sl = marketMode.SL || '5.0';
-        configElement.textContent = `TP1: ${tp1}% | TP2: ${tp2}% | TP3: ${tp3}% | SL: ${sl}%`;
-    }
-    
     const apiStatus = document.getElementById('apiStatus');
     if (apiStatus) {
         apiStatus.textContent = system.api_binance === 'ok' ? '✅' : '❌';
@@ -550,6 +542,41 @@ function updateAutoAdjust(data) {
             countdownEl.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }, 1000);
     }
+}
+
+// ════════════════════════════════════════════════════════
+// ⚙️ COIN CONFIGS UPDATE
+// ════════════════════════════════════════════════════════
+
+function updateCoinConfigs(coinConfigs) {
+    const container = document.getElementById('coinConfigsGrid');
+    if (!container) return;
+    if (!coinConfigs || Object.keys(coinConfigs).length === 0) {
+        container.innerHTML = '<div class="no-configs">No config data</div>';
+        return;
+    }
+
+    const coinOrder = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX'];
+    const coins = Object.keys(coinConfigs).sort((a, b) => {
+        const ia = coinOrder.indexOf(a), ib = coinOrder.indexOf(b);
+        return ia === -1 ? 99 : ib === -1 ? -99 : ia - ib;
+    });
+
+    let html = '';
+    for (const coin of coins) {
+        const cfg = coinConfigs[coin] || {};
+        const enabled = cfg.ENABLED !== false;
+        const enabledClass = enabled ? 'enabled' : 'disabled';
+        const tp1 = cfg.TP1 != null ? cfg.TP1.toFixed(1) : '—';
+        const tp2 = cfg.TP2 != null ? cfg.TP2.toFixed(1) : '—';
+        const tp3 = cfg.TP3 != null ? cfg.TP3.toFixed(1) : '—';
+        const sl = cfg.STOP_LOSS != null ? cfg.STOP_LOSS.toFixed(1) : '—';
+        const size = cfg.POSITION_SIZE != null ? cfg.POSITION_SIZE.toFixed(0) : '—';
+        const mlMin = cfg.ML_MIN_CONFIDENCE != null ? cfg.ML_MIN_CONFIDENCE.toFixed(0) : '—';
+
+        html += `<div class="coin-config-row ${enabledClass}"><span class="coin-symbol">${coin}</span><span class="coin-config-values">TP1:${tp1}% TP2:${tp2}% TP3:${tp3}% SL:${sl}%</span><span class="coin-config-values">SZ:${size}% ML:${mlMin}%</span></div>`;
+    }
+    container.innerHTML = html;
 }
 
 // ════════════════════════════════════════════════════════

@@ -931,6 +931,64 @@ body::before {
     margin-top: 0.25rem;
 }
 
+/* Coin Configs — compact per-coin strategy display */
+.coin-configs-container {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(188, 19, 255, 0.2);
+}
+.coin-configs-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.4rem;
+}
+.coin-configs-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.coin-config-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    background: rgba(0, 243, 255, 0.03);
+    border: 1px solid rgba(188, 19, 255, 0.15);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-family: 'Orbitron', monospace;
+}
+.coin-config-row.enabled {
+    border-color: rgba(0, 243, 255, 0.3);
+}
+.coin-config-row.disabled {
+    opacity: 0.5;
+    border-color: rgba(255, 0, 60, 0.2);
+}
+.coin-symbol {
+    font-weight: 700;
+    color: var(--neon-blue);
+    text-transform: uppercase;
+    min-width: 32px;
+}
+.coin-config-values {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    font-feature-settings: "tnum";
+}
+.coin-config-row.enabled .coin-config-values {
+    color: rgba(255, 255, 255, 0.7);
+}
+.no-configs {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
 @media (max-width: 768px) {
     .auto-adjust-info {
         flex-direction: column;

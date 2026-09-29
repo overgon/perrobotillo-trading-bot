@@ -709,6 +709,46 @@ def api_status():
     response.headers['Expires'] = '0'
     return response
 
+
+def _load_per_coin_config():
+    """Parse per-coin-config.env into structured dict for dashboard."""
+    config_path = os.path.join(os.path.dirname(__file__), "..", "crypto-bots", "per-coin-config.env")
+    config_path = os.path.normpath(config_path)
+    coins = {}
+    if not os.path.exists(config_path):
+        return coins
+    int_keys = {"TP1", "TP2", "TP3", "STOP_LOSS", "POSITION_SIZE", "MAX_SLOTS", "ML_MIN_CONFIDENCE"}
+    bool_keys = {"ENABLED"}
+    with open(config_path) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "=" not in line:
+                continue
+            key, val = line.split("=", 1)
+            key, val = key.strip(), val.strip()
+            if not key or not val:
+                continue
+            # Symbol_KEY → parse
+            if "_" not in key:
+                continue
+            symbol = key.split("_", 1)[0]
+            field = key.split("_", 1)[1]
+            if symbol not in coins:
+                coins[symbol] = {}
+            try:
+                if field in int_keys:
+                    coins[symbol][field] = float(val)
+                elif field in bool_keys:
+                    coins[symbol][field] = val.lower() in ("true", "1", "yes")
+                else:
+                    coins[symbol][field] = val
+            except ValueError:
+                coins[symbol][field] = val
+    return coins
+
+
 def _api_status_data():
     """Build the full status dict (pure dict, no jsonify)"""
     import time as _time
@@ -839,6 +879,7 @@ def _api_status_data():
             'interval_hours': 6
         },
         'circuitBreakerStatus': _load_circuit_breaker_status(),
+        'coin_configs': _load_per_coin_config(),
         'timestamp': now.isoformat()
     }
 

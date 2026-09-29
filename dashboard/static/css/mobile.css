@@ -484,6 +484,52 @@ body {
     border-radius: 6px;
 }
 
+/* Coin Configs — compact per-coin display for mobile */
+.coin-configs-container {
+    margin-top: 12px;
+    border-top: 1px solid var(--border-color);
+}
+.coin-configs-title {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+.coin-configs-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.coin-config-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    background: var(--bg-card-light);
+    border-radius: 6px;
+    font-size: 11px;
+    font-family: 'SF Mono', 'Monaco', monospace;
+}
+.coin-config-row.enabled {
+    border: 1px solid var(--neon-green);
+}
+.coin-config-row.disabled {
+    opacity: 0.5;
+    border: 1px solid var(--neon-red);
+}
+.coin-symbol {
+    font-weight: 700;
+    color: var(--neon-blue);
+    text-transform: uppercase;
+}
+.coin-config-values {
+    font-size: 9px;
+    color: var(--text-primary);
+}
+
 /* ════════════════════════════════════════════════════════
    📜 TRADES - Compact Table
    ════════════════════════════════════════════════════════ */
