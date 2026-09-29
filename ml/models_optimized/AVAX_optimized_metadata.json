@@ -1,31 +1,25 @@
 {
   "coin": "AVAX",
-  "trained_at": "2026-09-13T11:56:36.246403",
-  "config": {
-    "max_depth": 5,
-    "min_samples_split": 50,
-    "min_samples_leaf": 25,
-    "n_estimators": 300,
-    "max_features": "log2",
-    "max_leaf_nodes": 20,
-    "class_weight": "balanced",
-    "random_state": 42,
-    "ccp_alpha": 0.02
-  },
-  "use_feature_selection": true,
-  "n_features_original": 216,
-  "n_features_selected": 14,
-  "samples": 711,
+  "trained_at": "2026-09-28T16:37:26.945313",
+  "model_type": "logistic_regression",
+  "label_type": "is_profitable",
+  "fase": 7,
   "metrics": {
-    "accuracy": 0.6713286713286714,
-    "precision": 0.8638469919483376,
-    "recall": 0.6713286713286714,
-    "f1": 0.7223426635191341,
-    "cv_mean": 0.669016290726817,
-    "cv_std": 0.06689623570429676,
-    "train_score": 0.7024647887323944,
-    "test_score": 0.6713286713286714,
-    "overfitting_gap": 0.033448498005577365
+    "accuracy": 1.0,
+    "precision": 0,
+    "recall": 0,
+    "f1": 0,
+    "train_accuracy": 0,
+    "overfitting_gap": 0
   },
-  "is_optimized": true
+  "is_optimized": true,
+  "fase7": true,
+  "all_models": {
+    "random_forest": {
+      "accuracy": 0.1111
+    },
+    "logistic_regression": {
+      "accuracy": 1.0
+    }
+  }
 }

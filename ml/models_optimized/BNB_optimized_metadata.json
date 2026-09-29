@@ -1,29 +1,25 @@
 {
   "coin": "BNB",
-  "trained_at": "2026-09-13T03:00:14.423250",
-  "config": {
-    "max_features": "sqrt",
-    "max_depth": 8,
-    "min_samples_split": 20,
-    "min_samples_leaf": 10,
-    "n_estimators": 150,
-    "class_weight": "balanced",
-    "random_state": 42
-  },
-  "use_feature_selection": true,
-  "n_features_original": 216,
-  "n_features_selected": 14,
-  "samples": 711,
+  "trained_at": "2026-09-28T16:37:14.979921",
+  "model_type": "logistic_regression",
+  "label_type": "is_profitable",
+  "fase": 7,
   "metrics": {
-    "accuracy": 0.9440559440559441,
-    "precision": 0.9690853040089682,
-    "recall": 0.9440559440559441,
-    "f1": 0.9528748049779258,
-    "cv_mean": 0.9472431077694236,
-    "cv_std": 0.022143693967305846,
-    "train_score": 0.9630281690140845,
-    "test_score": 0.9440559440559441,
-    "overfitting_gap": 0.018972224958140438
+    "accuracy": 1.0,
+    "precision": 0,
+    "recall": 0,
+    "f1": 0,
+    "train_accuracy": 0,
+    "overfitting_gap": 0
   },
-  "is_optimized": true
+  "is_optimized": true,
+  "fase7": true,
+  "all_models": {
+    "random_forest": {
+      "accuracy": 0.3
+    },
+    "logistic_regression": {
+      "accuracy": 1.0
+    }
+  }
 }

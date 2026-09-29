@@ -710,16 +710,12 @@ def api_status():
     return response
 
 
-def _load_per_coin_config():
-    """Parse per-coin-config.env into structured dict for dashboard."""
-    config_path = os.path.join(os.path.dirname(__file__), "..", "crypto-bots", "per-coin-config.env")
-    config_path = os.path.normpath(config_path)
-    coins = {}
-    if not os.path.exists(config_path):
-        return coins
-    int_keys = {"TP1", "TP2", "TP3", "STOP_LOSS", "POSITION_SIZE", "MAX_SLOTS", "ML_MIN_CONFIDENCE"}
-    bool_keys = {"ENABLED"}
-    with open(config_path) as f:
+def _parse_env_file(filepath, strip_export=False):
+    """Parse a .env file into a flat dict. Optionally strip 'export ' prefix."""
+    result = {}
+    if not os.path.exists(filepath):
+        return result
+    with open(filepath) as f:
         for line in f:
             line = line.strip()
             if not line or line.startswith("#"):
@@ -727,26 +723,112 @@ def _load_per_coin_config():
             if "=" not in line:
                 continue
             key, val = line.split("=", 1)
-            key, val = key.strip(), val.strip()
-            if not key or not val:
-                continue
-            # Symbol_KEY → parse
-            if "_" not in key:
-                continue
-            symbol = key.split("_", 1)[0]
-            field = key.split("_", 1)[1]
-            if symbol not in coins:
-                coins[symbol] = {}
+            key = key.strip()
+            val = val.strip()
+            if strip_export and key.startswith("export "):
+                key = key[7:].strip()
+            if key and val:
+                result[key] = val
+    return result
+
+
+def _load_effective_config():
+    """Resolve effective per-coin config from 3 sources.
+
+    Resolution order (low → high):
+      1. dynamic-config.env  (market-mode defaults + runtime params)
+      2. market-mode.conf    (detected market mode params, overrides dynamic)
+      3. per-coin-config.env (authoritative per-coin overrides)
+
+    Returns dict: {
+        "market_mode": "LATERAL",
+        "market_reason": "...",
+        "coins": {
+            "BTC": {
+                "effective": {"TP1": 3.0, "STOP_LOSS": 7.2, ...},
+                "overrides": ["TP1", "STOP_LOSS", ...]  # keys overridden by per-coin
+            },
+            ...
+        }
+    }
+    """
+    bots_dir = os.path.join(os.path.dirname(__file__), "..", "crypto-bots")
+    per_coin_path = os.path.normpath(os.path.join(bots_dir, "per-coin-config.env"))
+    dynamic_path = os.path.normpath(os.path.join(bots_dir, "dynamic-config.env"))
+    market_mode_path = os.path.normpath(os.path.join(bots_dir, "market-mode.conf"))
+
+    per_coin = _parse_env_file(per_coin_path)
+    dynamic = _parse_env_file(dynamic_path, strip_export=True)
+    market = _parse_env_file(market_mode_path)
+
+    # Build base runtime config (dynamic + market mode merged, market wins)
+    base_config = {}
+    base_config.update(dynamic)
+    base_config.update(market)
+
+    mm_name = base_config.get("MARKET_MODE", "LATERAL")
+    mm_reason = base_config.get("MARKET_REASON", "")
+
+    # Map base config keys to normalized names
+    key_map = {
+        "TP1": "TP1", "TP2": "TP2", "TP3": "TP3",
+        "STOP_LOSS": "STOP_LOSS", "SL": "STOP_LOSS",
+        "POSITION_SIZE": "POSITION_SIZE", "STOP_LOSS_PERCENT": "STOP_LOSS",
+        "TP1_PERCENT": "TP1", "TP2_PERCENT": "TP2", "TP3_PERCENT": "TP3",
+        "MAX_SLOTS": "MAX_SLOTS",
+        "ML_MIN_CONFIDENCE": "ML_MIN_CONFIDENCE",
+        "TRAILING_STOP": "TRAILING_STOP",
+        "SCALPING_ENABLED": "SCALPING_ENABLED",
+        "SCALP_TARGET_PERCENT": "SCALP_TARGET_PERCENT",
+        "SCALP_SL_PERCENT": "SCALP_SL_PERCENT",
+    }
+
+    base_effective = {}
+    for bk, norm in key_map.items():
+        if bk in base_config:
+            val = base_config[bk]
             try:
-                if field in int_keys:
-                    coins[symbol][field] = float(val)
-                elif field in bool_keys:
-                    coins[symbol][field] = val.lower() in ("true", "1", "yes")
-                else:
-                    coins[symbol][field] = val
+                base_effective[norm] = float(val)
+            except (ValueError, TypeError):
+                base_effective[norm] = val
+
+    coin_names = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+    int_keys = {"TP1", "TP2", "TP3", "STOP_LOSS", "POSITION_SIZE", "MAX_SLOTS", "ML_MIN_CONFIDENCE"}
+    bool_keys = {"ENABLED", "TRAILING_STOP", "SCALPING_ENABLED"}
+
+    coins_result = {}
+    for coin in coin_names:
+        per_coin_coin = {k.split("_", 1)[1]: v for k, v in per_coin.items()
+                         if k.startswith(f"{coin}_") and "_" in k}
+
+        effective = dict(base_effective)
+        overrides = set()
+        for field, val in per_coin_coin.items():
+            norm = key_map.get(field, field)
+            try:
+                parsed = float(val) if norm in int_keys else val.lower() in ("true", "1", "yes") if norm in bool_keys else val
             except ValueError:
-                coins[symbol][field] = val
-    return coins
+                parsed = val
+            effective[norm] = parsed
+            if field in key_map and key_map[field] in int_keys:
+                overrides.add(norm)
+            elif field in key_map:
+                overrides.add(norm)
+
+        if "ENABLED" in per_coin_coin:
+            effective["ENABLED"] = per_coin_coin["ENABLED"].lower() in ("true", "1", "yes")
+            overrides.add("ENABLED")
+
+        coins_result[coin] = {
+            "effective": effective,
+            "overrides": sorted(overrides),
+        }
+
+    return {
+        "market_mode": mm_name,
+        "market_reason": mm_reason,
+        "coins": coins_result,
+    }
 
 
 def _api_status_data():
@@ -879,7 +961,7 @@ def _api_status_data():
             'interval_hours': 6
         },
         'circuitBreakerStatus': _load_circuit_breaker_status(),
-        'coin_configs': _load_per_coin_config(),
+        'coin_configs': _load_effective_config(),
         'timestamp': now.isoformat()
     }
 

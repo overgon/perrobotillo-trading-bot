@@ -551,30 +551,36 @@ function updateAutoAdjust(data) {
 function updateCoinConfigs(coinConfigs) {
     const container = document.getElementById('coinConfigsGrid');
     if (!container) return;
-    if (!coinConfigs || Object.keys(coinConfigs).length === 0) {
+    if (!coinConfigs || !coinConfigs.coins || Object.keys(coinConfigs.coins).length === 0) {
         container.innerHTML = '<div class="no-configs">No config data</div>';
         return;
     }
 
+    // Update title with active market mode
+    const titleEl = document.querySelector('.coin-configs-title');
+    if (titleEl && coinConfigs.market_mode) {
+        titleEl.innerHTML = `⚙️ ${coinConfigs.market_mode}`;
+    }
+
     const coinOrder = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX'];
-    const coins = Object.keys(coinConfigs).sort((a, b) => {
+    const coins = coinConfigs.coins;
+    const sortedCoins = Object.keys(coins).sort((a, b) => {
         const ia = coinOrder.indexOf(a), ib = coinOrder.indexOf(b);
         return ia === -1 ? 99 : ib === -1 ? -99 : ia - ib;
     });
 
     let html = '';
-    for (const coin of coins) {
-        const cfg = coinConfigs[coin] || {};
+    for (const coin of sortedCoins) {
+        const info = coins[coin] || {};
+        const cfg = info.effective || {};
+        const overrides = info.overrides || [];
+        const isOverridden = (key) => overrides.includes(key);
         const enabled = cfg.ENABLED !== false;
         const enabledClass = enabled ? 'enabled' : 'disabled';
-        const tp1 = cfg.TP1 != null ? cfg.TP1.toFixed(1) : '—';
-        const tp2 = cfg.TP2 != null ? cfg.TP2.toFixed(1) : '—';
-        const tp3 = cfg.TP3 != null ? cfg.TP3.toFixed(1) : '—';
-        const sl = cfg.STOP_LOSS != null ? cfg.STOP_LOSS.toFixed(1) : '—';
-        const size = cfg.POSITION_SIZE != null ? cfg.POSITION_SIZE.toFixed(0) : '—';
-        const mlMin = cfg.ML_MIN_CONFIDENCE != null ? cfg.ML_MIN_CONFIDENCE.toFixed(0) : '—';
+        const fmt = (val, dec = 1) => val != null ? val.toFixed(dec) : '—';
+        const zap = (key) => isOverridden(key) ? '⚡' : '';
 
-        html += `<div class="coin-config-row ${enabledClass}"><span class="coin-symbol">${coin}</span><span class="coin-config-values">TP1:${tp1}% TP2:${tp2}% TP3:${tp3}% SL:${sl}%</span><span class="coin-config-values">SZ:${size}% ML:${mlMin}%</span></div>`;
+        html += `<div class="coin-config-row ${enabledClass}"><span class="coin-symbol">${coin}</span><span class="coin-config-values">TP1:${fmt(cfg.TP1)}${zap('TP1')}% TP2:${fmt(cfg.TP2)}${zap('TP2')}% TP3:${fmt(cfg.TP3)}${zap('TP3')}% SL:${fmt(cfg.STOP_LOSS)}${zap('STOP_LOSS')}%</span><span class="coin-config-values">SZ:${fmt(cfg.POSITION_SIZE, 0)}${zap('POSITION_SIZE')}% ML:${fmt(cfg.ML_MIN_CONFIDENCE, 0)}${zap('ML_MIN_CONFIDENCE')}%</span></div>";
     }
     container.innerHTML = html;
 }

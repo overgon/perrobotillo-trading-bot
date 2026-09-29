@@ -946,6 +946,28 @@ body::before {
     letter-spacing: 1px;
     margin-bottom: 0.4rem;
 }
+.mm-badge {
+    float: right;
+    font-size: 0.55rem;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 600;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    background: rgba(188, 19, 255, 0.15);
+    border: 1px solid rgba(188, 19, 255, 0.3);
+    color: var(--neon-purple);
+    text-transform: uppercase;
+}
+.market-mode-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+.market-reason {
+    color: var(--text-secondary);
+    font-weight: 400;
+    font-size: 0.5rem;
+}
 .coin-configs-grid {
     display: flex;
     flex-direction: column;

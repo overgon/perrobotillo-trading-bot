@@ -9,14 +9,150 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 491,
+  "totalTrades": 499,
   "totalWins": 345,
-  "totalLosses": 146,
+  "totalLosses": 154,
   "totalProfitUSDT": 733.71404196,
-  "totalLossUSDT": -549.88465027,
-  "netPnLUSDT": 183.82939169,
-  "winRate": 70.26,
+  "totalLossUSDT": -561.0225624,
+  "netPnLUSDT": 172.69147956,
+  "winRate": 69.14,
   "trades": [
+    {
+      "id": 501,
+      "symbol": "BNB",
+      "coin": "BNB",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 777.59,
+      "exitPrice": 756.69,
+      "quantity": 0.022,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -0.47222582,
+      "timestamp": "2026-09-28T08:52:11.337684",
+      "closeTime": "2026-09-28 08:52:11",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 500,
+      "symbol": "BNB",
+      "coin": "BNB",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 778.1,
+      "exitPrice": 757.28,
+      "quantity": 0.052,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -1.11206577,
+      "timestamp": "2026-09-28T08:52:04.531376",
+      "closeTime": "2026-09-28 08:52:04",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 499,
+      "symbol": "BNB",
+      "coin": "BNB",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 778.6,
+      "exitPrice": 757.37,
+      "quantity": 0.087,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -1.89624597,
+      "timestamp": "2026-09-28T08:52:02.756801",
+      "closeTime": "2026-09-28 08:52:02",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 498,
+      "symbol": "ETH",
+      "coin": "ETH",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 2712.8,
+      "exitPrice": 2640.44,
+      "quantity": 0.0176,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -1.39425829,
+      "timestamp": "2026-09-27T23:41:02.950311",
+      "closeTime": "2026-09-27 23:41:02",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 497,
+      "symbol": "AVAX",
+      "coin": "AVAX",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 11.0,
+      "exitPrice": 10.679,
+      "quantity": 3.95,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -1.26801119,
+      "timestamp": "2026-09-27T21:36:02.494793",
+      "closeTime": "2026-09-27 21:36:02",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 496,
+      "symbol": "ETH",
+      "coin": "ETH",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 2715.8,
+      "exitPrice": 2645.8,
+      "quantity": 0.0073,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -0.56079414,
+      "timestamp": "2026-09-27T21:31:05.058218",
+      "closeTime": "2026-09-27 21:31:05",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 495,
+      "symbol": "ETH",
+      "coin": "ETH",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 2715.43,
+      "exitPrice": 2645.95,
+      "quantity": 0.0424,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -2.95957864,
+      "timestamp": "2026-09-27T21:31:03.046520",
+      "closeTime": "2026-09-27 21:31:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 494,
+      "symbol": "LINK",
+      "coin": "LINK",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 14.437,
+      "exitPrice": 13.963,
+      "quantity": 3.11,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -1.47473231,
+      "timestamp": "2026-09-26T14:44:03.310511",
+      "closeTime": "2026-09-26 14:44:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
     {
       "id": 493,
       "symbol": "AVAX",
@@ -8141,12 +8277,12 @@
       "orderId": null
     }
   ],
-  "updatedAt": "2026-09-25T10:50:15.075383",
+  "updatedAt": "2026-09-28T08:52:11.338143",
   "bySymbol": {
     "AVAX": {
-      "trades": 90,
+      "trades": 91,
       "wins": 63,
-      "netPnL": 43.69718467
+      "netPnL": 42.42917348
     },
     "BTC": {
       "trades": 41,
@@ -8159,14 +8295,14 @@
       "netPnL": 35.33734759
     },
     "BNB": {
-      "trades": 60,
+      "trades": 63,
       "wins": 48,
-      "netPnL": 58.8739966
+      "netPnL": 55.39345904
     },
     "ETH": {
-      "trades": 71,
+      "trades": 74,
       "wins": 55,
-      "netPnL": 113.617373
+      "netPnL": 108.70274193
     },
     "SOL": {
       "trades": 66,
@@ -8174,9 +8310,9 @@
       "netPnL": 57.17698369
     },
     "LINK": {
-      "trades": 81,
+      "trades": 82,
       "wins": 57,
-      "netPnL": 12.19129328
+      "netPnL": 10.71656097
     }
   },
   "byDay": {
@@ -8599,6 +8735,21 @@
       "trades": 1,
       "wins": 0,
       "netPnL": -2.22
+    },
+    "2026-09-26": {
+      "trades": 1,
+      "wins": 0,
+      "netPnL": -1.47473231
+    },
+    "2026-09-27": {
+      "trades": 4,
+      "wins": 0,
+      "netPnL": -6.18264226
+    },
+    "2026-09-28": {
+      "trades": 3,
+      "wins": 0,
+      "netPnL": -3.48053756
     }
   },
   "lastUpdated": "2026-08-14T20:42:49.220903"
