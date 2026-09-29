@@ -1006,6 +1006,23 @@ body::before {
 .coin-config-row.enabled .coin-config-values {
     color: rgba(255, 255, 255, 0.7);
 }
+.coin-config-ml {
+    grid-column: 1 / -1;
+    margin-top: 0.2rem;
+    font-size: 0.55rem;
+    font-family: 'Fira Code', 'Courier New', monospace;
+    color: var(--neon-purple);
+    opacity: 0.8;
+}
+.ml-multipliers {
+    display: inline-flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+.coin-config-values .ml-arrow {
+    color: var(--neon-blue);
+    opacity: 0.6;
+}
 .no-configs {
     font-size: 0.7rem;
     color: var(--text-secondary);

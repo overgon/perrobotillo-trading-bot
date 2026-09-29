@@ -94,6 +94,27 @@ if [ -f "$WORKSPACE/crypto-bots/per-coin-config.env" ]; then
     export MAX_SLOTS="$COIN_MAX_SLOTS"
     export ML_MIN_CONFIDENCE="$COIN_ML_MIN_CONFIDENCE"
     export SYMBOL_ENABLED="$COIN_ENABLED"
+
+    # 🤖 ML Param Multipliers (Option A: effective = per_coin_base × ml_multiplier)
+    # Applied only for NEW trades — existing trades unaffected (TP/SL already set)
+    MULT_PATH="$WORKSPACE/ml/param-multipliers.json"
+    if [ -f "$MULT_PATH" ]; then
+        ML_MULTS=$(python3 -c "
+import json
+with open('$MULT_PATH') as f:
+    d = json.load(f)
+m = d.get('coins', {}).get('$SYMBOL', {}).get('multipliers', {})
+print(f\"{m.get('tp1_mult',1.0)} {m.get('tp2_mult',1.0)} {m.get('tp3_mult',1.0)} {m.get('sl_mult',1.0)} {m.get('size_mult',1.0)}\")
+" 2>/dev/null || echo "1.0 1.0 1.0 1.0 1.0")
+        read TP1_MULT TP2_MULT TP3_MULT SL_MULT SIZE_MULT <<< "$ML_MULTS"
+        # Apply multipliers: effective = base × multiplier
+        TP1_PERCENT=$(echo "scale=4; $TP1_PERCENT * $TP1_MULT / 1" | bc)
+        TP2_PERCENT=$(echo "scale=4; $TP2_PERCENT * $TP2_MULT / 1" | bc)
+        TP3_PERCENT=$(echo "scale=4; $TP3_PERCENT * $TP3_MULT / 1" | bc)
+        STOP_LOSS_PERCENT=$(echo "scale=4; $STOP_LOSS_PERCENT * $SL_MULT / 1" | bc)
+        POSITION_SIZE=$(echo "scale=4; $POSITION_SIZE * $SIZE_MULT / 1" | bc)
+        export TP1_PERCENT TP2_PERCENT TP3_PERCENT STOP_LOSS_PERCENT POSITION_SIZE
+    fi
 fi
 
 STATE_FILE="$WORKSPACE/crypto-bots/${SYMBOL}-trade-state.json"
@@ -110,6 +131,9 @@ if ! flock -n 9; then
 fi
 
 log "📌 CONFIG PER-COIN $SYMBOL: TP1=${TP1_PERCENT}% TP2=${TP2_PERCENT}% TP3=${TP3_PERCENT}% SL=${STOP_LOSS_PERCENT}% SIZE=${POSITION_SIZE}% MAX_SLOTS=$MAX_SLOTS ML_MIN=$ML_MIN_CONFIDENCE% ENABLED=$SYMBOL_ENABLED"
+if [ -n "${TP1_MULT:-}" ]; then
+    log "🤖 ML Multiplier: TP1×${TP1_MULT} TP2×${TP2_MULT} TP3×${TP3_MULT} SL×${SL_MULT} SIZE×${SIZE_MULT} → applied to new trades"
+fi
 
 # ============================================
 # 🔧 FUNCIONES DE LOGGING

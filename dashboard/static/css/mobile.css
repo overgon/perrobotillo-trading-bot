@@ -540,6 +540,13 @@ body {
     font-size: 9px;
     color: var(--text-primary);
 }
+.coin-config-ml {
+    font-size: 8px;
+    font-family: 'Fira Code', 'Courier New', monospace;
+    color: var(--neon-purple);
+    opacity: 0.7;
+    margin-left: 8px;
+}
 
 /* ════════════════════════════════════════════════════════
    📜 TRADES - Compact Table

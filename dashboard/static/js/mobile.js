@@ -574,13 +574,24 @@ function updateCoinConfigs(coinConfigs) {
         const info = coins[coin] || {};
         const cfg = info.effective || {};
         const overrides = info.overrides || [];
+        const mults = info.multipliers || {};
+        const effMl = info.effective_with_ml || {};
+        const hasMl = Object.keys(mults).length > 0;
         const isOverridden = (key) => overrides.includes(key);
         const enabled = cfg.ENABLED !== false;
         const enabledClass = enabled ? 'enabled' : 'disabled';
         const fmt = (val, dec = 1) => val != null ? val.toFixed(dec) : '—';
         const zap = (key) => isOverridden(key) ? '⚡' : '';
+        const effVal = (field) => hasMl && effMl[field] != null ? `${fmt(effMl[field])}` : fmt(cfg[field]);
 
-        html += `<div class="coin-config-row ${enabledClass}"><span class="coin-symbol">${coin}</span><span class="coin-config-values">TP1:${fmt(cfg.TP1)}${zap('TP1')}% TP2:${fmt(cfg.TP2)}${zap('TP2')}% TP3:${fmt(cfg.TP3)}${zap('TP3')}% SL:${fmt(cfg.STOP_LOSS)}${zap('STOP_LOSS')}%</span><span class="coin-config-values">SZ:${fmt(cfg.POSITION_SIZE, 0)}${zap('POSITION_SIZE')}% ML:${fmt(cfg.ML_MIN_CONFIDENCE, 0)}${zap('ML_MIN_CONFIDENCE')}%</span></div>";
+        let row = `<div class="coin-config-row ${enabledClass}"><span class="coin-symbol">${coin}</span>`;
+        row += `<span class="coin-config-values">TP1:${fmt(cfg.TP1)}${zap('TP1')}→${effVal('TP1')}% SL:${fmt(cfg.STOP_LOSS)}${zap('STOP_LOSS')}→${effVal('STOP_LOSS')}%</span>`;
+        row += `<span class="coin-config-values">SZ:${fmt(cfg.POSITION_SIZE, 0)}${zap('POSITION_SIZE')}→${effVal('POSITION_SIZE')} ML:${fmt(cfg.ML_MIN_CONFIDENCE, 0)}${zap('ML_MIN_CONFIDENCE')}%</span>`;
+        if (hasMl && mults.tp1_mult != null) {
+            row += `<span class="coin-config-ml">×${Number(mults.tp1_mult).toFixed(2)} ${Number(mults.sl_mult).toFixed(2)}× ${Number(mults.size_mult).toFixed(2)}sz</span>`;
+        }
+        row += `</div>`;
+        html += row;
     }
     container.innerHTML = html;
 }

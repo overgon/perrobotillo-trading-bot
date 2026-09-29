@@ -701,17 +701,30 @@ function updateCoinConfigs(coinConfigs) {
         const info = coins[coin] || {};
         const cfg = info.effective || {};
         const overrides = info.overrides || [];
+        const mults = info.multipliers || {};
+        const effMl = info.effective_with_ml || {};
+        const hasMl = Object.keys(mults).length > 0;
         const isOverridden = (key) => overrides.includes(key);
         const enabled = cfg.ENABLED !== false;
         const enabledClass = enabled ? 'enabled' : 'disabled';
         const fmt = (val, dec = 1) => val != null ? val.toFixed(dec) : '—';
         const zap = (key) => isOverridden(key) ? ' ⚡' : '';
+        const mlFmt = (key) => hasMl && mults[key] != null ? `×${Number(mults[key]).toFixed(2)}` : '';
+        const effVal = (field, key) => hasMl && effMl[field] != null ? `${fmt(effMl[field])}` : fmt(cfg[field]);
+
+        const rowValues = `TP1:${fmt(cfg.TP1)}${zap('TP1')}→${effVal('TP1','tp1_mult')}% TP2:${fmt(cfg.TP2)}${zap('TP2')}→${effVal('TP2','tp2_mult')}% TP3:${fmt(cfg.TP3)}${zap('TP3')}→${effVal('TP3','tp3_mult')}% SL:${fmt(cfg.STOP_LOSS)}${zap('STOP_LOSS')}→${effVal('STOP_LOSS','sl_mult')}%`;
+
+        let mlRow = '';
+        if (hasMl) {
+            mlRow = `<div class="coin-config-ml"><span class="ml-multipliers">ML: ${mlFmt('tp1_mult')} TP1 ${mlFmt('tp2_mult')} TP2 ${mlFmt('tp3_mult')} TP3 ${mlFmt('sl_mult')} SL ${mlFmt('size_mult')} SZ</span></div>`;
+        }
 
         html += `
             <div class="coin-config-row ${enabledClass}">
                 <span class="coin-symbol">${coin}</span>
-                <span class="coin-config-values">TP1:${fmt(cfg.TP1)}${zap('TP1')}% TP2:${fmt(cfg.TP2)}${zap('TP2')}% TP3:${fmt(cfg.TP3)}${zap('TP3')}% SL:${fmt(cfg.STOP_LOSS)}${zap('STOP_LOSS')}%</span>
-                <span class="coin-config-values">SZ:${fmt(cfg.POSITION_SIZE, 0)}${zap('POSITION_SIZE')}% ML:${fmt(cfg.ML_MIN_CONFIDENCE, 0)}${zap('ML_MIN_CONFIDENCE')}% SLOTS:${fmt(cfg.MAX_SLOTS, 0)}</span>
+                <span class="coin-config-values">${rowValues}</span>
+                <span class="coin-config-values">SZ:${fmt(cfg.POSITION_SIZE, 0)}${zap('POSITION_SIZE')}→${effVal('POSITION_SIZE','size_mult')}% ML:${fmt(cfg.ML_MIN_CONFIDENCE, 0)}${zap('ML_MIN_CONFIDENCE')}% SLOTS:${fmt(cfg.MAX_SLOTS, 0)}</span>
+                ${mlRow}
             </div>`;
     }
     container.innerHTML = html;

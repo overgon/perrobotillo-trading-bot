@@ -819,9 +819,26 @@ def _load_effective_config():
             effective["ENABLED"] = per_coin_coin["ENABLED"].lower() in ("true", "1", "yes")
             overrides.add("ENABLED")
 
+        # Merge param multipliers + effective config
+        multipliers = _load_param_multipliers().get(coin, {})
+        effective_with_ml = {}
+        # Compute effective_with_ml: base × multiplier
+        field_to_mult = {
+            "TP1": "tp1_mult", "TP2": "tp2_mult", "TP3": "tp3_mult",
+            "STOP_LOSS": "sl_mult", "POSITION_SIZE": "size_mult",
+        }
+        for field, mult_key in field_to_mult.items():
+            if field in effective and mult_key in multipliers:
+                mult = multipliers[mult_key]
+                if isinstance(effective[field], (int, float)) and isinstance(mult, (int, float)):
+                    dec = 0 if field in ("POSITION_SIZE", "MAX_SLOTS") else 1
+                    effective_with_ml[f"{field}"] = round(effective[field] * mult, dec)
+
         coins_result[coin] = {
             "effective": effective,
             "overrides": sorted(overrides),
+            "multipliers": multipliers,
+            "effective_with_ml": effective_with_ml,
         }
 
     return {
@@ -829,6 +846,31 @@ def _load_effective_config():
         "market_reason": mm_reason,
         "coins": coins_result,
     }
+
+
+def _load_param_multipliers():
+    """Load ML param multipliers from param-multipliers.json.
+
+    This file is updated by param-multiplier-runtime.py (cron every 5min).
+    Returns: {coin: {tp1_mult, tp2_mult, tp3_mult, sl_mult, size_mult}}
+    """
+    import os
+    mult_path = os.path.join(
+        os.path.dirname(__file__), "..", "ml", "param-multipliers.json"
+    )
+    mult_path = os.path.normpath(mult_path)
+    if not os.path.exists(mult_path):
+        return {}
+    try:
+        with open(mult_path) as f:
+            data = json.load(f)
+        coins_mult = data.get("coins", {})
+        result = {}
+        for coin, info in coins_mult.items():
+            result[coin] = info.get("multipliers", {})
+        return result
+    except Exception:
+        return {}
 
 
 def _api_status_data():
@@ -962,6 +1004,7 @@ def _api_status_data():
         },
         'circuitBreakerStatus': _load_circuit_breaker_status(),
         'coin_configs': _load_effective_config(),
+        'param_multipliers': _load_param_multipliers(),
         'timestamp': now.isoformat()
     }
 
