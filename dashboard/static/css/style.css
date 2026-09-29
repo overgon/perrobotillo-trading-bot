@@ -1032,26 +1032,27 @@ body::before {
    DESKTOP: Floating coin-config overlay (hover to expand)
    Per-coin configs no longer push charts/slots offscreen.
    Collapsed to a thin ⚙ tab on the right edge; expands on hover.
+   Full-height (100vh) panel — all 7 coins visible without scroll.
    Mobile layout untouched (see @media max-width: 768px below).
    ════════════════════════════════════════════════════════ */
 @media (min-width: 769px) {
     .coin-configs-container {
         position: fixed;
         right: 0;
-        top: 50%;
-        transform: translateY(-50%);
+        top: 0;
+        height: 100vh;
+        transform: none;
         z-index: 1000;
         width: 38px;
         max-width: 38px;
-        max-height: 85vh;
         overflow: hidden;
-        transition: width 0.3s ease;
-        background: rgba(10, 10, 26, 0.96);
+        transition: all 0.3s ease;
+        background: rgba(10, 10, 26, 0.98);
         border: 1px solid rgba(188, 19, 255, 0.2);
         border-radius: 8px 0 0 8px;
         box-shadow: -4px 0 20px rgba(0, 243, 255, 0.15);
         margin: 0;
-        padding: 0.6rem 0;
+        padding: 0.4rem 0;
         border-top: none;
     }
 
@@ -1067,8 +1068,8 @@ body::before {
     }
 
     .coin-configs-container:hover {
-        width: 260px;
-        max-width: 260px;
+        width: 280px;
+        max-width: 280px;
     }
 
     .coin-configs-container:hover::before {
@@ -1086,10 +1087,38 @@ body::before {
         opacity: 1;
     }
 
+    /* All 7 coins visible without scroll — no max-height cap */
     .coin-configs-container .coin-configs-grid {
-        max-height: 70vh;
-        overflow-y: auto;
-        padding-right: 0.25rem;
+        max-height: none;
+        overflow: visible;
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        padding: 0.5rem 0.3rem;
+    }
+
+    /* Compact rows for full-height panel */
+    .coin-configs-container .coin-config-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.05rem;
+        padding: 0.15rem 0.4rem;
+        font-size: 0.58rem;
+    }
+
+    .coin-configs-container .coin-configs-title {
+        font-size: 0.6rem;
+        padding: 0 0.4rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .coin-configs-container .coin-config-ml {
+        font-size: 0.5rem;
+        margin-top: 0;
+    }
+
+    .coin-configs-container .coin-config-values {
+        font-size: 0.55rem;
     }
 }
 
