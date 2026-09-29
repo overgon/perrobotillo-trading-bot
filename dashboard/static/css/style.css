@@ -1028,6 +1028,71 @@ body::before {
     color: var(--text-secondary);
 }
 
+/* ════════════════════════════════════════════════════════
+   DESKTOP: Floating coin-config overlay (hover to expand)
+   Per-coin configs no longer push charts/slots offscreen.
+   Collapsed to a thin ⚙ tab on the right edge; expands on hover.
+   Mobile layout untouched (see @media max-width: 768px below).
+   ════════════════════════════════════════════════════════ */
+@media (min-width: 769px) {
+    .coin-configs-container {
+        position: fixed;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 1000;
+        width: 38px;
+        max-width: 38px;
+        max-height: 85vh;
+        overflow: hidden;
+        transition: width 0.3s ease;
+        background: rgba(10, 10, 26, 0.96);
+        border: 1px solid rgba(188, 19, 255, 0.2);
+        border-radius: 8px 0 0 8px;
+        box-shadow: -4px 0 20px rgba(0, 243, 255, 0.15);
+        margin: 0;
+        padding: 0.6rem 0;
+        border-top: none;
+    }
+
+    .coin-configs-container::before {
+        content: '⚙';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.4rem;
+        color: var(--neon-purple);
+        pointer-events: none;
+    }
+
+    .coin-configs-container:hover {
+        width: 260px;
+        max-width: 260px;
+    }
+
+    .coin-configs-container:hover::before {
+        opacity: 0;
+    }
+
+    .coin-configs-container .coin-configs-title,
+    .coin-configs-container .coin-configs-grid {
+        opacity: 0;
+        transition: opacity 0.2s ease 0.25s;
+    }
+
+    .coin-configs-container:hover .coin-configs-title,
+    .coin-configs-container:hover .coin-configs-grid {
+        opacity: 1;
+    }
+
+    .coin-configs-container .coin-configs-grid {
+        max-height: 70vh;
+        overflow-y: auto;
+        padding-right: 0.25rem;
+    }
+}
+
 @media (max-width: 768px) {
     .auto-adjust-info {
         flex-direction: column;
