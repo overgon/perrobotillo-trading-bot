@@ -51,3 +51,6 @@ check_imports2.py
 fix_imports.py
 fix_imports2.py
 docker/docker-compose.override.yml.bak
+
+# ML models (binary, too large)
+param_multiplier_models/
