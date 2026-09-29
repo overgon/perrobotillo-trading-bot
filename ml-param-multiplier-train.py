@@ -315,7 +315,7 @@ def load_or_download_features():
                     print(f"  {coin}: {len(df)} rows loaded from CSV ({time_span}d coverage)")
                     continue
                 elif len(df) > 100:
-                    print(f"  {coin}: CSV only {time_span}d coverage, will download 90d")
+                    print(f"  {coin}: CSV only {time_span}d coverage, will download 60d")
             except Exception as e:
                 print(f"  {coin}: CSV load failed ({e}), will download")
         # Download if CSV failed or insufficient coverage
@@ -534,7 +534,7 @@ def export_models(results):
 
     print(f"\n  Models: {MODELS_DIR}")
     print(f"  Production: {prod_dir}")
-    print(f"  Deploy: models already in place")
+    print(f"  Deploy: models deployed to {prod_dir}")
     return summary
 
 
