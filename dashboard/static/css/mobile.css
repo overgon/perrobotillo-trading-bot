@@ -490,9 +490,9 @@ body {
     border-top: 1px solid var(--border-color);
 }
 .coin-configs-title {
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--neon-blue);
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-bottom: 6px;
@@ -521,7 +521,7 @@ body {
     padding: 6px 8px;
     background: var(--bg-card-light);
     border-radius: 6px;
-    font-size: 11px;
+    font-size: 13px;
     font-family: 'SF Mono', 'Monaco', monospace;
 }
 .coin-config-row.enabled {
@@ -537,14 +537,14 @@ body {
     text-transform: uppercase;
 }
 .coin-config-values {
-    font-size: 9px;
+    font-size: 11px;
     color: var(--text-primary);
 }
 .coin-config-ml {
-    font-size: 8px;
+    font-size: 10px;
     font-family: 'Fira Code', 'Courier New', monospace;
     color: var(--neon-purple);
-    opacity: 0.7;
+    opacity: 0.85;
     margin-left: 8px;
 }
 
