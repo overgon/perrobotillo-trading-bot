@@ -939,12 +939,12 @@ body::before {
 }
 .coin-configs-title {
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.85rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: var(--neon-blue);
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.6rem;
 }
 .mm-badge {
     float: right;
@@ -977,12 +977,12 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.5rem;
-    padding: 0.3rem 0.6rem;
-    background: rgba(0, 243, 255, 0.05);
-    border: 1px solid rgba(188, 19, 255, 0.25);
-    border-radius: 6px;
-    font-size: 0.95rem;
+    gap: 0.6rem;
+    padding: 0.4rem 0.8rem;
+    background: rgba(0, 243, 255, 0.07);
+    border: 1px solid rgba(188, 19, 255, 0.3);
+    border-radius: 8px;
+    font-size: 1.2rem;
     font-family: 'Orbitron', monospace;
 }
 .coin-config-row.enabled {
@@ -999,20 +999,20 @@ body::before {
     min-width: 32px;
 }
 .coin-config-values {
-    font-size: 0.8rem;
+    font-size: 1.05rem;
     color: var(--text-secondary);
     font-feature-settings: "tnum";
 }
 .coin-config-row.enabled .coin-config-values {
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.95);
 }
 .coin-config-ml {
     grid-column: 1 / -1;
-    margin-top: 0.3rem;
-    font-size: 0.75rem;
+    margin-top: 0.4rem;
+    font-size: 1rem;
     font-family: 'Fira Code', 'Courier New', monospace;
     color: var(--neon-purple);
-    opacity: 0.9;
+    opacity: 0.95;
 }
 .ml-multipliers {
     display: inline-flex;
@@ -1068,8 +1068,8 @@ body::before {
     }
 
     .coin-configs-container:hover {
-        width: 280px;
-        max-width: 280px;
+        width: 320px;
+        max-width: 320px;
     }
 
     .coin-configs-container:hover::before {
@@ -1103,22 +1103,22 @@ body::before {
         align-items: flex-start;
         gap: 0.05rem;
         padding: 0.15rem 0.4rem;
-        font-size: 0.58rem;
+        font-size: 1.1rem;
     }
 
     .coin-configs-container .coin-configs-title {
-        font-size: 0.6rem;
+        font-size: 1rem;
         padding: 0 0.4rem;
         margin-bottom: 0.3rem;
     }
 
     .coin-configs-container .coin-config-ml {
-        font-size: 0.5rem;
+        font-size: 0.9rem;
         margin-top: 0;
     }
 
     .coin-configs-container .coin-config-values {
-        font-size: 0.55rem;
+        font-size: 0.95rem;
     }
 }
 
