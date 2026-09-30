@@ -71,7 +71,7 @@ DEFAULT_GRID_CONFIG = {
         "stop_loss": 0.88,
         "take_profit": 1.12,
     },
-    "LINK": {
+    "ZEC": {
         "enabled": False  # Desactivado en migración a Slots,  # ✅ Habilitado para Grid Trading
         "low_price": 7.23,   # Actualizado: LINK ~$8.46
         "high_price": 9.21,

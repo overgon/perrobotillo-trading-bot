@@ -17,7 +17,7 @@ source "$SECRETS/binance.env"
 # 🔧 CONFIGURACIÓN
 # ============================================
 
-COINS=("BTC" "ETH" "SOL" "LINK" "XRP" "BNB" "AVAX")
+COINS=("BTC" "ETH" "SOL" "ZEC" "XRP" "BNB" "AVAX")
 
 # ============================================
 # 🔧 FUNCIONES DE LOGGING

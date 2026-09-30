@@ -13,7 +13,7 @@ TRADE_HISTORY = f"{WORKSPACE}/crypto-bots/trade-history.json"
 POSITION_SIZING_CONFIG = f"{WORKSPACE}/crypto-bots/position-sizing-config.json"
 DYNAMIC_CONFIG = f"{WORKSPACE}/crypto-bots/dynamic-config.env"
 
-COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+COINS = ["BTC", "ETH", "BNB", "SOL", "ZEC", "XRP", "AVAX"]
 BASE_POSITION_SIZE = 15
 WR_HIGH_THRESHOLD = 70
 WR_LOW_THRESHOLD = 50

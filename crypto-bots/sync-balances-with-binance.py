@@ -135,7 +135,7 @@ def main():
         return
     
     # Coins del bot
-    COINS = ["BTC", "ETH", "SOL", "LINK", "XRP", "BNB", "AVAX"]
+    COINS = ["BTC", "ETH", "SOL", "ZEC", "XRP", "BNB", "AVAX"]
     
     print("\n🔍 Sincronizando trade-states...")
     discrepancies = {}

@@ -24,7 +24,7 @@ from pathlib import Path
 
 # Configuración
 CRYPTO_BOTS = Path("/home/overgon/.openclaw/workspace/crypto-bots")
-COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+COINS = ["BTC", "ETH", "BNB", "SOL", "ZEC", "XRP", "AVAX"]
 TELEGRAM_CHAT_ID = "7543955537"  # Rull Ox
 
 def load_trade_state(coin):

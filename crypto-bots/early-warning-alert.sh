@@ -25,7 +25,7 @@ send_telegram() {
 }
 
 # Load state files
-COINS=("BTC" "ETH" "BNB" "SOL" "LINK" "XRP" "AVAX")
+COINS=("BTC" "ETH" "BNB" "SOL" "ZEC" "XRP" "AVAX")
 
 log "║  ⚠️ EARLY WARNING SL CHECK                            ║"
 

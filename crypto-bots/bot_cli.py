@@ -22,14 +22,14 @@ WORKSPACE = Path.home() / ".openclaw" / "workspace"
 SECRETS = WORKSPACE / "secrets"
 LOGS = WORKSPACE / "logs"
 BINANCE_BASE = "https://api.binance.com"
-SUPPORTED_SYMBOLS = {"BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"}
+SUPPORTED_SYMBOLS = {"BTC", "ETH", "BNB", "SOL", "ZEC", "XRP", "AVAX"}
 
 MAX_SLOTS = 3
 STOP_LOSS_BY_COIN = {
     "BTC": 3.0,
     "ETH": 3.5,
     "SOL": 5.0,
-    "LINK": 4.0,
+    "ZEC": 4.0,
     "XRP": 3.5,
     "BNB": 3.0,
     "AVAX": 4.5,

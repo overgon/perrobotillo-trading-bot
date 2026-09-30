@@ -72,7 +72,7 @@ calculate_dynamic_sl() {
     local symbol=$1
     
     log "╔═══════════════════════════════════════════════════════╗"
-    log "║  🔧 LINK DYNAMIC SL CALCULATION                       ║"
+    log "║  🔧 ZEC DYNAMIC SL CALCULATION                       ║"
     log "╚═══════════════════════════════════════════════════════╝"
     
     # Obtener ATR actual
@@ -116,9 +116,9 @@ calculate_dynamic_sl() {
 # MAIN
 # ════════════════════════════════════════════════════════
 
-if [ "$SYMBOL" == "LINK" ]; then
+if [ "$SYMBOL" == "ZEC" ]; then
     calculate_dynamic_sl "$SYMBOL"
 else
-    log "⚠️ Dynamic SL solo implementado para LINK por ahora"
+    log "⚠️ Dynamic SL solo implementado para ZEC por ahora"
     echo ""
 fi

@@ -10,7 +10,7 @@ LOG_FILE="${WORKSPACE}/logs/auto-resume.log"
 TRADE_HISTORY="$WORKSPACE/crypto-bots/trade-history.json"
 DYNAMIC_CONFIG="$WORKSPACE/crypto-bots/dynamic-config.env"
 
-COINS=("BTC" "ETH" "BNB" "SOL" "LINK" "XRP" "AVAX")
+COINS=("BTC" "ETH" "BNB" "SOL" "ZEC" "XRP" "AVAX")
 
 # ════════════════════════════════════════════════════════
 # 🔧 FUNCIONES

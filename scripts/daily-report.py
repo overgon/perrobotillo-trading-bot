@@ -19,7 +19,7 @@ LOGS_DIR = WORKSPACE / "logs"
 CRYPTO_BOTS_DIR = WORKSPACE / "crypto-bots"
 SECRETS_DIR = Path.home() / ".openclaw" / "secrets"
 
-COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+COINS = ["BTC", "ETH", "BNB", "SOL", "ZEC", "XRP", "AVAX"]
 
 
 def load_env_file(filepath):

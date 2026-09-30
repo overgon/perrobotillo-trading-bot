@@ -50,7 +50,7 @@ CBEOF
             # 🐕 FIX: Permitir gestión de trades activos (SL/TP) incluso con pause flag
             # Verificar si hay trades activos que necesitan gestión
             HAS_ACTIVE_TRADES=false
-            for coin in BTC ETH BNB SOL LINK XRP AVAX; do
+            for coin in BTC ETH BNB SOL ZEC XRP AVAX; do
                 state_file="$WORKSPACE/crypto-bots/${coin}-trade-state.json"
                 if [ -f "$state_file" ]; then
                     active=$(jq '[.slots[] | select(.status == "ACTIVE")] | length' "$state_file" 2>/dev/null || echo 0)

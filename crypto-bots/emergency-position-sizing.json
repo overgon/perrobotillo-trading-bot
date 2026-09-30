@@ -2,13 +2,13 @@
   "generated_at": "2026-06-03T20:00:00-06:00",
   "mode": "EMERGENCY_CONSERVATIVE",
   "base_position_size": 9.0,
-  "reduction_applied": 0.40,
+  "reduction_applied": 0.4,
   "original_base": 15.0,
   "coins": {
     "BTC": {
       "position_size": 5.4,
       "status": "PAUSED",
-      "reason": "WR 40% + BTC en caída libre - pausa hasta estabilización",
+      "reason": "WR 40% + BTC en ca\u00edda libre - pausa hasta estabilizaci\u00f3n",
       "stats": {
         "trades": 10,
         "wins": 4,
@@ -22,7 +22,7 @@
     "ETH": {
       "position_size": 5.4,
       "status": "PAUSED",
-      "reason": "WR 43.75% + 3 pérdidas consecutivas hoy - pausa temporal",
+      "reason": "WR 43.75% + 3 p\u00e9rdidas consecutivas hoy - pausa temporal",
       "stats": {
         "trades": 16,
         "wins": 7,
@@ -36,7 +36,7 @@
     "BNB": {
       "position_size": 12.0,
       "status": "ACTIVE_CONSERVATIVE",
-      "reason": "ÚNICA moneda rentable - WR 84.37% + PnL +$55.88 - mantener con size reducido",
+      "reason": "\u00daNICA moneda rentable - WR 84.37% + PnL +$55.88 - mantener con size reducido",
       "stats": {
         "trades": 32,
         "wins": 27,
@@ -50,7 +50,7 @@
     "SOL": {
       "position_size": 5.4,
       "status": "PAUSED",
-      "reason": "WR 30% últimos 10 trades + 7 SLs - pausa temporal hasta estabilización",
+      "reason": "WR 30% \u00faltimos 10 trades + 7 SLs - pausa temporal hasta estabilizaci\u00f3n",
       "stats": {
         "trades": 21,
         "wins": 16,
@@ -78,7 +78,7 @@
     "XRP": {
       "position_size": 5.4,
       "status": "PAUSED",
-      "reason": "3 pérdidas consecutivas hoy (-$13) - whipsaw en SL - pausa temporal",
+      "reason": "3 p\u00e9rdidas consecutivas hoy (-$13) - whipsaw en SL - pausa temporal",
       "stats": {
         "trades": 20,
         "wins": 14,
@@ -86,13 +86,13 @@
         "win_rate": 70.0,
         "total_pnl": 28.36,
         "recent_wr": 0.0,
-        "recent_pnl": -13.00
+        "recent_pnl": -13.0
       }
     },
     "AVAX": {
       "position_size": 9.0,
       "status": "ACTIVE_CONSERVATIVE",
-      "reason": "WR 70% últimos 10 trades + PnL positivo +$12.51 - mantener con size reducido",
+      "reason": "WR 70% \u00faltimos 10 trades + PnL positivo +$12.51 - mantener con size reducido",
       "stats": {
         "trades": 26,
         "wins": 20,
@@ -115,7 +115,16 @@
     },
     "trailing_stop_activation": 0.03
   },
-  "active_coins": ["BNB", "AVAX"],
-  "paused_coins": ["BTC", "ETH", "SOL", "LINK", "XRP"],
+  "active_coins": [
+    "BNB",
+    "AVAX"
+  ],
+  "paused_coins": [
+    "BTC",
+    "ETH",
+    "SOL",
+    "ZEC",
+    "XRP"
+  ],
   "review_at": "2026-06-04T08:00:00-06:00"
 }

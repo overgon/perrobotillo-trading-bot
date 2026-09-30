@@ -163,7 +163,7 @@ REPORT_DATE=$(date '+%Y-%m-%d %H:%M')
 log "📅 Reporte del mes: $MONTH_NAME_PREV $YEAR_MONTH_PREV"
 
 # Monedas a analizar
-COINS=("BTC" "ETH" "BNB" "SOL" "LINK" "XRP" "AVAX")
+COINS=("BTC" "ETH" "BNB" "SOL" "ZEC" "XRP" "AVAX")
 
 # Arrays para almacenar resultados
 declare -A MONTHLY_PNL

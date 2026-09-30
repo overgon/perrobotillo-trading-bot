@@ -21,7 +21,7 @@ BINANCE_ENV = Path("/home/overgon/.openclaw/secrets/binance.env")
 # Telegram config
 TELEGRAM_CHAT_ID = "7543955537"
 
-COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+COINS = ["BTC", "ETH", "BNB", "SOL", "ZEC", "XRP", "AVAX"]
 
 def load_binance_credentials():
     """Carga API credentials de binance.env"""
@@ -182,7 +182,7 @@ def reconcile():
                 "ETHUSDT": "eth",
                 "BNBUSDT": "bnb",
                 "SOLUSDT": "sol",
-                "LINKUSDT": "link",
+                "ZECUSDT": "zec",
                 "XRPUSDT": "xrp",
                 "AVAXUSDT": "avax",
             }
@@ -211,7 +211,7 @@ def reconcile():
         "ETHUSDT": "ETH",
         "BNBUSDT": "BNB",
         "SOLUSDT": "SOL",
-        "LINKUSDT": "LINK",
+        "LINKUSDT": "ZEC",
         "XRPUSDT": "XRP",
         "AVAXUSDT": "AVAX"
     }

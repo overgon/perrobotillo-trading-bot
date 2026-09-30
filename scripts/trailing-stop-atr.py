@@ -313,7 +313,7 @@ def get_trailing_stop_for_coin(coin: str, timeframe: str = '1h') -> Dict:
 def show_all_coins_trailing_stops():
     """Mostrar trailing stops recomendados para todas las monedas"""
     
-    coins = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+    coins = ["BTC", "ETH", "BNB", "SOL", "ZEC", "XRP", "AVAX"]
     
     print("\n" + "="*80)
     print("🐕 Perrobotillo - Trailing Stops Dinámicos con ATR")

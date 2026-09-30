@@ -4,7 +4,7 @@ import json, os, glob
 
 WORKSPACE = "/home/overgon/.openclaw/workspace"
 
-COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+COINS = ["BTC", "ETH", "BNB", "SOL", "ZEC", "XRP", "AVAX"]
 
 print("=== 📊 ML STATUS (7 monedas) ===")
 print(f"{'COIN':<6} {'STATUS':<10} {'ACCURACY':<10} {'GAP%':<8} {'F1':<8} {'LAST_TRAINED'}")

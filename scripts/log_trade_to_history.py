@@ -92,7 +92,7 @@ def _resolve_symbol_from_price(entry_price, slot_id=None, symbol_env=None):
         "BNB": (200, 1000),
         "SOL": (40, 500),
         "AVAX": (4.0, 30.0),  # 🔧 widened from (4.0, 8.0) — AVAX trades $7-13+ in practice
-        "LINK": (4.0, 30.0),  # 🔧 widened from (8.0, 30.0) — overlaps with AVAX by design
+        "ZEC": (500, 5000),  # 🔧 widened from (8.0, 30.0) — overlaps with AVAX by design
         "XRP": (0.2, 5.0),
     }
     KNOWN_COINS = set(PRICE_RANGES.keys())

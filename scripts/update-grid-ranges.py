@@ -16,7 +16,7 @@ WORKSPACE = Path("/home/overgon/.openclaw/workspace")
 CONFIG_FILE = WORKSPACE / "crypto-bots" / "grid-trading-bot.py"
 LOG_FILE = WORKSPACE / "logs" / "grid-ranges-update.log"
 
-COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+COINS = ["BTC", "ETH", "BNB", "SOL", "ZEC", "XRP", "AVAX"]
 RANGE_THRESHOLD = 0.10  # 10% fuera del rango → actualizar
 
 def log(msg):

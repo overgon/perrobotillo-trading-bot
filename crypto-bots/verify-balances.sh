@@ -14,7 +14,7 @@ BINANCE="https://api.binance.com"
 
 source "$SECRETS/binance.env"
 
-COINS=("BTC" "ETH" "SOL" "LINK" "XRP" "BNB" "AVAX")
+COINS=("BTC" "ETH" "SOL" "ZEC" "XRP" "BNB" "AVAX")
 
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [BAL-REPORT] $1" | tee -a "$LOGS/balance-report.log"

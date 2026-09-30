@@ -18,7 +18,7 @@ GRID_STATUS_FILE = DASHBOARD / "grid-status.json"
 SECRETS = Path("/home/overgon/.openclaw/secrets/binance.env")
 CONFIG_FILE = WORKSPACE / "crypto-bots" / "grid-trading-bot.py"
 
-COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+COINS = ["BTC", "ETH", "BNB", "SOL", "ZEC", "XRP", "AVAX"]
 
 def load_binance_credentials():
     """Cargar credenciales de Binance"""
