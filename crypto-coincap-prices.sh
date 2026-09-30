@@ -18,7 +18,7 @@ echo ""
 
 # Obtener precios de múltiples cryptos
 echo "=== PRECIOS ACTUALES ==="
-response=$(curl -s "$BASE_URL/price/bysymbol/BTC,ETH,BNB,SOL,XRP,AVAX,LINK" \
+response=$(curl -s "$BASE_URL/price/bysymbol/BTC,ETH,BNB,SOL,XRP,AVAX,ZEC" \
   -H "Authorization: Bearer $COINCAP_TOKEN")
 
 # Parsear respuesta
@@ -26,7 +26,7 @@ timestamp=$(echo "$response" | jq -r '.timestamp // 0')
 prices=$(echo "$response" | jq -r '.data[]')
 
 # Mostrar precios
-coins=("BTC" "ETH" "BNB" "SOL" "XRP" "AVAX" "LINK")
+coins=("BTC" "ETH" "BNB" "SOL" "XRP" "AVAX" "ZEC")
 i=0
 for price in $prices; do
     coin=${coins[$i]}

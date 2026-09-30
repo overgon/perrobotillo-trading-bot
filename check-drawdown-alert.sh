@@ -55,7 +55,7 @@ get_portfolio_value() {
     local usdt_balance=$(echo "$account" | jq -r '.balances[] | select(.asset=="USDT") | .free + .locked' 2>/dev/null || echo "0")
     
     # Obtener precios actuales de las coins
-    local coins=("BTC" "ETH" "BNB" "SOL" "LINK" "XRP" "AVAX")
+    local coins=("BTC" "ETH" "BNB" "SOL" "ZEC" "XRP" "AVAX")
     local portfolio_value=$usdt_balance
     
     for coin in "${coins[@]}"; do

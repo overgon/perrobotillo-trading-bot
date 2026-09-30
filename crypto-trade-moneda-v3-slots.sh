@@ -46,12 +46,12 @@ SYMBOL="${1:-}"
 SYMBOL="${SYMBOL^^}"
 
 if [ -z "$SYMBOL" ]; then
-    echo "❌ Uso: $0 <SYMBOL> (ej: BTC, ETH, BNB, SOL, LINK, XRP)"
+    echo "❌ Uso: $0 <SYMBOL> (ej: BTC, ETH, BNB, SOL, ZEC, XRP)"
     exit 1
 fi
 
 case "$SYMBOL" in
-    BTC|ETH|BNB|SOL|LINK|XRP|AVAX) ;;
+    BTC|ETH|BNB|SOL|ZEC|XRP|AVAX) ;;
     *) echo "❌ SYMBOL no soportado: $SYMBOL"; exit 1 ;;
 esac
 
@@ -279,7 +279,7 @@ log_trade_to_history() {
     fi
 
     # 🔧 FIX: Resolve symbol from slot_id + entry price BEFORE calling Python script
-    # This prevents symbol misattribution (e.g. LINK/SL registered as BTC)
+    # This prevents symbol misattribution (e.g. ZEC/SL registered as BTC)
     # when SYMBOL env var is stale from a previous coin's loop iteration
     local resolved_symbol="$SYMBOL"
     
@@ -296,8 +296,8 @@ local_symbol = sys.argv[3]
 # (authoritative from cron invocation arg, NOT a leaked env var) when the
 # price is plausible for that coin. Only override when price is wildly outside
 # local_symbol's range — that is the real stale-env-var signal.
-KNOWN_COINS = {'BTC','ETH','BNB','SOL','AVAX','LINK','XRP'}
-RANGES = {'BTC':(20000,120000),'ETH':(800,8000),'BNB':(200,1000),'SOL':(40,500),'AVAX':(4.0,30.0),'LINK':(4.0,30.0),'XRP':(0.2,5.0)}
+KNOWN_COINS = {'BTC','ETH','BNB','SOL','AVAX','ZEC','XRP'}
+RANGES = {'BTC':(20000,120000),'ETH':(800,8000),'BNB':(200,1000),'SOL':(40,500),'AVAX':(4.0,30.0),'ZEC':(500,5000),'XRP':(0.2,5.0)}
 if local_symbol in KNOWN_COINS:
     lo, hi = RANGES[local_symbol]
     if lo <= entry <= hi:
@@ -404,7 +404,7 @@ get_portfolio_value() {
     fi
     local total=$(printf '%.2f' "$usdt")
 
-    for coin in BNB SOL AVAX LINK XRP; do
+    for coin in BNB SOL AVAX ZEC XRP; do
         local balance=$(get_balance "$coin")
         balance=$(printf '%s' "$balance" | tr -d '[:space:]')
         if ! printf '%s' "$balance" | grep -qE '^[0-9]+(\.[0-9]+)?$'; then
@@ -443,7 +443,7 @@ format_quantity() {
     [ -z "$stepSize" ] || [ "$stepSize" = "null" ] && {
         # Common fallbacks by symbol
         case "$symbol" in
-            LINK|SOL|AVAX) stepSize="0.01000000" ;;
+            ZEC|SOL|AVAX) stepSize="0.01000000" ;;
             BNB) stepSize="0.00100000" ;;
             XRP) stepSize="0.10000000" ;;
             BTC) stepSize="0.00001000" ;;
@@ -1872,14 +1872,14 @@ ACUMULADO: 5% se queda HODL 📈
                 log_trade_to_history "$slot_id" "CLOSED_SL" "$entry" "$exit_price" "$quantity" "$pnl"
 
                 # 🔧 FIX: Resolve correct symbol using entry price to avoid $SYMBOL env var mismatch
-                # (e.g. $SYMBOL=AVAX when closing LINK trade due to previous loop)
+                # (e.g. $SYMBOL=AVAX when closing ZEC trade due to previous loop)
                 local resolved_symbol="$SYMBOL"
                 resolved_symbol=$(python3 -c "
 import sys
 entry = float('$entry')
 local_sym = '$SYMBOL'
-RANGES = {'BTC':(20000,120000),'ETH':(800,8000),'BNB':(200,1000),'SOL':(40,500),'AVAX':(4.0,30.0),'LINK':(4.0,30.0),'XRP':(0.2,5.0)}
-KNOWN = {'BTC','ETH','BNB','SOL','AVAX','LINK','XRP'}
+RANGES = {'BTC':(20000,120000),'ETH':(800,8000),'BNB':(200,1000),'SOL':(40,500),'AVAX':(4.0,30.0),'ZEC':(500,5000),'XRP':(0.2,5.0)}
+KNOWN = {'BTC','ETH','BNB','SOL','AVAX','ZEC','XRP'}
 # 🔧 FIX (2026-09-25): trust local_symbol when price is plausible for it;
 # only override via price when local_symbol range doesn't match.
 if local_sym in KNOWN:
@@ -2622,7 +2622,7 @@ Se recomienda esperar condiciones mejores. 🐕"
                 
                 # Si todas las monedas están operando, limpiar flag global
                 OPERATING_COUNT=0
-                for coin in BNB SOL AVAX LINK XRP; do
+                for coin in BNB SOL AVAX ZEC XRP; do
                     if [ ! -f "${WORKSPACE}/crypto-bots/${coin}-ml-pause-flag.json" ]; then
                         OPERATING_COUNT=$((OPERATING_COUNT + 1))
                     fi

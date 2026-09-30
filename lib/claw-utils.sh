@@ -81,7 +81,7 @@ status() {
     echo "🎯 SLOTS STATUS:"
     local total_slots=0
     local active_slots=0
-    for coin in BTC ETH BNB SOL LINK XRP AVAX; do
+    for coin in BTC ETH BNB SOL XRP AVAX ZEC; do
         local state_file="${WORKSPACE}/crypto-bots/${coin}-trade-state.json"
         if [ -f "$state_file" ]; then
             local coin_slots=$(jq -r '.slots | length' "$state_file" 2>/dev/null || echo "0")

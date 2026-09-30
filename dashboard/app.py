@@ -304,7 +304,7 @@ def get_trade_states():
     cached = _get_mem_cache('trade_states')
     if cached is not None:
         return cached
-    coins = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX']
+    coins = ['BTC', 'ETH', 'BNB', 'SOL', 'ZEC', 'XRP', 'AVAX']
     states = {}
     
     for coin in coins:
@@ -417,7 +417,7 @@ def get_daily_pnl():
         
         total_pnl = 0.0
         pnl_by_coin = {}
-        coins = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX']
+        coins = ['BTC', 'ETH', 'BNB', 'SOL', 'ZEC', 'XRP', 'AVAX']
         
         # Inicializar todas las monedas en 0
         for coin in coins:
@@ -792,7 +792,7 @@ def _load_effective_config():
             except (ValueError, TypeError):
                 base_effective[norm] = val
 
-    coin_names = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+    coin_names = ["BTC", "ETH", "BNB", "SOL", "ZEC", "XRP", "AVAX"]
     int_keys = {"TP1", "TP2", "TP3", "STOP_LOSS", "POSITION_SIZE", "MAX_SLOTS", "ML_MIN_CONFIDENCE"}
     bool_keys = {"ENABLED", "TRAILING_STOP", "SCALPING_ENABLED"}
 
@@ -1023,7 +1023,7 @@ def api_prices():
         response = requests.get(url, timeout=10)
         all_tickers = response.json()
         
-        coins = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX']
+        coins = ['BTC', 'ETH', 'BNB', 'SOL', 'ZEC', 'XRP', 'AVAX']
         prices = {}
         for ticker in all_tickers:
             symbol = ticker.get('symbol', '')
