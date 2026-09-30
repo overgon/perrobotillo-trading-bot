@@ -10,7 +10,7 @@
 #
 # Steps:
 #   1. (optional) Re-download fresh 1h candles from Binance → DB
-#   2. Dry-run pipeline verification (LINK only)
+#   2. Dry-run pipeline verification (ZEC only)
 #   3. Full ML training: gather → train (4 models) → validate → export
 #   4. Validate overfitting_gap < 3% per coin
 #   5. Summary report
@@ -38,7 +38,7 @@ echo ""
 echo "🔍 STEP 1: Verificando candle data (CSV)"
 echo "  RAW_DATA_DIR: $RAW_DATA_DIR"
 missing=0
-for coin in BTC ETH BNB SOL LINK XRP AVAX; do
+for coin in BTC ETH BNB SOL AVAX ZEC; do
     csv="$RAW_DATA_DIR/${coin}USDT_1h.csv"
     if [ -f "$csv" ]; then
         rows=$(wc -l < "$csv")
@@ -65,9 +65,9 @@ fi
 # ─── Step 2: Dry-run verification (LINK only) ─────────────────────────────
 echo ""
 echo "════════════════════════════════════════════════════════════════════════"
-echo "🧪 STEP 2: Dry-run pipeline (LINK only)"
+echo "🧪 STEP 2: Dry-run pipeline (ZEC only)"
 echo "════════════════════════════════════════════════════════════════════════"
-JESSE_ML_MODE=gather python3 fase5_train.py --dry-run --coin LINK 2>&1
+JESSE_ML_MODE=gather python3 fase5_train.py --dry-run --coin ZEC 2>&1
 DRY_EXIT=$?
 
 if [ "$DRY_EXIT" -ne 0 ]; then
@@ -128,7 +128,7 @@ import json
 s = json.load(open('$SUMMARY'))
 pass_count = 0
 fail_count = 0
-for coin in ['LINK','AVAX','XRP','SOL','BNB','ETH','BTC']:
+for coin in ['ZEC','AVAX','XRP','SOL','BNB','ETH','BTC']:
     info = s.get(coin, {})
     status = info.get('status', 'unknown')
     if status == 'completed':

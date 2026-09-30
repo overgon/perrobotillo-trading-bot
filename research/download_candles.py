@@ -22,7 +22,7 @@ from jesse.research import store_candles  # noqa: E402
 
 BINANCE_API = "https://api.binance.com/api/v3/klines"
 RAW_DATA_DIR = Path("/home/raw_data")
-COINS = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX']
+COINS = ['BTC', 'ETH', 'BNB', 'SOL', 'AVAX', 'ZEC', 'XRP']
 START_DATE = "2023-01-01"
 END_DATE = "2025-01-01"
 INTERVAL = "1h"

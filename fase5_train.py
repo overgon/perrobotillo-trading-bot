@@ -13,8 +13,8 @@ Workflow:
 
 Usage:
   python3 fase5_train.py                  # all coins
-  python3 fase5_train.py --coin LINK     # single coin
-  python3 fase5_train.py --dry-run       # LINK only, verify pipeline
+  python3 fase5_train.py --coin ZEC     # single coin
+  python3 fase5_train.py --dry-run       # ZEC only, verify pipeline
 """
 
 import os
@@ -46,7 +46,7 @@ warnings.filterwarnings("ignore")
 
 # ─── Configuration ───────────────────────────────────────────────────────────
 
-COINS = ['LINK', 'AVAX', 'XRP', 'SOL', 'BNB', 'ETH', 'BTC']
+COINS = ['ZEC', 'AVAX', 'XRP', 'SOL', 'BNB', 'ETH', 'BTC']
 RAW_DATA_DIR = Path("/home/raw_data")
 OUTPUT_DIR = Path("/home/analysis_fase5")          # container path
 HOST_MODELS_DIR = Path("/home/fase5_models")        # exported models (host-mounted)
@@ -80,7 +80,7 @@ COIN_CONFIGS = {
     'ETH':  {'pos': 10, 'ml_min': 45, 'tp1': 3.0, 'tp2': 6.0, 'tp3': 9.0, 'sl': 3.0},
     'BNB':  {'pos': 15, 'ml_min': 40, 'tp1': 2.5, 'tp2': 5.0, 'tp3': 7.5, 'sl': 2.0},
     'SOL':  {'pos': 15, 'ml_min': 35, 'tp1': 2.5, 'tp2': 5.0, 'tp3': 7.5, 'sl': 2.0},
-    'LINK': {'pos': 10, 'ml_min': 35, 'tp1': 2.5, 'tp2': 5.0, 'tp3': 7.5, 'sl': 2.0},
+    'ZEC':  {'pos': 10, 'ml_min': 40, 'tp1': 2.5, 'tp2': 5.0, 'tp3': 7.5, 'sl': 3.0},
     'XRP':  {'pos': 10, 'ml_min': 35, 'tp1': 2.5, 'tp2': 5.0, 'tp3': 7.5, 'sl': 2.5},
     'AVAX': {'pos': 10, 'ml_min': 35, 'tp1': 2.5, 'tp2': 5.0, 'tp3': 7.5, 'sl': 2.0},
 }
@@ -496,12 +496,12 @@ def export_best_model(coin: str, best_name, best_result, all_results, scaler):
 
 def main():
     parser = argparse.ArgumentParser(description='Fase 5: ML Pipeline de Jesse')
-    parser.add_argument('--coin', type=str, default=None, help='Single coin (e.g. LINK)')
-    parser.add_argument('--dry-run', action='store_true', help='LINK only, verify pipeline')
+    parser.add_argument('--coin', type=str, default=None, help='Single coin (e.g. ZEC)')
+    parser.add_argument('--dry-run', action='store_true', help='ZEC only, verify pipeline')
     args = parser.parse_args()
 
     if args.dry_run:
-        coins = ['LINK']
+        coins = ['ZEC']
     elif args.coin:
         coins = [args.coin]
     else:
