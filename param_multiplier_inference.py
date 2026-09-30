@@ -45,7 +45,7 @@ WORKSPACE = Path("/home/overgon/.openclaw/workspace")
 DATA_DIR = WORKSPACE / "backtest" / "data"
 PROD_MODELS_DIR = WORKSPACE / "ml" / "models_optimized" / "param_multipliers"
 TRADING_BOT_DIR = WORKSPACE / "crypto-bots"
-COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+COINS = ["BTC", "ETH", "BNB", "SOL", "ZEC", "XRP", "AVAX"]
 BINANCE_URL = "https://api.binance.com/api/v3/klines"
 
 # Multiplier targets in order

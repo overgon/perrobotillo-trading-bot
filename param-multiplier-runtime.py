@@ -52,7 +52,7 @@ def main():
     int_keys = {"TP1", "TP2", "TP3", "STOP_LOSS", "POSITION_SIZE"}
     bool_keys = {"ENABLED"}
 
-    coin_names = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+    coin_names = ["BTC", "ETH", "BNB", "SOL", "ZEC", "XRP", "AVAX"]
     output = {
         "updatedAt": pd_ts_now_iso(),
         "coins": {},
