@@ -1,190 +1,28 @@
 {
-  "LINK": {
+  "ZEC": {
     "status": "completed",
     "exported": true,
     "best_model": "random_forest",
     "accuracy": 1.0,
-    "overfitting_gap": 0.0,
+    "overfitting_gap": 0.005056669572798711,
     "samples": 17209,
     "features": 51,
     "all_models": {
       "random_forest": {
         "acc": 1.0,
-        "gap": 0.0
-      },
-      "xgboost": {
-        "acc": 0.9991284137129576,
-        "gap": 0.0006974716652135005
-      },
-      "gradient_boosting": {
-        "acc": 1.0,
-        "gap": 0.0
-      },
-      "logistic_regression": {
-        "acc": 0.9973852411388727,
-        "gap": 0.007018736096685574
-      }
-    }
-  },
-  "AVAX": {
-    "status": "completed",
-    "exported": true,
-    "best_model": "random_forest",
-    "accuracy": 1.0,
-    "overfitting_gap": 0.00026155187445520145,
-    "samples": 17209,
-    "features": 51,
-    "all_models": {
-      "random_forest": {
-        "acc": 1.0,
-        "gap": 0.00026155187445520145
-      },
-      "xgboost": {
-        "acc": 1.0,
-        "gap": 0.0013077593722755632
-      },
-      "gradient_boosting": {
-        "acc": 1.0,
-        "gap": 0.00026155187445520145
-      },
-      "logistic_regression": {
-        "acc": 0.9973852411388727,
-        "gap": 0.007977474659371708
-      }
-    }
-  },
-  "XRP": {
-    "status": "completed",
-    "exported": true,
-    "best_model": "random_forest",
-    "accuracy": 0.999418942475305,
-    "overfitting_gap": 0.0,
-    "samples": 17209,
-    "features": 51,
-    "all_models": {
-      "random_forest": {
-        "acc": 0.999418942475305,
-        "gap": 0.0
-      },
-      "xgboost": {
-        "acc": 0.9991284137129576,
-        "gap": 0.00043591979075841003
-      },
-      "gradient_boosting": {
-        "acc": 0.999418942475305,
-        "gap": 0.0
-      },
-      "logistic_regression": {
-        "acc": 0.9912841371295759,
-        "gap": 0.002848072627840592
-      }
-    }
-  },
-  "SOL": {
-    "status": "completed",
-    "exported": true,
-    "best_model": "random_forest",
-    "accuracy": 1.0,
-    "overfitting_gap": 0.00034873583260686125,
-    "samples": 17209,
-    "features": 51,
-    "all_models": {
-      "random_forest": {
-        "acc": 1.0,
-        "gap": 0.00034873583260686125
+        "gap": 0.005056669572798711
       },
       "xgboost": {
         "acc": 0.9997094712376525,
-        "gap": 0.0006974716652136115
+        "gap": 0.006538796861377483
       },
       "gradient_boosting": {
         "acc": 1.0,
-        "gap": 0.00034873583260686125
+        "gap": 0.005056669572798711
       },
       "logistic_regression": {
-        "acc": 0.9941894247530505,
-        "gap": 0.005187777983172159
-      }
-    }
-  },
-  "BNB": {
-    "status": "completed",
-    "exported": true,
-    "best_model": "random_forest",
-    "accuracy": 0.9968041836141778,
-    "overfitting_gap": 0.0,
-    "samples": 17209,
-    "features": 51,
-    "all_models": {
-      "random_forest": {
-        "acc": 0.9968041836141778,
-        "gap": 0.0
-      },
-      "xgboost": {
-        "acc": 1.0,
-        "gap": 0.0005231037489101809
-      },
-      "gradient_boosting": {
-        "acc": 0.9968041836141778,
-        "gap": 0.0
-      },
-      "logistic_regression": {
-        "acc": 0.9970947123765252,
-        "gap": 0.006219249004591365
-      }
-    }
-  },
-  "ETH": {
-    "status": "completed",
-    "exported": true,
-    "best_model": "random_forest",
-    "accuracy": 1.0,
-    "overfitting_gap": 0.0,
-    "samples": 17209,
-    "features": 51,
-    "all_models": {
-      "random_forest": {
-        "acc": 1.0,
-        "gap": 0.0
-      },
-      "xgboost": {
-        "acc": 0.9997094712376525,
-        "gap": 0.001394943330427223
-      },
-      "gradient_boosting": {
-        "acc": 1.0,
-        "gap": 0.0
-      },
-      "logistic_regression": {
-        "acc": 0.9968041836141778,
-        "gap": 0.009823454226268846
-      }
-    }
-  },
-  "BTC": {
-    "status": "completed",
-    "exported": true,
-    "best_model": "random_forest",
-    "accuracy": 1.0,
-    "overfitting_gap": 0.00017436791630343063,
-    "samples": 17209,
-    "features": 51,
-    "all_models": {
-      "random_forest": {
-        "acc": 1.0,
-        "gap": 0.00017436791630343063
-      },
-      "xgboost": {
-        "acc": 0.9982568274259151,
-        "gap": 0.002266782911944154
-      },
-      "gradient_boosting": {
-        "acc": 1.0,
-        "gap": 0.0010462074978203617
-      },
-      "logistic_regression": {
-        "acc": 0.9959325973271353,
-        "gap": 0.00466533918055434
+        "acc": 0.968622893666473,
+        "gap": 0.02834990284501393
       }
     }
   }

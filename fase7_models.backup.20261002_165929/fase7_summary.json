@@ -1,0 +1,51 @@
+{
+  "BTC": {
+    "model": "logistic_regression",
+    "accuracy": 1.0,
+    "gap": 0,
+    "n_trades": 24,
+    "winrate": 0.6667
+  },
+  "ETH": {
+    "model": "logistic_regression",
+    "accuracy": 1.0,
+    "gap": 0,
+    "n_trades": 51,
+    "winrate": 0.8627
+  },
+  "BNB": {
+    "model": "logistic_regression",
+    "accuracy": 1.0,
+    "gap": 0,
+    "n_trades": 25,
+    "winrate": 0.76
+  },
+  "SOL": {
+    "model": "logistic_regression",
+    "accuracy": 1.0,
+    "gap": 0,
+    "n_trades": 37,
+    "winrate": 0.8108
+  },
+  "LINK": {
+    "model": "logistic_regression",
+    "accuracy": 1.0,
+    "gap": 0,
+    "n_trades": 44,
+    "winrate": 0.7045
+  },
+  "XRP": {
+    "model": "logistic_regression",
+    "accuracy": 1.0,
+    "gap": 0,
+    "n_trades": 35,
+    "winrate": 0.8286
+  },
+  "AVAX": {
+    "model": "logistic_regression",
+    "accuracy": 1.0,
+    "gap": 0,
+    "n_trades": 58,
+    "winrate": 0.6897
+  }
+}
