@@ -1,0 +1,196 @@
+/* ════════════════════════════════════════════════════════
+   🐕 PERROBOTILLO DASHBOARD - MODO PERFORMANCE
+   ════════════════════════════════════════════════════════
+   Sin efectos GPU-intensivos
+   ════════════════════════════════════════════════════════ */
+
+:root {
+    --bg-dark: #0a0a0a;
+    --bg-card: #121212;
+    --bg-card-light: #1a1a1a;
+    --neon-green: #00ff88;
+    --neon-red: #ff3366;
+    --neon-blue: #00d4ff;
+    --neon-purple: #bd00ff;
+    --text-primary: #ffffff;
+    --text-secondary: #888888;
+    --border-color: #2a2a2a;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: 'Courier New', monospace;
+    line-height: 1.6;
+    /* SIN gradientes animados */
+    background: #0a0a0a;
+}
+
+/* SIN animaciones de partículas */
+/* SIN scanlines */
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header simplificado */
+.dashboard-header {
+    background: var(--bg-card);
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    /* SIN box-shadow con glow */
+}
+
+/* Cards simplificadas */
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    /* SIN gradientes animados */
+    /* SIN box-shadow pesado */
+}
+
+/* SIN animaciones pulse continuas */
+/* SIN transform animations */
+
+/* Barras de progreso estáticas */
+.tp-bar {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    height: 20px;
+    overflow: hidden;
+    /* SIN animaciones */
+}
+
+.tp-fill {
+    height: 100%;
+    background: var(--neon-green);
+    /* SIN gradientes animados */
+    /* SIN box-shadow */
+    transition: width 0.3s ease;
+}
+
+/* Colores por estado */
+.tp-bar.profit .tp-fill {
+    background: var(--neon-green);
+}
+
+.tp-bar.loss .tp-fill {
+    background: var(--neon-red);
+}
+
+/* SIN animación pulse-danger */
+
+/* Tablas simplificadas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background: rgba(0, 212, 255, 0.05);
+    color: var(--neon-blue);
+    /* SIN gradientes pesados */
+}
+
+/* SIN hover effects pesados */
+tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Botones simplificados */
+button {
+    background: var(--neon-blue);
+    color: var(--bg-dark);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    /* SIN gradients animados */
+    /* SIN box-shadow */
+}
+
+button:hover {
+    opacity: 0.9;
+    /* SIN transform scale */
+}
+
+/* Precios - estáticos */
+.price {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--neon-green);
+    /* SIN animaciones */
+}
+
+.price.negative {
+    color: var(--neon-red);
+}
+
+/* SIN animaciones de parpadeo */
+
+/* Status badges simplificados */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.status-badge.profit {
+    background: rgba(0, 255, 136, 0.1);
+    color: var(--neon-green);
+    border: 1px solid var(--neon-green);
+}
+
+.status-badge.loss {
+    background: rgba(255, 51, 102, 0.1);
+    color: var(--neon-red);
+    border: 1px solid var(--neon-red);
+}
+
+/* SIN animaciones pulse */
+
+/* Responsive básico */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .card {
+        padding: 10px;
+    }
+}
+
+/* ════════════════════════════════════════════════════════
+   EFECTOS REMOVIDOS PARA GPU:
+   - ❌ Partículas canvas
+   - ❌ Scanlines overlay
+   - ❌ Gradientes animados
+   - ❌ Box-shadow con glow
+   - ❌ Transform animations
+   - ❌ Pulse animations continuas
+   - ❌ Blur effects
+   - ❌ Hover transforms
+   ════════════════════════════════════════════════════════ */

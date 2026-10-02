@@ -1,0 +1,12 @@
+{
+  "verdict": "NO_APROBADA",
+  "timestamp": "2026-04-18T18:12:24.450614",
+  "period": "6 months",
+  "coins": [
+    "BNB",
+    "AVAX"
+  ],
+  "win_rate": 66.66666666666666,
+  "profit_factor": 0.621199184839743,
+  "avg_per_trade": -2.48574454451577
+}

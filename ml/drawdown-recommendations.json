@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-05-16T10:41:06.418393",
+  "model_accuracy": 0.6428571428571429,
+  "predictions": {
+    "ETH": {
+      "symbol": "ETH",
+      "risk_level": "LOW_RISK",
+      "action": "NORMAL",
+      "position_size": 40,
+      "confidence": 0.855,
+      "message": "Riesgo bajo - operar normal",
+      "probabilities": {
+        "LOW_RISK": 0.855,
+        "MEDIUM_RISK": 0.145
+      },
+      "risk_indicators": {
+        "loss_streak": 10,
+        "loss_rate_24h": 1.0,
+        "drawdown_24h": 61.46463741000001,
+        "drawdown_7d": 68.83877416,
+        "hour": 10
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-05-31T17:02:56.711515",
+  "days": 30,
+  "simulations": 500,
+  "results": {
+    "BTC": "LUCK",
+    "ETH": "SKILL",
+    "BNB": "SKILL",
+    "SOL": "SKILL",
+    "LINK": "LUCK",
+    "XRP": "SKILL",
+    "AVAX": "SKILL"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "coin": "XRP",
+  "period_days": 30,
+  "total_trades": 138,
+  "winning_trades": 24,
+  "losing_trades": 114,
+  "win_rate": 17.39,
+  "tp1_count": 13,
+  "tp2_count": 9,
+  "tp3_count": 2,
+  "sl_count": 114,
+  "total_pnl_usdt": -229.5,
+  "total_pnl_percent": -3.33,
+  "max_drawdown_percent": 3500.0,
+  "profit_factor": 0.19,
+  "avg_trade_pnl": -1.66
+}

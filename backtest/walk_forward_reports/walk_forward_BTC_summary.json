@@ -1,0 +1,69 @@
+{
+  "coin": "BTC",
+  "n_splits": 5,
+  "splits_completed": 5,
+  "metrics_by_split": [
+    {
+      "split": 1,
+      "train_samples": 118,
+      "test_samples": 118,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    {
+      "split": 2,
+      "train_samples": 236,
+      "test_samples": 118,
+      "accuracy": 0.9067796610169492,
+      "precision": 0.8222493536340133,
+      "recall": 0.9067796610169492,
+      "f1": 0.8624482109227872
+    },
+    {
+      "split": 3,
+      "train_samples": 354,
+      "test_samples": 118,
+      "accuracy": 0.5847457627118644,
+      "precision": 0.7291274325172631,
+      "recall": 0.5847457627118644,
+      "f1": 0.6490035388340473
+    },
+    {
+      "split": 4,
+      "train_samples": 472,
+      "test_samples": 118,
+      "accuracy": 0.8559322033898306,
+      "precision": 0.7326199367997702,
+      "recall": 0.8559322033898306,
+      "f1": 0.7894899775559167
+    },
+    {
+      "split": 5,
+      "train_samples": 590,
+      "test_samples": 118,
+      "accuracy": 0.9915254237288136,
+      "precision": 0.9831226659006033,
+      "recall": 0.9915254237288136,
+      "f1": 0.9873061666065633
+    }
+  ],
+  "summary": {
+    "accuracy_mean": 0.8677966101694915,
+    "accuracy_std": 0.16923709717107277,
+    "precision_mean": 0.8534238777703299,
+    "precision_std": 0.1316447726478739,
+    "recall_mean": 0.8677966101694915,
+    "recall_std": 0.16923709717107277,
+    "f1_mean": 0.8576495787838629,
+    "f1_std": 0.14601061715071845
+  },
+  "consistency_score": {
+    "accuracy_consistency": 15.381451414463626,
+    "f1_consistency": 26.994691424640777,
+    "overall_consistency": 21.1880714195522,
+    "is_overfitting": true,
+    "interpretation": "\u26a0\ufe0f POSIBLE OVERFITTING - El modelo var\u00eda mucho entre ventanas"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "last_retrain": "2026-09-28T09:16:53",
+  "trade_count_at_retrain": 499,
+  "retrain_count": 13,
+  "method": "manual_validation",
+  "fix_validated": true,
+  "fix_details": "BUG-039 (2 parts): (1) Sep 24 commit 5bfcd33 introduced os.path.expanduser() typos: '~.openclaw/workspace' (missing /) in auto-retrain-v2.py and '~/openclaw/workspace' (missing .) in ml_pipeline_optimized.py. (2) last_trade_count set to len(df) instead of current_count, causing tiny 60-sample retrains with fake 100% accuracy. Fixed: correct paths + last_trade_count=current_count + current_count initialized before try block + NameError on check_if_retrain_needed line 116 + MODELS_DIR from 'models' to 'models_optimized'.",
+  "cron_failure_resolved": "2026-09-27 03:00:03 all 7 coins failed with 'no_data' due to expanduser path typos -> FIXED (7/7 success). Commits: 13d420d (path fixes) + 3b122f2 (last_trade_count fix) + 090bf4b (current_count init).",
+  "training_time_seconds": 19,
+  "model_accuracy": {
+    "BTC": "77.27%",
+    "ETH": "85.86%",
+    "BNB": "85.86%",
+    "SOL": "85.86%",
+    "LINK": "59.09%",
+    "XRP": "82.95%",
+    "AVAX": "61.36%"
+  },
+  "model_cv": {
+    "BTC": "80.36% (+/-4.51%)",
+    "ETH": "84.23% (+/-4.51%)",
+    "BNB": "91.87% (+/-3.90%)",
+    "SOL": "86.21% (+/-6.64%)",
+    "LINK": "56.94% (+/-9.01%)",
+    "XRP": "79.77% (+/-7.72%)",
+    "AVAX": "62.95% (+/-5.33%)"
+  },
+  "overfitting_gap": {
+    "BTC": "2.26% (OK)",
+    "ETH": "4.06% (OK)",
+    "BNB": "0.25% (OK)",
+    "SOL": "3.36% (OK)",
+    "LINK": "1.75% (OK)",
+    "XRP": "3.42% (OK)",
+    "AVAX": "6.28% (WARN - consider stronger regularization)"
+  },
+  "model_features": {
+    "BTC": 14,
+    "ETH": 14,
+    "BNB": 14,
+    "SOL": 14,
+    "LINK": 8,
+    "XRP": 14,
+    "AVAX": 14
+  },
+  "samples_per_coin": {
+    "BTC": 439,
+    "LINK": 439,
+    "XRP": 439,
+    "AVAX": 439,
+    "ETH": "skipped (model OK)",
+    "BNB": "skipped (model OK)",
+    "SOL": "skipped (model OK)"
+  }
+}

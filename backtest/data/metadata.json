@@ -1,0 +1,18 @@
+{
+  "download_date": "2026-04-18T18:12:22.188365",
+  "period": {
+    "start": "2025-10-20T18:12:13.992118",
+    "end": "2026-04-18T18:12:13.992118",
+    "days": 180
+  },
+  "interval": "1h",
+  "coins": [
+    "BNBUSDT",
+    "AVAXUSDT"
+  ],
+  "files": [
+    "/home/overgon/.openclaw/workspace/backtest/data/BNBUSDT_1h_180days.csv",
+    "/home/overgon/.openclaw/workspace/backtest/data/AVAXUSDT_1h_180days.csv"
+  ],
+  "total_klines": 8640
+}

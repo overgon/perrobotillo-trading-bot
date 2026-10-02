@@ -1,0 +1,68 @@
+{
+  "coin": "BNB",
+  "trained_at": "2026-09-28T19:40:35.824869",
+  "model_type": "random_forest",
+  "config": {
+    "bootstrap": true,
+    "ccp_alpha": 0.02,
+    "class_weight": "balanced",
+    "criterion": "gini",
+    "max_depth": 6,
+    "max_features": "log2",
+    "max_leaf_nodes": 15,
+    "max_samples": null,
+    "min_impurity_decrease": 0.0,
+    "min_samples_leaf": 25,
+    "min_samples_split": 50,
+    "min_weight_fraction_leaf": 0.0,
+    "monotonic_cst": null,
+    "n_estimators": 300,
+    "n_jobs": -1,
+    "oob_score": false,
+    "random_state": 123,
+    "verbose": 0,
+    "warm_start": false
+  },
+  "use_feature_selection": false,
+  "n_features_original": 51,
+  "n_features_selected": 51,
+  "samples": 51,
+  "metrics": {
+    "accuracy": 0.9968041836141778,
+    "precision": 1.0,
+    "recall": 0.9934445768772348,
+    "f1": 0.996711509715994,
+    "cv_mean": 1.0,
+    "cv_std": 0.0,
+    "train_score": 1.0,
+    "test_score": 0.9968041836141778,
+    "overfitting_gap": 0.0
+  },
+  "is_optimized": true,
+  "fase5": true,
+  "comparison": {
+    "previous_gap": 1.0,
+    "previous_accuracy": 0.0,
+    "new_gap": 0.0,
+    "new_accuracy": 0.9968041836141778,
+    "improved": true
+  },
+  "all_models_compared": {
+    "random_forest": {
+      "acc": 0.9968041836141778,
+      "gap": 0.0
+    },
+    "xgboost": {
+      "acc": 1.0,
+      "gap": 0.0005231037489101809
+    },
+    "gradient_boosting": {
+      "acc": 0.9968041836141778,
+      "gap": 0.0
+    },
+    "logistic_regression": {
+      "acc": 0.9970947123765252,
+      "gap": 0.006219249004591365
+    }
+  }
+}

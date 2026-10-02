@@ -1,0 +1,32 @@
+{
+  "accuracy": 0.9970238095238095,
+  "trained_at": "2026-07-26T06:59:04.070693",
+  "version": "1.0.0",
+  "feature_cols": [
+    "rsi",
+    "macd",
+    "macd_signal",
+    "bb_width",
+    "bb_position",
+    "ema_9",
+    "ema_21",
+    "volatility",
+    "volume_ratio",
+    "price_trend",
+    "ema_cross",
+    "fear_greed",
+    "coin_BTC",
+    "coin_ETH",
+    "coin_BNB",
+    "coin_SOL",
+    "coin_LINK",
+    "coin_XRP",
+    "coin_AVAX"
+  ],
+  "classes": [
+    "BEAR",
+    "BULL",
+    "LATERAL"
+  ],
+  "n_samples": 3360
+}

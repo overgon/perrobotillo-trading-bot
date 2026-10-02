@@ -1,0 +1,17 @@
+{
+  "coin": "AVAX",
+  "period_days": 30,
+  "total_trades": 56,
+  "winning_trades": 15,
+  "losing_trades": 41,
+  "win_rate": 26.79,
+  "tp1_count": 9,
+  "tp2_count": 5,
+  "tp3_count": 1,
+  "sl_count": 41,
+  "total_pnl_usdt": -69.0,
+  "total_pnl_percent": -2.46,
+  "max_drawdown_percent": 404.08,
+  "profit_factor": 0.33,
+  "avg_trade_pnl": -1.23
+}

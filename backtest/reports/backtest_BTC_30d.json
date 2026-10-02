@@ -1,0 +1,17 @@
+{
+  "coin": "BTC",
+  "period_days": 30,
+  "total_trades": 71,
+  "winning_trades": 15,
+  "losing_trades": 56,
+  "win_rate": 21.13,
+  "tp1_count": 13,
+  "tp2_count": 2,
+  "tp3_count": 0,
+  "sl_count": 56,
+  "total_pnl_usdt": -111.75,
+  "total_pnl_percent": -3.15,
+  "max_drawdown_percent": 1164.29,
+  "profit_factor": 0.2,
+  "avg_trade_pnl": -1.57
+}

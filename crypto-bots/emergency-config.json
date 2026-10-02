@@ -1,0 +1,83 @@
+{
+  "version": "emergency-2026-06-03",
+  "created": "2026-06-03T19:59:00-06:00",
+  "reason": "Mercado en ca\u00edda libre - BTC -6% - Whipsaw en SLs ajustados",
+  "mode": "CONSERVATIVE_EMERGENCY",
+  "stop_loss": {
+    "default": 0.08,
+    "BTC": 0.1,
+    "ETH": 0.09,
+    "BNB": 0.08,
+    "SOL": 0.09,
+    "LINK": 0.08,
+    "XRP": 0.08,
+    "AVAX": 0.09,
+    "reason": "SL ampliado de 5% a 8-10% para evitar whipsaw en alta volatilidad"
+  },
+  "position_sizing": {
+    "reduction": 0.4,
+    "base_size": 15,
+    "emergency_sizes": {
+      "BTC": 5.4,
+      "ETH": 5.4,
+      "BNB": 12.0,
+      "SOL": 9.0,
+      "LINK": 8.1,
+      "XRP": 5.4,
+      "AVAX": 5.4
+    },
+    "reason": "Reducci\u00f3n 40% temporal - solo BNB mantiene size alto por 80% WR reciente"
+  },
+  "active_coins": {
+    "enabled": [
+      "BNB",
+      "SOL"
+    ],
+    "paused": [
+      "BTC",
+      "ETH",
+      "LINK",
+      "XRP",
+      "AVAX"
+    ],
+    "reason": "Solo 2 monedas m\u00e1s estables activas hasta estabilizaci\u00f3n del mercado"
+  },
+  "max_slots_total": 6,
+  "max_slots_per_coin": 3,
+  "daily_loss_limit": {
+    "original": 0.03,
+    "emergency": 0.02,
+    "reason": "Reducci\u00f3n de 3% a 2% diario m\u00e1ximo"
+  },
+  "circuit_breaker": {
+    "loss_threshold": 2,
+    "consecutive_losses": 3,
+    "pause_duration_hours": 12,
+    "btc_drop_trigger": 0.05,
+    "reason": "CB se activa con 2 p\u00e9rdidas consecutivas o BTC cayendo >5%"
+  },
+  "take_profit": {
+    "tp1": 0.02,
+    "tp2": 0.04,
+    "tp3": 0.07,
+    "reason": "TPs m\u00e1s conservadores para asegurar ganancias en mercado bajista"
+  },
+  "trailing_stop": {
+    "enabled": true,
+    "activation_after": 0.03,
+    "trailing_percent": 0.02,
+    "reason": "Trailing stop m\u00e1s agresivo para proteger ganancias"
+  },
+  "auto_resume_conditions": {
+    "btc_price_stable_hours": 6,
+    "btc_volatility_below": 0.03,
+    "min_consecutive_wins": 3,
+    "reason": "No reanudar hasta BTC estable 6h y 3 trades ganadores consecutivos"
+  },
+  "notes": [
+    "Configuraci\u00f3n creada durante crash de Junio 3 2026",
+    "ML Validator confirm\u00f3 modo BEAR para 6/7 monedas",
+    "\u00danica moneda con WR>70%: BNB (84%)",
+    "Revisar cada 12h o cuando BTC muestre estabilizaci\u00f3n"
+  ]
+}

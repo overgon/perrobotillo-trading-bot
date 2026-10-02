@@ -1,0 +1,67 @@
+{
+  "total_trades": 21,
+  "wins": 11,
+  "losses": 10,
+  "win_rate": 52.38095238095239,
+  "total_profit": 279.49433164074435,
+  "total_loss": 233.6558047476237,
+  "net_pnl": 45.838526893120644,
+  "profit_factor": 1.1961797051977021,
+  "initial_capital": 2000.0,
+  "final_capital": 2047.7283969208029,
+  "return_percent": 2.386419846040144,
+  "max_drawdown": 5.2789902393449415,
+  "avg_win": 25.408575603704033,
+  "avg_loss": 23.36558047476237,
+  "trades_by_coin": {
+    "BTC": {
+      "count": 3,
+      "wins": 0,
+      "net_pnl": -63.067400110488876
+    },
+    "ETH": {
+      "count": 3,
+      "wins": 2,
+      "net_pnl": 37.91177824910221
+    },
+    "BNB": {
+      "count": 3,
+      "wins": 0,
+      "net_pnl": -45.40623536139909
+    },
+    "SOL": {
+      "count": 3,
+      "wins": 2,
+      "net_pnl": 5.7429825965364145
+    },
+    "LINK": {
+      "count": 3,
+      "wins": 3,
+      "net_pnl": 71.94670065314206
+    },
+    "XRP": {
+      "count": 3,
+      "wins": 1,
+      "net_pnl": -48.62613379662533
+    },
+    "AVAX": {
+      "count": 3,
+      "wins": 3,
+      "net_pnl": 87.33683466285326
+    }
+  },
+  "trades_by_reason": {
+    "TP3": {
+      "count": 9,
+      "win_rate": 100.0
+    },
+    "STOP_LOSS": {
+      "count": 10,
+      "win_rate": 10.0
+    },
+    "TRAILING_STOP": {
+      "count": 2,
+      "win_rate": 50.0
+    }
+  }
+}

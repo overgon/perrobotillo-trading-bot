@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Circuit Breaker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body style="padding: 20px; background: #0a0a1a;">
+    <h1 style="color: white; font-family: 'Orbitron', sans-serif;">Test Circuit Breaker Display</h1>
+    
+    <!-- Circuit Breaker Section (visible siempre para test) -->
+    <div id="circuitBreakerSection" class="circuit-breaker-section" style="display: block;">
+        <div class="circuit-breaker-header">
+            <span class="cb-icon">🔴</span>
+            <span class="cb-title">CIRCUIT BREAKER</span>
+            <span class="cb-badge" id="cbBadge">ON</span>
+        </div>
+        <div class="cb-content">
+            <div class="cb-countdown">
+                <div class="cb-countdown-label">Tiempo restante:</div>
+                <div class="cb-countdown-timer" id="cbCountdown">--h --m --s</div>
+                <div class="cb-progress-bar">
+                    <div class="cb-progress-fill" id="cbProgress" style="width: 0%"></div>
+                </div>
+                <div class="cb-progress-text" id="cbProgressText">0% completado</div>
+            </div>
+            <div class="cb-details">
+                <div class="cb-detail-row">
+                    <span class="cb-detail-label">🕐 Auto-resume:</span>
+                    <span class="cb-detail-value" id="cbAutoResume">--</span>
+                </div>
+                <div class="cb-detail-row">
+                    <span class="cb-detail-label">💔 Causa:</span>
+                    <span class="cb-detail-value" id="cbCause">--</span>
+                </div>
+                <div class="cb-detail-row">
+                    <span class="cb-detail-label">📊 Pérdidas 24h:</span>
+                    <span class="cb-detail-value" id="cbLosses">--</span>
+                </div>
+            </div>
+            <div class="cb-operations">
+                <div class="cb-ops-column cb-allowed">
+                    <h4>✅ Permitido</h4>
+                    <ul id="cbAllowedOps">
+                        <li>SL Management</li>
+                        <li>TP Management</li>
+                        <li>Emergency Close</li>
+                    </ul>
+                </div>
+                <div class="cb-ops-column cb-blocked">
+                    <h4>❌ Bloqueado</h4>
+                    <ul id="cbBlockedOps">
+                        <li>New Entries</li>
+                        <li>DCA Operations</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cargar datos del Circuit Breaker
+        fetch('/crypto-bots/dashboard-circuit-breaker-status.json?t=' + Date.now())
+            .then(r => r.json())
+            .then(status => {
+                console.log('Circuit Breaker Status:', status);
+                
+                if (status.circuitBreakerActive) {
+                    const timer = status.timeRemaining || {};
+                    
+                    // Actualizar countdown
+                    document.getElementById('cbCountdown').textContent = 
+                        `${String(timer.hours).padStart(2, '0')}h ${String(timer.minutes).padStart(2, '0')}m ${String(timer.seconds || 0).padStart(2, '0')}s`;
+                    
+                    // Actualizar progreso
+                    const pct = Math.round(timer.progress * 100);
+                    document.getElementById('cbProgress').style.width = `${pct}%`;
+                    document.getElementById('cbProgressText').textContent = `${pct}% completado`;
+                    
+                    // Actualizar detalles
+                    document.getElementById('cbAutoResume').textContent = status.pauseUntil || '--';
+                    document.getElementById('cbCause').textContent = status.triggeredBy || '--';
+                    document.getElementById('cbLosses').textContent = status.losses24h || '--';
+                    
+                    console.log('✅ Circuit Breaker actualizado correctamente');
+                } else {
+                    console.log('⚪ Circuit Breaker no está activo');
+                }
+            })
+            .catch(err => {
+                console.error('❌ Error al cargar Circuit Breaker:', err);
+            });
+    </script>
+</body>
+</html>

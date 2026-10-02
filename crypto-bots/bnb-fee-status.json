@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "timestamp": 1782150238.7456179,
+  "timestamp_iso": "2026-06-22T11:43:58.745627",
+  "bnb_free": 0.12507808,
+  "bnb_locked": 0.0,
+  "bnb_total": 0.12507808,
+  "bnb_price_usdt": 594.49,
+  "bnb_value_usdt": 74.3576677792,
+  "has_enough_bnb": true,
+  "min_recommended": 0.1,
+  "discount_likely_active": true,
+  "base_fee_rate": 0.001,
+  "discounted_fee_rate": 0.00075,
+  "effective_fee_rate": 0.00075,
+  "discount_percent": 25,
+  "trades_coverable": 495,
+  "estimated_monthly_savings_usdt": 1.25,
+  "estimated_annual_savings_usdt": 15.0,
+  "recommendation": {
+    "action": "MAINTAIN",
+    "message": "\u2705 Tienes suficiente BNB para fee discount",
+    "bnb_needed": 0,
+    "cost_usdt": 0
+  },
+  "account_balances_count": 765
+}

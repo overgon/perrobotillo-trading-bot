@@ -1,0 +1,94 @@
+{
+    "lastUpdate": "2026-06-22T10:03:40.883165",
+    "status": "active",
+    "totalBots": 7,
+    "totalOrders": 0,
+    "bots": {
+        "BTC": {
+            "active": false,
+            "pid": 1484781,
+            "orders": 0,
+            "price": 64722.98,
+            "range": {
+                "low": 57904.0,
+                "high": 73696.0
+            },
+            "balanceUSDT": 0.12519379,
+            "balanceCoin": 0.01589322
+        },
+        "ETH": {
+            "active": false,
+            "pid": 1484781,
+            "orders": 0,
+            "price": 1739.6,
+            "range": {
+                "low": 1575.0,
+                "high": 2005.0
+            },
+            "balanceUSDT": 0.12519379,
+            "balanceCoin": 0.35508487
+        },
+        "BNB": {
+            "active": false,
+            "pid": 1484781,
+            "orders": 0,
+            "price": 595.51,
+            "range": {
+                "low": 534.0,
+                "high": 680.0
+            },
+            "balanceUSDT": 0.12519379,
+            "balanceCoin": 0.12507808
+        },
+        "SOL": {
+            "active": false,
+            "pid": 1484781,
+            "orders": 0,
+            "price": 72.99,
+            "range": {
+                "low": 64.59,
+                "high": 82.21
+            },
+            "balanceUSDT": 0.12519379,
+            "balanceCoin": 4.59069609
+        },
+        "LINK": {
+            "active": false,
+            "pid": 1484781,
+            "orders": 0,
+            "price": 7.969,
+            "range": {
+                "low": 7.23,
+                "high": 9.21
+            },
+            "balanceUSDT": 0.12519379,
+            "balanceCoin": 5.99913981
+        },
+        "XRP": {
+            "active": false,
+            "pid": 1484781,
+            "orders": 0,
+            "price": 1.1388,
+            "range": {
+                "low": 1.07,
+                "high": 1.37
+            },
+            "balanceUSDT": 0.12519379,
+            "balanceCoin": 164.94380072
+        },
+        "AVAX": {
+            "active": false,
+            "pid": 1484781,
+            "orders": 0,
+            "price": 6.3,
+            "range": {
+                "low": 6.0,
+                "high": 7.64
+            },
+            "balanceUSDT": 0.12519379,
+            "balanceCoin": 32.05186631
+        }
+    },
+    "tradesExecuted": 0,
+    "totalPnL": 0.0
+}

@@ -1,0 +1,45 @@
+{
+  "coin": "XRP",
+  "base_params": {
+    "stoploss": -0.035,
+    "take_profit_1": 0.025,
+    "take_profit_2": 0.05,
+    "take_profit_3": 0.08
+  },
+  "optimized_params": {
+    "stoploss": -0.04,
+    "take_profit_1": 0.035,
+    "take_profit_2": 0.055,
+    "take_profit_3": 0.1
+  },
+  "base_metrics": {
+    "coin": "XRP",
+    "period_days": 30,
+    "total_trades": 33,
+    "winning_trades": 24,
+    "losing_trades": 9,
+    "win_rate": 72.73,
+    "tp1_count": 10,
+    "tp2_count": 8,
+    "tp3_count": 6,
+    "sl_count": 9,
+    "total_pnl_usdt": 40.75,
+    "total_pnl_percent": 2.47,
+    "max_drawdown_percent": 38.18,
+    "profit_factor": 3.59,
+    "avg_trade_pnl": 1.23
+  },
+  "optimized_metrics": {
+    "win_rate": 75.85,
+    "profit_factor": 4.49,
+    "total_pnl_usdt": 48.75,
+    "max_drawdown_percent": 43.63,
+    "score": 146.395
+  },
+  "improvement": {
+    "win_rate_change": 3.1199999999999903,
+    "pnl_change": 8.0,
+    "pf_change": 0.9000000000000004
+  },
+  "generated_at": "2026-05-31T14:16:24.394870"
+}

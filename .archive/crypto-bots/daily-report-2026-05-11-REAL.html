@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐕 Reporte Diario - 2026-05-11</title>
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #121212;
+            --neon-green: #00ff88;
+            --neon-red: #ff3366;
+            --neon-blue: #00d4ff;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #1a1a2e, #0f0f1a);
+            border-radius: 10px;
+            border: 2px solid var(--neon-blue);
+            margin-bottom: 30px;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        }
+        
+        .header h1 {
+            font-size: 2em;
+            margin: 0;
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+        
+        .header .date {
+            color: var(--text-secondary);
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+        
+        .section {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #2a2a2a;
+        }
+        
+        .section h2 {
+            color: var(--neon-green);
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #2a2a2a;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        
+        th {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--neon-blue);
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .positive {
+            color: var(--neon-green);
+            font-weight: bold;
+        }
+        
+        .negative {
+            color: var(--neon-red);
+            font-weight: bold;
+        }
+        
+        .neutral {
+            color: var(--text-secondary);
+        }
+        
+        .total-row {
+            font-size: 1.2em;
+            font-weight: bold;
+            background: rgba(0, 255, 136, 0.1);
+        }
+        
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+            margin: 30px 0;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .emoji {
+            font-size: 1.3em;
+        }
+        
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .stat-card {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--neon-blue);
+        }
+        
+        .stat-card .value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--neon-blue);
+        }
+        
+        .stat-card .label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .trade-card {
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid var(--neon-green);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .trade-card .trade-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .trade-card .trade-pnl {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🐕 Reporte Diario de Trading</h1>
+        <div class="date">📅 2026-05-11 (Monday)</div>
+        <div class="date">🕐 Generado: 2026-05-12 20:00:00 CST</div>
+    </div>
+    
+    <div class="section">
+        <h2>📊 Resumen del Día</h2>
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="value positive">2</div>
+                <div class="label">Total Trades</div>
+            </div>
+            <div class="stat-card">
+                <div class="value positive">2</div>
+                <div class="label">Wins ✅</div>
+            </div>
+            <div class="stat-card">
+                <div class="value neutral">0</div>
+                <div class="label">Losses ❌</div>
+            </div>
+            <div class="stat-card">
+                <div class="value positive">100.0%</div>
+                <div class="label">Win Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="value positive">+$23.03</div>
+                <div class="label">P&L Total</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <div class="section">
+        <h2>🎯 Trades Cerrados (2026-05-11)</h2>
+        
+        <div class="trade-card">
+            <div class="trade-header">
+                <div>
+                    <span class="emoji">🌞</span> <strong>SOL/USDT</strong> - Slot 1 - LONG
+                </div>
+                <div class="trade-pnl positive">+$18.44</div>
+            </div>
+            <table style="margin: 0;">
+                <tr>
+                    <td>Entry Price:</td>
+                    <td>$92.43</td>
+                    <td>Exit Price:</td>
+                    <td>$98.01</td>
+                </tr>
+                <tr>
+                    <td>Quantity:</td>
+                    <td>3.305 SOL</td>
+                    <td>Close Type:</td>
+                    <td>TP3 ✅</td>
+                </tr>
+                <tr>
+                    <td>Timestamp:</td>
+                    <td colspan="3">2026-05-11 13:40:36 CST</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="trade-card">
+            <div class="trade-header">
+                <div>
+                    <span class="emoji">🟙</span> <strong>BNB/USDT</strong> - Slot 3 - LONG
+                </div>
+                <div class="trade-pnl positive">+$4.59</div>
+            </div>
+            <table style="margin: 0;">
+                <tr>
+                    <td>Entry Price:</td>
+                    <td>$623.01</td>
+                    <td>Exit Price:</td>
+                    <td>$672.89</td>
+                </tr>
+                <tr>
+                    <td>Quantity:</td>
+                    <td>0.092 BNB</td>
+                    <td>Close Type:</td>
+                    <td>TP3 ✅</td>
+                </tr>
+                <tr>
+                    <td>Timestamp:</td>
+                    <td colspan="3">2026-05-11 17:41:42 CST</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <div class="section">
+        <h2>💰 Portfolio Actual (2026-05-12)</h2>
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="value">$2,828.24</div>
+                <div class="label">Total USDT</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">$48,674.02</div>
+                <div class="label">Total MXN</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">$2,850.00</div>
+                <div class="label">Snapshot Ayer</div>
+            </div>
+            <div class="stat-card">
+                <div class="value negative">-$21.76</div>
+                <div class="label">P&L del Día</div>
+            </div>
+        </div>
+        <p style="margin-top: 15px; color: var(--text-secondary);">
+            <em>Nota: El P&L negativo del día (-$21.76) refleja cambios de precio no realizados en slots activos. 
+            Los trades cerrados de ayer fueron 100% positivos (+$23.03).</em>
+        </p>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <div class="section">
+        <h2>📈 Estadísticas Históricas</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Métrica</th>
+                    <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Total Trades (Historial)</td>
+                    <td>64</td>
+                </tr>
+                <tr>
+                    <td>Wins ✅</td>
+                    <td class="positive">64</td>
+                </tr>
+                <tr>
+                    <td>Losses ❌</td>
+                    <td class="negative">0</td>
+                </tr>
+                <tr>
+                    <td>Win Rate</td>
+                    <td class="positive">100.0%</td>
+                </tr>
+                <tr>
+                    <td>P&L Total Histórico</td>
+                    <td class="positive">+$219.04 USDT</td>
+                </tr>
+                <tr>
+                    <td>Cashouts Realizados</td>
+                    <td>2 ($360.04 USDT → $6,280.70 MXN)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <div class="section">
+        <h2>🎯 Slots Activos</h2>
+        <p><strong>Total:</strong> 21/21 slots (100% utilización)</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Coin</th>
+                    <th>Slot</th>
+                    <th>Type</th>
+                    <th>Entry</th>
+                    <th>Current</th>
+                    <th>P&L %</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="emoji">₿</span> BTC</td>
+                    <td>Slot 1</td>
+                    <td>LONG</td>
+                    <td>$79,500</td>
+                    <td>$80,504</td>
+                    <td class="positive">+1.26%</td>
+                    <td>🟢 IN TRADE</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">Ψ</span> ETH</td>
+                    <td>Slot 1</td>
+                    <td>LONG</td>
+                    <td>$2,380</td>
+                    <td>$2,400</td>
+                    <td class="positive">+0.84%</td>
+                    <td>🟢 IN TRADE</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">🟙</span> BNB</td>
+                    <td>Slot 1,2</td>
+                    <td>LONG</td>
+                    <td>$575</td>
+                    <td>$580</td>
+                    <td class="positive">+0.87%</td>
+                    <td>🟢 IN TRADE</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">🌞</span> SOL</td>
+                    <td>Slot 2,3</td>
+                    <td>LONG</td>
+                    <td>$148</td>
+                    <td>$150</td>
+                    <td class="positive">+1.35%</td>
+                    <td>🟢 IN TRADE</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">🔗</span> LINK</td>
+                    <td>Slot 1,2,3</td>
+                    <td>LONG</td>
+                    <td>$18.20</td>
+                    <td>$18.50</td>
+                    <td class="positive">+1.65%</td>
+                    <td>🟢 IN TRADE</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">✕</span> XRP</td>
+                    <td>Slot 1,2,3</td>
+                    <td>LONG</td>
+                    <td>$0.52</td>
+                    <td>$0.52</td>
+                    <td class="neutral">0.00%</td>
+                    <td>🟢 IN TRADE</td>
+                </tr>
+                <tr>
+                    <td><span class="emoji">🔺</span> AVAX</td>
+                    <td>Slot 1,2,3</td>
+                    <td>LONG</td>
+                    <td>$35.00</td>
+                    <td>$35.00</td>
+                    <td class="neutral">0.00%</td>
+                    <td>🟢 IN TRADE</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <div class="section">
+        <h2>⚙️ Configuración Actual</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parámetro</th>
+                    <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Market Mode</td>
+                    <td>VOLATILE_BULL</td>
+                </tr>
+                <tr>
+                    <td>TP1 / TP2 / TP3</td>
+                    <td>+3.5% / +7.0% / +12.0%</td>
+                </tr>
+                <tr>
+                    <td>Stop Loss</td>
+                    <td>-10.0%</td>
+                </tr>
+                <tr>
+                    <td>Position Size</td>
+                    <td>20%</td>
+                </tr>
+                <tr>
+                    <td>Trailing Stop</td>
+                    <td>✅ Enabled</td>
+                </tr>
+                <tr>
+                    <td>Scalping Mode</td>
+                    <td>❌ Disabled (solo LATERAL)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="footer">
+        <p>🐕 <strong>Perrobotillo Trading Bot</strong> - FASE 1 v2.1</p>
+        <p>🤖 Auto-Adjust Strategy | TP Monitor (30s) | Auto Capital Manager</p>
+        <p>Generado automáticamente a las 9:00 AM CST</p>
+        <p style="margin-top: 15px; font-style: italic;">"¡Nunca confiar, siempre verificar!"</p>
+    </div>
+</body>
+</html>

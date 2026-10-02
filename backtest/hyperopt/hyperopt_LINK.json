@@ -1,0 +1,45 @@
+{
+  "coin": "LINK",
+  "base_params": {
+    "stoploss": -0.035,
+    "take_profit_1": 0.025,
+    "take_profit_2": 0.05,
+    "take_profit_3": 0.08
+  },
+  "optimized_params": {
+    "stoploss": -0.05,
+    "take_profit_1": 0.035,
+    "take_profit_2": 0.055,
+    "take_profit_3": 0.1
+  },
+  "base_metrics": {
+    "coin": "LINK",
+    "period_days": 30,
+    "total_trades": 89,
+    "winning_trades": 31,
+    "losing_trades": 58,
+    "win_rate": 34.83,
+    "tp1_count": 18,
+    "tp2_count": 9,
+    "tp3_count": 4,
+    "sl_count": 58,
+    "total_pnl_usdt": -40.5,
+    "total_pnl_percent": -0.91,
+    "max_drawdown_percent": 248.99,
+    "profit_factor": 0.6,
+    "avg_trade_pnl": -0.46
+  },
+  "optimized_metrics": {
+    "win_rate": 39.31,
+    "profit_factor": 0.75,
+    "total_pnl_usdt": -54.24,
+    "max_drawdown_percent": 100,
+    "score": -22.81
+  },
+  "improvement": {
+    "win_rate_change": 4.480000000000004,
+    "pnl_change": -13.740000000000002,
+    "pf_change": 0.15000000000000002
+  },
+  "generated_at": "2026-05-31T14:16:24.393909"
+}

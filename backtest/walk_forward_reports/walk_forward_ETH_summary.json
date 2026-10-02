@@ -1,0 +1,69 @@
+{
+  "coin": "ETH",
+  "n_splits": 5,
+  "splits_completed": 5,
+  "metrics_by_split": [
+    {
+      "split": 1,
+      "train_samples": 118,
+      "test_samples": 118,
+      "accuracy": 0.9830508474576272,
+      "precision": 0.9663889686871588,
+      "recall": 0.9830508474576272,
+      "f1": 0.9746487034622628
+    },
+    {
+      "split": 2,
+      "train_samples": 236,
+      "test_samples": 118,
+      "accuracy": 0.8305084745762712,
+      "precision": 0.6897443263430049,
+      "recall": 0.8305084745762712,
+      "f1": 0.753609541745135
+    },
+    {
+      "split": 3,
+      "train_samples": 354,
+      "test_samples": 118,
+      "accuracy": 0.8220338983050848,
+      "precision": 0.6757397299626544,
+      "recall": 0.8220338983050848,
+      "f1": 0.7417422152148206
+    },
+    {
+      "split": 4,
+      "train_samples": 472,
+      "test_samples": 118,
+      "accuracy": 0.847457627118644,
+      "precision": 0.7315659858032739,
+      "recall": 0.847457627118644,
+      "f1": 0.7852589021925052
+    },
+    {
+      "split": 5,
+      "train_samples": 590,
+      "test_samples": 118,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    }
+  ],
+  "summary": {
+    "accuracy_mean": 0.8966101694915254,
+    "accuracy_std": 0.0873333764609373,
+    "precision_mean": 0.8126878021592183,
+    "precision_std": 0.15744882491226203,
+    "recall_mean": 0.8966101694915254,
+    "recall_std": 0.0873333764609373,
+    "f1_mean": 0.8510518725229448,
+    "f1_std": 0.12573190252507238
+  },
+  "consistency_score": {
+    "accuracy_consistency": 56.33331176953135,
+    "f1_consistency": 37.13404873746381,
+    "overall_consistency": 46.73368025349758,
+    "is_overfitting": true,
+    "interpretation": "\u26a0\ufe0f POSIBLE OVERFITTING - El modelo var\u00eda mucho entre ventanas"
+  }
+}

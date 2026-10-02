@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔔 Test TP Sound - Perrobotillo</title>
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #00ff88;
+            font-family: 'Courier New', monospace;
+            padding: 40px;
+            text-align: center;
+        }
+        .btn {
+            background: linear-gradient(135deg, #00ff88, #00d4ff);
+            color: #0a0a0a;
+            border: none;
+            padding: 20px 40px;
+            font-size: 1.5em;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+        }
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        .status {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔔 TEST DE SONIDO TP</h1>
+    <p>Probá el sonido cash-register</p>
+    
+    <button class="btn" onclick="testSound()">
+        🔔 REPRODUCIR SONIDO
+    </button>
+    
+    <button class="btn" onclick="testNotification()">
+        🎯 SIMULAR TP HIT
+    </button>
+    
+    <div class="status" id="status">
+        Estado: Esperando interacción...
+    </div>
+    
+    <script>
+        let audioUnlocked = false;
+        
+        function testSound() {
+            const status = document.getElementById('status');
+            status.innerHTML = '🔊 Reproduciendo sonido...';
+            
+            const audio = new Audio('/static/sounds/cash-register.wav?v=' + Date.now());
+            audio.volume = 1.0;
+            
+            audio.play()
+                .then(() => {
+                    audioUnlocked = true;
+                    status.innerHTML = '✅ ¡SONIDO REPRODUCIÉNDOSE! 🔔💰';
+                    console.log('✅ Audio playing');
+                })
+                .catch(e => {
+                    status.innerHTML = '❌ ERROR: ' + e.message;
+                    console.error('❌ Error:', e);
+                });
+        }
+        
+        function testNotification() {
+            const status = document.getElementById('status');
+            
+            // Simular notificación
+            const notif = {
+                coin: 'SOL',
+                slot_id: 3,
+                tp: 'TP3',
+                pnl: 18.44
+            };
+            
+            if (audioUnlocked) {
+                const audio = new Audio('/static/sounds/cash-register.wav?v=' + Date.now());
+                audio.volume = 1.0;
+                audio.play();
+                status.innerHTML = '🔔💰 TP HIT! ' + notif.coin + ' Slot ' + notif.slot_id + ' +$' + notif.pnl;
+            } else {
+                status.innerHTML = '⚠️ Primero tocá "REPRODUCIR SONIDO" para desbloquear audio';
+            }
+        }
+        
+        // Desbloquear audio con primer click
+        document.addEventListener('click', function() {
+            if (!audioUnlocked) {
+                const audio = new Audio('/static/sounds/cash-register.wav?v=' + Date.now());
+                audio.volume = 0.01;
+                audio.play().then(() => {
+                    audioUnlocked = true;
+                    console.log('✅ Audio unlocked');
+                }).catch(e => {});
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>

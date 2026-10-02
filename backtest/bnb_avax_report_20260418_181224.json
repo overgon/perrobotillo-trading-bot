@@ -1,0 +1,38 @@
+{
+  "total_trades": 6,
+  "wins": 4,
+  "losses": 2,
+  "win_rate": 66.66666666666666,
+  "total_profit": 24.45838165559011,
+  "total_loss": 39.37284892268473,
+  "net_pnl": -14.914467267094622,
+  "profit_factor": 0.621199184839743,
+  "initial_capital": 2000.0,
+  "final_capital": 1985.622256603625,
+  "return_percent": -0.718887169818754,
+  "max_drawdown": 1.958676003297168,
+  "avg_win": 6.114595413897527,
+  "avg_loss": 19.686424461342366,
+  "trades_by_coin": {
+    "BNB": {
+      "count": 3,
+      "wins": 2,
+      "net_pnl": -2.300177724285735
+    },
+    "AVAX": {
+      "count": 3,
+      "wins": 2,
+      "net_pnl": -12.614289542808887
+    }
+  },
+  "trades_by_reason": {
+    "STOP_LOSS": {
+      "count": 4,
+      "win_rate": 50.0
+    },
+    "TRAILING_STOP": {
+      "count": 2,
+      "win_rate": 100.0
+    }
+  }
+}

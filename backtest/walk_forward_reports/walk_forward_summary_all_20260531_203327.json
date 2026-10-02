@@ -1,0 +1,49 @@
+{
+  "generated_at": "2026-05-31T20:33:27.413947",
+  "days": 60,
+  "n_splits": 5,
+  "results": {
+    "BTC": {
+      "accuracy_mean": 0.8677966101694915,
+      "f1_mean": 0.8576495787838629,
+      "consistency": 21.1880714195522,
+      "is_overfitting": true
+    },
+    "ETH": {
+      "accuracy_mean": 0.8966101694915254,
+      "f1_mean": 0.8510518725229448,
+      "consistency": 46.73368025349758,
+      "is_overfitting": true
+    },
+    "BNB": {
+      "accuracy_mean": 0.9084745762711866,
+      "f1_mean": 0.9103462162049251,
+      "consistency": 21.162752292025687,
+      "is_overfitting": true
+    },
+    "SOL": {
+      "accuracy_mean": 0.9016949152542374,
+      "f1_mean": 0.8750883015289794,
+      "consistency": 44.78441263516187,
+      "is_overfitting": true
+    },
+    "LINK": {
+      "accuracy_mean": 0.8525423728813559,
+      "f1_mean": 0.791661588849977,
+      "consistency": 33.24086008071852,
+      "is_overfitting": true
+    },
+    "XRP": {
+      "accuracy_mean": 0.9237288135593221,
+      "f1_mean": 0.900559610148503,
+      "consistency": 60.574100611719516,
+      "is_overfitting": true
+    },
+    "AVAX": {
+      "accuracy_mean": 0.8169491525423729,
+      "f1_mean": 0.7464262929382997,
+      "consistency": 30.668331828761968,
+      "is_overfitting": true
+    }
+  }
+}

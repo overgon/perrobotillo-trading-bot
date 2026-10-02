@@ -1,0 +1,472 @@
+{
+  "collected_at": "2026-06-05T19:31:16.591883+00:00",
+  "fear_greed": [
+    {
+      "date": "2026-06-04",
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-06-03",
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-06-02",
+      "value": 11,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-06-01",
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-05-31",
+      "value": 29,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-30",
+      "value": 28,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-29",
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-05-28",
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-05-27",
+      "value": 22,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-05-26",
+      "value": 25,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-05-25",
+      "value": 34,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-24",
+      "value": 30,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-23",
+      "value": 25,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-05-22",
+      "value": 28,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-21",
+      "value": 28,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-20",
+      "value": 29,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-19",
+      "value": 27,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-18",
+      "value": 25,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-05-17",
+      "value": 28,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-16",
+      "value": 27,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-15",
+      "value": 31,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-14",
+      "value": 43,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-13",
+      "value": 34,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-12",
+      "value": 42,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-11",
+      "value": 49,
+      "classification": "Neutral"
+    },
+    {
+      "date": "2026-05-10",
+      "value": 48,
+      "classification": "Neutral"
+    },
+    {
+      "date": "2026-05-09",
+      "value": 47,
+      "classification": "Neutral"
+    },
+    {
+      "date": "2026-05-08",
+      "value": 38,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-07",
+      "value": 38,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-06",
+      "value": 47,
+      "classification": "Neutral"
+    },
+    {
+      "date": "2026-05-05",
+      "value": 46,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-04",
+      "value": 50,
+      "classification": "Neutral"
+    },
+    {
+      "date": "2026-05-03",
+      "value": 40,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-05-02",
+      "value": 47,
+      "classification": "Neutral"
+    },
+    {
+      "date": "2026-05-01",
+      "value": 39,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-04-30",
+      "value": 26,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-04-29",
+      "value": 29,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-04-28",
+      "value": 26,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-04-27",
+      "value": 33,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-04-26",
+      "value": 47,
+      "classification": "Neutral"
+    },
+    {
+      "date": "2026-04-25",
+      "value": 33,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-04-24",
+      "value": 31,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-04-23",
+      "value": 39,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-04-22",
+      "value": 46,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-04-21",
+      "value": 32,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-04-20",
+      "value": 33,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-04-19",
+      "value": 29,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-04-18",
+      "value": 27,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-04-17",
+      "value": 26,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-04-16",
+      "value": 21,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-04-15",
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-04-14",
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-04-13",
+      "value": 21,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-04-12",
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-04-11",
+      "value": 16,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-04-10",
+      "value": 15,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-04-09",
+      "value": 16,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-04-08",
+      "value": 14,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-04-07",
+      "value": 17,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-04-06",
+      "value": 11,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-04-05",
+      "value": 13,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-04-04",
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-04-03",
+      "value": 11,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-04-02",
+      "value": 9,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-04-01",
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-31",
+      "value": 8,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-30",
+      "value": 11,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-29",
+      "value": 8,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-28",
+      "value": 9,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-27",
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-26",
+      "value": 13,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-25",
+      "value": 10,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-24",
+      "value": 14,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-23",
+      "value": 11,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-22",
+      "value": 8,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-21",
+      "value": 10,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-20",
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-19",
+      "value": 11,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-18",
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-17",
+      "value": 26,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-03-16",
+      "value": 28,
+      "classification": "Fear"
+    },
+    {
+      "date": "2026-03-15",
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-14",
+      "value": 15,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-13",
+      "value": 16,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-12",
+      "value": 15,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-11",
+      "value": 18,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-10",
+      "value": 15,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-09",
+      "value": 13,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-08",
+      "value": 8,
+      "classification": "Extreme Fear"
+    },
+    {
+      "date": "2026-03-07",
+      "value": 12,
+      "classification": "Extreme Fear"
+    }
+  ],
+  "btc_dominance": {
+    "btc_dominance": 55.74946059583097,
+    "date": "2026-06-05"
+  },
+  "market_cap": {
+    "total_market_cap": 2129373229002.9888,
+    "total_volume": 167755271493.22897,
+    "volume_to_market_ratio": 0.07878152557209289,
+    "date": "2026-06-05"
+  },
+  "features_summary": {
+    "fg_current": 12,
+    "fg_7d_avg": 19.714285714285715,
+    "fg_30d_avg": 30.2,
+    "btc_dominance": 55.74946059583097,
+    "volume_to_market_ratio": 0.07878152557209289
+  }
+}

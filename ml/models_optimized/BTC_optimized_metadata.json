@@ -1,0 +1,31 @@
+{
+  "coin": "BTC",
+  "trained_at": "2026-10-02T17:10:46.773146",
+  "model_type": "logistic_regression",
+  "label_type": "is_profitable",
+  "fase": 7,
+  "metrics": {
+    "accuracy": 0.9615,
+    "precision": 0.95,
+    "recall": 1.0,
+    "f1": 0.9744,
+    "train_accuracy": 1.0,
+    "overfitting_gap": 0.0385
+  },
+  "is_optimized": true,
+  "fase7": true,
+  "all_models": {
+    "random_forest": {
+      "accuracy": 0.7308,
+      "precision": 0.7308,
+      "recall": 1.0,
+      "f1": 0.8444
+    },
+    "logistic_regression": {
+      "accuracy": 0.9615,
+      "precision": 0.95,
+      "recall": 1.0,
+      "f1": 0.9744
+    }
+  }
+}

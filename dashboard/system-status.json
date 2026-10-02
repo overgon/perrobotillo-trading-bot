@@ -1,0 +1,8 @@
+{
+    "mode": "slots",
+    "grid_bots": "disabled",
+    "slots_system": "active",
+    "migration_date": "2026-06-18T09:23:24-06:00",
+    "backup_file": "grid-trading-bot.py.migration-backup-20260618-092319",
+    "notes": "Migración Grid → Slots completada"
+}

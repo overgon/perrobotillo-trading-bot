@@ -1,0 +1,37 @@
+{
+  "enabled": true,
+  "min_confidence": 50,
+  "reduce_position_below": 70,
+  "position_reduction_percent": 50,
+  
+  "thresholds": {
+    "SCALP": {
+      "min_confidence": 60,
+      "max_risk": "HIGH"
+    },
+    "NORMAL": {
+      "min_confidence": 65,
+      "max_risk": "MEDIUM"
+    },
+    "SWING": {
+      "min_confidence": 75,
+      "max_risk": "LOW"
+    }
+  },
+  
+  "indicators": {
+    "rsi": {
+      "overbought": 70,
+      "oversold": 30,
+      "neutral_low": 40,
+      "neutral_high": 60
+    },
+    "macd": {
+      "bullish_threshold": 0,
+      "bearish_threshold": 0
+    },
+    "volume": {
+      "min_volume_ratio": 1.2
+    }
+  }
+}

@@ -1,0 +1,56 @@
+[
+  {
+    "symbol": "BTC",
+    "result": {
+      "approved": false,
+      "confidence": 45,
+      "direction": "SKIP",
+      "type": "NORMAL",
+      "position_size_percent": 0,
+      "risk_level": "HIGH",
+      "market_regime": "LATERAL",
+      "reason": "RSI neutral (58.9); MACD bullish; Trend bullish",
+      "indicators": {
+        "rsi": 58.890898721853524,
+        "macd": 111.97136920769117,
+        "macd_signal": 82.18530780785807,
+        "macd_hist": 29.786061399833102,
+        "volume_ratio": 0.00973216063048853,
+        "trend_bullish": "True",
+        "bb_position": 0.7714093450450418,
+        "current_price": 73977.77,
+        "sma_20": 73760.748,
+        "sma_50": 73640.53120000001
+      },
+      "timestamp": "2026-05-30T15:07:51.828965"
+    },
+    "timestamp": "2026-05-30T15:07:51.829172"
+  },
+  {
+    "symbol": "BNB",
+    "result": {
+      "approved": false,
+      "confidence": 35,
+      "direction": "SKIP",
+      "type": "NORMAL",
+      "position_size_percent": 0,
+      "risk_level": "HIGH",
+      "market_regime": "BULL",
+      "reason": "RSI overbought (90.4); MACD bullish; Trend bullish",
+      "indicators": {
+        "rsi": 90.40580659833928,
+        "macd": 19.823796370531,
+        "macd_signal": 18.162136827849032,
+        "macd_hist": 1.6616595426819671,
+        "volume_ratio": 0.4773190715775205,
+        "trend_bullish": "True",
+        "bb_position": 0.8470269605456834,
+        "current_price": 740.01,
+        "sma_20": 707.8700000000001,
+        "sma_50": 670.7176000000003
+      },
+      "timestamp": "2026-05-30T22:25:22.030490"
+    },
+    "timestamp": "2026-05-30T22:25:22.030882"
+  }
+]

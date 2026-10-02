@@ -1,0 +1,39 @@
+# ════════════════════════════════════════════════════════
+# 🐕 Perrobotillo Trading Bot - Dependencies
+# ════════════════════════════════════════════════════════
+# Install: pip install -r requirements.txt
+# Python: 3.8+
+# ════════════════════════════════════════════════════════
+
+# Binance API
+python-binance>=1.0.19
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Machine Learning
+scikit-learn>=1.2.0
+lightgbm>=3.3.0
+joblib>=1.2.0
+
+# HTTP Requests
+requests>=2.31.0
+requests-futures>=1.0.0
+
+# Telegram Bot (optional - for notifications)
+python-telegram-bot>=20.0
+
+# System Monitoring
+psutil>=5.9.0
+
+# Utilities
+python-dotenv>=1.0.0
+
+# ════════════════════════════════════════════════════════
+# 📝 Notes:
+# - Model files (.pkl) are included in the repo
+# - Backtest data (.csv) is included in the repo
+# - You must create secrets/binance.env with your API keys
+# - You must create secrets/telegram.env with bot credentials
+# ════════════════════════════════════════════════════════

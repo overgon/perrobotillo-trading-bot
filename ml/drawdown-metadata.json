@@ -1,0 +1,37 @@
+{
+  "accuracy": 0.6428571428571429,
+  "precision": 0.6698412698412699,
+  "recall": 0.6428571428571429,
+  "trained_at": "2026-05-15T21:45:40.723979",
+  "version": "1.0.0",
+  "feature_cols": [
+    "loss_streak",
+    "loss_rate_24h",
+    "loss_rate_7d",
+    "drawdown_24h",
+    "drawdown_7d",
+    "avg_loss_size",
+    "loss_volatility",
+    "total_trades_24h",
+    "total_trades_7d",
+    "hour_sin",
+    "hour_cos",
+    "coin_BTC",
+    "coin_ETH",
+    "coin_BNB",
+    "coin_SOL",
+    "coin_LINK",
+    "coin_XRP",
+    "coin_AVAX"
+  ],
+  "classes": [
+    "LOW_RISK",
+    "MEDIUM_RISK"
+  ],
+  "n_samples": 66,
+  "risk_levels": {
+    "LOW_RISK": "NORMAL",
+    "MEDIUM_RISK": "REDUCE",
+    "HIGH_RISK": "PAUSE"
+  }
+}

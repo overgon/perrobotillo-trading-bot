@@ -1,0 +1,17 @@
+{
+  "coin": "BNB",
+  "period_days": 30,
+  "total_trades": 95,
+  "winning_trades": 32,
+  "losing_trades": 63,
+  "win_rate": 33.68,
+  "tp1_count": 13,
+  "tp2_count": 10,
+  "tp3_count": 9,
+  "sl_count": 63,
+  "total_pnl_usdt": -71.25,
+  "total_pnl_percent": -1.5,
+  "max_drawdown_percent": 195.0,
+  "profit_factor": 0.55,
+  "avg_trade_pnl": -0.75
+}

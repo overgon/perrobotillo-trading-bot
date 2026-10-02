@@ -1,0 +1,35 @@
+{
+  "accuracy": 0.7631034482758621,
+  "precision": 0.7636895664071817,
+  "recall": 0.7631034482758621,
+  "trained_at": "2026-05-16T11:12:48.490635",
+  "version": "2.0.0-historical",
+  "feature_cols": [
+    "loss_streak",
+    "loss_rate_24h",
+    "loss_rate_7d",
+    "drawdown_24h",
+    "drawdown_7d",
+    "avg_loss_size",
+    "loss_volatility",
+    "total_trades_24h",
+    "total_trades_7d",
+    "hour_sin",
+    "hour_cos",
+    "coin_BTC",
+    "coin_ETH",
+    "coin_BNB",
+    "coin_SOL",
+    "coin_LINK",
+    "coin_XRP",
+    "coin_AVAX"
+  ],
+  "classes": [
+    "HIGH_RISK",
+    "LOW_RISK"
+  ],
+  "n_samples": 14498,
+  "n_trades_simulated": 14498,
+  "data_source": "6-year Binance historical data",
+  "strategy": "FASE 1 v2.1 (current)"
+}

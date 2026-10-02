@@ -1,0 +1,31 @@
+{
+  "coin": "ETH",
+  "trained_at": "2026-10-02T17:10:49.514642",
+  "model_type": "logistic_regression",
+  "label_type": "is_profitable",
+  "fase": 7,
+  "metrics": {
+    "accuracy": 0.9811,
+    "precision": 0.9787,
+    "recall": 1.0,
+    "f1": 0.9892,
+    "train_accuracy": 1.0,
+    "overfitting_gap": 0.0189
+  },
+  "is_optimized": true,
+  "fase7": true,
+  "all_models": {
+    "random_forest": {
+      "accuracy": 0.8679,
+      "precision": 0.8679,
+      "recall": 1.0,
+      "f1": 0.9293
+    },
+    "logistic_regression": {
+      "accuracy": 0.9811,
+      "precision": 0.9787,
+      "recall": 1.0,
+      "f1": 0.9892
+    }
+  }
+}
