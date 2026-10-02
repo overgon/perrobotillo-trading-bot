@@ -2478,10 +2478,11 @@ _Jefe, el bot está en pausa global._ 🐕" 2>/dev/null || true
     local current_hour=$(date -u +%H | sed 's/^0//')
     
     # Obtener STOP LOSS específico para esta coin
+    # STOP_LOSS_BY_COIN nunca se popula; per-coin restore ya estableció STOP_LOSS_PERCENT
+    # correctamente (7.2% base). NO override con hardcoded 2.5% — era la causa raíz de
+    # 78% de los SL prematuros en post-ML (trades ID 458+)
     if [ -n "${STOP_LOSS_BY_COIN[$SYMBOL]}" ]; then
         STOP_LOSS_PERCENT="${STOP_LOSS_BY_COIN[$SYMBOL]}"
-    else
-        STOP_LOSS_PERCENT="2.5"  # Default reducido para mejorar riesgo/beneficio
     fi
     
     # Detectar modo (AGGRESSIVE/NORMAL) para TP y trade size
@@ -2497,6 +2498,22 @@ _Jefe, el bot está en pausa global._ 🐕" 2>/dev/null || true
         TP2_PERCENT=$NORMAL_TP2
         TP3_PERCENT=$NORMAL_TP3
         CURRENT_MODE="NORMAL"
+    fi
+    
+    # 🤖 Re-aplicar ML param multipliers (Fase 7 Option A)
+    # El per-coin restore + market-mode resetearon valores a base (sin multiplier).
+    # Sin esto, TP/SL usan base en vez de effective_config (ej: SL 7.2% vs 7.57%)
+    if [ -n "${TP1_MULT:-}" ]; then
+        TP1_PERCENT=$(echo "scale=4; $TP1_PERCENT * $TP1_MULT / 1" | bc)
+    fi
+    if [ -n "${TP2_MULT:-}" ]; then
+        TP2_PERCENT=$(echo "scale=4; $TP2_PERCENT * $TP2_MULT / 1" | bc)
+    fi
+    if [ -n "${TP3_MULT:-}" ]; then
+        TP3_PERCENT=$(echo "scale=4; $TP3_PERCENT * $TP3_MULT / 1" | bc)
+    fi
+    if [ -n "${SL_MULT:-}" ]; then
+        STOP_LOSS_PERCENT=$(echo "scale=4; $STOP_LOSS_PERCENT * $SL_MULT / 1" | bc)
     fi
     
     log "⏰ Modo: $CURRENT_MODE (${current_hour} UTC) | SL=${STOP_LOSS_PERCENT}% (por coin) | TP: ${TP1_PERCENT}%/${TP2_PERCENT}%/${TP3_PERCENT}%"
