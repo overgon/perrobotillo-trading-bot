@@ -1,25 +1,31 @@
 {
   "coin": "XRP",
-  "trained_at": "2026-09-28T16:37:23.243417",
+  "trained_at": "2026-10-02T17:11:02.140899",
   "model_type": "logistic_regression",
   "label_type": "is_profitable",
   "fase": 7,
   "metrics": {
-    "accuracy": 1.0,
-    "precision": 0,
-    "recall": 0,
-    "f1": 0,
-    "train_accuracy": 0,
-    "overfitting_gap": 0
+    "accuracy": 0.8649,
+    "precision": 0.9615,
+    "recall": 0.8621,
+    "f1": 0.9091,
+    "train_accuracy": 1.0,
+    "overfitting_gap": 0.1351
   },
   "is_optimized": true,
   "fase7": true,
   "all_models": {
     "random_forest": {
-      "accuracy": 0.92
+      "accuracy": 0.7838,
+      "precision": 0.7838,
+      "recall": 1.0,
+      "f1": 0.8788
     },
     "logistic_regression": {
-      "accuracy": 1.0
+      "accuracy": 0.8649,
+      "precision": 0.9615,
+      "recall": 0.8621,
+      "f1": 0.9091
     }
   }
 }

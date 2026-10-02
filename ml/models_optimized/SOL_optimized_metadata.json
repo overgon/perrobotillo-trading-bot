@@ -1,25 +1,31 @@
 {
   "coin": "SOL",
-  "trained_at": "2026-09-28T16:37:17.755369",
+  "trained_at": "2026-10-02T17:10:56.169267",
   "model_type": "logistic_regression",
   "label_type": "is_profitable",
   "fase": 7,
   "metrics": {
-    "accuracy": 1.0,
-    "precision": 0,
-    "recall": 0,
-    "f1": 0,
-    "train_accuracy": 0,
-    "overfitting_gap": 0
+    "accuracy": 0.9231,
+    "precision": 0.9375,
+    "recall": 0.9677,
+    "f1": 0.9524,
+    "train_accuracy": 0.9744,
+    "overfitting_gap": 0.0513
   },
   "is_optimized": true,
   "fase7": true,
   "all_models": {
     "random_forest": {
-      "accuracy": 0.3333
+      "accuracy": 0.7949,
+      "precision": 0.7949,
+      "recall": 1.0,
+      "f1": 0.8857
     },
     "logistic_regression": {
-      "accuracy": 1.0
+      "accuracy": 0.9231,
+      "precision": 0.9375,
+      "recall": 0.9677,
+      "f1": 0.9524
     }
   }
 }
