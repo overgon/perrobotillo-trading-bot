@@ -348,46 +348,91 @@ def train_and_validate(X, y):
     from sklearn.ensemble import RandomForestClassifier
     from sklearn.linear_model import LogisticRegression
     from sklearn.preprocessing import StandardScaler
-    from sklearn.model_selection import TimeSeriesSplit
+    from sklearn.model_selection import StratifiedKFold
     from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-    tscv = TimeSeriesSplit(n_splits=N_SPLITS)
-    all_preds, all_actuals = [], []
+    # Use StratifiedKFold(shuffle=True) — same approach as ml_pipeline_optimized.py
+    # which trained ZEC successfully. TimeSeriesSplit creates single-class folds
+    # with small trade datasets (24-59 trades), causing crashes + unreliable metrics.
+    skf = StratifiedKFold(n_splits=N_SPLITS, shuffle=True, random_state=42)
+    rf_preds, lr_preds, all_actuals = [], [], []
 
-    for train_idx, test_idx in tscv.split(X):
+    # CV for BOTH models — same folds, same scaler fit on train fold
+    for train_idx, test_idx in skf.split(X, y):
         X_tr, X_te = X.iloc[train_idx], X.iloc[test_idx]
         y_tr, y_te = y.iloc[train_idx], y.iloc[test_idx]
+
         scaler = StandardScaler()
         X_tr_s = scaler.fit_transform(X_tr)
         X_te_s = scaler.transform(X_te)
+
+        # RF
         rf = RandomForestClassifier(**RF_PARAMS)
         rf.fit(X_tr_s, y_tr)
-        all_preds.extend(rf.predict(X_te_s))
+        rf_preds.extend(rf.predict(X_te_s))
+
+        # LR
+        lr = LogisticRegression(class_weight="balanced", max_iter=1000, random_state=123)
+        lr.fit(X_tr_s, y_tr)
+        lr_preds.extend(lr.predict(X_te_s))
+
         all_actuals.extend(y_te)
 
+    # CV metrics — BOTH models evaluated the same way
+    rf_cv = {
+        "accuracy": accuracy_score(all_actuals, rf_preds),
+        "precision": precision_score(all_actuals, rf_preds, zero_division=0),
+        "recall": recall_score(all_actuals, rf_preds, zero_division=0),
+        "f1": f1_score(all_actuals, rf_preds, zero_division=0),
+    }
+    lr_cv = {
+        "accuracy": accuracy_score(all_actuals, lr_preds),
+        "precision": precision_score(all_actuals, lr_preds, zero_division=0),
+        "recall": recall_score(all_actuals, lr_preds, zero_division=0),
+        "f1": f1_score(all_actuals, lr_preds, zero_division=0),
+    }
+
+    print(f"   RF CV:  acc={rf_cv['accuracy']:.4f} prec={rf_cv['precision']:.4f} "
+          f"rec={rf_cv['recall']:.4f} f1={rf_cv['f1']:.4f}")
+    print(f"   LR CV:  acc={lr_cv['accuracy']:.4f} prec={lr_cv['precision']:.4f} "
+          f"rec={lr_cv['recall']:.4f} f1={lr_cv['f1']:.4f}")
+
+    # Final models — trained on full scaled data
     scaler_final = StandardScaler()
     X_scaled = scaler_final.fit_transform(X)
     rf_final = RandomForestClassifier(**RF_PARAMS)
     rf_final.fit(X_scaled, y)
+    lr_final = LogisticRegression(class_weight="balanced", max_iter=1000, random_state=123)
+    lr_final.fit(X_scaled, y)
 
-    cv_acc = accuracy_score(all_actuals, all_preds)
-    cv_prec = precision_score(all_actuals, all_preds, zero_division=0)
-    cv_rec = recall_score(all_actuals, all_preds, zero_division=0)
-    cv_f1 = f1_score(all_actuals, all_preds, zero_division=0)
-    train_acc = accuracy_score(y, rf_final.predict(X_scaled))
-    gap = train_acc - cv_acc
-
-    lr = LogisticRegression(class_weight="balanced", max_iter=1000, random_state=123)
-    lr.fit(X_scaled, y)
-    lr_acc = accuracy_score(y, lr.predict(X_scaled))
+    rf_train_acc = accuracy_score(y, rf_final.predict(X_scaled))
+    lr_train_acc = accuracy_score(y, lr_final.predict(X_scaled))
 
     results = {
         "random_forest": {"model": rf_final, "scaler": scaler_final,
-            "accuracy": cv_acc, "precision": cv_prec, "recall": cv_rec,
-            "f1": cv_f1, "train_acc": train_acc, "overfitting_gap": gap},
-        "logistic_regression": {"model": lr, "scaler": scaler_final, "accuracy": lr_acc},
+            "accuracy": rf_cv["accuracy"], "precision": rf_cv["precision"],
+            "recall": rf_cv["recall"], "f1": rf_cv["f1"],
+            "train_acc": rf_train_acc, "overfitting_gap": rf_train_acc - rf_cv["accuracy"]},
+        "logistic_regression": {"model": lr_final, "scaler": scaler_final,
+            "accuracy": lr_cv["accuracy"], "precision": lr_cv["precision"],
+            "recall": lr_cv["recall"], "f1": lr_cv["f1"],
+            "train_acc": lr_train_acc, "overfitting_gap": lr_train_acc - lr_cv["accuracy"]},
     }
-    best = "random_forest" if cv_acc > lr_acc else "logistic_regression"
+
+    # Selection: use CV F1 as primary metric; require precision>0 AND recall>0
+    rf_ok = rf_cv["precision"] > 0 and rf_cv["recall"] > 0
+    lr_ok = lr_cv["precision"] > 0 and lr_cv["recall"] > 0
+
+    if not rf_ok and not lr_ok:
+        best = "random_forest"  # RF more robust to degenerate cases
+        print("   ⚠️ Neither model has precision>0 & recall>0 — defaulting to RF")
+    elif lr_ok and lr_cv["f1"] > rf_cv["f1"]:
+        best = "logistic_regression"
+        print(f"   ✅ LR selected: F1={lr_cv['f1']:.4f} > RF F1={rf_cv['f1']:.4f}")
+    else:
+        best = "random_forest"
+        print(f"   ✅ RF selected: F1={rf_cv['f1']:.4f} >= LR F1={lr_cv['f1']:.4f}")
+
     return results, best
 
 
@@ -411,7 +456,10 @@ def export_models(coin, results, best, selected_features):
             "overfitting_gap": round(r.get("overfitting_gap", 0), 4),
         },
         "is_optimized": True, "fase7": True,
-        "all_models": {k: {"accuracy": round(v.get("accuracy",0),4)} for k,v in results.items()},
+        "all_models": {k: {"accuracy": round(v.get("accuracy",0),4),
+                          "precision": round(v.get("precision",0),4),
+                          "recall": round(v.get("recall",0),4),
+                          "f1": round(v.get("f1",0),4)} for k,v in results.items()},
     }
     with open(coin_dir / f"{coin}_optimized_metadata.json", "w") as f:
         json.dump(metadata, f, indent=2)
@@ -476,6 +524,9 @@ def main():
         winrate = matched["is_profitable"].mean()
         print(f"  Matched: {len(matched)} trades, winrate={winrate:.1%}")
 
+        # Sort chronologically — TimeSeriesSplit assumes temporal order
+        matched = matched.sort_values("entry_time").reset_index(drop=True)
+
         X = matched[selected_features].fillna(0)
         y = matched["is_profitable"]
         results, best = train_and_validate(X, y)
@@ -484,6 +535,9 @@ def main():
         summary[coin] = {
             "model": best,
             "accuracy": round(results[best].get("accuracy", 0), 4),
+            "precision": round(results[best].get("precision", 0), 4),
+            "recall": round(results[best].get("recall", 0), 4),
+            "f1": round(results[best].get("f1", 0), 4),
             "gap": round(results[best].get("overfitting_gap", 0), 4),
             "n_trades": len(matched),
             "winrate": round(float(winrate), 4),
@@ -496,7 +550,7 @@ def main():
     print("  FASE 7 COMPLETE")
     print(f"{'='*60}")
     for coin, info in summary.items():
-        print(f"  {coin}: {info['model']} acc={info['accuracy']:.4f} gap={info['gap']:.4f} trades={info['n_trades']}")
+        print(f"  {coin}: {info['model']} acc={info['accuracy']:.4f} f1={info['f1']:.4f} prec={info['precision']:.4f} rec={info['recall']:.4f} trades={info['n_trades']}")
     print(f"\n  Models: {MODELS_DIR}")
     print(f"  Deploy: cp fase7_models/{{coin}}/*.pkl -> {PROD_MODELS_DIR}/")
 
