@@ -22,7 +22,7 @@ cat << 'EOF' | crontab -
 1,11,21,31,41,51 * * * * /home/overgon/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh ETH >> /home/overgon/.openclaw/logs/cron-ETH.log 2>&1
 2,12,22,32,42,52 * * * * /home/overgon/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh BNB >> /home/overgon/.openclaw/logs/cron-BNB.log 2>&1
 3,13,23,33,43,53 * * * * /home/overgon/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh SOL >> /home/overgon/.openclaw/logs/cron-SOL.log 2>&1
-4,14,24,34,44,54 * * * * /home/overgon/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh ZEC >> /home/overgon/.openclaw/logs/cron-LINK.log 2>&1
+4,14,24,34,44,54 * * * * /home/overgon/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh ZEC >> /home/overgon/.openclaw/logs/cron-ZEC.log 2>&1
 5,15,25,35,45,55 * * * * /home/overgon/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh XRP >> /home/overgon/.openclaw/logs/cron-XRP.log 2>&1
 6,16,26,36,46,56 * * * * /home/overgon/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh AVAX >> /home/overgon/.openclaw/logs/cron-AVAX.log 2>&1
 

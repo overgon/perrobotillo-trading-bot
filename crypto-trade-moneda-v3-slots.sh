@@ -290,9 +290,9 @@ import sys
 entry = float(sys.argv[1])
 slot_id = int(sys.argv[2])
 local_symbol = sys.argv[3]
-# 🔧 FIX (2026-09-25): AVAX and LINK trade in overlapping price ranges in practice.
-# Previous narrow ranges (AVAX:4-8, LINK:8-30) caused AVAX at $10.48 to be
-# misidentified as LINK. Widen both to (4.0, 30.0) and trust local_symbol
+# 🔧 FIX (2026-09-25): AVAX and ZEC trade in overlapping price ranges in practice.
+# Previous narrow ranges (AVAX:4-8, ZEC:8-30) caused AVAX at $10.48 to be
+# misidentified as ZEC. Widen both to (4.0, 30.0) and trust local_symbol
 # (authoritative from cron invocation arg, NOT a leaked env var) when the
 # price is plausible for that coin. Only override when price is wildly outside
 # local_symbol's range — that is the real stale-env-var signal.
@@ -404,7 +404,8 @@ get_portfolio_value() {
     fi
     local total=$(printf '%.2f' "$usdt")
 
-    for coin in BNB SOL AVAX ZEC XRP; do
+    # RR Fix 2026-10-02: Added BTC ETH — loop must cover all 7 coins for balance check
+    for coin in BTC ETH BNB SOL AVAX ZEC XRP; do
         local balance=$(get_balance "$coin")
         balance=$(printf '%s' "$balance" | tr -d '[:space:]')
         if ! printf '%s' "$balance" | grep -qE '^[0-9]+(\.[0-9]+)?$'; then
@@ -2639,7 +2640,8 @@ Se recomienda esperar condiciones mejores. 🐕"
                 
                 # Si todas las monedas están operando, limpiar flag global
                 OPERATING_COUNT=0
-                for coin in BNB SOL AVAX ZEC XRP; do
+                # RR Fix 2026-10-02: Added BTC ETH — must count all 7 coins
+                for coin in BTC ETH BNB SOL AVAX ZEC XRP; do
                     if [ ! -f "${WORKSPACE}/crypto-bots/${coin}-ml-pause-flag.json" ]; then
                         OPERATING_COUNT=$((OPERATING_COUNT + 1))
                     fi
