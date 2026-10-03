@@ -31,35 +31,39 @@ WORKSPACE="$HOME/.openclaw/workspace"
 source "$WORKSPACE/crypto-bots/notify.sh" 2>/dev/null || true
 
 get_portfolio_value() {
-    # Obtener balance total en USDT
-    local response=$(curl -s -H "X-MBX-APIKEY: $BINANCE_API_KEY" \
-        "https://api.binance.com/sapi/v1/capital/config/getall?timestamp=$(date +%s000)")
-    
-    # Sumar todos los balances disponibles + en trading
-    local total=0
-    
-    # Método alternativo: usar account API
+    # ✅ FIX: Use $BINANCE_API_KEY (no literal ***), add HMAC signature
+    local timestamp=$(date +%s)000
+    local recvWindow=10000
+    local query="timestamp=${timestamp}&recvWindow=${recvWindow}"
+    local signature=$(printf '%s' "$query" | openssl dgst -sha256 -hmac "$BINANCE_API_SECRET" | awk '{print $2}')
+
     local account=$(curl -s -H "X-MBX-APIKEY: $BINANCE_API_KEY" \
-        "https://api.binance.com/api/v3/account?timestamp=$(date +%s000)")
-    
+        "https://api.binance.com/api/v3/account?${query}&signature=${signature}")
+
+    # Check if API call succeeded
+    local account_error=$(echo "$account" | jq -r '.code // empty' 2>/dev/null)
+    if [ -n "$account_error" ] && [ "$account_error" != "null" ]; then
+        log "⚠️ Binance API error: $account_error"
+        echo "0"
+        return
+    fi
+
     # Extraer balances de USDT y coins
     local usdt_balance=$(echo "$account" | jq -r '.balances[] | select(.asset=="USDT") | .free + .locked' 2>/dev/null || echo "0")
-    
-    # Obtener precios actuales de las coins
+
     local coins=("BTC" "ETH" "BNB" "SOL" "ZEC" "XRP" "AVAX")
     local portfolio_value=$usdt_balance
-    
+
     for coin in "${coins[@]}"; do
         local balance=$(echo "$account" | jq -r ".balances[] | select(.asset==\"$coin\") | .free + .locked" 2>/dev/null || echo "0")
-        
+
         if (( $(awk -v b="$balance" 'BEGIN {print (b > 0) ? 1 : 0}') )); then
-            # Obtener precio actual
             local price=$(curl -s "https://api.binance.com/api/v3/ticker/price?symbol=${coin}USDT" | jq -r '.price' 2>/dev/null || echo "0")
             local value=$(awk -v b="$balance" -v p="$price" 'BEGIN {printf "%.2f", b * p}')
             portfolio_value=$(awk -v pv="$portfolio_value" -v v="$value" 'BEGIN {printf "%.2f", pv + v}')
         fi
     done
-    
+
     echo "$portfolio_value"
 }
 
