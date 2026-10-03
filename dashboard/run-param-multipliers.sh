@@ -22,8 +22,9 @@ if [ -f "$OUTPUT_FILE" ]; then
 fi
 
 # Run inference (downloads latest candles + predicts multipliers)
+mkdir -p "$(dirname "$OUTPUT_FILE")" 2>/dev/null || true
 PYTHONUNBUFFERED=1 PYTHON=/usr/bin/python3
-$PYTHON "$RUNTIME_SCRIPT" 2>&1 || {
+$PYTHON "$RUNTIME_SCRIPT" > "$OUTPUT_FILE" 2>&1 || {
     echo "ERROR: param-multiplier inference failed" >&2
     exit 1
 }
