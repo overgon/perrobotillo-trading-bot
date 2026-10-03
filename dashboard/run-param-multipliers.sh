@@ -8,7 +8,7 @@
 
 set -euo pipefail
 
-RESEARCH_DIR="/home/opengon/.openclaw/workspace"
+RESEARCH_DIR="/home/overgon/.openclaw/workspace"
 RUNTIME_SCRIPT="$RESEARCH_DIR/param_multiplier_inference.py"
 OUTPUT_FILE="/home/vergon/.openclaw/workspace/ml/param-multipliers.json"
 
