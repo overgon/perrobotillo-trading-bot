@@ -27,17 +27,8 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [EMERGENCY-SL] $1" | tee -a "$LOGS/emergency-close-sl-crossed.log"
 }
 
-send_telegram() {
-    local message="$1"
-    local config_file="$HOME/.openclaw/openclaw.json"
-    if [ -f "$config_file" ]; then
-        local bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)
-        [ -n "$bot_token" ] && [ "$bot_token" != "null" ] && \
-            curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
-                -H "Content-Type: application/json" \
-                -d "{\"chat_id\":\"7543955537\",\"text\":\"$message\",\"parse_mode\":\"HTML\"}" > /dev/null
-    fi
-}
+# ✅ Consolidado: usar notify.sh centralizado en lugar de send_telegram duplicada
+source "$WORKSPACE/crypto-bots/notify.sh" 2>/dev/null || true
 
 # ============================================
 # 🛡️ FUNCIONES DE BINANCE
@@ -225,12 +216,12 @@ if [ $closed_count -gt 0 ]; then
     total_pnl_fmt=$(awk -v p="$total_pnl" 'BEGIN {printf "%.2f", p}')
     pnl_icon="🔴"
     
-    send_telegram "🚨 <b>EMERGENCY CLOSE - SL CRUZADO</b>
+    notify "EMERGENCY_CLOSE_SL" "🚨 **EMERGENCY CLOSE - SL CRUZADO**
 
 Se cerraron ${closed_count} slots con Stop Loss cruzado:
 
 ${report}
-<b>📊 Resumen:</b>
+**📊 Resumen:**
 • Slots cerrados: ${closed_count}
 • P&L Total: ${pnl_icon} \$${total_pnl_fmt}
 • Razón: Prevención de mayores pérdidas

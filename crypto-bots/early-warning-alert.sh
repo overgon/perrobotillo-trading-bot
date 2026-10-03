@@ -15,14 +15,8 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE" 2>/dev/null || true
 }
 
-send_telegram() {
-    local message="$1"
-    # Usar notify.sh centralizado si existe
-    if [ -f "$WORKSPACE/crypto-bots/notify.sh" ]; then
-        source "$WORKSPACE/crypto-bots/notify.sh"
-        notify "EARLY_WARNING" "$message"
-    fi
-}
+# ✅ BUG #9/#10 FIX: Source centralized notify.sh
+source "$WORKSPACE/crypto-bots/notify.sh" 2>/dev/null || true
 
 # Load state files
 COINS=("BTC" "ETH" "BNB" "SOL" "ZEC" "XRP" "AVAX")
@@ -92,7 +86,7 @@ if [ ${#warnings[@]} -gt 0 ]; then
     done
     message+="
 80-99%: trailing stop | 100%+: emergency close 🐕"
-    send_telegram "$message"
+    notify "EARLY_WARNING" "$message"
     log "✅ Alerta enviada"
 else
     log "✅ No hay slots en zona de riesgo"

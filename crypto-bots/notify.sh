@@ -52,9 +52,10 @@ send_telegram() {
         bot_token="$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)"
     fi
 
-    # ✅ FIX FALLBACK: Si no hay token, cargar desde secrets/telegram.env
+    # ✅ FIX FALLBACK: Si no hay token en openclaw.json, intentar en secrets/telegram.env
+    # NOTE: telegram.env no existe actualmente; openclaw.json es source primario
     if [ -z "$bot_token" ] || [ "$bot_token" = "null" ]; then
-        local env_file="$WORKSPACE/secrets/telegram.env"
+        local env_file="$HOME/.openclaw/secrets/telegram.env"
         if [ -f "$env_file" ]; then
             source "$env_file"
             bot_token="${TELEGRAM_BOT_TOKEN:-}"

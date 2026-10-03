@@ -26,21 +26,8 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
-send_telegram() {
-    local message="$1"
-    local config_json="/home/overgon/.openclaw/openclaw.json"
-    local chat_id="7543955537"
-    
-    if [ -f "$config_json" ]; then
-        local bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_json" 2>/dev/null)
-        if [ -n "$bot_token" ]; then
-            curl -s -X POST "https://api.telegram.org/bot$bot_token/sendMessage" \
-                -d "chat_id=$chat_id" \
-                --data-urlencode "text=${message}" \
-                -d "parse_mode=Markdown" > /dev/null 2>&1
-        fi
-    fi
-}
+# ✅ BUG #9/#10 FIX: Source centralized notify.sh
+source "$WORKSPACE/crypto-bots/notify.sh" 2>/dev/null || true
 
 load_alerts_state() {
     if [ -f "$ALERTS_STATE" ]; then
@@ -292,7 +279,7 @@ if [ "$should_alert" = "true" ]; then
     
     log "   🚨 ALERTA: $consecutive_losses pérdidas consecutivas (-\$${total_loss})"
     
-    send_telegram "🚨 ALERTA - RACHA DE PÉRDIDAS
+    notify "PROACTIVE_ALERT" "🚨 ALERTA - RACHA DE PÉRDIDAS
 ${consecutive_losses} pérdidas consecutivas | PnL: -\\$${total_loss} USDT
 🪙 ${coins}
 • Pausar trading temporalmente
@@ -322,7 +309,7 @@ if [ "$should_alert" = "true" ]; then
     
     log "   🚨 ALERTA: Win Rate ${win_rate}% (<${MIN_WINRATE_THRESHOLD}%)"
     
-    send_telegram "🚨 ALERTA - WIN RATE BAJO
+    notify "PROACTIVE_ALERT" "🚨 ALERTA - WIN RATE BAJO
 WR: ${win_rate}% (<${MIN_WINRATE_THRESHOLD}%) | PnL: \\$${total_pnl} USDT
 ${losses_count}/10 pérdidas
 • Modelo desactualizado? Retrain manual si WR < 40%
@@ -352,7 +339,7 @@ if [ "$should_alert" = "true" ]; then
     
     log "   🚨 ALERTA: Pérdida diaria \$${daily_loss} USDT (umbral: ${DAILY_LOSS_ALERT}%)"
     
-    send_telegram "🚨 ALERTA - PÉRDIDA DIARIA
+    notify "PROACTIVE_ALERT" "🚨 ALERTA - PÉRDIDA DIARIA
 \\$${daily_loss} USDT acumulados hoy | \\$$(awk "BEGIN {printf \"%.2f\", 15 - $daily_loss}") faltan para límite 3%
 ${trades_count} trades perdedores | ${coins} 🐕"
     

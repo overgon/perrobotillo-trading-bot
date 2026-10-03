@@ -30,20 +30,8 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$level] $msg" | tee -a "$LOG_FILE"
 }
 
-send_telegram() {
-    local message="$1"
-    local config_file="$HOME/.openclaw/openclaw.json"
-    
-    if [ -f "$config_file" ]; then
-        local bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)
-        if [ -n "$bot_token" ] && [ "$bot_token" != "null" ]; then
-            curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
-                -H "Content-Type: application/json" \
-                -d "{\"chat_id\":\"$TELEGRAM_CHAT_ID\",\"text\":\"$message\",\"parse_mode\":\"HTML\"}" > /dev/null
-            log "INFO" "Telegram enviado"
-        fi
-    fi
-}
+# ✅ BUG #9/#10 FIX: Source centralized notify.sh (Markdown parse_mode, --data-urlencode)
+source "$WORKSPACE/crypto-bots/notify.sh" 2>/dev/null || true
 
 # Guardar estado del watchdog
 save_state() {
@@ -156,13 +144,13 @@ restart_grid_bots() {
     if ps -p $pid > /dev/null 2>&1; then
         log "INFO" "✅ Grid bots reiniciados (PID: $pid)"
         save_state "ok" "restart_grid_bots" "PID: $pid"
-        send_telegram "✅ GRID BOTS REINICIADOS
+        notify "WATCHDOG_RESTART" "✅ GRID BOTS REINICIADOS
 PID: $pid | Sistema recuperado 🐕"
         return 0
     else
         log "ERROR" "❌ Falló reinicio de grid bots"
         save_state "error" "restart_grid_bots" "Process died"
-        send_telegram "🚨 ALERTA CRÍTICA
+        notify "WATCHDOG_CRITICAL" "🚨 ALERTA CRÍTICA
 Grid bots restart falló (PID $pid no sobrevivió)
 Atención manual inmediata 🆘 🐕"
         return 1
@@ -185,14 +173,14 @@ rebalance_portfolio() {
         # Extraer resumen para notificación
         local trades_done=$(echo "$result" | grep -oP '\d+ orders executed' | grep -oP '\d+' || echo "0")
         if [ "$trades_done" -gt 0 ]; then
-        send_telegram "📊 REBALANCEO COMPLETADO
-        ${trades_done} trades ejecutados | Portfolio optimizado 🐕"
+        notify "WATCHDOG_REBALANCE" "📊 REBALANCEO COMPLETADO
+${trades_done} trades ejecutados | Portfolio optimizado 🐕"
         fi
         return 0
     else
         log "ERROR" "❌ Falló rebalanceo: $result"
         save_state "error" "rebalance_portfolio" "$result"
-        send_telegram "⚠️ REBALANCEO FALLIDO
+        notify "WATCHDOG_REBALANCE_FAIL" "⚠️ REBALANCEO FALLIDO
 $(echo "$result" | tail -3) 🔧"
         return 1
     fi
@@ -244,7 +232,12 @@ make_decision() {
         if [ $? -eq 0 ]; then
             log "INFO" "u2705 Rangos actualizados automu00e1ticamente"
             action_summary+="[RANGES_UPDATED] "
-            send_telegram "ud83dudcca <b>Rangos Auto-Actualizados</b>\n\nPrecios fuera de rango detectados y corregidos.\nGrid bots reiniciados con nuevos rangos.\n\nud83dudc15 Watchdog"
+            notify "WATCHDOG_RANGES" "📊 **Rangos Auto-Actualizados**
+
+Precios fuera de rango detectados y corregidos.
+Grid bots reiniciados con nuevos rangos.
+
+🐕 Watchdog"
             # Reiniciar grid bots despuu00e9s de actualizar rangos
             if [[ ! " ${actions_needed[@]} " =~ " restart " ]]; then
                 actions_needed+=("restart")

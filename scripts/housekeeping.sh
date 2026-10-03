@@ -15,24 +15,9 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
-send_telegram() {
-    local message="$1"
-    local config_file="$HOME/.openclaw/openclaw.json"
-    
-    if [ -f "$config_file" ]; then
-        local bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)
-        local chat_id=$(jq -r '.channels.telegram.chatIds[0] // empty' "$config_file" 2>/dev/null)
-        
-        if [ -n "$bot_token" ] && [ -n "$chat_id" ]; then
-            curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
-                -d "chat_id=${chat_id}" \
-                --data-urlencode "text=${message}" \
-                -d "parse_mode=HTML" > /dev/null
-            return 0
-        fi
-    fi
-    return 1
-}
+# ✅ BUG #9/#10 FIX: Source centralized notify.sh (Markdown parse_mode, --data-urlencode)
+WORKSPACE="$HOME/.openclaw/workspace"
+source "$WORKSPACE/crypto-bots/notify.sh" 2>/dev/null || true
 
 # ════════════════════════════════════════════════════════
 # MAIN
@@ -141,7 +126,7 @@ if [ "$logs_size_mb" -gt "$MAX_LOGS_MB" ]; then
     log ""
     log "🚨 ALERTA: Logs > ${MAX_LOGS_MB}MB (actual: ${logs_size_mb}MB)"
     
-    send_telegram "🚨 LOGS EXCEDIDOS - ${logs_size_mb}MB > ${MAX_LOGS_MB}MB límite
+    notify "HOUSEKEEPING" "🚨 LOGS EXCEDIDOS - ${logs_size_mb}MB > ${MAX_LOGS_MB}MB límite
 • Logs >30d eliminados
 • .gz >7d eliminados
 • Trade logs limitados a 7d
@@ -152,7 +137,7 @@ if [ "$disk_usage" -gt "$MAX_DISK_PERCENT" ]; then
     log ""
     log "🚨 ALERTA: Disco > ${MAX_DISK_PERCENT}% (actual: ${disk_usage}%)"
 
-    send_telegram "🚨 DISCO LLENO - ${disk_usage}% uso
+    notify "HOUSEKEEPING" "🚨 DISCO LLENO - ${disk_usage}% uso
 Límite: ${MAX_DISK_PERCENT}%
 • Housekeeping ejecutado
 • Logs antiguos eliminados

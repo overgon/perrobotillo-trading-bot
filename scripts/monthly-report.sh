@@ -14,24 +14,9 @@ LOG_FILE="$LOGS_DIR/monthly-report.log"
 DOLLAR="$"
 
 # Configuración de Telegram
-send_telegram() {
-    local message="$1"
-    local config_file="$HOME/.openclaw/openclaw.json"
-    
-    if [ -f "$config_file" ]; then
-        local bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)
-        local chat_id=$(jq -r '.channels.telegram.chatIds[0] // empty' "$config_file" 2>/dev/null)
-        
-        if [ -n "$bot_token" ] && [ -n "$chat_id" ]; then
-            curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
-                -d "chat_id=${chat_id}" \
-                --data-urlencode "text=${message}" \
-                -d "parse_mode=HTML" > /dev/null
-            return 0
-        fi
-    fi
-    return 1
-}
+# ✅ BUG #9/#10 FIX: Source centralized notify.sh (Markdown parse_mode, --data-urlencode)
+WORKSPACE="$HOME/.openclaw/workspace"
+source "$WORKSPACE/crypto-bots/notify.sh" 2>/dev/null || true
 
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
@@ -325,7 +310,7 @@ MESSAGE="${MESSAGE}
 log ""
 log "📤 Enviando reporte por Telegram..."
 
-if send_telegram "$MESSAGE"; then
+if notify "MONTHLY_REPORT" "$MESSAGE"; then
     log "✅ Reporte enviado exitosamente"
 else
     log "❌ Error al enviar reporte por Telegram"

@@ -10,30 +10,12 @@ DASHBOARD_DIR="$HOME/.openclaw/workspace/dashboard"
 LOG_FILE="$HOME/.openclaw/logs/dashboard-watchdog.log"
 PID_FILE="/tmp/dashboard.pid"
 PORT=8080
-NGROK_LOG="/tmp/ngrok.log"
+NGROK_LOG="$HOME/.openclaw/logs/ngrok-stdout.log"
 TELEGRAM_SENT_FILE="/tmp/watchdog-telegram-sent.txt"
 
-# Configuración de Telegram
-send_telegram() {
-    local message="$1"
-    local config_file="$HOME/.openclaw/openclaw.json"
-    
-    if [ -f "$config_file" ]; then
-        local bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)
-        local chat_id=$(jq -r '.channels.telegram.chatIds[0] // empty' "$config_file" 2>/dev/null)
-        
-        if [ -n "$bot_token" ] && [ -n "$chat_id" ]; then
-            curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
-                -d "chat_id=${chat_id}" \
-                -d "text=$message" \
-                -d "parse_mode=HTML" > /dev/null
-            log "📱 Telegram enviado"
-            return 0
-        fi
-    fi
-    log "⚠️  No se pudo enviar Telegram (config faltante)"
-    return 1
-}
+# ✅ BUG #9/#10 FIX: Source centralized notify.sh (Markdown parse_mode, --data-urlencode)
+WORKSPACE="$HOME/.openclaw/workspace"
+source "$WORKSPACE/crypto-bots/notify.sh" 2>/dev/null || true
 
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
@@ -42,55 +24,62 @@ log() {
 
 # Verificar si el dashboard responde
 check_dashboard() {
-    if curl -s http://localhost:$PORT/api/status > /dev/null 2>&1; then
+    if curl -s --connect-timeout 5 http://localhost:$PORT/api/status > /dev/null 2>&1; then
         return 0  # Dashboard está funcionando
     else
         return 1  # Dashboard no responde
     fi
 }
 
+# Extraer URL pública de ngrok desde el log (sin depender del puerto 4040)
+get_ngrok_url() {
+    local url=""
+    if [ -f "$NGROK_LOG" ]; then
+        url=$(grep -oP 'url=\Khttps://[^ ]+' "$NGROK_LOG" 2>/dev/null | tail -1)
+    fi
+    if [ -z "$url" ]; then
+        url=$(journalctl -u perrobotillo-ngrok.service --no-pager -n 50 2>/dev/null | grep -oP 'url=\Khttps://[^ ]+' | tail -1)
+    fi
+    echo "$url"
+}
+
 # Verificar si ngrok está funcionando
 check_ngrok() {
     # Verificar si ngrok está corriendo
-    if ! pgrep -f "ngrok" > /dev/null 2>&1; then
+    if ! pgrep -x "ngrok" > /dev/null 2>&1; then
         return 1  # ngrok no está corriendo
     fi
-    
-    # Verificar si la API de ngrok responde
-    local tunnels=$(curl -s http://localhost:4040/api/tunnels 2>/dev/null)
-    if [ -z "$tunnels" ] || [ "$tunnels" = "null" ]; then
-        return 1  # ngrok API no responde
-    fi
-    
-    # Verificar si hay un tunnel activo
-    local public_url=$(echo "$tunnels" | jq -r '.tunnels[0].public_url // empty' 2>/dev/null)
+
+    # Extraer URL pública del log (sin API de inspección en puerto 4040)
+    local public_url=$(get_ngrok_url)
     if [ -z "$public_url" ]; then
-        return 1  # No hay tunnel activo
+        # ngrok corre pero aún no registró URL — asumir arranque en curso
+        log "⏳ Ngrok en arranque (URL no disponible aún)"
+        return 0
     fi
-    
+
     # ✅ VERIFICAR SI EL TUNNEL RESPONDE (ngrok free tier devuelve 401/403 normalmente)
-    local http_status=$(curl -s -o /dev/null -w "%{http_code}" "$public_url" 2>/dev/null)
-    
-    # Ngrok free tier devuelve 401/403 para requerir auth en browser - ESTO ES NORMAL
-    # Solo es ERROR si es 502, 503, 504, o timeout
-    if [ "$http_status" = "502" ] || [ "$http_status" = "503" ] || [ "$http_status" = "504" ]; then
+    local http_status=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 "$public_url" 2>/dev/null)
+
+    # Solo es ERROR si es 502, 503, 504, o timeout (000)
+    if [ "$http_status" = "502" ] || [ "$http_status" = "503" ] || [ "$http_status" = "504" ] || [ "$http_status" = "000" ]; then
         log "❌ Ngrok tunnel responde con HTTP $http_status - SERVIDOR CAÍDO"
         return 1  # Tunnel no funciona
     fi
-    
+
     # 401/403 es NORMAL en ngrok free tier (requiere auth en browser)
     if [ "$http_status" = "401" ] || [ "$http_status" = "403" ]; then
         log "✅ Ngrok tunnel ONLINE (HTTP $http_status - auth requerida, normal en free tier)"
     fi
-    
+
     # Verificar errores recientes en el log de ngrok
     if [ -f "$NGROK_LOG" ]; then
-        local recent_errors=$(tail -20 "$NGROK_LOG" 2>/dev/null | grep -c "ERR_NGROK\|failed to start tunnel\|authentication failed")
+        local recent_errors=$(tail -30 "$NGROK_LOG" 2>/dev/null | grep -c "ERR_NGROK\|failed to start tunnel\|authentication failed")
         if [ "$recent_errors" -gt 0 ]; then
             return 1  # Hay errores recientes
         fi
     fi
-    
+
     return 0  # ngrok está funcionando correctamente
 }
 
@@ -108,7 +97,7 @@ start_dashboard() {
     echo $pid > "$PID_FILE"
     log "✅ Dashboard iniciado (PID: $pid)"
     sleep 4
-    
+
     if check_dashboard; then
         log "✅ Dashboard verificado - Respondiendo en puerto $PORT"
         return 0
@@ -121,19 +110,18 @@ start_dashboard() {
 # Reiniciar ngrok
 restart_ngrok() {
     log "🔄 Reiniciando ngrok..."
-    
+
     # Matar ngrok existente
-    pkill -9 -f "/usr/local/bin/ngrok" 2>/dev/null
+    pkill -9 -x "ngrok" 2>/dev/null
     sleep 2
-    
-    # Iniciar ngrok
-    cd "$DASHBOARD_DIR"
-    nohup ngrok http 8080 > "$NGROK_LOG" 2>&1 &
+
+    # Iniciar ngrok con config file (inspect: false, tunnel nombrado "dashboard")
+    /usr/local/bin/ngrok start dashboard --config=/home/overgon/.config/ngrok/ngrok.yml >> "$NGROK_LOG" 2>&1 &
     local ngrok_pid=$!
-    log "✅ Ngrok iniciado (PID: $ngrok_pid)"
-    
+    log "✅ Ngrok iniciado (PID: $ngrok_pid) - inspect: false, tunnel: dashboard"
+
     sleep 8
-    
+
     if check_ngrok; then
         log "✅ Ngrok verificado - Tunnel activo"
         return 0
@@ -147,40 +135,46 @@ restart_ngrok() {
 send_ngrok_alert() {
     local error_type="$1"
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    
+
     # Rate limiting: no enviar más de 1 alerta cada 10 minutos
     if [ -f "$TELEGRAM_SENT_FILE" ]; then
         local last_sent=$(cat "$TELEGRAM_SENT_FILE" 2>/dev/null)
         local now=$(date +%s)
         local diff=$((now - last_sent))
-        
+
         if [ "$diff" -lt 600 ]; then
             log "📫 Alerta suprimida (rate limit: ${diff}s desde última alerta)"
             return 0
         fi
     fi
-    
+
     # Guardar timestamp
     date +%s > "$TELEGRAM_SENT_FILE"
-    
+
+    # URL dinámica desde el log
+    local current_url=$(get_ngrok_url)
+    if [ -z "$current_url" ]; then
+        current_url="knapsack-divinity-diffuser.ngrok-free.dev"
+    fi
+
     # Enviar alerta
-    local message="<b>🚨 NGROK FALLÓ</b>
+    local message="**🚨 NGROK FALLÓ**
 
-📅 <b>Fecha:</b> $timestamp
-🔧 <b>Error:</b> $error_type
-🔗 <b>Endpoint:</b> knapsack-divinity-diffuser.ngrok-free.dev
+📅 **Fecha:** $timestamp
+🔧 **Error:** $error_type
+🔗 **Endpoint:** $current_url
 
-<b>Acciones tomadas:</b>
-• Ngrok reiniciado automáticamente
+**Acciones tomadas:**
+• Ngrok reiniciado automáticamente (inspect: false)
 • Dashboard verificado
 
-<b>Recomendación:</b>
+**Recomendación:**
 Si el problema persiste, reiniciar la RPi5:
-<code>sudo reboot</code>
+`sudo reboot`
 
 🐕 Perrobotillo Trading Bot"
 
-    send_telegram "$message"
+    notify "WATCHDOG_NGROK" "$message"
     log "📱 Alerta de ngrok enviada por Telegram"
 }
 
@@ -213,35 +207,35 @@ fi
 # Acciones
 if [ "$dashboard_ok" = true ] && [ "$ngrok_ok" = true ]; then
     log "✅ Todo operativo - No se requiere acción"
-    
+
 elif [ "$dashboard_ok" = false ] && [ "$ngrok_ok" = true ]; then
     # Solo dashboard caído
     log "🔧 Dashboard caído, ngrok OK - Reiniciando dashboard..."
     kill_dashboard
-    
+
     if start_dashboard; then
         log "✅ Dashboard reiniciado exitosamente"
     else
         log "❌ ERROR: No se pudo reiniciar el dashboard"
-        
+
         # Enviar alerta crítica
-        send_telegram "<b>🚨 CRÍTICO: Dashboard CAÍDO</b>
+        send_telegram "**🚨 CRÍTICO: Dashboard CAÍDO**
 
-📅 <b>Fecha:</b> $(date '+%Y-%m-%d %H:%M:%S')
-❌ <b>Estado:</b> Dashboard no responde
-🔧 <b>Acción:</b> Reinicio automático fallido
+📅 **Fecha:** $(date '+%Y-%m-%d %H:%M:%S')
+❌ **Estado:** Dashboard no responde
+🔧 **Acción:** Reinicio automático fallido
 
-<b>Revisar:</b>
+**Revisar:**
 • Log: $HOME/.openclaw/logs/dashboard-watchdog.log
 • Dashboard: /tmp/dashboard.log
 
 🐕 Perrobotillo Trading Bot"
     fi
-    
+
 elif [ "$dashboard_ok" = true ] && [ "$ngrok_ok" = false ]; then
     # Solo ngrok falló (dashboard OK)
     log "🔧 Ngrok falló, dashboard OK - Reiniciando ngrok..."
-    
+
     if restart_ngrok; then
         log "✅ Ngrok reiniciado exitosamente"
         # Enviar alerta informativa
@@ -251,17 +245,17 @@ elif [ "$dashboard_ok" = true ] && [ "$ngrok_ok" = false ]; then
         # Enviar alerta
         send_ngrok_alert "Ngrok falló y NO se pudo reiniciar automáticamente"
     fi
-    
+
 elif [ "$dashboard_ok" = false ] && [ "$ngrok_ok" = false ]; then
     # Ambos cayeron
     log "🔧 Ambos cayeron - Reiniciando dashboard primero..."
     kill_dashboard
-    
+
     if start_dashboard; then
         log "✅ Dashboard reiniciado"
         # Ahora intentar con ngrok
         log "🔧 Intentando reiniciar ngrok..."
-        
+
         if restart_ngrok; then
             log "✅ Ngrok reiniciado"
             send_ngrok_alert "Dashboard y Ngrok cayeron, ambos reiniciados"
@@ -271,15 +265,15 @@ elif [ "$dashboard_ok" = false ] && [ "$ngrok_ok" = false ]; then
         fi
     else
         log "❌ Dashboard no se pudo reiniciar"
-        send_telegram "<b>🚨 CRÍTICO: Sistema CAÍDO</b>
+        send_telegram "**🚨 CRÍTICO: Sistema CAÍDO**
 
-📅 <b>Fecha:</b> $(date '+%Y-%m-%d %H:%M:%S')
-❌ <b>Estado:</b> Dashboard + Ngrok caídos
-🔧 <b>Acción:</b> Reinicios fallidos
+📅 **Fecha:** $(date '+%Y-%m-%d %H:%M:%S')
+❌ **Estado:** Dashboard + Ngrok caídos
+🔧 **Acción:** Reinicios fallidos
 
-<b>Acción requerida:</b>
+**Acción requerida:**
 Reiniciar RPi5 manualmente:
-<code>sudo reboot</code>
+`sudo reboot`
 
 🐕 Perrobotillo Trading Bot"
     fi

@@ -17,17 +17,8 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [AVAX-EMERGENCY] $1" | tee -a "$LOGS/avax-emergency-close.log"
 }
 
-send_telegram() {
-    local message="$1"
-    local config_file="$HOME/.openclaw/openclaw.json"
-    if [ -f "$config_file" ]; then
-        local bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)
-        [ -n "$bot_token" ] && [ "$bot_token" != "null" ] && \
-            curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
-                -H "Content-Type: application/json" \
-                -d "{\"chat_id\":\"7543955537\",\"text\":\"$message\",\"parse_mode\":\"HTML\"}" > /dev/null
-    fi
-}
+# ✅ Consolidado: usar notify.sh centralizado en lugar de send_telegram duplicada
+source "$WORKSPACE/crypto-bots/notify.sh" 2>/dev/null || true
 
 get_signature() {
     echo -n "$1" | openssl dgst -sha256 -hmac "$BINANCE_API_SECRET" | awk '{print $2}'
@@ -181,12 +172,12 @@ log "P&L Total: \$${total_pnl}"
 if [ $closed_count -gt 0 ]; then
     total_pnl_fmt=$(awk -v p="$total_pnl" 'BEGIN {printf "%.2f", p}')
     
-    send_telegram "🚨 <b>AVAX EMERGENCY CLOSE COMPLETED</b>
+    notify "EMERGENCY_CLOSE_AVAX" "🚨 **AVAX EMERGENCY CLOSE COMPLETED**
 
 Se cerraron ${closed_count} slots de AVAX con SL cruzado:
 
 ${report}
-<b>📊 Resumen:</b>
+**📊 Resumen:**
 • Slots cerrados: ${closed_count}
 • P&L Total: 🔴 \$${total_pnl_fmt}
 • Razón: Prevención de mayores pérdidas (SL cruzado >100%)

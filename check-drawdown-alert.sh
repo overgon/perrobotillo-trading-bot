@@ -9,7 +9,7 @@ SECRETS="$HOME/.openclaw/secrets"
 LOGS="$HOME/.openclaw/logs"
 
 source "$SECRETS/binance.env"
-source "$SECRETS/telegram.env"
+# ✅ BUG #6 FIX: telegram.env no existe; notify.sh lee token de openclaw.json
 
 # ============================================
 # CONFIGURACIÓN
@@ -26,18 +26,9 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [DRAWDOWN] $1" | tee -a "$LOGS/drawdown-alert.log"
 }
 
-send_telegram() {
-    local message="$1"
-    local chat_id="$TELEGRAM_CHAT_ID"
-    local bot_token="$TELEGRAM_BOT_TOKEN"
-    
-    curl -s -X POST "https://api.telegram.org/bot$bot_token/sendMessage" \
-        -d "chat_id=$chat_id" \
-        -d "text=$message" \
-        -d "parse_mode=HTML" > /dev/null
-    
-    log "Alerta Telegram enviada"
-}
+# ✅ BUG #9/#10 FIX: Source centralized notify.sh (Markdown, --data-urlencode)
+WORKSPACE="$HOME/.openclaw/workspace"
+source "$WORKSPACE/crypto-bots/notify.sh" 2>/dev/null || true
 
 get_portfolio_value() {
     # Obtener balance total en USDT
@@ -104,22 +95,22 @@ if (( $(awk -v dd="$drawdown" -v th="$DRAWDOWN_THRESHOLD" 'BEGIN {print (dd > th
     log "⚠️  DRAWDOWN ALERTA: ${drawdown}% > ${DRAWDOWN_THRESHOLD}%"
     
     # Enviar alerta Telegram
-    message="🚨 *ALERTA DE DRAWDOWN* 🚨
+    message="🚨 **ALERTA DE DRAWDOWN** 🚨
 
- *Perrobotillo Trading Bot*
+ **Perrobotillo Trading Bot**
 
 💰 Portfolio Actual: \$$current_value USDT
-📉 Drawdown: *${drawdown}%*
+📉 Drawdown: **${drawdown}%**
 ⚠️  Threshold: ${DRAWDOWN_THRESHOLD}%
 
-⚡ *Acción Recomendada:*
+⚡ **⚡ Acción Recomendada:**
 • Revisar trades activos
 • Considerar reducir position size
 • Monitorear de cerca
 
-_Jefe, es momento de estar atento_* 🐕"
+_Jefe, es momento de estar atento_ 🐕"
     
-    send_telegram "$message"
+    notify "DRAWDOWN" "$message"
     
     log "✅ Alerta enviada a Telegram"
     

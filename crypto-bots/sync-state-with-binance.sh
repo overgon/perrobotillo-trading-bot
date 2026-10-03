@@ -12,21 +12,8 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
-send_telegram() {
-    local message="$1"
-    local config_json="/home/overgon/.openclaw/openclaw.json"
-    local chat_id="7543955537"
-    
-    if [ -f "$config_json" ]; then
-        local bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_json" 2>/dev/null)
-        if [ -n "$bot_token" ]; then
-            curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
-                -d "chat_id=${chat_id}" \
-                --data-urlencode "text=${message}" \
-                -d "parse_mode=Markdown" > /dev/null 2>&1
-        fi
-    fi
-}
+# ✅ BUG #9/#10 FIX: Source centralized notify.sh
+source "$WORKSPACE/crypto-bots/notify.sh" 2>/dev/null || true
 
 # Main
 log "╔══════════════════════════════════════════════════════╗"
@@ -68,7 +55,7 @@ fi
 log "Slots sincronizados: ${sync_count}"
 
 if [ $sync_count -gt 0 ]; then
-    send_telegram "🔄 SYNC STATE COMPLETED
+    notify "SYNC_STATE" "🔄 SYNC STATE COMPLETED
 ${sync_count} slots sincronizados con balances reales de Binance
 ${report}
 1. Revisar trade-history.json por trades cerrados manualmente

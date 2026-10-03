@@ -185,23 +185,40 @@ def send_telegram_notification(message):
     """Envía notificación por Telegram."""
     try:
         import subprocess
-        
-        escaped_message = message.replace("'", "'\\''").replace('"', '\\"')
-        
-        cmd = f"""
-curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \\
-  -d chat_id="{TELEGRAM_CHAT_ID}" \\
-  -d text='{escaped_message}' \\
-  -d parse_mode="HTML"
-"""
-        env = os.environ.copy()
-        result = subprocess.run(cmd, shell=True, env=env, capture_output=True, text=True, timeout=10)
-        
-        if result.returncode == 0:
-            return True
-        else:
-            print(f"Error enviando Telegram: {result.stderr}")
+        import json as json_mod
+        from pathlib import Path
+
+        # ✅ BUG #6/#9/#10 FIX: Load token from openclaw.json (not shell $BOT_TOKEN)
+        # ✅ Use Markdown parse_mode (not HTML)
+        # ✅ Use --data-urlencode (not raw -d text='')
+        config_file = Path.home() / ".openclaw" / "openclaw.json"
+        bot_token = ""
+        if config_file.exists():
+            try:
+                with open(config_file, 'r') as f:
+                    config = json_mod.load(f)
+                bot_token = config.get('channels', {}).get('telegram', {}).get('botToken', '')
+            except Exception:
+                pass
+
+        if not bot_token or bot_token == "null":
+            print("❌ No Telegram token found in openclaw.json")
             return False
+
+        import urllib.request, urllib.parse
+        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+        data = {
+            'chat_id': TELEGRAM_CHAT_ID,
+            'text': message,
+            'parse_mode': 'Markdown'
+        }
+        req = urllib.request.Request(url, data=urllib.parse.urlencode(data).encode('utf-8'))
+        with urllib.request.urlopen(req, timeout=10) as response:
+            if response.status == 200:
+                return True
+            else:
+                print(f"Error enviando Telegram: HTTP {response.status}")
+                return False
     except Exception as e:
         print(f"Error enviando Telegram: {e}")
         return False
