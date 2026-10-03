@@ -8,8 +8,8 @@
 
 set -euo pipefail
 
-RESEARCH_DIR="/home/vergon/jesse-research"
-RUNTIME_SCRIPT="$RESEARCH_DIR/param-multiplier-runtime.py"
+RESEARCH_DIR="/home/opengon/.openclaw/workspace"
+RUNTIME_SCRIPT="$RESEARCH_DIR/param_multiplier_inference.py"
 OUTPUT_FILE="/home/vergon/.openclaw/workspace/ml/param-multipliers.json"
 
 # Only download new data if the JSON is older than 10 minutes
@@ -22,7 +22,8 @@ if [ -f "$OUTPUT_FILE" ]; then
 fi
 
 # Run inference (downloads latest candles + predicts multipliers)
-PYTHONUNBUFFERED=1 python3 "$RUNTIME_SCRIPT" 2>&1 || {
+PYTHONUNBUFFERED=1 PYTHON=/usr/bin/python3
+$PYTHON "$RUNTIME_SCRIPT" 2>&1 || {
     echo "ERROR: param-multiplier inference failed" >&2
     exit 1
 }
