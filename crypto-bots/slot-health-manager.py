@@ -105,7 +105,7 @@ def repair_slot(slot, coin, slot_id):
         slot["status"] = "READY"
         slot["lastUpdate"] = __import__("datetime").datetime.now().isoformat()
         print(f"🔧 {coin} slot {slot_id}: ACTIVE zombie → READY")
-        continue
+        return slot, repairs
 
     # Caso 0: Estados CLOSED_* o CLOSED sin guion bajo → trade terminado, reconvertir a READY limpio
     # Esto incluye: CLOSED_TRAILING, CLOSED_TP1, CLOSED_TP2, CLOSED_TP3, CLOSED_SL, y CLOSED sin suffix
