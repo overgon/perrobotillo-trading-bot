@@ -1,0 +1,29 @@
+{
+  "ZEC": {
+    "status": "completed",
+    "exported": true,
+    "best_model": "random_forest",
+    "accuracy": 1.0,
+    "overfitting_gap": 0.005056669572798711,
+    "samples": 17209,
+    "features": 51,
+    "all_models": {
+      "random_forest": {
+        "acc": 1.0,
+        "gap": 0.005056669572798711
+      },
+      "xgboost": {
+        "acc": 0.9997094712376525,
+        "gap": 0.006538796861377483
+      },
+      "gradient_boosting": {
+        "acc": 1.0,
+        "gap": 0.005056669572798711
+      },
+      "logistic_regression": {
+        "acc": 0.968622893666473,
+        "gap": 0.02834990284501393
+      }
+    }
+  }
+}

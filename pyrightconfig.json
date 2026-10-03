@@ -1,0 +1,16 @@
+{
+  "typeCheckingMode": "off",
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false,
+  "extraPaths": [
+    "/jesse-docker"
+  ],
+  "executionEnvironments": [
+    {
+      "root": "/home",
+      "extraPaths": [
+        "/jesse-docker"
+      ]
+    }
+  ]
+}

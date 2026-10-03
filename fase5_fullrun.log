@@ -1,0 +1,186 @@
+======================================================================
+🚀 FASE 5: ML PIPELINE DE JESSE
+  Periodo: 90 days (1h candles → 1m expansion)
+  Estimadores: ['random_forest', 'xgboost', 'gradient_boosting', 'logistic_regression']
+  Monedas: ['LINK', 'AVAX', 'XRP', 'SOL', 'BNB', 'ETH', 'BTC']
+  Output: /home/analysis_fase5
+======================================================================
+
+============================================================
+🔄 LINK
+============================================================
+  ✅ Data points collected: 17209
+     Backtest: PnL=? WR=? Sharpe=?
+
+  📊 Features: 51 | Samples: 17209 | Win: 8149 (47.4%)
+
+  🎯 Training 4 models for LINK (17209 samples)...
+    ⏳ Training random_forest... ✅ acc=1.0000 cv=1.0000 gap=0.0000 (0.00%)
+    ⏳ Training xgboost... ✅ acc=0.9991 cv=0.9993 gap=0.0007 (0.07%)
+    ⏳ Training gradient_boosting... ✅ acc=1.0000 cv=1.0000 gap=0.0000 (0.00%)
+    ⏳ Training logistic_regression... ✅ acc=0.9974 cv=0.9910 gap=0.0070 (0.70%)
+
+  🏆 Best: random_forest (gap=0.00%, acc=1.0000)
+
+  📦 Exporting random_forest model for LINK...
+  ✅ LINK_optimized_model.pkl
+  ✅ LINK_scaler_optimized.pkl
+  ✅ LINK_selected_features.pkl
+  ✅ LINK_optimized_metadata.json
+  Gap: 100.00% → 0.00% | Acc: 0.0000 → 1.0000
+
+============================================================
+🔄 AVAX
+============================================================
+  ✅ Data points collected: 17209
+     Backtest: PnL=? WR=? Sharpe=?
+
+  📊 Features: 51 | Samples: 17209 | Win: 7699 (44.7%)
+
+  🎯 Training 4 models for AVAX (17209 samples)...
+    ⏳ Training random_forest... ✅ acc=1.0000 cv=0.9997 gap=0.0003 (0.03%)
+    ⏳ Training xgboost... ✅ acc=1.0000 cv=0.9987 gap=0.0013 (0.13%)
+    ⏳ Training gradient_boosting... ✅ acc=1.0000 cv=0.9997 gap=0.0003 (0.03%)
+    ⏳ Training logistic_regression... ✅ acc=0.9974 cv=0.9914 gap=0.0080 (0.80%)
+
+  🏆 Best: random_forest (gap=0.03%, acc=1.0000)
+
+  📦 Exporting random_forest model for AVAX...
+  ✅ AVAX_optimized_model.pkl
+  ✅ AVAX_scaler_optimized.pkl
+  ✅ AVAX_selected_features.pkl
+  ✅ AVAX_optimized_metadata.json
+  Gap: 100.00% → 0.03% | Acc: 0.0000 → 1.0000
+
+============================================================
+🔄 XRP
+============================================================
+  ✅ Data points collected: 17209
+     Backtest: PnL=? WR=? Sharpe=?
+
+  📊 Features: 51 | Samples: 17209 | Win: 7866 (45.7%)
+
+  🎯 Training 4 models for XRP (17209 samples)...
+    ⏳ Training random_forest... ✅ acc=0.9994 cv=1.0000 gap=0.0000 (0.00%)
+    ⏳ Training xgboost... ✅ acc=0.9991 cv=0.9996 gap=0.0004 (0.04%)
+    ⏳ Training gradient_boosting... ✅ acc=0.9994 cv=1.0000 gap=0.0000 (0.00%)
+    ⏳ Training logistic_regression... ✅ acc=0.9913 cv=0.9969 gap=0.0028 (0.28%)
+
+  🏆 Best: random_forest (gap=0.00%, acc=0.9994)
+
+  📦 Exporting random_forest model for XRP...
+  ✅ XRP_optimized_model.pkl
+  ✅ XRP_scaler_optimized.pkl
+  ✅ XRP_selected_features.pkl
+  ✅ XRP_optimized_metadata.json
+  Gap: 100.00% → 0.00% | Acc: 0.0000 → 0.9994
+
+============================================================
+🔄 SOL
+============================================================
+  ✅ Data points collected: 17209
+     Backtest: PnL=? WR=? Sharpe=?
+
+  📊 Features: 51 | Samples: 17209 | Win: 7861 (45.7%)
+
+  🎯 Training 4 models for SOL (17209 samples)...
+    ⏳ Training random_forest... ✅ acc=1.0000 cv=0.9997 gap=0.0003 (0.03%)
+    ⏳ Training xgboost... ✅ acc=0.9997 cv=0.9993 gap=0.0007 (0.07%)
+    ⏳ Training gradient_boosting... ✅ acc=1.0000 cv=0.9997 gap=0.0003 (0.03%)
+    ⏳ Training logistic_regression... ✅ acc=0.9942 cv=0.9933 gap=0.0052 (0.52%)
+
+  🏆 Best: random_forest (gap=0.03%, acc=1.0000)
+
+  📦 Exporting random_forest model for SOL...
+  ✅ SOL_optimized_model.pkl
+  ✅ SOL_scaler_optimized.pkl
+  ✅ SOL_selected_features.pkl
+  ✅ SOL_optimized_metadata.json
+  Gap: 100.00% → 0.03% | Acc: 0.0000 → 1.0000
+
+============================================================
+🔄 BNB
+============================================================
+  ✅ Data points collected: 17209
+     Backtest: PnL=? WR=? Sharpe=?
+
+  📊 Features: 51 | Samples: 17209 | Win: 7961 (46.3%)
+
+  🎯 Training 4 models for BNB (17209 samples)...
+    ⏳ Training random_forest... ✅ acc=0.9968 cv=1.0000 gap=0.0000 (0.00%)
+    ⏳ Training xgboost... ✅ acc=1.0000 cv=0.9995 gap=0.0005 (0.05%)
+    ⏳ Training gradient_boosting... ✅ acc=0.9968 cv=1.0000 gap=0.0000 (0.00%)
+    ⏳ Training logistic_regression... ✅ acc=0.9971 cv=0.9932 gap=0.0062 (0.62%)
+
+  🏆 Best: random_forest (gap=0.00%, acc=0.9968)
+
+  📦 Exporting random_forest model for BNB...
+  ✅ BNB_optimized_model.pkl
+  ✅ BNB_scaler_optimized.pkl
+  ✅ BNB_selected_features.pkl
+  ✅ BNB_optimized_metadata.json
+  Gap: 100.00% → 0.00% | Acc: 0.0000 → 0.9968
+
+============================================================
+🔄 ETH
+============================================================
+  ✅ Data points collected: 17209
+     Backtest: PnL=? WR=? Sharpe=?
+
+  📊 Features: 51 | Samples: 17209 | Win: 7963 (46.3%)
+
+  🎯 Training 4 models for ETH (17209 samples)...
+    ⏳ Training random_forest... ✅ acc=1.0000 cv=1.0000 gap=0.0000 (0.00%)
+    ⏳ Training xgboost... ✅ acc=0.9997 cv=0.9986 gap=0.0014 (0.14%)
+    ⏳ Training gradient_boosting... ✅ acc=1.0000 cv=1.0000 gap=0.0000 (0.00%)
+    ⏳ Training logistic_regression... ✅ acc=0.9968 cv=0.9868 gap=0.0098 (0.98%)
+
+  🏆 Best: random_forest (gap=0.00%, acc=1.0000)
+
+  📦 Exporting random_forest model for ETH...
+  ✅ ETH_optimized_model.pkl
+  ✅ ETH_scaler_optimized.pkl
+  ✅ ETH_selected_features.pkl
+  ✅ ETH_optimized_metadata.json
+  Gap: 100.00% → 0.00% | Acc: 0.0000 → 1.0000
+
+============================================================
+🔄 BTC
+============================================================
+  ✅ Data points collected: 17209
+     Backtest: PnL=? WR=? Sharpe=?
+
+  📊 Features: 51 | Samples: 17209 | Win: 7993 (46.4%)
+
+  🎯 Training 4 models for BTC (17209 samples)...
+    ⏳ Training random_forest... ✅ acc=1.0000 cv=0.9998 gap=0.0002 (0.02%)
+    ⏳ Training xgboost... ✅ acc=0.9983 cv=0.9977 gap=0.0023 (0.23%)
+    ⏳ Training gradient_boosting... ✅ acc=1.0000 cv=0.9990 gap=0.0010 (0.10%)
+    ⏳ Training logistic_regression... ✅ acc=0.9959 cv=0.9908 gap=0.0047 (0.47%)
+
+  🏆 Best: random_forest (gap=0.02%, acc=1.0000)
+
+  📦 Exporting random_forest model for BTC...
+  ✅ BTC_optimized_model.pkl
+  ✅ BTC_scaler_optimized.pkl
+  ✅ BTC_selected_features.pkl
+  ✅ BTC_optimized_metadata.json
+  Gap: 100.00% → 0.02% | Acc: 0.0000 → 1.0000
+
+======================================================================
+📊 RESUMEN FASE 5
+======================================================================
+  ✅ LINK: random_forest | acc=1.0000 gap=0.00% | n=17209 feats=51 | exported
+  ✅ AVAX: random_forest | acc=1.0000 gap=0.03% | n=17209 feats=51 | exported
+  ✅ XRP: random_forest | acc=0.9994 gap=0.00% | n=17209 feats=51 | exported
+  ✅ SOL: random_forest | acc=1.0000 gap=0.03% | n=17209 feats=51 | exported
+  ✅ BNB: random_forest | acc=0.9968 gap=0.00% | n=17209 feats=51 | exported
+  ✅ ETH: random_forest | acc=1.0000 gap=0.00% | n=17209 feats=51 | exported
+  ✅ BTC: random_forest | acc=1.0000 gap=0.02% | n=17209 feats=51 | exported
+
+🎯 Models with gap < 3%: LINK, AVAX, XRP, SOL, BNB, ETH, BTC
+
+📁 Results: /home/analysis_fase5
+📁 Models: /home/fase5_models
+
+✅ Fase 5 pipeline complete!
