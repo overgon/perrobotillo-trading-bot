@@ -1,0 +1,66 @@
+{
+  "coin": "XRP",
+  "trained_at": "2026-09-29T01:01:44.336017",
+  "model_type": "RandomForestRegressor (MultiOutput)",
+  "targets": [
+    "tp1_mult",
+    "tp2_mult",
+    "tp3_mult",
+    "sl_mult",
+    "size_mult"
+  ],
+  "label_type": "optimal_multipliers",
+  "features_source": "fase5_51_features + btc_context",
+  "metrics": {
+    "cv_mae_mean": 0.0637,
+    "final_mae_per_target": {
+      "tp1_mult": 0.0959,
+      "tp2_mult": 0.0412,
+      "tp3_mult": 0.0206,
+      "sl_mult": 0.0798,
+      "size_mult": 0.0709
+    },
+    "final_r2_per_target": {
+      "tp1_mult": 0.0159,
+      "tp2_mult": -0.0002,
+      "tp3_mult": -0.0002,
+      "sl_mult": 0.2818,
+      "size_mult": 0.0143
+    },
+    "n_trades": 35
+  },
+  "label_stats": {
+    "tp1_mult": {
+      "min": 1.0,
+      "max": 1.38,
+      "mean": 1.192,
+      "median": 1.15
+    },
+    "tp2_mult": {
+      "min": 1.0,
+      "max": 1.2,
+      "mean": 1.177,
+      "median": 1.2
+    },
+    "tp3_mult": {
+      "min": 1.0,
+      "max": 1.1,
+      "mean": 1.089,
+      "median": 1.1
+    },
+    "sl_mult": {
+      "min": 0.95,
+      "max": 1.3,
+      "mean": 1.006,
+      "median": 0.95
+    },
+    "size_mult": {
+      "min": 0.8,
+      "max": 1.1,
+      "mean": 1.003,
+      "median": 1.05
+    }
+  },
+  "is_optimized": true,
+  "fase7_param_multiplier": true
+}
