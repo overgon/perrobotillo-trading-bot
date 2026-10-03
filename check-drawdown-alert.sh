@@ -23,7 +23,8 @@ INITIAL_CAPITAL=2000.0  # USDT
 # ============================================
 
 log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [DRAWDOWN] $1" | tee -a "$LOGS/drawdown-alert.log"
+    # ✅ FIX: stderr to avoid polluting stdout captured by $(get_portfolio_value)
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [DRAWDOWN] $1" | tee -a "$LOGS/drawdown-alert.log" >&2
 }
 
 # ✅ BUG #9/#10 FIX: Source centralized notify.sh (Markdown, --data-urlencode)
@@ -87,7 +88,19 @@ calculate_drawdown() {
 log "Verificando drawdown..."
 
 # Obtener valor actual del portfolio
-current_value=$(get_portfolio_value)
+current_value=$(get_portfolio_value 2>/dev/null)
+
+# Si la API falló y devolvió 0, verificar si fue error o balance real
+if [ "$current_value" = "0" ]; then
+    # Re-check sin suprimir stderr para detectar errores de API
+    api_test=$(curl -s -H "X-MBX-APIKEY: $BINANCE_API_KEY" \
+        "https://api.binance.com/api/v3/account?timestamp=$(date +%s)000&recvWindow=10000" 2>/dev/null)
+    if echo "$api_test" | jq -e '.code' >/dev/null 2>&1; then
+        log "⚠️ API Binance falló (posible IP no whitelisteada). Saltando verificación."
+        exit 0
+    fi
+fi
+
 log "Portfolio actual: \$$current_value USDT"
 
 # Calcular drawdown
