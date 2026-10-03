@@ -22,15 +22,23 @@ log() {
 
 send_telegram() {
     local message="$1"
-    local config_json="${WORKSPACE}/../openclaw.json"
+    # ✅ FIX: Source centralized notify.sh to use --data-urlencode (evita quoting doble)
+    local notify_script="${WORKSPACE}/crypto-bots/notify.sh"
+    if [ -f "$notify_script" ]; then
+        source "$notify_script"
+        notify "AUTO_RESUME" "$message"
+        return $?
+    fi
+    # Fallback direct con --data-urlencode
+    local config_json="$HOME/.openclaw/openclaw.json"
     local chat_id="7543955537"
     
     if [ -f "$config_json" ]; then
         local bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_json" 2>/dev/null)
         if [ -n "$bot_token" ]; then
-            curl -s -X POST "https://api.telegram.org/bot$bot_token/sendMessage" \
-                -d "chat_id=$chat_id" \
-                -d "text=$message" \
+            curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
+                -d "chat_id=${chat_id}" \
+                --data-urlencode "text=${message}" \
                 -d "parse_mode=Markdown" > /dev/null 2>&1
         fi
     fi

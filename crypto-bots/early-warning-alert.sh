@@ -84,11 +84,14 @@ done
 
 # Send alert if there are warnings
 if [ ${#warnings[@]} -gt 0 ]; then
-    message="⚠️ **SLOTS EN RIESGO**\n"
+    message="⚠️ **SLOTS EN RIESGO**
+"
     for w in "${warnings[@]}"; do
-        message+="${w}\n"
+        message+="${w}
+"
     done
-    message+="\n80-99%: trailing stop | 100%+: emergency close 🐕"
+    message+="
+80-99%: trailing stop | 100%+: emergency close 🐕"
     send_telegram "$message"
     log "✅ Alerta enviada"
 else

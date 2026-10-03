@@ -10,19 +10,24 @@ TRADE_ID="${4:-0}"
 ENTRY="${5:-0}"
 EXIT="${6:-0}"
 
-TELEGRAM_SECRETS="/home/overgon/.openclaw/secrets/telegram.env"
-if [[ -f "$TELEGRAM_SECRETS" ]]; then
-    source "$TELEGRAM_SECRETS"
-else
-    echo "⚠️ telegram.env not found" >&2
-    exit 1
+# ✅ FIX: Load token from openclaw.json (telegram.env does not exist in secrets/)
+# Perrobotillo centraliza el token en $HOME/.openclaw/openclaw.json
+CONFIG_FILE="$HOME/.openclaw/openclaw.json"
+TOKEN=""
+CHAT_ID="7543955537"
+
+if [[ -f "$CONFIG_FILE" ]]; then
+    TOKEN=$(jq -r '.channels.telegram.botToken // empty' "$CONFIG_FILE" 2>/dev/null)
+    CHAT_ID=$(jq -r '.channels.telegram.chatIds[0] // "7543955537"' "$CONFIG_FILE" 2>/dev/null)
 fi
 
-TOKEN="${TELEGRAM_BOT_TOKEN:-${TELEGRAM_TOKEN:-}}"
-CHAT_ID="${TELEGRAM_CHAT_ID:-}"
+# Fallback: also check notify.sh centralized path
+if [[ -z "$TOKEN" ]]; then
+    source "$HOME/.openclaw/workspace/crypto-bots/notify.sh" 2>/dev/null
+fi
 
-if [[ -z "$TOKEN" || -z "$CHAT_ID" ]]; then
-    echo "⚠️ Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID" >&2
+if [[ -z "$TOKEN" ]]; then
+    echo "⚠️ No Telegram token found" >&2
     exit 1
 fi
 

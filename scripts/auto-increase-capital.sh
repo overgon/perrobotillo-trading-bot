@@ -122,14 +122,23 @@ update_config() {
 
 send_telegram() {
     local message="$1"
+    # ✅ FIX: Source centralized notify.sh from Perrobotillo to avoid malformed JSON
+    local notify_script="$HOME/.openclaw/workspace/crypto-bots/notify.sh"
+    if [ -f "$notify_script" ]; then
+        source "$notify_script"
+        notify "AUTO_CAPITAL_INC" "$message"
+        return $?
+    fi
+    # Fallback direct con --data-urlencode (evita quoting doble)
     local config_file="$HOME/.openclaw/openclaw.json"
     
     if [ -f "$config_file" ]; then
         local bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)
         if [ -n "$bot_token" ] && [ "$bot_token" != "null" ]; then
             curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
-                -H "Content-Type: application/json" \
-                -d "{\"chat_id\":\"7543955537\",\"text\":\"$message\",\"parse_mode=HTML\"}" > /dev/null
+                -d "chat_id=7543955537" \
+                --data-urlencode "text=${message}" \
+                -d "parse_mode=Markdown" > /dev/null
         fi
     fi
 }

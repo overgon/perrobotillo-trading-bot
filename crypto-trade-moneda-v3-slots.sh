@@ -716,7 +716,7 @@ check_daily_limit() {
     [ -z "$portfolio_value" ] || ! echo "$portfolio_value" | grep -qE '^[0-9]+(\.[0-9]+)?$' && portfolio_value=0
 
     if [ "$portfolio_value" = "0" ]; then
-        log "❌ VALIDACIÓN FALLIDA: Portfolio = \\$0 (cálculo incorrecto)"
+        log "❌ VALIDACIÓN FALLIDA: Portfolio = \$0 (cálculo incorrecto)"
         log "  Abortando check de límite diario para evitar falso positivo"
         log "  🛡️ BUG-052 PREVENIDO: Límite diario cancelado por datos incompletos"
         return 0  # No abortar trading, solo saltar el check de límite
@@ -1082,7 +1082,7 @@ execute_long() {
 
         local open_msg="🟢 LONG V3 SLOT $slot_id - $SYMBOL [$CURRENT_MODE]
 📦 Slot: $slot_id / $MAX_SLOTS
-💰 Entry: $fill_price | Qty: $quantity BTC
+💰 Entry: $fill_price | Qty: $quantity $SYMBOL
 💸 Costo: $usdt_spent | Fee: $_fee_display
 🎯 TPs:
    TP1: $tp1 (+${TP1_PERCENT}%)
@@ -1352,8 +1352,8 @@ Target: ${SCALP_TARGET_PERCENT}%
 
                     notify "TP1_HIT|$SYMBOL|$slot_id" "✅ TP1 HIT - $SYMBOL [35%] 🎯
 Slot: $slot_id / $MAX_SLOTS
-Exit: \$${current_price}
-Qty: $sell_qty_fmt (35%)
+Exit: \$${current_price} | Qty: $sell_qty_fmt (35%)
+TP1: +${TP1_PERCENT}% | SL: -${STOP_LOSS_PERCENT}%
 PnL: \$${pnl}
 🔄 MODO RECICLAJE ACTIVADO
 El slot buscará nueva entrada 🚀"
@@ -1362,8 +1362,8 @@ El slot buscará nueva entrada 🚀"
                     local pnl_partial=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
                     notify "TP1_HIT|$SYMBOL|$slot_id" "✅ TP1 - $SYMBOL
 Slot: $slot_id / $MAX_SLOTS
-Exit: \$${current_price}
-Vendido: $sell_qty_fmt
+Exit: \$${current_price} | Vendido: $sell_qty_fmt
+TP1: +${TP1_PERCENT}% | SL: -${STOP_LOSS_PERCENT}%
 PnL parcial: \$${pnl_partial}
 Queda para TP3 🎯
 Quedan 65% para TP2/TP3 🎯"
@@ -1477,7 +1477,7 @@ El slot sigue activo y reintentará en próximos ciclos."
                 
                 # BUG-036 FIX: Enviar Telegram TP2
                 log "  📱 DEBUG: Preparando notificación TP2..."
-                notify "TP2_HIT|$SYMBOL|$slot_id" "$(printf '✅ TP2 - %s\nSlot: %d / %d\nExit: $%s\nVendido: %s\nPnL parcial: $%.2f\nQueda para TP3 🎯' "$SYMBOL" "$slot_id" "$MAX_SLOTS" "$current_price" "$sell_qty_fmt" "$pnl_partial")"
+                notify "TP2_HIT|$SYMBOL|$slot_id" "$(printf '✅ TP2 - %s\nSlot: %d / %d\nExit: $%s | Vendido: %s\nTP2: +${TP2_PERCENT}%% | SL: -${STOP_LOSS_PERCENT}%%\nPnL parcial: $%.2f\nQueda para TP3 🎯' "$SYMBOL" "$slot_id" "$MAX_SLOTS" "$current_price" "$sell_qty_fmt" "$pnl_partial")"
                 log "  📱 DEBUG: notify TP2 completado"
             else
                 local error=$(echo "$sell_result" | jq -r '.msg // "Unknown error"')
@@ -1656,8 +1656,8 @@ El slot permanece activo."
                 
                 local tp3_msg="🎯 TP3 - $SYMBOL [Cierre total]
 Slot: $slot_id / $MAX_SLOTS
-Exit: \$${exit_price}
-Vendido: $sell_qty_fmt
+Exit: \$${exit_price} | Vendido: $sell_qty_fmt
+TP3: +${TP3_PERCENT}% | SL: -${STOP_LOSS_PERCENT}%
 PnL: \$${pnl_total}
 Mantiene 5% acumulado 📈"
 
@@ -1926,7 +1926,8 @@ else:
                 notify "SL_HIT|$SYMBOL|$slot_id" "${pnl_icon} SL - $SYMBOL
 
 Slot: $slot_id / $MAX_SLOTS
-Exit: \$${exit_price}
+Entry: \$${entry} | Exit: \$${exit_price}
+SL: -${STOP_LOSS_PERCENT}% (${sl})
 PnL: \$${pnl_display}
 
 Slot disponible 🔄"
@@ -1976,12 +1977,12 @@ execute_trailing_stop() {
 
         notify "TRAILING_STOP|$SYMBOL|$slot_id|PRECHECK_OK" "${trailing_pnl_icon} TRAILING STOP - $SYMBOL
 
-    Slot: $slot_id / $MAX_SLOTS
-    Exit: \$${trailing_exit_display}
-    PnL: \$${trailing_pnl_display}
-    Razón: $reason
+Slot: $slot_id / $MAX_SLOTS
+Exit: \$${trailing_exit_display}
+PnL: \$${trailing_pnl_display}
+Razón: $reason
 
-    ✅ Ganancias aseguradas 🛡️"
+✅ Ganancias aseguradas 🛡️"
         log "  ✅ Trailing stop ejecutado exitosamente - Slot cerrado"
             register_capital_move "$SYMBOL" "TRAILING" "$sell_value" "$sell_qty" "$current_price" "$sell_order_id" "Trailing stop Slot $slot_id"
         update_slot_status "$slot_id" "CLOSED_TRAILING"
@@ -2038,7 +2039,8 @@ execute_trailing_stop() {
         notify "TRAILING_STOP|$SYMBOL|$slot_id" "${pnl_icon} TRAILING STOP - $SYMBOL
 
 Slot: $slot_id / $MAX_SLOTS
-Exit: \$${exit_price}
+Entry: \$${entry} | Exit: \$${exit_price}
+SL: -${STOP_LOSS_PERCENT}% (${trailing_percent}% trailing)
 PnL: \$${pnl_display}
 Razón: $reason
 

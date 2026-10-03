@@ -17,39 +17,49 @@ log() {
 
 notify() {
     local message="$1"
-    
-    # Usar la herramienta message de OpenClaw si está disponible
-    # Si no, usar curl directo con bot token
-    
-    python3 << ENDPYTHON
-import requests
-import json
 
-try:
-    # Leer token de secrets
-    with open('$HOME/.openclaw/secrets/telegram.env', 'r') as f:
-        for line in f:
-            if line.startswith('TELEGRAM_BOT_TOKEN'):
-                token = line.split('=')[1].strip()
-                break
-    
-    chat_id = "$TELEGRAM_CHAT_ID"
-    message = '''$message'''
-    
-    url = f"https://api.telegram.org/bot{token}/sendMessage"
-    data = {
-        'chat_id': chat_id,
-        'text': message,
-        'parse_mode': 'Markdown'
-    }
-    
-    response = requests.post(url, json=data, timeout=10)
-    if response.status_code == 200:
-        print("✅ Reporte enviado a Telegram")
-    else:
-        print(f"❌ Error: {response.text}")
-except Exception as e:
-    print(f"❌ Error enviando Telegram: {e}")
+    # ✅ FIX: Read token from openclaw.json (telegram.env does not exist in secrets/)
+    python3 << ENDPYTHON
+import json, os, sys
+from pathlib import Path
+
+message = """$message"""
+chat_id = "7543955537"
+token = ""
+
+config_file = Path.home() / ".openclaw" / "openclaw.json"
+if config_file.exists():
+    try:
+        with open(config_file, 'r') as f:
+            config = json.load(f)
+        token = config.get('channels', {}).get('telegram', {}).get('botToken', '')
+        ids = config.get('channels', {}).get('telegram', {}).get('chatIds', [])
+        if ids:
+            chat_id = ids[0]
+    except Exception:
+        pass
+
+if not token:
+    print("❌ No Telegram token found", file=sys.stderr)
+    sys.exit(1)
+
+import urllib.request, urllib.parse
+
+url = f"https://api.telegram.org/bot{token}/sendMessage"
+data = {
+    'chat_id': chat_id,
+    'text': message,
+    'parse_mode': 'Markdown'
+}
+response = urllib.request.urlopen(
+    url,
+    data=urllib.parse.urlencode(data).encode('utf-8'),
+    timeout=10
+)
+if response.status == 200:
+    print("✅ Reporte enviado a Telegram")
+else:
+    print(f"❌ Error: {response.read().decode()}")
 ENDPYTHON
 }
 
