@@ -974,7 +974,43 @@ execute_long() {
     else
         log "⚠️ ML Validator no encontrado en $ML_VALIDATOR, continuando sin validación"
     fi
-
+    
+    # ════════════════════════════════════════════════════════
+    # 🛡️ ON-CHAIN PRE-TRADE GATE (Binance Skill Hub Integration)
+    # Verifica token audit + smart money signals antes de ejecutar orden
+    # Output: ALLOW_ON_CHAIN_GATE, WARN_ON_CHAIN_GATE, BLOCK_ON_CHAIN_GATE
+    # ════════════════════════════════════════════════════════
+    ON_CHAIN_GATE_SCRIPT="$WORKSPACE/crypto-bots/on-chain-pre-trade-gate.sh"
+    if [ -f "$ON_CHAIN_GATE_SCRIPT" ]; then
+        log "🛡️ On-chain pre-trade gate: Verifying token audit + smart money signals..."
+        on_chain_result=$("$ON_CHAIN_GATE_SCRIPT" "$SYMBOL" "BUY" 2>/dev/null)
+        on_chain_status=$(echo "$on_chain_result" | cut -d'|' -f1)
+        on_chain_reason=$(echo "$on_chain_result" | cut -d'|' -f2-)
+        
+        if [ "$on_chain_status" = "BLOCK_ON_CHAIN_GATE" ]; then
+            log "🚫 ON-CHAIN GATE BLOQUEÓ $SYMBOL: $on_chain_reason"
+            if [ -f "$WORKSPACE/crypto-bots/notify.sh" ]; then
+                source "$WORKSPACE/crypto-bots/notify.sh"
+                notify "ON_CHAIN_BLOCK|$SYMBOL" "🚫 TRADE BLOQUEADO por On-Chain Gate - $SYMBOL\n\nRazón: $on_chain_reason\n\nToken audit detectó riesgo HIGH (mintable, honeypot, high tax, etc.)"
+            fi
+            return 1
+        elif [ "$on_chain_status" = "WARN_ON_CHAIN_GATE" ]; then
+            log "⚠️ ON-CHAIN GATE WARN: $on_chain_reason — reduciendo posición al 50%"
+            # Reducir posición a la mitad en caso de warning
+            position_percent=$(awk -v p="${position_percent:-10}" 'BEGIN {printf "%.2f", p * 0.5}')
+            if [ -f "$WORKSPACE/crypto-bots/notify.sh" ]; then
+                source "$WORKSPACE/crypto-bots/notify.sh"
+                notify "ON_CHAIN_WARN|$SYMBOL" "⚠️ POSICIÓN REDUCIDA - $SYMBOL\n\nRazón: $on_chain_reason\n\nReducido al 50% por warning on-chain:\nPosición: ${position_percent}% (original: $(awk -v p="${position_percent:-10}" 'BEGIN {printf "%.0f", p * 2}')%)"
+            fi
+        elif [ "$on_chain_status" = "ALLOW_ON_CHAIN_GATE" ]; then
+            log "✅ ON-CHAIN GATE: $on_chain_reason"
+        else
+            log "ℹ️ On-chain gate returned: $on_chain_result (proceeding)"
+        fi
+    else
+        log "⚠️ On-chain gate script no encontrado — proceeding sin verificación"
+    fi
+    
     check_daily_limit || return 1
 
     usdt_balance=$(get_balance "USDT")
