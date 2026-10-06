@@ -26,7 +26,7 @@ LOGS_DIR = Path("/home/overgon/.openclaw/logs")
 
 FEATURES_DIR.mkdir(parents=True, exist_ok=True)
 
-COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX", "ZEC"]
 
 # ════════════════════════════════════════════════════════
 # FEATURE ENGINEERING ENGINE

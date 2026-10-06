@@ -1,31 +1,31 @@
 {
   "coin": "AVAX",
-  "trained_at": "2026-10-02T17:11:05.927194",
-  "model_type": "logistic_regression",
-  "label_type": "is_profitable",
-  "fase": 7,
-  "metrics": {
-    "accuracy": 0.9661,
-    "precision": 0.973,
-    "recall": 0.973,
-    "f1": 0.973,
-    "train_accuracy": 1.0,
-    "overfitting_gap": 0.0339
+  "trained_at": "2026-10-06T12:28:14.667821",
+  "config": {
+    "max_depth": 5,
+    "min_samples_split": 50,
+    "min_samples_leaf": 25,
+    "n_estimators": 300,
+    "max_features": "log2",
+    "max_leaf_nodes": 20,
+    "class_weight": "balanced",
+    "random_state": 42,
+    "ccp_alpha": 0.02
   },
-  "is_optimized": true,
-  "fase7": true,
-  "all_models": {
-    "random_forest": {
-      "accuracy": 0.6271,
-      "precision": 0.6271,
-      "recall": 1.0,
-      "f1": 0.7708
-    },
-    "logistic_regression": {
-      "accuracy": 0.9661,
-      "precision": 0.973,
-      "recall": 0.973,
-      "f1": 0.973
-    }
-  }
+  "use_feature_selection": true,
+  "n_features_original": 220,
+  "n_features_selected": 14,
+  "samples": 711,
+  "metrics": {
+    "accuracy": 0.6993006993006993,
+    "precision": 0.877988677988678,
+    "recall": 0.6993006993006993,
+    "f1": 0.7456378572883426,
+    "cv_mean": 0.6796052631578947,
+    "cv_std": 0.06993363309089898,
+    "train_score": 0.727112676056338,
+    "test_score": 0.6993006993006993,
+    "overfitting_gap": 0.04750741289844329
+  },
+  "is_optimized": true
 }

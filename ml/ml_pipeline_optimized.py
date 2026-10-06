@@ -85,7 +85,7 @@ COIN_CONFIG_OVERRIDES = {
     }
 }
 
-COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX", "ZEC"]
 
 # ════════════════════════════════════════════════════════
 # OPTIMIZED ML PIPELINE

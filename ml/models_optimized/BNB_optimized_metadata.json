@@ -1,31 +1,29 @@
 {
   "coin": "BNB",
-  "trained_at": "2026-10-02T17:10:52.269479",
-  "model_type": "logistic_regression",
-  "label_type": "is_profitable",
-  "fase": 7,
-  "metrics": {
-    "accuracy": 1.0,
-    "precision": 1.0,
-    "recall": 1.0,
-    "f1": 1.0,
-    "train_accuracy": 1.0,
-    "overfitting_gap": 0.0
+  "trained_at": "2026-10-06T12:27:34.966220",
+  "config": {
+    "max_features": "sqrt",
+    "max_depth": 8,
+    "min_samples_split": 20,
+    "min_samples_leaf": 10,
+    "n_estimators": 150,
+    "class_weight": "balanced",
+    "random_state": 42
   },
-  "is_optimized": true,
-  "fase7": true,
-  "all_models": {
-    "random_forest": {
-      "accuracy": 0.7778,
-      "precision": 0.7778,
-      "recall": 1.0,
-      "f1": 0.875
-    },
-    "logistic_regression": {
-      "accuracy": 1.0,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0
-    }
-  }
+  "use_feature_selection": true,
+  "n_features_original": 220,
+  "n_features_selected": 14,
+  "samples": 711,
+  "metrics": {
+    "accuracy": 0.9370629370629371,
+    "precision": 0.968154922001076,
+    "recall": 0.9370629370629371,
+    "f1": 0.9482259313719988,
+    "cv_mean": 0.950689223057644,
+    "cv_std": 0.017231829528369668,
+    "train_score": 0.9630281690140845,
+    "test_score": 0.9370629370629371,
+    "overfitting_gap": 0.012338945956440472
+  },
+  "is_optimized": true
 }
