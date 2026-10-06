@@ -259,6 +259,43 @@
         "prev_rr_tp3": 1.1,
         "fix": "RR Fix 2026-10-02: SL 7.2\u21925.0, TP2 14.5\u219210.0, TP3 18.0\u219215.0, SL_MULT=1.0, TP3_MULT=1.0"
       }
+    },
+    "LINK": {
+      "multipliers": {
+        "tp1_mult": 1.1,
+        "tp2_mult": 1.1,
+        "tp3_mult": 1.0,
+        "sl_mult": 1.0,
+        "size_mult": 1.0
+      },
+      "base_config": {
+        "TP1": 3.0,
+        "TP2": 10.0,
+        "TP3": 15.0,
+        "STOP_LOSS": 5.0,
+        "POSITION_SIZE": 10.0,
+        "MAX_SLOTS": 3,
+        "ML_MIN_CONFIDENCE": 55,
+        "ENABLED": true
+      },
+      "effective_config": {
+        "TP1": 3.3,
+        "TP2": 11.0,
+        "TP3": 15.0,
+        "STOP_LOSS": 5.0,
+        "POSITION_SIZE": 10.0,
+        "MAX_SLOTS": 3,
+        "ML_MIN_CONFIDENCE": 55,
+        "ENABLED": true
+      },
+      "rr_analysis": {
+        "tp3_profit_pct": 5.0,
+        "rr_tp3": 0.92,
+        "break_even_wr": 0.5,
+        "prev_sl": 5.0,
+        "prev_rr_tp3": 1.1,
+        "fix": "LINK config added FASE7: On-chain gate integration - default multipliers (size_mult=1.0)"
+      }
     }
   },
   "fix_version": "rr-fix-20261002"
