@@ -295,5 +295,47 @@ CBEOF
     fi
 fi
 
+# ════════════════════════════════════════════════════════
+# 🛡️ REGLA 5: ON-CHAIN PRE-TRADE GATE (Binance Skill Hub)
+# ════════════════════════════════════════════════════════
+# Verifica token audit + smart money antes de permitir NEW trades
+# Output codes:
+#   ALLOW_ON_CHAIN_GATE → proceed (may have warnings)
+#   BLOCK_ON_CHAIN_GATE → block trade (CRITICAL risk)
+#   WARN_ON_CHAIN_GATE  → allow pero ajustar posición
+# 
+# NOTA: Solo aplica a NEW trades. SL/TP management no se ve afectado.
+ON_CHAIN_CHECK_SCRIPT="$WORKSPACE/crypto-bots/on-chain-pre-trade-gate.sh"
+if [ -f "$ON_CHAIN_CHECK_SCRIPT" ]; then
+    # El circuit breaker no conoce el symbol específico — usar CHECK_ALL_COINS
+    # para pre-chequear que no haya tokens con HIGH risk en la lista de trading
+    CB_SKIP_ON_CHAIN="${CB_SKIP_ON_CHAIN:-false}"
+    if [ "$CB_SKIP_ON_CHAIN" = "true" ]; then
+        echo "OK_TO_TRADE|$losses_24h losses, \$${total_loss_24h}, ${trades_24h} trades en 24h (on-chain gate skipped)"
+        exit 0
+    fi
+    
+    # Pre-chequear coins activas (no bloquear CB completo si un solo token tiene riesgo HIGH)
+    ON_CHAIN_BLOCKED_COINS=""
+    for coin in BTC ETH BNB SOL ZEC LINK XRP AVAX; do
+        result=$("$ON_CHAIN_CHECK_SCRIPT" "$coin" "BUY" 2>/dev/null)
+        status=$(echo "$result" | cut -d'|' -f1)
+        if [ "$status" = "BLOCK_ON_CHAIN_GATE" ]; then
+            ON_CHAIN_BLOCKED_COINS="${ON_CHAIN_BLOCKED_COINS}${coin},"
+        fi
+    done
+    
+    if [ -n "$ON_CHAIN_BLOCKED_COINS" ]; then
+        blocked=$(echo "$ON_CHAIN_BLOCKED_COINS" | sed 's/,$//')
+        echo "OK_TO_TRADE|$losses_24h losses, \$${total_loss_24h}, ${trades_24h} trades en 24h (on-chain BLOCKED: $blocked — coins skip on-chain trades, usar runtime ML gate)"
+        # ⚠️ No bloquear completamente — solo documentar coins bloqueados por on-chain
+        # El gate individual se ejecuta en crypto-trade-moneda-v3-slots.sh antes de cada trade
+        exit 0
+    else
+        echo "OK_TO_TRADE|$losses_24h losses, \$${total_loss_24h}, ${trades_24h} trades en 24h (on-chain gate: all coins OK)"
+        exit 0
+    fi
+fi
+
 echo "OK_TO_TRADE|$losses_24h losses, \$${total_loss_24h}, ${trades_24h} trades en 24h"
 exit 0
