@@ -1,0 +1,182 @@
+{
+  "timestamp": "2026-10-06T16:51:07.174858",
+  "base": {
+    "total_trades": 527,
+    "wins": 358,
+    "losses": 164,
+    "win_rate": 67.93,
+    "net_pnl": 164.01
+  },
+  "with_gate": {
+    "total_trades": 516,
+    "wins": 358,
+    "losses": 153,
+    "net_pnl": 175.07
+  },
+  "simulated": {
+    "blocked_by_gate": 11,
+    "warned_by_gate": 250,
+    "allowed_by_gate": 266,
+    "avoided_loss_pnl": -11.06,
+    "blocked_wins": 0,
+    "blocked_losses": 11
+  },
+  "by_coin": {
+    "BTC": {
+      "total": 44,
+      "wins": 25,
+      "losses": 19,
+      "win_rate": 56.82,
+      "net_pnl": -133.91,
+      "blocked_by_gate": 0,
+      "avoided_loss_pnl": 0
+    },
+    "ETH": {
+      "total": 77,
+      "wins": 57,
+      "losses": 20,
+      "win_rate": 74.03,
+      "net_pnl": 107.47,
+      "blocked_by_gate": 2,
+      "avoided_loss_pnl": -2.48
+    },
+    "BNB": {
+      "total": 66,
+      "wins": 51,
+      "losses": 14,
+      "win_rate": 77.27,
+      "net_pnl": 56.76,
+      "blocked_by_gate": 0,
+      "avoided_loss_pnl": 0
+    },
+    "SOL": {
+      "total": 69,
+      "wins": 51,
+      "losses": 17,
+      "win_rate": 73.91,
+      "net_pnl": 56.42,
+      "blocked_by_gate": 1,
+      "avoided_loss_pnl": -2.22
+    },
+    "ZEC": {
+      "total": 4,
+      "wins": 1,
+      "losses": 3,
+      "win_rate": 25.0,
+      "net_pnl": -4.16,
+      "blocked_by_gate": 0,
+      "avoided_loss_pnl": 0
+    },
+    "LINK": {
+      "total": 84,
+      "wins": 57,
+      "losses": 25,
+      "win_rate": 67.86,
+      "net_pnl": 9.56,
+      "blocked_by_gate": 1,
+      "avoided_loss_pnl": -0.84
+    },
+    "XRP": {
+      "total": 84,
+      "wins": 50,
+      "losses": 33,
+      "win_rate": 59.52,
+      "net_pnl": 32.68,
+      "blocked_by_gate": 0,
+      "avoided_loss_pnl": 0
+    },
+    "AVAX": {
+      "total": 99,
+      "wins": 66,
+      "losses": 33,
+      "win_rate": 66.67,
+      "net_pnl": 39.18,
+      "blocked_by_gate": 7,
+      "avoided_loss_pnl": -5.52
+    }
+  },
+  "gate_blocked_sample": [
+    {
+      "coin": "AVAX",
+      "id": 504,
+      "pnl": -0.38452965,
+      "closeType": "CLOSED_SL",
+      "gate_status": "BLOCKED",
+      "simulated": true
+    },
+    {
+      "coin": "LINK",
+      "id": 502,
+      "pnl": -0.84068598,
+      "closeType": "CLOSED_SL",
+      "gate_status": "BLOCKED",
+      "simulated": true
+    },
+    {
+      "coin": "ETH",
+      "id": 498,
+      "pnl": -1.39425829,
+      "closeType": "CLOSED_SL",
+      "gate_status": "BLOCKED",
+      "simulated": true
+    },
+    {
+      "coin": "AVAX",
+      "id": 493,
+      "pnl": -1.1532479,
+      "closeType": "CLOSED_SL",
+      "gate_status": "BLOCKED",
+      "simulated": true
+    },
+    {
+      "coin": "AVAX",
+      "id": 481,
+      "pnl": -0.57657506,
+      "closeType": "CLOSED_SL",
+      "gate_status": "BLOCKED",
+      "simulated": true
+    }
+  ],
+  "gate_warned_sample": [
+    {
+      "coin": "AVAX",
+      "id": 529,
+      "pnl": 0.39221,
+      "closeType": "CLOSED_TP1",
+      "gate_status": "WARN",
+      "simulated": true
+    },
+    {
+      "coin": "AVAX",
+      "id": 528,
+      "pnl": 0.33530744,
+      "closeType": "CLOSED_TP1",
+      "gate_status": "WARN",
+      "simulated": true
+    },
+    {
+      "coin": "AVAX",
+      "id": 527,
+      "pnl": 0.437913,
+      "closeType": "CLOSED_TP1",
+      "gate_status": "WARN",
+      "simulated": true
+    },
+    {
+      "coin": "AVAX",
+      "id": 523,
+      "pnl": -0.45274197,
+      "closeType": "CLOSED_SL",
+      "gate_status": "WARN",
+      "simulated": true
+    },
+    {
+      "coin": "AVAX",
+      "id": 522,
+      "pnl": -0.6482855,
+      "closeType": "CLOSED_SL",
+      "gate_status": "WARN",
+      "simulated": true
+    }
+  ]
+}
