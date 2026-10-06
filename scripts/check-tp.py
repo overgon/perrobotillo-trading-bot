@@ -17,10 +17,11 @@ import hmac
 import hashlib
 import urllib.parse
 import urllib.request
+import subprocess
 from datetime import datetime, timezone
 
 # ── On-Chain Gate Integration ────────────────────────────────────────────────
-WORKSPACE = os.path.expanduser("~/openclaw/workspace")
+WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
 ON_CHAIN_GATE = os.path.join(WORKSPACE, "ml/on_chain_pre_trade_gate.py")
 
 def on_chain_sell_check(symbol: str) -> tuple[str, str]:
@@ -33,7 +34,6 @@ def on_chain_sell_check(symbol: str) -> tuple[str, str]:
         return ("CONFIRM_SELL", "on-chain gate no disponible, proceeding")
     
     try:
-        import subprocess
         result = subprocess.run(
             ["python3", ON_CHAIN_GATE, symbol, "SELL"],
             capture_output=True, text=True, timeout=30,

@@ -659,6 +659,38 @@ def _sanitize_json(obj):
     return obj
 
 # ════════════════════════════════════════════════════════
+# 🛡️ ON-CHAIN GATE — FASE 5 Integration
+# ════════════════════════════════════════════════════════
+
+ON_CHAIN_COINS = ["BTC", "ETH", "BNB", "SOL", "ZEC", "LINK", "XRP", "AVAX"]
+ON_CHAIN_GATE_PY = os.path.join(WORKSPACE, "ml", "on_chain_pre_trade_gate.py")
+
+def get_on_chain_status():
+    """Obtener estado del on-chain gate para todas las monedas"""
+    cached = _get_mem_cache('on_chain_status')
+    if cached is not None:
+        return cached
+
+    import subprocess
+    statuses = {}
+    for coin in ON_CHAIN_COINS:
+        try:
+            result = subprocess.run(
+                ["python3", ON_CHAIN_GATE_PY, coin, "BUY"],
+                capture_output=True, text=True, timeout=30,
+                cwd=WORKSPACE
+            )
+            output = result.stdout.strip()
+            status = output.split('|')[0] if '|' in output else "UNKNOWN"
+            reason = output.split('|', 1)[1] if '|' in output else ""
+            statuses[coin] = {"status": status, "reason": reason}
+        except Exception as e:
+            statuses[coin] = {"status": "ERROR", "reason": str(e)}
+
+    _set_mem_cache('on_chain_status', statuses, ttl=30)  # cache 30s (on-chain data changes slower)
+    return statuses
+
+# ════════════════════════════════════════════════════════
 # RUTAS
 # ════════════════════════════════════════════════════════
 
@@ -708,6 +740,18 @@ def api_status():
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
     return response
+
+@app.route('/api/on-chain-gate')
+def api_on_chain_gate():
+    """API endpoint para on-chain gate status (FASE 5)"""
+    cache_buster = request.args.get('_t', '')  # permitir force refresh desde frontend
+    if cache_buster:
+        _get_mem_cache.__wrapped__ if hasattr(_get_mem_cache, '__wrapped__') else _DASH_CACHE.pop('on_chain_status', None)
+    
+    return jsonify({
+        'onChainGate': get_on_chain_status(),
+        'timestamp': datetime.now().isoformat()
+    })
 
 
 def _parse_env_file(filepath, strip_export=False):
@@ -1003,6 +1047,7 @@ def _api_status_data():
             'interval_hours': 6
         },
         'circuitBreakerStatus': _load_circuit_breaker_status(),
+        'onChainStatus': get_on_chain_status(),
         'coin_configs': _load_effective_config(),
         'param_multipliers': _load_param_multipliers(),
         'timestamp': now.isoformat()
