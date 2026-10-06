@@ -2,6 +2,11 @@
 """
 TP Checker - Verifica si hay TPs que cerrar para una moneda
 Uso: python3 check-tp.py COIN CURRENT_PRICE STATE_FILE LOG_FILE
+
+Integrado con On-Chain Pre-Trade Gate (FASE 4):
+  - Antes de vender, verifica smart money signals
+  - Si smart money está comprando (signal=1, 3+ whales), añade warning
+  - Si token audit detectó mintable, confirma venta inmediata (evitar rug pull)
 """
 
 import json
@@ -14,6 +19,50 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 
+# ── On-Chain Gate Integration ────────────────────────────────────────────────
+WORKSPACE = os.path.expanduser("~/openclaw/workspace")
+ON_CHAIN_GATE = os.path.join(WORKSPACE, "ml/on_chain_pre_trade_gate.py")
+
+def on_chain_sell_check(symbol: str) -> tuple[str, str]:
+    """
+    Verifica on-chain data antes de vender.
+    Returns: (status, reason)
+      status: "CONFIRM_SELL", "WARN_SELL", "ABORT_SELL"
+    """
+    if not os.path.exists(ON_CHAIN_GATE):
+        return ("CONFIRM_SELL", "on-chain gate no disponible, proceeding")
+    
+    try:
+        import subprocess
+        result = subprocess.run(
+            ["python3", ON_CHAIN_GATE, symbol, "SELL"],
+            capture_output=True, text=True, timeout=30,
+            cwd=WORKSPACE
+        )
+        output = result.stdout.strip()
+        
+        if "BLOCK_ON_CHAIN_GATE" in output:
+            # Si es BLOCK, pero estamos en SELL → confirma venta inmediata
+            # (BLOCK en BUY = no comprar; BLOCK en SELL = vender Ya)
+            return ("CONFIRM_SELL", f"BLOCK en BUY = vender inmediato: {output}")
+        
+        if "WARN_ON_CHAIN_GATE" in output:
+            # Smart money selling → good timing to sell también
+            return ("WARN_SELL", f"On-chain warning presente: {output}")
+        
+        if "ALLOW_ON_CHAIN_GATE" in output:
+            # Verificar si smart money está comprando (contrario a nuestra venta)
+            reason = output.split("|")[-1] if "|" in output else "ALLOW"
+            if "buying" in reason.lower() or "whales" in reason.lower():
+                return ("WARN_SELL", f"Smart money buying, reconsiderar venta parcial: {output}")
+            return ("CONFIRM_SELL", "On-chain gate: ALLOW")
+            
+    except Exception as e:
+        return ("CONFIRM_SELL", f"On-chain gate error: {e}, proceeding conservatively")
+    
+    return ("CONFIRM_SELL", "fallback: proceeding with sell")
+
+# ── Existing imports ─────────────────────────────────────────────────────────
 if len(sys.argv) < 5:
     print(f"Usage: {sys.argv[0]} COIN CURRENT_PRICE STATE_FILE LOG_FILE")
     sys.exit(1)
@@ -171,7 +220,31 @@ for slot_info in slots_to_close:
     print(f"   Quantity: {quantity:.8f}")
     print(f"   closeQty: {close_qty:.8f} (pct={pct})")
     print(f"   🚀 Ejecutando cierre PARCIAL...")
-
+    
+    # ════════════════════════════════════════════════════════
+    # 🛡️ FASE 4: ON-CHAIN SELL CONFIRMATION
+    # Antes de vender, verificar token audit + smart money
+    # - BLOCK → confirma venta inmediata (token risky)
+    # - WARN → smart money selling (good timing, proceed)
+    # - ALLOW + smart money buying → recomendar venta parcial
+    # ════════════════════════════════════════════════════════
+    sell_status, sell_reason = on_chain_sell_check(coin)
+    print(f"   🔍 On-chain sell check: {sell_status} — {sell_reason}")
+    
+    if sell_status == "ABORT_SELL":
+        print(f"   ⛔ On-chain gate ABORTÓ venta de {coin}: {sell_reason}")
+        print(f"   💡 Saltando cierre, trade sigue activo")
+        continue
+    
+    # Ajustar posición si WARN
+    if sell_status == "WARN_SELL":
+        original_close_qty = close_qty
+        close_qty = round(close_qty * 0.5, 8)  # Reducir venta al 50% si warn
+        print(f"   ⚠️ On-chain WARN: reduciendo venta del {original_close_qty:.8f} al {close_qty:.8f} (50%)")
+        if close_qty <= 0:
+            print(f"   ⚠️ Cantidad ajustada en 0 después del warning, saltando")
+            continue
+    
     execute_order = True
     order_result = None
     try:
