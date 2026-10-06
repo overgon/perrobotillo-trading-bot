@@ -40,13 +40,15 @@ status() {
     echo "🎨 DASHBOARD:"
     if systemctl is-active --quiet perrobotillo-dashboard-ngrok 2>/dev/null; then
         echo "   ✅ Dashboard + Ngrok corriendo (systemd)"
-        local url=$(curl -s http://localhost:4040/api/tunnels 2>/dev/null | jq -r '.tunnels[0].public_url // "N/A"')
+        local url=$(grep -oP 'url=\Khttps://[^ ]+' "$HOME/.openclaw/logs/ngrok-stdout.log" 2>/dev/null | tail -1)
+        [ -z "$url" ] && url="N/A"
         if [ "$url" != "N/A" ] && [ "$url" != "null" ]; then
             echo "   🌐 URL: $url"
         fi
     elif pgrep -f "start-with-ngrok.sh" > /dev/null 2>&1 || (pgrep -f "python.*app.py" > /dev/null 2>&1 && pgrep -f "ngrok" > /dev/null 2>&1); then
         echo "   ✅ Dashboard + Ngrok corriendo (manual)"
-        local url=$(curl -s http://localhost:4040/api/tunnels 2>/dev/null | jq -r '.tunnels[0].public_url // "N/A"')
+        local url=$(grep -oP 'url=\Khttps://[^ ]+' "$HOME/.openclaw/logs/ngrok-stdout.log" 2>/dev/null | tail -1)
+        [ -z "$url" ] && url="N/A"
         if [ "$url" != "N/A" ] && [ "$url" != "null" ]; then
             echo "   🌐 URL: $url"
         else

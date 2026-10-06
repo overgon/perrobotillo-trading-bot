@@ -20,29 +20,8 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
-send_telegram() {
-    local message="$1"
-    # ✅ FIX: Source centralized notify.sh to use --data-urlencode (evita quoting doble)
-    local notify_script="${WORKSPACE}/crypto-bots/notify.sh"
-    if [ -f "$notify_script" ]; then
-        source "$notify_script"
-        notify "AUTO_RESUME" "$message"
-        return $?
-    fi
-    # Fallback direct con --data-urlencode
-    local config_json="$HOME/.openclaw/openclaw.json"
-    local chat_id="7543955537"
-    
-    if [ -f "$config_json" ]; then
-        local bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_json" 2>/dev/null)
-        if [ -n "$bot_token" ]; then
-            curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
-                -d "chat_id=${chat_id}" \
-                --data-urlencode "text=${message}" \
-                -d "parse_mode=Markdown" > /dev/null 2>&1
-        fi
-    fi
-}
+# ✅ BUG #9/#10 FIX: Source centralized notify.sh
+source "$WORKSPACE/crypto-bots/notify.sh" 2>/dev/null || true
 
 # ════════════════════════════════════════════════════════
 # 📊 CRITERIO 1: PERFORMANCE (Win Rate Reciente)
@@ -235,7 +214,7 @@ check_and_resume_coin() {
         rm -f "$pause_flag"
         
         # Notificar
-        send_telegram "✅ TRADING REANUDADO ${coin}
+        notify "AUTO_RESUME" "✅ TRADING REANUDADO ${coin}
 Perf: ${perf_msg} | Mercado: ${market_msg} 🚀"
         
         return 0

@@ -100,6 +100,44 @@ if [ -f "$LOGS_DIR/auto-retrain.log" ]; then
     log "✅ Auto retrain log rotado (últimas 500 líneas)"
 fi
 
+# ✅ ROTAR NUEVOS LOGS JSONL (2026-10-04)
+log ""
+log "🗑️  Rotando nuevos logs JSONL (mantener últimas 5000 líneas cada uno)..."
+
+jsonl_logs=(
+    "trade-slots.log"
+    "order-placement-debug.log"
+    "circuit-breaker-decisions.log"
+    "auto-capital-adjust.log"
+    "ml-prediction-input.log"
+    "portfolio-balance-trace.log"
+    "telegram-notification-delivery.log"
+    "config-change-trace.log"
+)
+
+for jlog in "${jsonl_logs[@]}"; do
+    if [ -f "$LOGS_DIR/$jlog" ]; then
+        lines=$(wc -l < "$LOGS_DIR/$jlog")
+        if [ "$lines" -gt 5000 ]; then
+            tail -5000 "$LOGS_DIR/$jlog" > "$LOGS_DIR/$jlog.tmp" 2>/dev/null
+            mv "$LOGS_DIR/$jlog.tmp" "$LOGS_DIR/$jlog" 2>/dev/null
+            log "✅ $jlog rotado ($lines → 5000 líneas)"
+        else
+            log "✅ $jlog: $lines líneas (dentro de límite)"
+        fi
+    else
+        log "⚪ $jlog: no existe aún"
+    fi
+done
+
+# ✅ ELIMINAR LOGS JSONL > 60 días (más agresivo para JSONL)
+log ""
+log "🗑️  Eliminando logs JSONL > 60 días..."
+for jlog in "${jsonl_logs[@]}"; do
+    find "$LOGS_DIR" -name "$jlog" -type f -mtime +60 -delete 2>/dev/null
+done
+log "✅ JSONL logs antiguos eliminados"
+
 # 5. Rotar logs manualmente (si logrotate está disponible)
 log ""
 if command -v logrotate &> /dev/null; then
@@ -164,4 +202,6 @@ log "  • ml-retrain.log → últimas 1000 líneas"
 log "  • ml-retrain-cron.log → últimas 500 líneas"
 log "  • ml-integration.log → últimas 2000 líneas"
 log "  • auto-retrain.log → últimas 500 líneas"
+log "  • JSONL logs → últimas 5000 líneas (8 logs)"
+log "  • JSONL logs > 60d → eliminados"
 log ""

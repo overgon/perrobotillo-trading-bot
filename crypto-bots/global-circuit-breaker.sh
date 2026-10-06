@@ -151,11 +151,24 @@ losses_1h=$(echo "$losses_data" | cut -d'|' -f4)
 echo "# Global 24h: $losses_24h losses, $trades_24h trades, \$${total_loss_24h}" >&2
 
 # ════════════════════════════════════════════════════════
+# 📊 CB DECISIONS LOG - Perrobotillo v2.1
+# ════════════════════════════════════════════════════════
+CB_LOG="$WORKSPACE/logs/circuit-breaker-decisions.log"
+log_cb() {
+    local event="$1"
+    local detail="$2"
+    local ts
+    ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    echo "{\"timestamp\":\"$ts\",\"event\":\"$event\",\"losses_24h\":$losses_24h,\"total_loss_24h\":$total_loss_24h,\"trades_24h\":$trades_24h,\"losses_1h\":$losses_1h,\"detail\":\"$detail\"}" >> "$CB_LOG"
+}
+
+# ════════════════════════════════════════════════════════
 # 🛑 REGLAS DE CIRCUIT BREAKER - OPTIMIZADO 2026-06-01
 # ════════════════════════════════════════════════════════
 
 # Regla 1: 4+ losses en 24h → PAUSE 24h
 if [ "$losses_24h" -ge 4 ]; then
+    log_cb "cb.triggered" "losses_count_>=4"
     pause_until=$(date -d '+24 hours' '+%Y-%m-%d %H:%M:%S')
     jq -n --arg pause "$pause_until" --argjson losses "$losses_24h" --arg loss "$total_loss_24h" \
         '{"pause_until": $pause, "triggered_by": "losses_count", "losses_24h": $losses, "total_loss": $loss}' \

@@ -199,6 +199,11 @@ fi
 if [ -f "$DYNAMIC_CONFIG" ]; then
     source "$DYNAMIC_CONFIG"
     echo "🔄 Sync post-ML: MARKET_MODE=$MARKET_MODE (leído de dynamic-config.env)"
+    
+    # ✅ JSONL: Log de cambio de config
+    CONFIG_LOG="$WORKSPACE/logs/config-change-trace.log"
+    config_ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    echo "{\"timestamp\":\"$config_ts\",\"event\":\"config.update\",\"source\":\"ml_sync\",\"market_mode\":\"$MARKET_MODE\",\"dynamic_config\":\"$DYNAMIC_CONFIG\"}" >> "$CONFIG_LOG" 2>/dev/null || true
 fi
 
 # ════════════════════════════════════════════════════════
@@ -277,5 +282,10 @@ echo "📁 Configuración en: ${DYNAMIC_CONFIG}"
 echo ""
 echo "🔄 El bot usará esta configuración en la próxima ejecución"
 echo ""
+
+# ✅ JSONL: Log final de config apply
+CONFIG_LOG="$WORKSPACE/logs/config-change-trace.log"
+final_ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+echo "{\"timestamp\":\"$final_ts\",\"event\":\"config.apply\",\"market_mode\":\"$FINAL_MODE\",\"override\":\"$OVERRIDE\",\"dynamic_config\":\"$DYNAMIC_CONFIG\"}" >> "$CONFIG_LOG" 2>/dev/null || true
 
 exit 0

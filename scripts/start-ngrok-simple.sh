@@ -37,7 +37,7 @@ fi
 # 3. Iniciar ngrok
 echo "🔌 Iniciando ngrok..."
 cd "$HOME/.openclaw/workspace/dashboard"
-/usr/local/bin/ngrok http 8080 > /tmp/ngrok.log 2>&1 &
+/usr/local/bin/ngrok start dashboard --config=/home/overgon/.config/ngrok/ngrok.yml > /tmp/ngrok.log 2>&1 &
 NGROK_PID=$!
 
 echo "✅ Ngrok iniciado (PID: $NGROK_PID)"
@@ -47,7 +47,7 @@ echo "⏳ Esperando conexión con ngrok..."
 sleep 10
 
 # 5. Verificar tunnel
-NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url // empty')
+NGROK_URL=$(grep -oP 'url=\Khttps://[^ ]+' /tmp/ngrok.log 2>/dev/null | tail -1 || true)
 
 if [ -n "$NGROK_URL" ]; then
     echo ""
@@ -55,7 +55,7 @@ if [ -n "$NGROK_URL" ]; then
     echo "║  🎉 NGROK ONLINE                                       ║"
     echo "╠═══════════════════════════════════════════════════════╣"
     echo "║  URL: $NGROK_URL"
-    echo "║  Panel: http://localhost:4040"
+    echo "║  Inspección: OFF (inspect: false)                ║"
     echo "╚═══════════════════════════════════════════════════════╝"
     
     # Guardar URL

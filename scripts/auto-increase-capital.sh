@@ -120,28 +120,8 @@ update_config() {
     log "✅ Position size actualizado: ${new_position}%"
 }
 
-send_telegram() {
-    local message="$1"
-    # ✅ FIX: Source centralized notify.sh from Perrobotillo to avoid malformed JSON
-    local notify_script="$HOME/.openclaw/workspace/crypto-bots/notify.sh"
-    if [ -f "$notify_script" ]; then
-        source "$notify_script"
-        notify "AUTO_CAPITAL_INC" "$message"
-        return $?
-    fi
-    # Fallback direct con --data-urlencode (evita quoting doble)
-    local config_file="$HOME/.openclaw/openclaw.json"
-    
-    if [ -f "$config_file" ]; then
-        local bot_token=$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)
-        if [ -n "$bot_token" ] && [ "$bot_token" != "null" ]; then
-            curl -s -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
-                -d "chat_id=7543955537" \
-                --data-urlencode "text=${message}" \
-                -d "parse_mode=Markdown" > /dev/null
-        fi
-    fi
-}
+# ✅ BUG #9/#10 FIX: Source centralized notify.sh
+source "$WORKSPACE/crypto-bots/notify.sh" 2>/dev/null || true
 
 save_progress() {
     local position=$1
@@ -244,7 +224,7 @@ case $ACTION in
         log "🔄 Ejecutando aumento de position size..."
         update_config $NEW_POSITION
 
-        send_telegram "💰 CAPITAL UP - ${NEW_POSITION}% position
+        notify "AUTO_CAPITAL_INC" "💰 CAPITAL UP - ${NEW_POSITION}% position
 WR: ${WINRATE}% | Capital: \$${TOTAL_CAPITAL} USDT
 ${CURRENT_POSITION}% → ${NEW_POSITION}% (+${INCREMENT_STEP}%) ✅"
         ;;
@@ -253,7 +233,7 @@ ${CURRENT_POSITION}% → ${NEW_POSITION}% (+${INCREMENT_STEP}%) ✅"
         log "🔄 Ejecutando reducción de position size..."
         update_config $NEW_POSITION
 
-        send_telegram "📉 CAPITAL DOWN - ${NEW_POSITION}% position
+        notify "AUTO_CAPITAL_INC" "📉 CAPITAL DOWN - ${NEW_POSITION}% position
 WR: ${WINRATE}% | Capital: \$${TOTAL_CAPITAL} USDT
 ${CURRENT_POSITION}% → ${NEW_POSITION}% (-${INCREMENT_STEP}%) ⚠️"
         ;;
@@ -262,7 +242,7 @@ ${CURRENT_POSITION}% → ${NEW_POSITION}% (-${INCREMENT_STEP}%) ⚠️"
         log "⏳ Esperando más capital para aumentar..."
 
         if [ ! -f "$PROGRESS_FILE" ]; then
-            send_telegram "⏳ ESPERANDO CAPITAL
+            notify "AUTO_CAPITAL_INC" "⏳ ESPERANDO CAPITAL
 \$${TOTAL_CAPITAL} USDT (faltan \$$(echo "$MIN_CAPITAL_FOR_INCREASE - $TOTAL_CAPITAL" | bc) para \$${MIN_CAPITAL_FOR_INCREASE}) 🐕"
         fi
         ;;

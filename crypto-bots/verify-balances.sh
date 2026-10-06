@@ -48,7 +48,11 @@ if ! echo "$account_data" | jq -e '.balances' > /dev/null 2>&1; then
     exit 1
 fi
 
+# Inyectar logging JSONL en verify-balances.sh - portfolio-balance-trace.log
 total_dust_usd=0
+
+# ✅ JSONL: trace de balances
+PORTFOLIO_LOG="$WORKSPACE/logs/portfolio-balance-trace.log"
 
 log "┌─────────────────────────────────────────────────────────┐"
 log "│ COIN   │ API Balance │ Active │ Diff    │ USD Value   │"
@@ -62,7 +66,7 @@ for COIN in "${COINS[@]}"; do
     fi
     
     # Obtener balance real de Binance
-    api_balance=$(echo "$account_data" | jq -r ".balances[] | select(.asset == \"$COIN\") | .free // 0")
+    api_balance=$(echo "$account_data" | jq -r '.balances[] | select(.asset == "'"$COIN"'") | .free // 0')
     api_balance=$(printf "%.8f" "$api_balance")
     
     # Sumar cantidades activas del file
@@ -79,9 +83,17 @@ for COIN in "${COINS[@]}"; do
     
     total_dust_usd=$(awk -v total="$total_dust_usd" -v dust="$dust_value_usd" 'BEGIN {printf "%.2f", total + dust}')
     
+    # ✅ JSONL: trace de balance individual
+    balance_ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    echo "{\"timestamp\":\"$balance_ts\",\"event\":\"balance.check\",\"coin\":\"$COIN\",\"api_balance\":$api_balance,\"active_qty\":$active_qty,\"diff\":$diff,\"dust_value_usd\":$dust_value_usd}" >> "$PORTFOLIO_LOG" 2>/dev/null || true
+    
     # Formatear salida
     log "│ ${COIN}     │ ${api_balance} │ ${active_qty} │ ${diff} │ \$${dust_value_usd} │"
 done
+
+# ✅ JSONL: trace de balance total
+balance_end_ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+echo "{\"timestamp\":\"$balance_end_ts\",\"event\":\"balance.total\",\"total_dust_usd\":$total_dust_usd}" >> "$PORTFOLIO_LOG" 2>/dev/null || true
 
 log "└─────────────────────────────────────────────────────────┘"
 log ""

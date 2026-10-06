@@ -46,6 +46,11 @@ send_telegram() {
     local message="$1"
     local bot_token=""
     local config_file="$HOME/.openclaw/openclaw.json"
+    
+    # ✅ JSONL: Log de notificación Telegram
+    TELEGRAM_LOG="$WORKSPACE/logs/telegram-notification-delivery.log"
+    local notify_ts
+    notify_ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
     # ✅ FIX: Intentar cargar desde openclaw.json primero
     if [ -f "$config_file" ]; then
@@ -84,9 +89,11 @@ send_telegram() {
 
     if [ "$code" = "200" ]; then
         log "Telegram enviado"
+        echo "{\"timestamp\":\"$notify_ts\",\"event\":\"notify.sent\",\"status\":\"success\",\"http_code\":$code,\"message_preview\":\"${message:0:100}\"}" >> "$TELEGRAM_LOG"
         return 0
     else
         log "Error Telegram: HTTP ${code} | Body: ${body:0:100}"
+        echo "{\"timestamp\":\"$notify_ts\",\"event\":\"notify.sent\",\"status\":\"error\",\"http_code\":$code,\"body\":\"${body:0:100}\",\"message_preview\":\"${message:0:100}\"}" >> "$TELEGRAM_LOG"
         return 1
     fi
 }

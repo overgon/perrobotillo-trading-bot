@@ -25,7 +25,7 @@ echo "✅ Dashboard corriendo (PID: $DASHBOARD_PID)"
 
 # 4. Iniciar Ngrok (sin --log=stdout para evitar problemas)
 echo "🔌 Iniciando ngrok tunnel..."
-/usr/local/bin/ngrok http 8080 > /tmp/ngrok.log 2>&1 &
+/usr/local/bin/ngrok start dashboard --config=/home/overgon/.config/ngrok/ngrok.yml > /tmp/ngrok.log 2>&1 &
 NGROK_PID=$!
 
 echo "✅ Ngrok iniciado (PID: $NGROK_PID)"
@@ -34,7 +34,7 @@ echo "✅ Ngrok iniciado (PID: $NGROK_PID)"
 sleep 8
 
 # 6. Obtener URL de ngrok
-NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
+NGROK_URL=$(grep -oP 'url=\Khttps://[^ ]+' "$HOME/.openclaw/logs/ngrok-stdout.log" 2>/dev/null | tail -1 || true)
 
 # 7. Mostrar URL
 echo ""
@@ -42,7 +42,7 @@ echo "╔═══════════════════════�
 echo "║  🎉 PERROBOTILLO DASHBOARD - ONLINE                   ║"
 echo "╠═══════════════════════════════════════════════════════╣"
 echo "║  URL pública: $NGROK_URL"
-echo "║  Panel ngrok: http://localhost:4040                   ║"
+echo "║  Inspección: OFF (inspect: false)                ║"
 echo "║  Dashboard local: http://192.168.3.215:8080          ║"
 echo "╚═══════════════════════════════════════════════════════╝"
 echo ""

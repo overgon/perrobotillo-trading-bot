@@ -1,16 +1,16 @@
 {
   "symbol": "SOLUSDT",
   "timeframe": "1h",
-  "timestamp": "2026-09-28T22:00:38.314514",
-  "current_price": 117.74,
-  "atr": 1.2835714285714295,
-  "atr_percent": 1.0901744764493202,
+  "timestamp": "2026-10-06T12:00:44.528694",
+  "current_price": 121.0,
+  "atr": 0.8528571428571458,
+  "atr_percent": 0.7048406139315254,
   "volatility_ratio": 1.0,
   "volatility_status": "BAJA",
   "multiplier": 2.0,
-  "trailing_stop_percent": 2.1803489528986404,
-  "trailing_stop_value": 2.5671428571428594,
+  "trailing_stop_percent": 2.0,
+  "trailing_stop_value": 2.42,
   "min_trailing": 2.0,
   "max_trailing": 15.0,
-  "recommendation": "Usar trailing stop de 2.2% (BAJA volatilidad)"
+  "recommendation": "Usar trailing stop de 2.0% (BAJA volatilidad)"
 }

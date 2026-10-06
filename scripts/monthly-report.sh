@@ -187,6 +187,10 @@ for coin in "${COINS[@]}"; do
     
     # Contar trades
     trades=$(count_monthly_trades "$coin" "$YEAR_MONTH_PREV")
+    # ✅ FIX: Sanitizar trades a número entero (evita syntax error en $((arithmetic)))
+    trades=$(echo "$trades" | tr -dc '0-9')
+    trades=${trades:-0}
+    
     TRADES_COUNT[$coin]=$trades
     TOTAL_TRADES=$((TOTAL_TRADES + trades))
     

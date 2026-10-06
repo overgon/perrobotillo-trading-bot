@@ -21,9 +21,21 @@ log "╔════════════════════════
 log "║  🧠 UPDATE ML PREDICTIONS                             ║"
 log "╚═══════════════════════════════════════════════════════╝"
 
+# ✅ JSONL: Log de predicciones ML
+ML_INPUT_LOG="$WORKSPACE/logs/ml-prediction-input.log"
+
+log_ml_prediction() {
+    local event="$1"
+    local detail="$2"
+    local ts
+    ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    echo "{\"timestamp\":\"$ts\",\"event\":\"$event\",\"detail\":\"$detail\"}" >> "$ML_INPUT_LOG"
+}
+
 # Verificar que existan los modelos
 if [ ! -f "${ML_DIR}/models/BTC_ml_model.pkl" ]; then
     log "❌ Error: Modelos ML no encontrados. Ejecutar auto-retrain primero."
+    log_ml_prediction "ml.predict.error" "models_not_found"
     exit 1
 fi
 
@@ -54,6 +66,26 @@ log "✅ ML Predictions actualizadas"
 log "   Timestamp: ${TIMESTAMP}"
 log "   Recommended Mode: ${MODE}"
 log "   BTC Confidence: ${BTC_CONF}"
+
+log_ml_prediction "ml.predict.success" "timestamp=$TIMESTAMP,mode=$MODE,btc_conf=$BTC_CONF"
+
+# ✅ JSONL: Log de features individuales si existen
+if [ -f "$ML_PREDICTIONS" ]; then
+    python3 -c "
+import json, sys
+try:
+    d = json.load(open('$ML_PREDICTIONS'))
+    ts = d.get('timestamp','UNKNOWN')
+    mode = d.get('recommended_mode','UNKNOWN')
+    preds = d.get('predictions', {})
+    for coin, p in preds.items():
+        conf = p.get('confidence', 0)
+        action = p.get('action', 'UNKNOWN')
+        print(json.dumps({'timestamp': ts, 'coin': coin, 'confidence': conf, 'action': action}))
+except Exception as e:
+    print(json.dumps({'error': str(e)}), file=sys.stderr)
+" >> "$ML_INPUT_LOG" 2>/dev/null || true
+fi
 
 # Verificar edad del archivo anterior (opcional, para logging)
 if [ -f "$ML_PREDICTIONS" ]; then

@@ -98,6 +98,12 @@ class FeatureEngineer:
         # 11. Market Context Features (BTC-based) — required by Fase 5 ML models
         df = self._add_btc_context_features(df, coin)
         
+        # 12. Smart Money On-Chain Features (integración Binance Skill Hub)
+        df = self._add_smart_money_features(df, coin)
+        
+        # 13. Token Audit Risk Features (integración Binance Skill Hub)
+        df = self._add_token_audit_features(df, coin)
+        
         # Limpiar NaN
         df.dropna(inplace=True)
         
@@ -477,6 +483,105 @@ class FeatureEngineer:
 
         return df
 
+    def _add_smart_money_features(self, df: pd.DataFrame, coin: str) -> pd.DataFrame:
+        """
+        Agregar Smart Money On-Chain Features.
+        
+        Features generados:
+        - smart_money_signal: 1 (buy) / -1 (sell) / 0 (neutral)
+        - smart_money_score: float (maxGain * (100 - exitRate) / 100)
+        - smart_money_count: número de smart-money wallets (0-99)
+        - smart_money_confidence_boost: extra ML confidence en % (0-5)
+        
+        Integra Binance Skill Hub trading-signal skill (BSC chain).
+        Cachea resultados cada 15 minutos en /tmp/smart_money_signals_cache.json
+        """
+        print("  ├─ Agregando smart money on-chain features...")
+        
+        # Importación diferida para evitar dependencia en backtests offline
+        try:
+            # Intentar import relativo (cuando se llama desde ml/)
+            try:
+                from smart_money_signal import get_smart_money_features
+            except ImportError:
+                # Intentar import absoluto (cuando se llama desde workspace/)
+                from ml.smart_money_signal import get_smart_money_features
+            features = get_smart_money_features(coin, force_refresh=False)
+        except Exception as e:
+            print(f"    ⚠️ Smart money fetch error: {e} — usando defaults")
+            features = {
+                "smart_money_signal": 0,
+                "smart_money_score": 0.0,
+                "confidence_boost": 0,
+                "smart_money_count": 0,
+            }
+        
+        # Broadcast a todas las velas (features constantes durante la sesión)
+        df['smart_money_signal'] = features["smart_money_signal"]
+        df['smart_money_score'] = features["smart_money_score"]
+        df['smart_money_count'] = features["smart_money_count"]
+        df['smart_money_confidence_boost'] = features["confidence_boost"]
+        
+        return df
+    
+    def _add_token_audit_features(self, df: pd.DataFrame, coin: str) -> pd.DataFrame:
+        """
+        Agregar Token Audit Risk Features.
+        
+        Features generados:
+        - token_risk_level: LOW(1) / MID(2) / HIGH(3) / UNKNOWN(0)
+        - token_risk_num: int (0-5, donde 4-5 = BLOCK)
+        - token_risk_block: bool (True si riskLevel >= 4)
+        - token_buy_tax: float (buy tax %)
+        - token_sell_tax: float (sell tax %)
+        - token_is_verified: bool | None
+        
+        Integra Binance Skill Hub query-token-audit (BSC chain).
+        Cachea resultados cada 60 minutos en /tmp/token_audit_cache.json
+        """
+        print("  ├─ Agregando token audit risk features...")
+        
+        try:
+            # Intentar import relativo (cuando se llama desde ml/)
+            try:
+                from token_audit_gate import check_token_audit
+            except ImportError:
+                # Intentar import absoluto (cuando se llama desde workspace/)
+                from ml.token_audit_gate import check_token_audit
+            audit = check_token_audit(coin, force_refresh=False)
+        except Exception as e:
+            print(f"    ⚠️ Token audit error: {e} — usando defaults")
+            audit = {
+                "risk_level_enum": "UNKNOWN",
+                "risk_level_num": 0,
+                "block_trade": False,
+                "buy_tax": 0.0,
+                "sell_tax": 0.0,
+                "is_verified": None,
+            }
+        
+        # Risk enum → numérico (0-3)
+        risk_map = {"LOW": 1, "MID": 2, "HIGH": 3}
+        risk_num_enum = risk_map.get(audit.get("risk_level_enum", "UNKNOWN"), 0)
+        
+        df['token_risk_level'] = risk_num_enum
+        df['token_risk_num'] = audit.get("risk_level_num", 0)
+        df['token_risk_block'] = int(audit.get("block_trade", False))
+        df['token_buy_tax'] = float(audit.get("buy_tax", 0) or 0)
+        df['token_sell_tax'] = float(audit.get("sell_tax", 0) or 0)
+        df['token_is_verified'] = int(audit.get("is_verified", False)) if audit.get("is_verified") is not None else -1
+        
+        # Feature interaction: risk-adjusted confidence
+        # Si token tiene risk HIGH o block → reduce todo feature score
+        risk_penalty = 1.0
+        if risk_num_enum >= 3:
+            risk_penalty = 0.5  # 50% penalty
+        elif risk_num_enum == 2:
+            risk_penalty = 0.8  # 20% penalty
+        df['token_risk_adjusted_confidence'] = df.get('confidence_score', 50.0) * risk_penalty
+        
+        return df
+    
     def get_feature_importance_summary(self, df: pd.DataFrame) -> dict:
         """Resumen de features generados"""
         

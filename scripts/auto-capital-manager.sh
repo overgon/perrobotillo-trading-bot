@@ -205,30 +205,8 @@ update_config() {
   log "✅ Position size actualizado: ${new_position}% (${action})"
 }
 
-send_telegram() {
-  local message="$1"
-  # ✅ FIX: Source centralized notify.sh from Perrobotillo to avoid JSON malformado
-  local notify_script="$HOME/.openclaw/workspace/crypto-bots/notify.sh"
-  if [ -f "$notify_script" ]; then
-    source "$notify_script"
-    notify "AUTO_CAPITAL" "$message"
-    return $?
-  fi
-  # Fallback direct con --data-urlencode (evita quoting doble)
-  local config_file="${HOME}/.openclaw/openclaw.json"
-  if [ ! -f "${config_file}" ]; then
-    return 0
-  fi
-  local bot_token
-  bot_token="$(jq -r '.channels.telegram.botToken // empty' "${config_file}" 2>/dev/null || true)"
-  if [ -z "${bot_token}" ] || [ "${bot_token}" = "null" ]; then
-    return 0
-  fi
-  curl -s --max-time "${HTTP_TIMEOUT:-10}" -X POST "https://api.telegram.org/bot${bot_token}/sendMessage" \
-    -d "chat_id=7543955537" \
-    --data-urlencode "text=${message}" \
-    -d "parse_mode=Markdown" > /dev/null 2>&1 || true
-}
+# ✅ BUG #9/#10 FIX: Source centralized notify.sh
+source "$WORKSPACE/crypto-bots/notify.sh" 2>/dev/null || true
 
 save_progress() {
   local position="$1"
@@ -240,6 +218,38 @@ save_progress() {
   local reason_escaped action_escaped
   reason_escaped="$(printf '%s' "${reason}" | sed 's/"/\\\"/g' | tr -d '\n')"
   action_escaped="$(printf '%s' "${action}" | sed 's/"/\\\"/g')"
+
+  cat > "${PROGRESS_FILE}" <<EOF
+{
+  "timestamp": "$(date -Iseconds)",
+  "position_size": ${position},
+  "win_rate": ${winrate},
+  "total_capital": ${capital},
+  "last_action": "${action_escaped}",
+  "reason": "${reason_escaped}",
+  "history": []
+}
+EOF
+}
+
+# ✅ JSONL: Log de decisiones del capital manager
+CAPITAL_LOG="$HOME/.openclaw/logs/auto-capital-adjust.log"
+
+save_progress() {
+  local position="$1"
+  local winrate="$2"
+  local capital="$3"
+  local action="$4"
+  local reason="$5"
+
+  local reason_escaped action_escaped
+  reason_escaped="$(printf '%s' "${reason}" | sed 's/"/\\"/g' | tr -d '\n')"
+  action_escaped="$(printf '%s' "${action}" | sed 's/"/\\"/g')"
+
+  # ✅ JSONL: Log estructurado de decisión capital
+  local ts
+  ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  echo "{\"timestamp\":\"$ts\",\"event\":\"capital.adjust\",\"action\":\"$action_escaped\",\"position_size\":$position,\"win_rate\":$winrate,\"total_capital\":\"$capital\",\"reason\":\"$reason_escaped\"}" >> "$CAPITAL_LOG" 2>/dev/null || true
 
   cat > "${PROGRESS_FILE}" <<EOF
 {
@@ -334,11 +344,11 @@ main() {
 
     if [[ "${DRY_RUN}" != "1" ]]; then
       if [[ "${ACTION}" == INCREASE* ]]; then
-        send_telegram "📈 CAPITAL UP - ${NEW_POSITION}% position
+        notify "AUTO_CAPITAL" "📈 CAPITAL UP - ${NEW_POSITION}% position
 USDT: ${usdt_balance} | WR: ${current_win_rate}%
 ${CURRENT_POSITION}% → ${NEW_POSITION}% ✅"
       else
-        send_telegram "📉 CAPITAL DOWN - ${NEW_POSITION}% position
+        notify "AUTO_CAPITAL" "📉 CAPITAL DOWN - ${NEW_POSITION}% position
 USDT: ${usdt_balance} | WR: ${current_win_rate}%
 ${CURRENT_POSITION}% → ${NEW_POSITION}% 🛡️"
       fi

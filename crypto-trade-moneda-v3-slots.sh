@@ -46,12 +46,12 @@ SYMBOL="${1:-}"
 SYMBOL="${SYMBOL^^}"
 
 if [ -z "$SYMBOL" ]; then
-    echo "❌ Uso: $0 <SYMBOL> (ej: BTC, ETH, BNB, SOL, ZEC, XRP)"
+    echo "❌ Uso: $0 <SYMBOL> (ej: BTC, ETH, BNB, SOL, LINK, XRP)"
     exit 1
 fi
 
 case "$SYMBOL" in
-    BTC|ETH|BNB|SOL|ZEC|XRP|AVAX) ;;
+    BTC|ETH|BNB|SOL|LINK|XRP|AVAX) ;;
     *) echo "❌ SYMBOL no soportado: $SYMBOL"; exit 1 ;;
 esac
 
@@ -296,8 +296,8 @@ local_symbol = sys.argv[3]
 # (authoritative from cron invocation arg, NOT a leaked env var) when the
 # price is plausible for that coin. Only override when price is wildly outside
 # local_symbol's range — that is the real stale-env-var signal.
-KNOWN_COINS = {'BTC','ETH','BNB','SOL','AVAX','ZEC','XRP'}
-RANGES = {'BTC':(20000,120000),'ETH':(800,8000),'BNB':(200,1000),'SOL':(40,500),'AVAX':(4.0,30.0),'ZEC':(500,5000),'XRP':(0.2,5.0)}
+KNOWN_COINS = {'BTC','ETH','BNB','SOL','AVAX','LINK','XRP'}
+RANGES = {'BTC':(20000,120000),'ETH':(800,8000),'BNB':(200,1000),'SOL':(40,500),'AVAX':(4.0,30.0),'LINK':(1.0,50.0),'XRP':(0.2,5.0)}
 if local_symbol in KNOWN_COINS:
     lo, hi = RANGES[local_symbol]
     if lo <= entry <= hi:
@@ -405,7 +405,7 @@ get_portfolio_value() {
     local total=$(printf '%.2f' "$usdt")
 
     # RR Fix 2026-10-02: Added BTC ETH — loop must cover all 7 coins for balance check
-    for coin in BTC ETH BNB SOL AVAX ZEC XRP; do
+    for coin in BTC ETH BNB SOL LINK AVAX XRP; do
         local balance=$(get_balance "$coin")
         balance=$(printf '%s' "$balance" | tr -d '[:space:]')
         if ! printf '%s' "$balance" | grep -qE '^[0-9]+(\.[0-9]+)?$'; then
@@ -444,7 +444,7 @@ format_quantity() {
     [ -z "$stepSize" ] || [ "$stepSize" = "null" ] && {
         # Common fallbacks by symbol
         case "$symbol" in
-            ZEC|SOL|AVAX) stepSize="0.01000000" ;;
+            LINK|SOL|AVAX) stepSize="0.01000000" ;;
             BNB) stepSize="0.00100000" ;;
             XRP) stepSize="0.10000000" ;;
             BTC) stepSize="0.00001000" ;;
@@ -614,6 +614,14 @@ update_slot_field() {
     fi
 
     rm -f /tmp/jq_error_$$.txt
+    
+    # ✅ JSONL: Log de cierre de slot al cambiar status a CLOSED_*
+    if [ "$field" = "status" ] && [[ "$value" == CLOSED_* ]]; then
+        SLOTS_LOG="$WORKSPACE/logs/trade-slots.log"
+        slot_ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        echo "{\"timestamp\":\"$slot_ts\",\"event\":\"slot.close\",\"coin\":\"$SYMBOL\",\"slot_id\":$slot_id,\"close_type\":\"$value\"}" >> "$SLOTS_LOG" 2>/dev/null || true
+    fi
+    
     return 0
 }
 
@@ -1043,6 +1051,15 @@ execute_long() {
 
         # Actualizar slot
         update_slot_field "$slot_id" "status" "ACTIVE"
+        
+        # ✅ JSONL: Log apertura de trade en trade-slots.log
+        SLOTS_LOG="$WORKSPACE/logs/trade-slots.log"
+        slot_ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        echo "{\"timestamp\":\"$slot_ts\",\"event\":\"slot.open\",\"coin\":\"$SYMBOL\",\"slot_id\":$slot_id,\"entry_price\":$fill_price,\"quantity\":$quantity,\"usdt_spent\":$usdt_spent,\"fee_buy\":$fee_buy,\"tp1\":$tp1,\"tp2\":$tp2,\"tp3\":$tp3,\"sl\":$sl,\"order_id\":\"$order_id\"}" >> "$SLOTS_LOG" 2>/dev/null || true
+        
+        # ✅ JSONL: Log de orden placement en order-placement-debug.log
+        ORDER_DEBUG_LOG="$WORKSPACE/logs/order-placement-debug.log"
+        echo "{\"timestamp\":\"$slot_ts\",\"event\":\"order.placement\",\"coin\":\"$SYMBOL\",\"order_id\":\"$order_id\",\"type\":\"BUY\",\"status\":\"$buy_status\",\"fill_price\":$fill_price,\"quantity\":$quantity,\"usdt_spent\":$usdt_spent,\"fee_buy\":$fee_buy,\"symbol\":\"$SYMBOL\",\"response_size\":${#buy_result}}" >> "$ORDER_DEBUG_LOG" 2>/dev/null || true
         update_slot_field "$slot_id" "side" "LONG"
         update_slot_field "$slot_id" "strategy" "SLOT_V3"
         update_slot_field "$slot_id" "type" "LONG"
@@ -2643,7 +2660,7 @@ Se recomienda esperar condiciones mejores. 🐕"
                 # Si todas las monedas están operando, limpiar flag global
                 OPERATING_COUNT=0
                 # RR Fix 2026-10-02: Added BTC ETH — must count all 7 coins
-                for coin in BTC ETH BNB SOL AVAX ZEC XRP; do
+                for coin in BTC ETH BNB SOL LINK AVAX XRP; do
                     if [ ! -f "${WORKSPACE}/crypto-bots/${coin}-ml-pause-flag.json" ]; then
                         OPERATING_COUNT=$((OPERATING_COUNT + 1))
                     fi

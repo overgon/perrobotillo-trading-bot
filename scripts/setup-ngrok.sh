@@ -83,7 +83,7 @@ echo ""
 echo "🔌 Iniciando Ngrok tunnel..."
 
 cd "$HOME/.openclaw/workspace/dashboard"
-nohup ngrok http 8080 --log=stdout > /tmp/ngrok.log 2>&1 &
+nohup /usr/local/bin/ngrok start dashboard --config=/home/overgon/.config/ngrok/ngrok.yml >> "$HOME/.openclaw/logs/ngrok-stdout.log" 2>&1 &
 NGROK_PID=$!
 
 echo "✅ Ngrok iniciado (PID: $NGROK_PID)"
@@ -94,7 +94,7 @@ echo "⏳ Esperando conexión con Ngrok..."
 sleep 8
 
 # Obtener URL pública
-NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url // empty')
+NGROK_URL=$(grep -oP 'url=\Khttps://[^ ]+' "$HOME/.openclaw/logs/ngrok-stdout.log" 2>/dev/null | tail -1 || true)
 
 if [ -n "$NGROK_URL" ]; then
     echo ""
@@ -102,7 +102,7 @@ if [ -n "$NGROK_URL" ]; then
     echo "║  🎉 NGROK CONFIGURADO EXITOSAMENTE                    ║"
     echo "╠═══════════════════════════════════════════════════════╣"
     echo "║  URL pública: $NGROK_URL"
-    echo "║  Panel ngrok: http://localhost:4040"
+    echo "║  Inspección: OFF (inspect: false)                ║"
     echo "║  Dashboard local: http://localhost:8080"
     echo "╚═══════════════════════════════════════════════════════╝"
     echo ""
@@ -122,7 +122,7 @@ if [ -n "$NGROK_URL" ]; then
     echo ""
     echo "🔗 ACCESO REMOTO:"
     echo "  • URL: $NGROK_URL"
-    echo "  • Panel: http://localhost:4040"
+    echo "  • Inspección: deshabilitada (inspect: false)"
     echo ""
     echo "📌 NOTA: La URL cambia cada vez que reiniciás ngrok (free plan)"
     echo "   Para URL fija, necesitás plan de pago"

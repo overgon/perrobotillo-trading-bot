@@ -56,13 +56,16 @@ cat > /etc/systemd/system/perrobotillo-ngrok.service << EOF
 [Unit]
 Description=Perrobotillo Ngrok Tunnel
 After=network.target perrobotillo-dashboard.service
+Wants=perrobotillo-dashboard.service
 
 [Service]
 Type=simple
 User=$USER
-ExecStart=/usr/local/bin/ngrok http 8080 --log=stdout
-Restart=always
+ExecStart=/usr/local/bin/ngrok start dashboard --config=$HOME_DIR/.config/ngrok/ngrok.yml
+Restart=on-failure
 RestartSec=10
+StartLimitIntervalSec=60
+StartLimitBurst=3
 StandardOutput=append:$HOME_DIR/.openclaw/logs/ngrok-stdout.log
 StandardError=append:$HOME_DIR/.openclaw/logs/ngrok-stderr.log
 
@@ -120,7 +123,7 @@ echo ""
 # Mostrar URL de ngrok
 if systemctl is-active --quiet perrobotillo-ngrok.service; then
     sleep 5
-    NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url' 2>/dev/null)
+    NGROK_URL=$(grep -oP 'url=\Khttps://[^ ]+' "$HOME_DIR/.openclaw/logs/ngrok-stdout.log" 2>/dev/null | tail -1 || true)
     if [ -n "$NGROK_URL" ] && [ "$NGROK_URL" != "null" ]; then
         echo "🌐 URL pública: $NGROK_URL"
     fi

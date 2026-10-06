@@ -6,6 +6,7 @@
 # Re-entrena el modelo ML validator con nuevos trades
 # ════════════════════════════════════════════════════════
 
+HOME="/home/overgon"
 WORKSPACE="$HOME/.openclaw/workspace"
 LOG_FILE="$HOME/.openclaw/logs/ml-retrain-cron.log"
 
@@ -26,8 +27,12 @@ fi
 # Ejecutar re-entrenamiento Fase 5 (pipeline completo de 7 monedas)
 # run_fase5_all.sh ejecuta fase5_train.py dentro del container jesse
 # 7 monedas × ~2 min cada una = ~15 min total
-cd "$WORKSPACE/../jesse-research" 2>/dev/null || cd "$HOME/jesse-research"
-if [ -f "run_fase5_all.sh" ]; then
+# cd a jesse-research (ruta forzada absoluta para evitar corrupción de paths)
+cd "$HOME/jesse-research" 2>/dev/null || {
+    log "❌ No se pudo cd a jesse-research: $(pwd)"
+    exit_code=1
+}
+if [ "${exit_code:-2}" -ne 1 ] && [ -f "run_fase5_all.sh" ]; then
     chmod +x run_fase5_all.sh
     timeout 3600 ./run_fase5_all.sh
     exit_code=$?
