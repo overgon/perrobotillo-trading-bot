@@ -133,6 +133,7 @@ async function loadData(forceHistory = false) {
         updateAutoAdjust({ auto_adjust: data.auto_adjust, market_mode: data.market_mode, coin_configs: data.coin_configs });
         updateCoinConfigs(data.coin_configs);
         updateCircuitBreakerStatus(data);
+        updateOnChainGateStatus(data);
         updateTradesTable({ history: data.history });
         updateTimestamp(data.timestamp);
 
@@ -767,6 +768,51 @@ function updateCircuitBreakerStatus(data) {
     };
     update();
     setInterval(update, 1000);
+}
+
+// ════════════════════════════════════════════════════════
+// 🛡️ ON-CHAIN GATE STATUS PANEL (FASE 5)
+// ════════════════════════════════════════════════════════
+function updateOnChainGateStatus(data) {
+    const onChain = data.onChainStatus || {};
+    const panel = document.getElementById('onChainGatePanel');
+    if (!panel) return;
+
+    const coins = ['BTC', 'ETH', 'BNB', 'SOL', 'ZEC', 'LINK', 'XRP', 'AVAX'];
+    let html = '';
+    let summary = { allow: 0, warn: 0, block: 0 };
+
+    coins.forEach(coin => {
+        const gate = onChain[coin] || {};
+        const status = gate.status || 'UNKNOWN';
+        const reason = gate.reason || '';
+
+        let badgeClass = 'onchain-allow';
+        let badgeText = '✅ ALLOW';
+
+        if (status.includes('WARN')) {
+            badgeClass = 'onchain-warn';
+            badgeText = '⚠️ WARN';
+            summary.warn++;
+        } else if (status.includes('BLOCK')) {
+            badgeClass = 'onchain-block';
+            badgeText = '🚫 BLOCK';
+            summary.block++;
+        } else {
+            summary.allow++;
+        }
+
+        html += `
+            <div class="onchain-coin-row">
+                <span class="onchain-coin-symbol">${coin}</span>
+                <span class="onchain-status-badge ${badgeClass}">${badgeText}</span>
+                <span class="onchain-reason" title="${reason}">${reason.substring(0, 60)}</span>
+            </div>
+        `;
+    });
+
+    const summaryHtml = `<div class="onchain-summary">🟢 ${summary.allow} | ⚠️ ${summary.warn} | 🚫 ${summary.block}</div>`;
+    panel.innerHTML = summaryHtml + html;
 }
 
 // ═══════════════════════════════════════════════════════

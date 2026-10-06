@@ -1537,7 +1537,7 @@ El slot sigue activo y reintentará en próximos ciclos."
                 log "  ❌ TP2 venta falló: $error"
                 
                 # BUG-036 FIX: Notificar incluso si falla por NOTIONAL
-                if echo "$error" | grep -q "NOTIONAL\|minimum"; then
+                if echo "$error" | grep -qi "NOTIONAL|minimum"; then
                     log "  📱 Enviando notificación de falla NOTIONAL TP2..."
                     
                     # BUG-047 FIX: Cerrar slot si resto < $5 (evitar loop infinito)
@@ -1845,7 +1845,7 @@ Razón: 3 fallos consecutivos
                 fi
                 
                 # BUG-036 FIX: Notificar incluso si falla por NOTIONAL
-                if echo "$error" | grep -q "NOTIONAL\\|minimum"; then
+                if echo "$error" | grep -qi "NOTIONAL|minimum"; then
                     log "  📱 Enviando notificación de fallo NOTIONAL TP3 (#$new_tp3_fails)..."
                     notify "TP3_FAIL|$SYMBOL|$slot_id|NOTIONAL" "⚠️ TP3 FALLÓ - $SYMBOL
 
