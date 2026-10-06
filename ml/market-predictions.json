@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-06T12:00:53.360518",
+  "timestamp": "2026-10-06T14:00:46.959885",
   "model_accuracy": 0.9970238095238095,
   "predictions": {
     "BTC": {
@@ -13,11 +13,11 @@
     },
     "ETH": {
       "market_mode": "LATERAL",
-      "confidence": 0.96,
+      "confidence": 0.98,
       "probabilities": {
-        "BEAR": 0.02,
+        "BEAR": 0.0,
         "BULL": 0.02,
-        "LATERAL": 0.96
+        "LATERAL": 0.98
       }
     },
     "BNB": {
@@ -58,14 +58,12 @@
     },
     "AVAX": {
       "market_mode": "LATERAL",
-      "confidence": 0.932,
+      "confidence": 0.99,
       "probabilities": {
         "BEAR": 0.0,
-        "BULL": 0.068,
-        "LATERAL": 0.932
+        "BULL": 0.01,
+        "LATERAL": 0.99
       }
     }
-  },
-  "recommended_mode": "LATERAL",
-  "discrepancy": false
+  }
 }
