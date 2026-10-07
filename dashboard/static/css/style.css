@@ -845,8 +845,8 @@ body::before {
 
 .charts-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.75rem;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0.5rem;
     margin-bottom: 1rem;
 }
 
@@ -860,6 +860,44 @@ body::before {
     .charts-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+}
+
+.price-card {
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid var(--dark-border);
+    border-radius: 8px;
+    padding: 1rem 0.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    min-width: 0;
+}
+
+.price-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.price-coin {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--neon-blue);
+}
+
+.price-change {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+}
+
+.price-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--neon-green) !important;
 }
 
 /* ════════════════════════════════════════════════════════
