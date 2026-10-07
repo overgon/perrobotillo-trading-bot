@@ -9,14 +9,31 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 529,
+  "totalTrades": 530,
   "totalWins": 358,
-  "totalLosses": 171,
+  "totalLosses": 172,
   "totalProfitUSDT": 741.82023874,
-  "totalLossUSDT": -580.7943375,
-  "netPnLUSDT": 161.02590124,
-  "winRate": 67.67,
+  "totalLossUSDT": -581.27511763,
+  "netPnLUSDT": 160.54512111,
+  "winRate": 67.55,
   "trades": [
+    {
+      "id": 532,
+      "symbol": "ETH",
+      "coin": "ETH",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 2677.68,
+      "exitPrice": 2604.0,
+      "quantity": 0.00598432,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -0.48078013,
+      "timestamp": "2026-10-06T21:21:28.351724",
+      "closeTime": "2026-10-06 21:21:28",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
     {
       "id": 531,
       "symbol": "ETH",
@@ -8787,12 +8804,12 @@
       "orderId": null
     }
   ],
-  "updatedAt": "2026-10-06T21:13:54.007686",
+  "updatedAt": "2026-10-06T21:21:28.352179",
   "bySymbol": {
     "ETH": {
-      "trades": 78,
+      "trades": 79,
       "wins": 57,
-      "netPnL": 106.13746473
+      "netPnL": 105.6566846
     },
     "LINK": {
       "trades": 85,
@@ -8832,9 +8849,9 @@
   },
   "byDay": {
     "2026-10-06": {
-      "trades": 5,
+      "trades": 6,
       "wins": 3,
-      "netPnL": -1.8199298
+      "netPnL": -2.30070993
     },
     "2026-10-04": {
       "trades": 2,

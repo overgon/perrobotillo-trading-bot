@@ -5,8 +5,14 @@ Perrobotillo ML Feature: On-Chain Pre-Trade Gate (FASE 9 - Realtime)
 import sys
 import os
 import json
+from pathlib import Path
 
-WORKSPACE = "/home/vergon/.openclaw/workspace"
+# 🔧 FIX (2026-10-06): Use expanduser instead of hardcoded path.
+# Previous hardcoded "/home/verton/..." was WRONG (real home is /home/overgon).
+# This caused ModuleNotFoundError for ml.smart_money_signal because sys.path
+# pointed to a non-existent directory. See skill on-chain-pre-trade-gate:
+# "Use os.path.expandhome not hardcoded paths".
+WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
 if WORKSPACE not in sys.path:
     sys.path.insert(0, WORKSPACE)
 
