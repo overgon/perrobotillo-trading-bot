@@ -1,0 +1,56 @@
+# ════════════════════════════════════════════════════════
+# 🐕 PERROBOTILLO TRADING BOT - SYSTEMD SERVICE (FASE 8)
+# ════════════════════════════════════════════════════════
+# Service: Perrobotillo Dashboard + API
+# Platform: Raspberry Pi 5 (Raspbian/Bullseye)
+# User: overgon
+# ════════════════════════════════════════════════════════
+
+[Unit]
+Description=Perrobotillo Trading Dashboard (Cyberpunk)
+Documentation=https://github.com/overgon/perrobotillo-trading-bot
+After=network.target
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=overgon
+Group=overgon
+WorkingDirectory=/home/overgon/.openclaw/workspace/dashboard
+
+# --- ExecStart (Python 3) ---
+# -B flag: Skip bytecode writing (__pycache__) → prevents stale cache issues
+# --host 0.0.0.0: Bind to all interfaces
+# --port 8080: Internal port (nginx handles SSL)
+ExecStart=/usr/bin/python3 -B app.py --host 0.0.0.0 --port 8080
+
+# --- Restart Policy ---
+Restart=always
+RestartSec=10
+StartLimitInterval=60
+StartLimitBurst=3
+
+# --- Environment ---
+Environment=PYTHONUNBUFFERED=1
+Environment=WORKSPACE=/home/overgon/.openclaw/workspace
+Environment=PYTHONDONTWRITEBYTECODE=1
+
+# --- File descriptors & memory limits ---
+LimitNOFILE=65536
+MemoryMax=512M
+CPUQuota=50%
+
+# --- Security hardening ---
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=false
+ReadWritePaths=/home/overgon/.openclaw/workspace
+PrivateTmp=false
+
+# --- Logging ---
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=perrobotillo-dashboard
+
+[Install]
+WantedBy=multi-user.target
