@@ -9,14 +9,48 @@
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 527,
+  "totalTrades": 529,
   "totalWins": 358,
-  "totalLosses": 169,
+  "totalLosses": 171,
   "totalProfitUSDT": 741.82023874,
-  "totalLossUSDT": -577.80897726,
-  "netPnLUSDT": 164.01126148,
-  "winRate": 67.93,
+  "totalLossUSDT": -580.7943375,
+  "netPnLUSDT": 161.02590124,
+  "winRate": 67.67,
   "trades": [
+    {
+      "id": 531,
+      "symbol": "ETH",
+      "coin": "ETH",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 2682.67,
+      "exitPrice": 2614.76,
+      "quantity": 0.01781,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -1.32850937,
+      "timestamp": "2026-10-06T20:31:23.713522",
+      "closeTime": "2026-10-06 20:31:23",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 530,
+      "symbol": "AVAX",
+      "coin": "AVAX",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 13.937,
+      "exitPrice": 13.416,
+      "quantity": 3.18,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -1.65685087,
+      "timestamp": "2026-10-06T20:04:03.230606",
+      "closeTime": "2026-10-06 20:04:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
     {
       "id": 529,
       "symbol": "AVAX",
@@ -8753,12 +8787,12 @@
       "orderId": null
     }
   ],
-  "updatedAt": "2026-10-06T06:06:33.522300",
+  "updatedAt": "2026-10-06T20:31:23.714140",
   "bySymbol": {
     "AVAX": {
-      "trades": 99,
+      "trades": 100,
       "wins": 66,
-      "netPnL": 39.17815444
+      "netPnL": 37.52130357
     },
     "BTC": {
       "trades": 44,
@@ -8776,9 +8810,9 @@
       "netPnL": 56.76298406
     },
     "ETH": {
-      "trades": 77,
+      "trades": 78,
       "wins": 57,
-      "netPnL": 107.4659741
+      "netPnL": 106.13746473
     },
     "SOL": {
       "trades": 69,
@@ -9258,9 +9292,9 @@
       "netPnL": 1.350727
     },
     "2026-10-06": {
-      "trades": 3,
+      "trades": 5,
       "wins": 3,
-      "netPnL": 1.16543044
+      "netPnL": -1.8199298
     }
   },
   "lastUpdated": "2026-08-14T20:42:49.220903"

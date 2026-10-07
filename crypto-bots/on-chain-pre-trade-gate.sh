@@ -1,49 +1,57 @@
 #!/bin/bash
 # ════════════════════════════════════════════════════════
-# 🛡️ ON-CHAIN PRE-TRADE GATE - Binance Skill Hub Integration
+# 🐕 PERROBOTILLO — ON-CHAIN PRE-TRADE GATE (FASE 9)
 # ════════════════════════════════════════════════════════
-# Verifica token security audit + smart money signals antes de trade
-# Usa Binance Skill Hub: query-token-audit + trading-signal
-# Output codes:
-#   ALLOW_ON_CHAIN_GATE|reason    → proceed to trade
-#   BLOCK_ON_CHAIN_GATE|reason    → block trade (CRITICAL risk)
-#   WARN_ON_CHAIN_GATE|reason     → allow trade pero ajustar posición
+# Shell wrapper para el on-chain pre-trade gate.
+# Se ejecuta ANTES de cada trade para validar riesgo on-chain.
+#
+# Usage: ./on-chain-pre-trade-gate.sh <COIN> <BUY|SELL>
+# Output: STATUS|reason  (ALLOW_ON_CHAIN_GATE|WARN_ON_CHAIN_GATE|BLOCK_ON_CHAIN_GATE)
+# Exit:   0=ALLOW, 1=WARN(50%), 2=BLOCK
 # ════════════════════════════════════════════════════════
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-WORKSPACE="$(dirname "$SCRIPT_DIR")"
-ON_CHAIN_GATE="$WORKSPACE/ml/on_chain_pre_trade_gate.py"
-SYMBOL="${1:-BNB}"
-ACTION="${2:-BUY}"  # BUY or SELL
+set -uo pipefail
 
-# Saltar on-chain gate si no hay datos (fallback al sistema anterior)
-if [ ! -f "$ON_CHAIN_GATE" ]; then
-    echo "ALLOW_ON_CHAIN_GATE|fallback: no on-chain gate script"
-    exit 0
+# --- Config ---
+WORKSPACE="$(cd "$(dirname "$0")/../" && pwd)"
+PYTHON="/usr/bin/python3"
+GATE_SCRIPT="${WORKSPACE}/ml/on_chain_pre_trade_gate.py"
+
+# --- Args ---
+COIN="${1:-}"
+ACTION="${2:-BUY}"
+
+if [ -z "$COIN" ]; then
+    echo "ERROR_USAGE|Usage: $0 <COIN> [BUY|SELL]"
+    exit 3
 fi
 
-# Llamar al gate checker
-# El python imprime debug a stderr, resultado final a stdout (última línea)
-RESULT=$(python3 "$ON_CHAIN_GATE" "$SYMBOL" "$ACTION" 2>/dev/null | tail -1)
+# --- Run gate ---
+RESULT=$($PYTHON -B "$GATE_SCRIPT" "$COIN" 2>&1) || RESULT="ERROR|$RESULT"
 
-# Parsear resultado
-STATUS=$(echo "$RESULT" | cut -d'|' -f1)
-REASON=$(echo "$RESULT" | cut -d'|' -f2-)
+# --- Extract decision ---
+# Python output format: [DECISION] COIN: Risk=X/5 | SM=Y | Score=Z
+DECISION=$(echo "$RESULT" | grep -oP '^\[\K\w+' | head -1)
+RISK_LEVEL=$(echo "$RESULT" | grep -oP 'Risk=\K\d+' | head -1)
+SM_SIGNAL=$(echo "$RESULT" | grep -oP 'SM=\K[+\-]\d+' | head -1)
+SM_SCORE=$(echo "$RESULT" | grep -oP 'Score=\K[\d.]+' | head -1)
 
-echo "${STATUS}|${REASON}"
-
-case "$STATUS" in
-    ALLOW_ON_CHAIN_GATE)
+# --- Build output en formato esperado por crypto-trade-moneda-v3-slots.sh ---
+case "$DECISION" in
+    BLOCK)
+        echo "BLOCK_ON_CHAIN_GATE|Risk=${RISK_LEVEL}/5 - Token audit HIGH (mintable/honeypot/tax)"
+        exit 2
+        ;;
+    WARN)
+        echo "WARN_ON_CHAIN_GATE|Risk=${RISK_LEVEL}/5 - Token audit MID, position reducida al 50%"
+        exit 1
+        ;;
+    ALLOW)
+        echo "ALLOW_ON_CHAIN_GATE|Risk=${RISK_LEVEL}/5 - On-chain validation passed (SM=${SM_SIGNAL}, Score=${SM_SCORE})"
         exit 0
         ;;
-    WARN_ON_CHAIN_GATE)
-        exit 0  # Allow pero dashboard notifica warning
-        ;;
-    BLOCK_ON_CHAIN_GATE)
-        exit 1  # Bloquear trade
-        ;;
     *)
-        echo "ALLOW_ON_CHAIN_GATE|unknown_status_fallback"
+        echo "ALLOW_ON_CHAIN_GATE|UNKNOWN - No on-chain data available, proceeding with caution"
         exit 0
         ;;
 esac
