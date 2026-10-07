@@ -93,6 +93,12 @@ def _resolve_symbol_from_price(entry_price, slot_id=None, symbol_env=None):
         "SOL": (40, 500),
         "AVAX": (4.0, 30.0),  # 🔧 widened from (4.0, 8.0) — AVAX trades $7-13+ in practice
         "ZEC": (500, 5000),  # 🔧 widened from (8.0, 30.0) — overlaps with AVAX by design
+        "LINK": (1.0, 50.0),  # 🔧 CRITICAL FIX (2026-10-06): LINK was MISSING from PRICE_RANGES
+        # This caused LINK trades (~$13.9) to be misidentified as AVAX by the
+        # price-based resolution, because _resolve_symbol_from_price() could not
+        # match the env SYMBOL='LINK' against KNOWN_COINS (built from PRICE_RANGES).
+        # Without LINK in the map, $13.937 only matched AVAX (4.0-30.0) and the
+        # function OVERWROTE the correct LINK symbol with AVAX. See root cause #530.
         "XRP": (0.2, 5.0),
     }
     KNOWN_COINS = set(PRICE_RANGES.keys())
