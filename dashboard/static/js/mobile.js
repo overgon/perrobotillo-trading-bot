@@ -184,7 +184,7 @@ function updatePortfolio(data) {
 
 function updateSlots(data) {
     const slotsGrid = document.getElementById('slotsGrid');
-    const coins = ['BTC', 'ETH', 'BNB', 'SOL', 'ZEC', 'XRP', 'AVAX'];
+    const coins = ['BTC', 'ETH', 'BNB', 'SOL', 'ZEC', 'LINK', 'XRP', 'AVAX'];
     const tradeStates = data.tradeStates || {};
     const prices = data.prices || lastPrices;
     
@@ -376,10 +376,10 @@ function updateSlots(data) {
     // Update slots counter
     const counterEl = document.getElementById('slotsCounter');
     if (counterEl) {
-        counterEl.textContent = `${activeCount}/21`;
+        counterEl.textContent = `${activeCount}/${totalCount}`;
     }
     
-    console.log('✅ Slots updated:', `${activeCount}/21`);
+    console.log('✅ Slots updated:', `${activeCount}/${totalCount}`);
 }
 
 // ════════════════════════════════════════════════════════
@@ -389,7 +389,7 @@ function updateSlots(data) {
 function updatePnlByCoin(pnlByCoin) {
     const grid = document.getElementById('pnlByCoinGrid');
     const container = document.getElementById('pnlByCoinContainer');
-    const coins = ['BTC', 'ETH', 'BNB', 'SOL', 'ZEC', 'XRP', 'AVAX'];
+    const coins = ['BTC', 'ETH', 'BNB', 'SOL', 'ZEC', 'LINK', 'XRP', 'AVAX'];
     
     if (!grid || !container) return;
     
@@ -420,7 +420,7 @@ function updatePnlByCoin(pnlByCoin) {
 
 function updatePrices(prices) {
     const chartsGrid = document.getElementById('chartsGrid');
-    const coins = ['BTC', 'ETH', 'BNB', 'SOL', 'ZEC', 'XRP', 'AVAX'];
+    const coins = ['BTC', 'ETH', 'BNB', 'SOL', 'ZEC', 'LINK', 'XRP', 'AVAX'];
     
     console.log('📈 Updating prices, received:', Object.keys(prices).length, 'coins');
     
@@ -562,7 +562,7 @@ function updateCoinConfigs(coinConfigs) {
         titleEl.innerHTML = `⚙️ ${coinConfigs.market_mode}`;
     }
 
-    const coinOrder = ['BTC', 'ETH', 'BNB', 'SOL', 'ZEC', 'XRP', 'AVAX'];
+    const coinOrder = ['BTC', 'ETH', 'BNB', 'SOL', 'ZEC', 'LINK', 'XRP', 'AVAX'];
     const coins = coinConfigs.coins;
     const sortedCoins = Object.keys(coins).sort((a, b) => {
         const ia = coinOrder.indexOf(a), ib = coinOrder.indexOf(b);
