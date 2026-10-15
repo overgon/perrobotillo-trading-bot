@@ -89,7 +89,13 @@ with open("/home/overgon/.openclaw/workspace/crypto-bots/dashboard-circuit-break
     json.dump(status, f, indent=2)
 CBEOF
             
-            echo "GLOBAL_PAUSE_EXPIRED|Reanudando operaciones"
+            echo "GLOBAL_PAUSE_EXPIRED|Reanudando operaciones\n# Grace period: 1h buffer before re-evaluating loss rate (trade window must age out)"
+            # 🔧 FIX: Grace period of 1h after resume to let 24h trade window age out
+            # Without this, a trade still within 24h window triggers CB re-activation immediately
+            grace_until=$((now_epoch + 3600))
+            jq -n --arg grace "$grace_until" \
+                '{"grace_until": $grace, "source": "global_pause_expired"}' \
+                > "${WORKSPACE}/crypto-bots/cb-grace-period-flag.json"
         fi
     fi
 fi
@@ -121,11 +127,18 @@ trades_24h = 0
 losses_1h = 0
 
 for t in data.get('trades', []):
-    ts_str = t['timestamp']
+    ts_str = t.get('timestamp') or t.get('closeTime') or ''
+    if not ts_str:
+        continue
     try:
+        # ✅ FIX: Timestamps from trade-history.json are in Mexico CST (UTC-6).
+        # Naive timestamps (no timezone suffix) are CST, not UTC.
+        # Previously assumed UTC, which shifted trade times 6 hours forward,
+        # causing trades from early morning CST to fall outside the 24h window
+        # and producing incorrect loss rate calculations.
         if '+' not in ts_str and 'Z' not in ts_str:
             ts = datetime.fromisoformat(ts_str)
-            ts = ts.replace(tzinfo=timezone.utc)
+            ts = ts.replace(tzinfo=timezone(timedelta(hours=-6)))  # Mexico CST (UTC-6)
         else:
             ts = datetime.fromisoformat(ts_str.replace('Z', '+00:00'))
         
@@ -149,6 +162,21 @@ trades_24h=$(echo "$losses_data" | cut -d'|' -f3)
 losses_1h=$(echo "$losses_data" | cut -d'|' -f4)
 
 echo "# Global 24h: $losses_24h losses, $trades_24h trades, \$${total_loss_24h}" >&2
+
+# 🔧 FIX: Grace period check after global pause expired
+# Skip loss_rate evaluation during grace period to prevent immediate re-trigger
+# when a recent trade is still inside the 24h window
+now_epoch=$(date +%s)
+if [ -f "${WORKSPACE}/crypto-bots/cb-grace-period-flag.json" ]; then
+    grace_until_epoch=$(jq -r '.grace_until // 0' "${WORKSPACE}/crypto-bots/cb-grace-period-flag.json" 2>/dev/null || echo 0)
+    if [ "$now_epoch" -lt "$grace_until_epoch" ]; then
+        remaining_grace=$(( (grace_until_epoch - now_epoch) / 3600 ))
+        echo "OK_TO_TRADE|$losses_24h losses, \$${total_loss_24h}, ${trades_24h} trades en 24h (grace period: ${remaining_grace}h)"
+        exit 0
+    else
+        rm -f "${WORKSPACE}/crypto-bots/cb-grace-period-flag.json"
+    fi
+fi
 
 # ════════════════════════════════════════════════════════
 # 📊 CB DECISIONS LOG - Perrobotillo v2.1
@@ -262,7 +290,9 @@ CBEOF
 fi
 
 # Regla 4: Loss rate > 60% en 24h → PAUSE 12h
-if [ "$trades_24h" -gt 0 ]; then
+# 🔧 FIX: requerir mínimo 3 trades en 24h antes de evaluar loss rate
+# Con 1-2 trades, un solo SL dispara 100% loss rate → CB se perpetúa
+if [ "$trades_24h" -ge 3 ]; then
     loss_rate=$(echo "scale=2; $losses_24h * 100 / $trades_24h" | bc)
     if (( $(echo "$loss_rate > 60" | bc -l) )); then
         pause_until=$(date -d '+12 hours' '+%Y-%m-%d %H:%M:%S')
