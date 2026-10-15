@@ -195,8 +195,11 @@ if [ -f "${WORKSPACE}/crypto-bots/cb-grace-period-flag.json" ]; then
         exit 0
     else
         rm -f "${WORKSPACE}/crypto-bots/cb-grace-period-flag.json"
-        # ✅ FIX 3: Clean up loss-window reset flag after grace period
-        rm -f "${WORKSPACE}/crypto-bots/cb-loss-reset-flag.json"
+        # ✅ FIX 3: Do NOT remove cb-loss-reset-flag.json here — it must persist
+        # through the loss calculation below. The Python code checks if the reset
+        # time is within 24h; if older, it's simply ignored. Removing it here
+        # would delete it right before the calculation that needs it.
+        # The flag gets overwritten on next pause expiry.
     fi
 fi
 
