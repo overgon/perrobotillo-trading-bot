@@ -42,7 +42,14 @@ def evaluate_onchain_gate(symbol, force_refresh=False):
     sm_signal = sm.get("smart_money_signal", 0)
     sm_score = sm.get("smart_money_score", 0.0)
     confidence_boost = sm.get("confidence_boost", 0)
-
+    
+    # 🔧 FIX: When token audit has no result (hasResult=false), the API returned
+    # risk_level_num=0 which mapped to ALLOW — a silent no-op gate.
+    # When we cannot verify on-chain safety, treat as WARN to be conservative.
+    # This prevents the gate from always allowing when data sources are empty.
+    if not ta.get("has_result"):
+        risk_level = RISK_WARN_THRESHOLD  # 3 = WARN
+    
     if risk_level >= RISK_BLOCK_THRESHOLD:
         decision = "BLOCK"
     elif risk_level >= RISK_WARN_THRESHOLD:

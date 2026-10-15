@@ -798,8 +798,15 @@ function updateOnChainGateStatus(data) {
             badgeClass = 'onchain-block';
             badgeText = '🚫 BLOCK';
             summary.block++;
-        } else {
+        } else if (status === 'ALLOW' || status === 'ALLOW_ON_CHAIN_GATE') {
+            badgeClass = 'onchain-allow';
+            badgeText = '✅ ALLOW';
             summary.allow++;
+        } else {
+            // UNKNOWN, ERROR, or any unrecognized status — DON'T trust as safe
+            badgeClass = 'onchain-error';
+            badgeText = '❓ UNKNOWN';
+            summary.unknown = (summary.unknown || 0) + 1;
         }
 
         html += `
@@ -811,7 +818,7 @@ function updateOnChainGateStatus(data) {
         `;
     });
 
-    const summaryHtml = `<div class="onchain-summary">🟢 ${summary.allow} | ⚠️ ${summary.warn} | 🚫 ${summary.block}</div>`;
+    const summaryHtml = `<div class="onchain-summary">🟢 ${summary.allow} | ⚠️ ${summary.warn} | 🚫 ${summary.block}${summary.unknown > 0 ? ` | ❓ ${summary.unknown}` : ''}</div>`;
     panel.innerHTML = summaryHtml + html;
 }
 

@@ -361,7 +361,7 @@ def get_trade_history():
             trades = data.get('trades', [])
             trades = sorted(
                 trades,
-                key=lambda t: str(t.get('timestamp', '')),
+                key=lambda t: str(t.get('timestamp', '') or t.get('closeTime', '')),
                 reverse=True
             )
             data['trades'] = trades
@@ -435,6 +435,12 @@ def get_daily_pnl():
                     
                     try:
                         close_time = datetime.fromisoformat(str(close_time_str).replace('Z', '+00:00'))
+                        # FIX: Strip timezone info to prevent naive/aware comparison errors
+                        # All other trades use naive datetime strings; timezone-aware ones
+                        # (e.g., "2026-10-14T17:37:01-06:00") cause TypeError when compared
+                        # with datetime.now() (naive) in the 24h PnL window filter.
+                        if close_time.tzinfo is not None:
+                            close_time = close_time.replace(tzinfo=None)
                         if close_time >= yesterday:
                             symbol = trade.get('symbol', 'UNKNOWN') or 'UNKNOWN'
                             if not isinstance(symbol, str):
@@ -674,7 +680,7 @@ def get_on_chain_status():
     for coin in ON_CHAIN_COINS:
         try:
             result = subprocess.run(
-                ["python3", ON_CHAIN_GATE_PY, coin, "BUY"],
+                ["python3", ON_CHAIN_GATE_PY, coin],
                 capture_output=True, text=True, timeout=30,
                 cwd=WORKSPACE
             )
