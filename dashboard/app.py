@@ -14,6 +14,7 @@ _DASH_CACHE_LOCK = threading.Lock()
 from functools import wraps
 import json
 import os
+import re
 import subprocess
 from datetime import datetime
 import glob
@@ -685,9 +686,40 @@ def get_on_chain_status():
                 cwd=WORKSPACE
             )
             output = result.stdout.strip()
-            status = output.split('|')[0] if '|' in output else "UNKNOWN"
-            reason = output.split('|', 1)[1] if '|' in output else ""
-            statuses[coin] = {"status": status, "reason": reason}
+            # 🔧 FIX: El gate Python outputa líneas de log (📦 cache, ℹ️ info)
+            # ANTES del [DECISION] line, y el [DECISION] line contiene pipes.
+            # El código viejo usaba output.split('|')[0] que capturaba TODAS las
+            # log lines + "[WARN] BTC: Risk=3/5" como status — un string sucio que
+            # el frontend no reconocía, mostrando UNKNOWN.
+            # Solución: regex para extraer [DECISION] y JSON para el reason.
+            decision_match = re.search(r'\[(\w+)\]', output)
+            if decision_match:
+                status = decision_match.group(1)
+                # Extraer JSON (empieza en el primer '{') para details
+                json_start = output.find('{')
+                if json_start >= 0:
+                    try:
+                        gate_data = json.loads(output[json_start:])
+                        ta_risk = gate_data.get('risk_level_num', 0)
+                        buy_tax = gate_data.get('buy_tax', 0)
+                        sell_tax = gate_data.get('sell_tax', 0)
+                        risk_items = gate_data.get('risk_items', [])
+                        sm_signal = gate_data.get('smart_money_signal', 0)
+                        if risk_items:
+                            risk_desc = '; '.join(
+                                ri.get('title', '') for ri in risk_items
+                            )
+                            reason = f"Risk={ta_risk}/5 | SM={sm_signal:+d} | Tax={buy_tax}/{sell_tax}% | {risk_desc}"
+                        else:
+                            reason = f"Risk={ta_risk}/5 | SM={sm_signal:+d} | Tax={buy_tax}/{sell_tax}%"
+                    except (json.JSONDecodeError, TypeError):
+                        reason = output[output.rfind(']') + 1:].strip()[:120]
+                else:
+                    reason = output[decision_match.start():].strip()[:120]
+            else:
+                status = "UNKNOWN"
+                reason = output[:200] if output else "No output from gate script"
+            statuses[coin] = {"status": status, "reason": str(reason)}
         except Exception as e:
             statuses[coin] = {"status": "ERROR", "reason": str(e)}
 
