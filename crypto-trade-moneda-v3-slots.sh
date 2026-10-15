@@ -2024,7 +2024,7 @@ Slot disponible 🔄"
                 local exit_price="$current_price"
                 local sell_qty="${sell_qty:-$quantity}"
                 local sell_value=$(awk -v q="$sell_qty" -v p="$exit_price" 'BEGIN {printf "%.8f", q * p}')
-                local sell_pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$sell_qty" 'BEGIN {printf "%.8f", ((x - e) * q) * -1}')
+                local sell_pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$sell_qty" 'BEGIN {printf "%.8f", (x - e) * q}')
                 register_capital_move "$SYMBOL" "SL" "$sell_value" "$sell_qty" "$current_price" "" "SL Slot $slot_id (sell failed: $error)"
                 update_slot_status "$slot_id" "CLOSED_SL"
                 update_slot_field "$slot_id" "timestamp" "$(date -Iseconds)"

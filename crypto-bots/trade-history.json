@@ -1,22 +1,107 @@
 {
   "version": "1.0",
   "created": "2026-05-04T21:30:00-06:00",
-  "strategy": "Din\u00e1mica (Auto-Ajuste)",
-  "resetReason": "Reset para estrategia din\u00e1mica - Backtest: +2,777% en 2 a\u00f1os",
+  "strategy": "Dinámica (Auto-Ajuste)",
+  "resetReason": "Reset para estrategia dinámica - Backtest: +2,777% en 2 años",
   "previousSnapshot": "trade-history-PRE-DYNAMIC-2026-05-04.json.backup",
   "previousStats": {
     "totalTrades": 17,
     "winRate": 52.94,
     "netPnLUSDT": -7.66
   },
-  "totalTrades": 561,
+  "totalTrades": 566,
   "totalWins": 366,
-  "totalLosses": 195,
+  "totalLosses": 200,
   "totalProfitUSDT": 745.44093764,
-  "totalLossUSDT": -627.79473088,
-  "netPnLUSDT": 117.6440236,
-  "winRate": 65.24,
+  "totalLossUSDT": -634.29939144,
+  "netPnLUSDT": 111.1415462,
+  "winRate": 64.84,
   "trades": [
+    {
+      "id": 569,
+      "symbol": "AVAX",
+      "coin": "AVAX",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 10.316,
+      "exitPrice": 9.659,
+      "quantity": 0.08296852,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -0.05451032,
+      "timestamp": "2026-10-14T23:06:04.924121",
+      "closeTime": "2026-10-14 23:06:04",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 568,
+      "symbol": "LINK",
+      "coin": "LINK",
+      "slotId": 3,
+      "type": "LONG",
+      "entryPrice": 12.841,
+      "exitPrice": 12.196,
+      "quantity": 4.25,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -2.74190586,
+      "timestamp": "2026-10-14T23:04:06.073245",
+      "closeTime": "2026-10-14 23:04:06",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 567,
+      "symbol": "ETH",
+      "coin": "ETH",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 2527.68,
+      "exitPrice": 2348.08,
+      "quantity": 0.0087,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -1.61281664,
+      "timestamp": "2026-10-14T20:31:24.018983",
+      "closeTime": "2026-10-14 20:31:24",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 566,
+      "symbol": "LINK",
+      "coin": "LINK",
+      "slotId": 2,
+      "type": "LONG",
+      "entryPrice": 12.851,
+      "exitPrice": 12.11,
+      "quantity": 0.78732801,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -0.5835305,
+      "timestamp": "2026-10-14T20:24:09.904519",
+      "closeTime": "2026-10-14 20:24:09",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
+    {
+      "id": 565,
+      "symbol": "LINK",
+      "coin": "LINK",
+      "slotId": 1,
+      "type": "LONG",
+      "entryPrice": 12.837,
+      "exitPrice": 12.108,
+      "quantity": 2.0735,
+      "closeType": "CLOSED_SL",
+      "pnlUSDT": -1.51189724,
+      "timestamp": "2026-10-14T20:24:03.040717",
+      "closeTime": "2026-10-14 20:24:03",
+      "source": "BOT",
+      "orderId": null,
+      "reason": null
+    },
     {
       "id": 564,
       "symbol": "ZEC",
@@ -2061,7 +2146,7 @@
       "orderId": null,
       "reason": null,
       "_corrected_at": "2026-08-25T16:45:00",
-      "_correction_reason": "Symbol mismatch: BTC\u2192AVAX (entry $7.5x is AVAX price range)"
+      "_correction_reason": "Symbol mismatch: BTC→AVAX (entry $7.5x is AVAX price range)"
     },
     {
       "id": 442,
@@ -2080,7 +2165,7 @@
       "orderId": null,
       "reason": null,
       "_corrected_at": "2026-08-25T16:45:00",
-      "_correction_reason": "Symbol mismatch: BTC\u2192AVAX (entry $7.5x is AVAX price range)"
+      "_correction_reason": "Symbol mismatch: BTC→AVAX (entry $7.5x is AVAX price range)"
     },
     {
       "id": 441,
@@ -2099,7 +2184,7 @@
       "orderId": null,
       "reason": null,
       "_corrected_at": "2026-08-25T16:45:00",
-      "_correction_reason": "Symbol mismatch: BTC\u2192AVAX (entry $7.5x is AVAX price range)"
+      "_correction_reason": "Symbol mismatch: BTC→AVAX (entry $7.5x is AVAX price range)"
     },
     {
       "id": 440,
@@ -8681,7 +8766,7 @@
       "pnlUSDT": -1.38,
       "timestamp": "2026-07-16T23:34:00-06:00",
       "closeTime": "2026-07-16 23:34:00",
-      "note": "Recuperado desde historial Binance 2026-07-16 23:34; precio de venta pendiente reconciliaci\u00f3n | PnL estimado reconciliado 2026-07-17",
+      "note": "Recuperado desde historial Binance 2026-07-16 23:34; precio de venta pendiente reconciliación | PnL estimado reconciliado 2026-07-17",
       "source": "BINANCE_HISTORY_RECOVERY",
       "status": "CLOSED_SL",
       "strategy": "SPOT",
@@ -8705,7 +8790,7 @@
       "pnlUSDT": -0.94,
       "timestamp": "2026-07-16T23:41:00-06:00",
       "closeTime": "2026-07-16 23:41:00",
-      "note": "Recuperado desde historial Binance 2026-07-16 23:41; precio de venta pendiente reconciliaci\u00f3n | PnL estimado reconciliado 2026-07-17",
+      "note": "Recuperado desde historial Binance 2026-07-16 23:41; precio de venta pendiente reconciliación | PnL estimado reconciliado 2026-07-17",
       "source": "BINANCE_HISTORY_RECOVERY",
       "status": "CLOSED_SL",
       "strategy": "SPOT",
@@ -9333,22 +9418,22 @@
       "timestamp": "2026-10-14T13:37:01.060943"
     }
   ],
-  "updatedAt": "2026-10-14T16:35:29.077443",
+  "updatedAt": "2026-10-14T23:06:04.924597",
   "bySymbol": {
     "ETH": {
-      "trades": 80,
+      "trades": 81,
       "wins": 57,
-      "netPnL": 102.36176552
+      "netPnL": 100.74894888
     },
     "LINK": {
-      "trades": 88,
+      "trades": 91,
       "wins": 60,
-      "netPnL": 9.07053509
+      "netPnL": 4.23320149
     },
     "AVAX": {
-      "trades": 106,
-      "wins": 68,
-      "netPnL": 32.59386066
+      "trades": 107,
+      "wins": 69,
+      "netPnL": 32.64837098
     },
     "BNB": {
       "trades": 69,
@@ -9858,9 +9943,9 @@
       "netPnL": -2.15525609
     },
     "2026-10-14": {
-      "trades": 4,
-      "wins": 0,
-      "netPnL": -6.10530277
+      "trades": 9,
+      "wins": 1,
+      "netPnL": -12.50094269
     }
   },
   "lastUpdated": "2026-08-14T20:42:49.220903"
