@@ -140,7 +140,11 @@ fi
 # ============================================
 
 log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$SYMBOL] $1" | tee -a "$LOGS/trade-${SYMBOL}.log"
+    # 🔴 CRITICAL FIX: Redirect to stderr (>&2) so log() calls inside $(...) command
+    # substitutions (e.g. get_available_slot) don't pollute the captured stdout value.
+    # Without this, [ "$available_slot" = "0" ] FAILS on multi-line capture → new
+    # trades open during CB pause. See: ZEC LONG 2026-10-15 11:17
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$SYMBOL] $1" | tee -a "$LOGS/trade-${SYMBOL}.log" >&2
 }
 
 log_debug() {
@@ -2866,7 +2870,13 @@ _Jefe, el bot se detuvo automáticamente._ 🐕" 2>/dev/null || true
     
     # Get available slot
     local available_slot=$(get_available_slot)
-    [ "$available_slot" = "0" ] && return 0
+    # CB guard + defensive check: abort if no slot available (CB pause active or
+    # all slots occupied). Guard is defensive against any log() stdout pollution
+    # in get_available_slot — only accept a clean numeric slot ID.
+    if [ -z "$available_slot" ] || [[ ! "$available_slot" =~ ^[0-9]+$ ]] || [ "$available_slot" = "0" ]; then
+        log "🛑 Sin slot disponible (CB pausado o todos los slots ocupados) - no se abrirán nuevos trades"
+        return 0
+    fi
     
     # DEBUG: Log variables antes de ejecutar
     log "🔍 DEBUG: TRADE_PERCENT=$TRADE_PERCENT | NORMAL_TRADE_PERCENT=$NORMAL_TRADE_PERCENT | AGGRESSIVE_TRADE_PERCENT=$AGGRESSIVE_TRADE_PERCENT"
