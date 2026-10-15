@@ -2756,15 +2756,38 @@ Se recomienda esperar condiciones mejores. 🐕"
                 
                 if [ $OPERATING_COUNT -eq 8 ] && [ -f "$GLOBAL_PAUSE_FLAG" ]; then
                     rm -f "$GLOBAL_PAUSE_FLAG"
-                    log "✅ ML: Todas las monedas operando, flag global removido"
-                    
-                    # Notificar reanudación
-                    send_telegram "✅ TRADING REANUDADO
+                    log "✅ ML: Todas las monedas operando, flag ML global removido"
 
-🛡️ ML Risk Detector: Riesgo bajo
-Todas las monedas pueden operar normalmente.
+                    # 🛑 CRITICAL: Verificar si el Circuit Breaker (CB) sigue activo.
+                    # El flag ML global y el flag CB son sistemas independientes.
+                    # Si CB sigue activo, las nuevas entradas están bloqueadas pero
+                    # SL/TP management sigue funcionando. No notificar "operando
+                    # normalmente" si CB bloquea nuevas operaciones.
+                    CB_PAUSE_FILE="${WORKSPACE}/crypto-bots/global-pause-flag.json"
+                    CB_ACTIVE=false
+                    CB_REMAINING=""
+                    if [ -f "$CB_PAUSE_FILE" ]; then
+                        cb_pause_until=$(jq -r '.pause_until // null' "$CB_PAUSE_FILE" 2>/dev/null)
+                        if [ "$cb_pause_until" != "null" ]; then
+                            cb_pause_epoch=$(date -d "$cb_pause_until" +%s 2>/dev/null || echo 0)
+                            cb_now_epoch=$(date +%s)
+                            if [ $cb_now_epoch -lt $cb_pause_epoch ]; then
+                                CB_ACTIVE=true
+                                cb_remaining_mins=$(( (cb_pause_epoch - cb_now_epoch) / 60 ))
+                                cb_remaining_hours=$(( cb_remaining_mins / 60 ))
+                                cb_remaining_mins=$(( cb_remaining_mins % 60 ))
+                                CB_REMAINING="${cb_remaining_hours}h ${cb_remaining_mins}m"
+                            fi
+                        fi
+                    fi
 
-🚀 Bot operativo - Monitoreando TPs..." 2>/dev/null || true
+                    if [ "$CB_ACTIVE" = "true" ]; then
+                        # CB sigue activo — nuevas entradas bloqueadas, SL/TP activo
+                        notify "ML_RISK_LOW_CB_ACTIVE" "🟡 RIESGO ML BAJO — CB activo ⏳ ${CB_REMAINING} | ML Risk Detector: Riesgo bajo, todas monedas operan | Circuit Breaker: nuevas entradas BLOQUEADAS | SL/TP: gestionándose | Bot monitoreando TPs..." 2>/dev/null || true
+                    else
+                        # CB no activo — reanudación completa
+                        notify "TRADING_REANUDADO" "✅ TRADING REANUDADO | 🛡️ ML Risk Detector: Riesgo bajo, todas monedas operan | 🚀 Bot operativo — monitoreando TPs..." 2>/dev/null || true
+                    fi
                 fi
                 
                 if [ "$ML_RISK_ACTION" = "REDUCE" ]; then
@@ -2829,19 +2852,8 @@ Todas las monedas pueden operar normalmente.
         log "🛑🛑 PAUSE FORZADO: $SYMBOL después de $consecutive_sl SL hits consecutivos"
         log "   ⏸️ Pausa de 4 horas hasta: $pause_until_time"
         
-        # Notificar por Telegram
-        send_telegram "🛑 PAUSE AUTOMÁTICO - $SYMBOL
-
-⚠️ $consecutive_sl Stop Loss hits consecutivos
-
-📊 Estadísticas:
-• Último SL: hace pocos minutos
-• Pausa: 4 horas
-• Reanudar: $pause_until_time
-
-🛡️ Protección activada para evitar más pérdidas.
-
-_Jefe, el bot se detuvo automáticamente._ 🐕" 2>/dev/null || true
+        # Notificar por Telegram (usar notify centralizada con dedup)
+        notify "SL_PAUSE_AUTO_${SYMBOL}" "🛑 PAUSE AUTOMÁTICO - $SYMBOL | ⚠️ $consecutive_sl Stop Loss hits consecutivos | 📊 Pausa: 4h hasta $pause_until_time | 🛡️ Protección activada — el bot se detuvo automáticamente 🐕" 2>/dev/null || true
         
         return 0  # Saltar este cycle
     fi
