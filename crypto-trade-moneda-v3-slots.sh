@@ -2868,6 +2868,26 @@ _Jefe, el bot se detuvo automáticamente._ 🐕" 2>/dev/null || true
         return 0
     fi
     
+    # 🛡️ BACKUP CB PAUSE CHECK — Independent of get_available_slot()
+    # This directly reads global-pause-flag.json as a second layer of defense.
+    # get_available_slot() can fail to detect the pause if the pause flag file
+    # is momentarily unavailable or jq/date fail. This check ensures NO new
+    # trades open while CB pause is active, regardless of get_available_slot()
+    # behavior. See: ZEC LONG at 2026-10-15 10:17 slipped through.
+    CB_PAUSE_FILE="${WORKSPACE}/crypto-bots/global-pause-flag.json"
+    if [ -f "$CB_PAUSE_FILE" ]; then
+        cb_pause_until=$(jq -r '.pause_until // null' "$CB_PAUSE_FILE" 2>/dev/null)
+        if [ "$cb_pause_until" != "null" ]; then
+            cb_pause_epoch=$(date -d "$cb_pause_until" +%s 2>/dev/null || echo 0)
+            cb_now_epoch=$(date +%s)
+            if [ "$cb_pause_epoch" -gt 0 ] && [ "$cb_now_epoch" -lt "$cb_pause_epoch" ]; then
+                log "🛑🛡️ BACKUP CB CHECK: GLOBAL PAUSE ACTIVE (restan $(( (cb_pause_epoch - cb_now_epoch) / 60 )) min) - blocking new entry"
+                log "   CB forces LATERAL — no new trades while losses window is open"
+                return 0
+            fi
+        fi
+    fi
+
     # Get available slot
     local available_slot=$(get_available_slot)
     # CB guard + defensive check: abort if no slot available (CB pause active or
