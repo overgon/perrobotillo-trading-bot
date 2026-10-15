@@ -262,7 +262,9 @@ for coin, p in sorted(preds.items()):
     fi
 
     ALLOWED_OVERRIDE_MODES="BULL|LATERAL|BEAR|VOLATILE_BULL|VOLATILE_BEAR"
-    if [ "$ML_GATE" = "true" ] && echo "$MARKET_MODE" | grep -Eq "$ALLOWED_OVERRIDE_MODES"; then
+    # ✅ FIX: ML override must NOT override CB-forced mode
+    # When CB is active, it forces LATERAL with defensive params — ML must not undo this
+    if [ "$ML_GATE" = "true" ] && [ "$CB_ALLOWED" = "true" ] && echo "$MARKET_MODE" | grep -Eq "$ALLOWED_OVERRIDE_MODES"; then
         FINAL_MODE="$ML_MODE"
         OVERRIDE="✅ ML override aplicado"
         echo "🔁 Override ML aprobado (conf=$ML_CONFIDENCE, f1_macro=$ML_F1_MACRO, cv_mean=$ML_CV_MEAN)"
