@@ -46,12 +46,12 @@ SYMBOL="${1:-}"
 SYMBOL="${SYMBOL^^}"
 
 if [ -z "$SYMBOL" ]; then
-    echo "❌ Uso: $0 <SYMBOL> (ej: BTC, ETH, BNB, SOL, LINK, XRP)"
+    echo "❌ Uso: $0 <SYMBOL> (ej: BTC, ETH, BNB, SOL, ZEC, LINK, XRP, AVAX)"
     exit 1
 fi
 
 case "$SYMBOL" in
-    BTC|ETH|BNB|SOL|LINK|XRP|AVAX) ;;
+    BTC|ETH|BNB|SOL|ZEC|LINK|XRP|AVAX) ;;
     *) echo "❌ SYMBOL no soportado: $SYMBOL"; exit 1 ;;
 esac
 
@@ -296,8 +296,8 @@ local_symbol = sys.argv[3]
 # (authoritative from cron invocation arg, NOT a leaked env var) when the
 # price is plausible for that coin. Only override when price is wildly outside
 # local_symbol's range — that is the real stale-env-var signal.
-KNOWN_COINS = {'BTC','ETH','BNB','SOL','AVAX','LINK','XRP'}
-RANGES = {'BTC':(20000,120000),'ETH':(800,8000),'BNB':(200,1000),'SOL':(40,500),'AVAX':(4.0,30.0),'LINK':(1.0,50.0),'XRP':(0.2,5.0)}
+KNOWN_COINS = {'BTC','ETH','BNB','SOL','ZEC','AVAX','LINK','XRP'}
+RANGES = {'BTC':(20000,120000),'ETH':(800,8000),'BNB':(200,1000),'SOL':(40,500),'AVAX':(4.0,30.0),'ZEC':(500,5000),'LINK':(1.0,50.0),'XRP':(0.2,5.0)}
 if local_symbol in KNOWN_COINS:
     lo, hi = RANGES[local_symbol]
     if lo <= entry <= hi:
@@ -404,8 +404,8 @@ get_portfolio_value() {
     fi
     local total=$(printf '%.2f' "$usdt")
 
-    # RR Fix 2026-10-02: Added BTC ETH — loop must cover all 7 coins for balance check
-    for coin in BTC ETH BNB SOL LINK AVAX XRP; do
+    # RR Fix 2026-10-02: Added BTC ETH ZEC — loop must cover all 8 coins for balance check
+    for coin in BTC ETH BNB SOL ZEC LINK AVAX XRP; do
         local balance=$(get_balance "$coin")
         balance=$(printf '%s' "$balance" | tr -d '[:space:]')
         if ! printf '%s' "$balance" | grep -qE '^[0-9]+(\.[0-9]+)?$'; then
@@ -821,7 +821,7 @@ place_buy_order_market() {
         # HTTP 000 o error de red → retry
         attempt=$((attempt + 1))
         if [ $attempt -le $max_retries ]; then
-            log "⚠️  Retry $attempt/$max_retries (HTTP $http_code)..."
+            log "⚠️  Retry $attempt/$max_retries (HTTP $http_code)..." >&2
             sleep 1
         fi
     done
@@ -832,7 +832,7 @@ place_buy_order_market() {
     # Log error si hay problema de HTTP
     if [ "$http_code" != "200" ]; then
         log "❌ Binance API HTTP error: $http_code (after $attempt retries)"
-        echo "{"code":"-9999","msg":"HTTP error $http_code"}"
+        echo "$body"
         return
     fi
     
@@ -866,7 +866,7 @@ place_sell_order_market() {
         # HTTP 000 o error de red → retry
         attempt=$((attempt + 1))
         if [ $attempt -le $max_retries ]; then
-            log "⚠️  Sell retry $attempt/$max_retries (HTTP $http_code)..."
+            log "⚠️  Sell retry $attempt/$max_retries (HTTP $http_code)..." >&2
             sleep 1
         fi
     done
@@ -876,8 +876,8 @@ place_sell_order_market() {
 
     # Log error si hay problema de HTTP
     if [ "$http_code" != "200" ]; then
-        log "❌ Sell API HTTP error: $http_code (after $attempt retries)"
-        echo "{"code":"-9999","msg":"HTTP error $http_code"}"
+        log "❌ Sell API HTTP error: $http_code (after $attempt retries)" >&2
+        echo "$body"
         return
     fi
 
@@ -1000,7 +1000,29 @@ execute_long() {
             position_percent=$(awk -v p="${position_percent:-10}" 'BEGIN {printf "%.2f", p * 0.5}')
             if [ -f "$WORKSPACE/crypto-bots/notify.sh" ]; then
                 source "$WORKSPACE/crypto-bots/notify.sh"
-                notify "ON_CHAIN_WARN|$SYMBOL" "⚠️ POSICIÓN REDUCIDA - $SYMBOL\n\nRazón: $on_chain_reason\n\nReducido al 50% por warning on-chain:\nPosición: ${position_percent}% (original: $(awk -v p="${position_percent:-10}" 'BEGIN {printf "%.0f", p * 2}')%)"
+                # ✅ DEDUP: Only notify once per day per coin for ON_CHAIN_WARN
+                # to prevent spam on every cron cycle (every 10 min)
+                _onchain_warn_date=$(date +%Y%m%d)
+                _dedup_file="$DEDUP_DIR/ON_CHAIN_WARN_${SYMBOL}_${_onchain_warn_date}.txt"
+                _should_notify=false
+                if [ -f "$_dedup_file" ]; then
+                    _last_sent=$(cat "$_dedup_file" 2>/dev/null || echo 0)
+                    _now=$(date +%s)
+                    _diff=$((_now - _last_sent))
+                    if [ "$_diff" -ge 86400 ]; then
+                        _should_notify=true
+                    fi
+                else
+                    _should_notify=true
+                fi
+                if [ "$_should_notify" = "true" ]; then
+                    # ✅ SUPRIMIDO (2026-10-09): El usuario reportó spam de este mensaje
+                    # on-chain gate WARN reduce position al 50% en cada ciclo correctamente
+                    # Log en cron log, no notificar por Telegram
+                    echo "$(date +%s)" > "$_dedup_file"
+                else
+                    log "ON_CHAIN_WARN dedup: already notified today for $SYMBOL"
+                fi
             fi
         elif [ "$on_chain_status" = "ALLOW_ON_CHAIN_GATE" ]; then
             log "✅ ON-CHAIN GATE: $on_chain_reason"
@@ -1861,7 +1883,7 @@ ACUMULADO: 5% se queda HODL 📈
         
         # Check SL - Stop Loss (cierra 100%)
         if (( $(echo "$current_price <= $sl" | bc -l) )); then
-            log "🛑 Slot $slot_id SL HIT: $$${current_price} <= $$${sl}"
+            log "🛑 Slot $slot_id SL HIT: ${current_price} <= ${sl}"
             
             # 🔧 FIX: Format quantity with stepSize before selling to prevent LOT_SIZE filter failure
             local sell_qty_fmt=$(format_quantity "$SYMBOL" "$quantity")
@@ -1887,6 +1909,15 @@ ACUMULADO: 5% se queda HODL 📈
                     # Update quantity for PnL calculation
                     quantity="$sell_qty_retry"
                 fi
+                # LO FIX: Handle NOTIONAL failure (cantidad en dust, muy pequena para vender en Binance)
+                if [ "$sell_status" = "ERROR" ] || [ -z "$sell_status" ]; then
+                    local remaining_err=$(echo "$sell_result" | jq -r '.msg // empty')
+                    if echo "$remaining_err" | grep -qi "NOTIONAL\|minimum\|cumulative\|too much"; then
+                        log "  LO: NOTIONAL - qty ($sell_qty_fmt) es dust (< $5 min de Binance), slot se marcara CLOSED_SL" >&2
+                        log "  LO: Venta no ejecutada - cantidad restante demasiado pequena para NOTIONAL" >&2
+                    fi
+                fi
+
             fi
             
             if [ "$sell_status" = "FILLED" ]; then
@@ -1986,8 +2017,25 @@ PnL: \$${pnl_display}
 Slot disponible 🔄"
                 
             else
+                # LO FIX: SL tocado pero venta fallo (NOTIONAL/LOT_SIZE dust)
+                # El SL se activo, la posicion es dust o fallo la orden - marcar CLOSED_SL
                 local error=$(echo "$sell_result" | jq -r '.msg // "Unknown error"')
-                log "  ❌ SL venta falló: $error"
+                log "  LO: SL venta fallo: $error — slot CLOSED_SL (dust/insufficient)" >&2
+                local exit_price="$current_price"
+                local sell_qty="${sell_qty:-$quantity}"
+                local sell_value=$(awk -v q="$sell_qty" -v p="$exit_price" 'BEGIN {printf "%.8f", q * p}')
+                local sell_pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$sell_qty" 'BEGIN {printf "%.8f", ((x - e) * q) * -1}')
+                register_capital_move "$SYMBOL" "SL" "$sell_value" "$sell_qty" "$current_price" "" "SL Slot $slot_id (sell failed: $error)"
+                update_slot_status "$slot_id" "CLOSED_SL"
+                update_slot_field "$slot_id" "timestamp" "$(date -Iseconds)"
+                log_trade_to_history "$slot_id" "CLOSED_SL" "$entry" "$exit_price" "$sell_qty" "$sell_pnl"
+                update_pnl_after_close "$slot_id" "SL" "$entry" "$exit_price" "$sell_qty" 0 2>/dev/null || true
+                notify "SL_HIT|$SYMBOL|$slot_id" "LO: SL ejecutado - $SYMBOL
+Slot: $slot_id
+Entry: $entry | Precio: $exit_price
+Qty: $sell_qty (~$sell_value)
+Venta fallo: $error
+Slot marcado CLOSED_SL (dust - venta no ejecutada)"
             fi
         fi
     fi
@@ -2695,14 +2743,14 @@ Se recomienda esperar condiciones mejores. 🐕"
                 
                 # Si todas las monedas están operando, limpiar flag global
                 OPERATING_COUNT=0
-                # RR Fix 2026-10-02: Added BTC ETH — must count all 7 coins
-                for coin in BTC ETH BNB SOL LINK AVAX XRP; do
+                # RR Fix 2026-10-02: Added BTC ETH ZEC — must count all 8 coins
+                for coin in BTC ETH BNB SOL ZEC LINK AVAX XRP; do
                     if [ ! -f "${WORKSPACE}/crypto-bots/${coin}-ml-pause-flag.json" ]; then
                         OPERATING_COUNT=$((OPERATING_COUNT + 1))
                     fi
                 done
                 
-                if [ $OPERATING_COUNT -eq 7 ] && [ -f "$GLOBAL_PAUSE_FLAG" ]; then
+                if [ $OPERATING_COUNT -eq 8 ] && [ -f "$GLOBAL_PAUSE_FLAG" ]; then
                     rm -f "$GLOBAL_PAUSE_FLAG"
                     log "✅ ML: Todas las monedas operando, flag global removido"
                     
