@@ -85,8 +85,23 @@ print(f"{ema20:.2f} {ema50:.2f}")
 PYEOF
 )
 else
-    EMA20=$BTC_PRICE
-    EMA50=$BTC_PRICE
+    # Fallback: fetch only 20 klines (smaller, faster) and use SMA
+    EMA_FALLBACK=$(curl -s --max-time 8 "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=20")
+    if [ -n "$EMA_FALLBACK" ]; then
+        read EMA20 EMA50 <<< $(python3 << PFEOF
+import json
+data = json.loads('''$EMA_FALLBACK''')
+closes = [float(k[4]) for k in data]
+sma = sum(closes) / len(closes)  # SMA like EMA proxy
+print(f"{sma:.2f} {sma:.2f}")
+PFEOF
+)
+        # If still empty, use SMA20 as EMA20 and BTC_PRICE as EMA50
+        [ -z "$EMA20" ] && EMA20=$sma && EMA50=$BTC_PRICE
+    else
+        EMA20=$BTC_PRICE
+        EMA50=$BTC_PRICE
+    fi
 fi
 
 # Calcular RSI (14 días)
@@ -151,6 +166,7 @@ echo "🔍 Analizando modo de mercado..."
 # Convertir a float para comparaciones
 BTC_PRICE_F=$(echo "$BTC_PRICE" | tr -d ',')
 EMA20_F=$(echo "$EMA20" | tr -d ',')
+EMA50_F=$(echo "$EMA50" | tr -d ',')
 FG_VALUE_F=$(echo "$FG_VALUE" | tr -d ',')
 RSI_F=$(echo "$RSI" | sed 's/[^0-9.]//g')
 
@@ -158,15 +174,17 @@ RSI_F=$(echo "$RSI" | sed 's/[^0-9.]//g')
 MARKET_MODE="LATERAL"
 MARKET_REASON="RSI neutral, precio entre EMAs"
 
-# Bear Market: FG < 40 Y precio < EMA20
-if [ "$FG_VALUE_F" -lt 40 ] 2>/dev/null && [ "$(echo "$BTC_PRICE_F < $EMA20_F" | bc -l 2>/dev/null)" = "1" ]; then
+# Bear Market: FG < 55 Y precio < EMA20 Y precio < EMA50 Y RSI < 50
+# Relajado de 40 a 55 con condiciones técnicas adicionales para detectar
+# bearish momentum antes de que F&G entre en territorio extremo (< 40)
+if [ "$FG_VALUE_F" -lt 55 ] 2>/dev/null && [ "$(echo "$BTC_PRICE_F < $EMA20_F" | bc -l 2>/dev/null)" = "1" ] && [ "$(echo "$BTC_PRICE_F < $EMA50_F" | bc -l 2>/dev/null)" = "1" ] && [ "$(echo "$RSI_F < 50" | bc -l 2>/dev/null)" = "1" ]; then
     MARKET_MODE="BEAR"
-    MARKET_REASON="Fear & Greed < 40 + Precio < EMA20"
+    MARKET_REASON="F&G < 55 + Precio < EMA20/EMA50 + RSI < 50"
     
-# Bull Market: FG > 60 Y precio > EMA20
-elif [ "$FG_VALUE_F" -gt 60 ] 2>/dev/null && [ "$(echo "$BTC_PRICE_F > $EMA20_F" | bc -l 2>/dev/null)" = "1" ]; then
+# Bull Market: FG > 55 Y precio > EMA20 Y RSI > 50
+elif [ "$FG_VALUE_F" -gt 55 ] 2>/dev/null && [ "$(echo "$BTC_PRICE_F > $EMA20_F" | bc -l 2>/dev/null)" = "1" ] && [ "$(echo "$BTC_PRICE_F > $EMA50_F" | bc -l 2>/dev/null)" = "1" ] && [ "$(echo "$RSI_F > 50" | bc -l 2>/dev/null)" = "1" ]; then
     MARKET_MODE="BULL"
-    MARKET_REASON="Fear & Greed > 60 + Precio > EMA20"
+    MARKET_REASON="F&G > 55 + Precio > EMA20/EMA50 + RSI > 50"
     
 # Alta Volatilidad: RSI > 70 o RSI < 30
 elif [ "$(echo "$RSI_F > 70" | bc -l 2>/dev/null)" = "1" ]; then

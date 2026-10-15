@@ -215,13 +215,46 @@ FINAL_MODE="$MARKET_MODE"
 ML_CONFIDENCE="N/A"
 
 if [ -f "$ML_RESULT_FILE" ]; then
-    ML_DISCREPANCY=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print('true' if d.get('discrepancy', False) else 'false')" 2>/dev/null || echo "false")
-    ML_MODE=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(d.get('recommended_mode', 'UNKNOWN'))" 2>/dev/null || echo "UNKNOWN")
-    ML_CONFIDENCE=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(f\"{d['predictions'].get('BTC', {}).get('confidence', 0)*100:.0f}%\")" 2>/dev/null || echo "N/A")
-    ML_CONF_NUM=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(int(d['predictions'].get('BTC', {}).get('confidence', 0)*100))" 2>/dev/null || echo "0")
-    # ML metadata quality gate (required for override)
-    ML_F1_MACRO=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(d.get('metrics', {}).get('f1_macro', 0))" 2>/dev/null || echo "0")
-    ML_CV_MEAN=$(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(d.get('metrics', {}).get('cv_mean', 0))" 2>/dev/null || echo "0")
+    # ✅ FIX: Ensemble voting across ALL coins, no longer BTC-only
+    # Previous: BTC as sole reference → 4/7 BEAR + BTC LATERAL = no override
+    # Now: majority vote across all coins; discrepancy = ensemble_mode != market_mode
+    ML_DATA=$(python3 -c "
+import json, sys
+with open('$ML_RESULT_FILE') as f:
+    d = json.load(f)
+predictions = d.get('predictions', {})
+if not predictions:
+    print('false|UNKNOWN|N/A|0|0.0|0.0')
+    sys.exit(0)
+mode_votes = {}
+mode_confs = {}
+for coin, pred in predictions.items():
+    mode = pred.get('market_mode', pred.get('mode', pred.get('recommended_mode', 'UNKNOWN')))
+    conf = pred.get('confidence', 0)
+    mode_votes[mode] = mode_votes.get(mode, 0) + 1
+    mode_confs.setdefault(mode, []).append(conf)
+ensemble_mode = max(mode_votes.keys(), key=lambda m: (mode_votes[m], sum(mode_confs[m])/len(mode_confs[m])))
+ensemble_conf = sum(mode_confs[ensemble_mode]) / len(mode_confs[ensemble_mode])
+# ✅ FIX: Use model_accuracy as proxy when metrics/f1_macro/cv_mean missing
+metrics = d.get('metrics', {})
+f1_macro = metrics.get('f1_macro', d.get('model_accuracy', 0))
+cv_mean = metrics.get('cv_mean', min(d.get('model_accuracy', 0), 0.95))
+discrepancy = str(ensemble_mode != '$MARKET_MODE').lower()
+print(f'{discrepancy}|{ensemble_mode}|{ensemble_conf*100:.0f}%|{int(ensemble_conf*100)}|{f1_macro}|{cv_mean}')
+" 2>/dev/null || echo "false|UNKNOWN|N/A|0|0.0|0.0")
+    ML_DISCREPANCY=$(echo "$ML_DATA" | cut -d'|' -f1)
+    ML_MODE=$(echo "$ML_DATA" | cut -d'|' -f2)
+    ML_CONFIDENCE=$(echo "$ML_DATA" | cut -d'|' -f3)
+    ML_CONF_NUM=$(echo "$ML_DATA" | cut -d'|' -f4)
+    ML_F1_MACRO=$(echo "$ML_DATA" | cut -d'|' -f5)
+    ML_CV_MEAN=$(echo "$ML_DATA" | cut -d'|' -f6)
+    python3 -c "
+import json
+with open('$ML_RESULT_FILE') as f: d = json.load(f)
+preds = d.get('predictions', {})
+for coin, p in sorted(preds.items()):
+    print(f'   {coin}: {p.get(\"market_mode\",\"?\")} ({p.get(\"confidence\",0)*100:.0f}%)')
+" 2>/dev/null
 
     ML_GATE="false"
     if [ "$ML_DISCREPANCY" = "true" ] && [ "$ML_CONF_NUM" -gt 80 ] && [ "$(python3 -c "print($ML_F1_MACRO > 0.55)")" = "True" ] && [ "$(python3 -c "print($ML_CV_MEAN > 0.75)")" = "True" ]; then

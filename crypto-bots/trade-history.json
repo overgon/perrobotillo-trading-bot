@@ -1,8 +1,8 @@
 {
   "version": "1.0",
   "created": "2026-05-04T21:30:00-06:00",
-  "strategy": "Dinámica (Auto-Ajuste)",
-  "resetReason": "Reset para estrategia dinámica - Backtest: +2,777% en 2 años",
+  "strategy": "Din\u00e1mica (Auto-Ajuste)",
+  "resetReason": "Reset para estrategia din\u00e1mica - Backtest: +2,777% en 2 a\u00f1os",
   "previousSnapshot": "trade-history-PRE-DYNAMIC-2026-05-04.json.backup",
   "previousStats": {
     "totalTrades": 17,
@@ -10,12 +10,12 @@
     "netPnLUSDT": -7.66
   },
   "totalTrades": 566,
-  "totalWins": 366,
-  "totalLosses": 200,
-  "totalProfitUSDT": 745.44093764,
-  "totalLossUSDT": -634.29939144,
-  "netPnLUSDT": 111.1415462,
-  "winRate": 64.84,
+  "totalWins": 222,
+  "totalLosses": 121,
+  "totalProfitUSDT": 281.129872,
+  "totalLossUSDT": 198.38415,
+  "netPnLUSDT": 82.835756,
+  "winRate": 64.72,
   "trades": [
     {
       "id": 569,
@@ -32,7 +32,8 @@
       "closeTime": "2026-10-14 23:06:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 568,
@@ -49,7 +50,8 @@
       "closeTime": "2026-10-14 23:04:06",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 567,
@@ -66,7 +68,8 @@
       "closeTime": "2026-10-14 20:31:24",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 566,
@@ -83,7 +86,8 @@
       "closeTime": "2026-10-14 20:24:09",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 565,
@@ -100,7 +104,8 @@
       "closeTime": "2026-10-14 20:24:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 564,
@@ -117,7 +122,8 @@
       "closeTime": "2026-10-14 16:35:29",
       "source": "emergency-close",
       "orderId": null,
-      "reason": "Position already sold externally (0 ZEC balance)"
+      "reason": "Position already sold externally (0 ZEC balance)",
+      "status": "CLOSED_SL_EMERGENCY"
     },
     {
       "id": 563,
@@ -134,7 +140,8 @@
       "closeTime": "2026-10-14 14:31:21",
       "source": "emergency-close",
       "orderId": null,
-      "reason": "Position already sold externally (0 ZEC balance)"
+      "reason": "Position already sold externally (0 ZEC balance)",
+      "status": "CLOSED_SL_EMERGENCY"
     },
     {
       "id": 560,
@@ -151,7 +158,8 @@
       "closeTime": "2026-10-14 09:56:08",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 559,
@@ -168,7 +176,8 @@
       "closeTime": "2026-10-14 08:46:36",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 558,
@@ -185,7 +194,8 @@
       "closeTime": "2026-10-12 17:45:07",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 557,
@@ -202,7 +212,8 @@
       "closeTime": "2026-10-12 17:12:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 556,
@@ -219,7 +230,8 @@
       "closeTime": "2026-10-12 17:03:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 555,
@@ -236,7 +248,8 @@
       "closeTime": "2026-10-11 22:37:29",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 554,
@@ -253,7 +266,8 @@
       "closeTime": "2026-10-11 10:47:29",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 553,
@@ -270,7 +284,8 @@
       "closeTime": "2026-10-11 10:17:28",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 552,
@@ -287,7 +302,8 @@
       "closeTime": "2026-10-11 09:54:11",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 551,
@@ -304,7 +320,8 @@
       "closeTime": "2026-10-11 09:54:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 550,
@@ -321,7 +338,8 @@
       "closeTime": "2026-10-11 09:54:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 549,
@@ -338,7 +356,8 @@
       "closeTime": "2026-10-11 09:46:29",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 548,
@@ -355,7 +374,8 @@
       "closeTime": "2026-10-09 23:46:24",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 547,
@@ -372,7 +392,8 @@
       "closeTime": "2026-10-08 10:19:43",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 546,
@@ -389,7 +410,8 @@
       "closeTime": "2026-10-08 09:32:11",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 545,
@@ -406,7 +428,8 @@
       "closeTime": "2026-10-08 07:46:11",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 544,
@@ -423,7 +446,8 @@
       "closeTime": "2026-10-08 07:46:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 543,
@@ -440,7 +464,8 @@
       "closeTime": "2026-10-08 07:46:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 542,
@@ -457,7 +482,8 @@
       "closeTime": "2026-10-08 07:02:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 541,
@@ -474,7 +500,8 @@
       "closeTime": "2026-10-08 06:50:30",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 540,
@@ -491,7 +518,8 @@
       "closeTime": "2026-10-08 06:50:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 539,
@@ -508,7 +536,8 @@
       "closeTime": "2026-10-08 05:20:08",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 538,
@@ -525,7 +554,8 @@
       "closeTime": "2026-10-08 05:13:05",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 537,
@@ -542,7 +572,8 @@
       "closeTime": "2026-10-08 05:13:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 536,
@@ -559,7 +590,8 @@
       "closeTime": "2026-10-08 04:51:23",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 535,
@@ -576,7 +608,8 @@
       "closeTime": "2026-10-07 15:53:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 534,
@@ -593,7 +626,8 @@
       "closeTime": "2026-10-07 15:35:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 533,
@@ -610,7 +644,8 @@
       "closeTime": "2026-10-07 14:05:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 532,
@@ -627,7 +662,8 @@
       "closeTime": "2026-10-06 21:21:28",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 531,
@@ -644,7 +680,8 @@
       "closeTime": "2026-10-06 20:31:23",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 530,
@@ -661,7 +698,8 @@
       "closeTime": "2026-10-06 20:04:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 529,
@@ -678,7 +716,8 @@
       "closeTime": "2026-10-06 06:06:33",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 528,
@@ -695,7 +734,8 @@
       "closeTime": "2026-10-06 05:46:50",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 527,
@@ -712,7 +752,8 @@
       "closeTime": "2026-10-06 05:46:33",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 526,
@@ -729,7 +770,8 @@
       "closeTime": "2026-10-04 20:12:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 525,
@@ -746,7 +788,8 @@
       "closeTime": "2026-10-04 16:24:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 524,
@@ -763,7 +806,8 @@
       "closeTime": "2026-10-02 12:44:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 523,
@@ -780,7 +824,8 @@
       "closeTime": "2026-10-02 12:36:10",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 522,
@@ -797,7 +842,8 @@
       "closeTime": "2026-10-02 12:36:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 521,
@@ -814,7 +860,8 @@
       "closeTime": "2026-10-02 12:36:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 520,
@@ -831,7 +878,8 @@
       "closeTime": "2026-10-02 12:33:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 519,
@@ -848,7 +896,8 @@
       "closeTime": "2026-10-02 12:24:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 518,
@@ -865,7 +914,8 @@
       "closeTime": "2026-10-02 12:24:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 517,
@@ -882,7 +932,8 @@
       "closeTime": "2026-10-02 12:21:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 516,
@@ -899,7 +950,8 @@
       "closeTime": "2026-10-02 11:45:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 515,
@@ -916,7 +968,8 @@
       "closeTime": "2026-10-02 11:43:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 514,
@@ -933,7 +986,8 @@
       "closeTime": "2026-10-02 07:40:22",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 513,
@@ -950,7 +1004,8 @@
       "closeTime": "2026-10-02 07:40:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 512,
@@ -967,7 +1022,8 @@
       "closeTime": "2026-10-02 07:40:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 511,
@@ -984,7 +1040,8 @@
       "closeTime": "2026-10-02 02:21:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 510,
@@ -1001,7 +1058,8 @@
       "closeTime": "2026-10-02 02:21:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 509,
@@ -1018,7 +1076,8 @@
       "closeTime": "2026-10-01 22:32:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 508,
@@ -1035,7 +1094,8 @@
       "closeTime": "2026-10-01 22:32:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 507,
@@ -1052,7 +1112,8 @@
       "closeTime": "2026-10-01 04:05:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 506,
@@ -1069,7 +1130,8 @@
       "closeTime": "2026-09-30 08:36:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 505,
@@ -1086,7 +1148,8 @@
       "closeTime": "2026-09-30 06:53:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 504,
@@ -1103,7 +1166,8 @@
       "closeTime": "2026-09-30 02:36:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 503,
@@ -1120,7 +1184,8 @@
       "closeTime": "2026-09-29 18:14:05",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 502,
@@ -1137,7 +1202,8 @@
       "closeTime": "2026-09-29 18:14:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 501,
@@ -1154,7 +1220,8 @@
       "closeTime": "2026-09-28 08:52:11",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 500,
@@ -1171,7 +1238,8 @@
       "closeTime": "2026-09-28 08:52:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 499,
@@ -1188,7 +1256,8 @@
       "closeTime": "2026-09-28 08:52:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 498,
@@ -1205,7 +1274,8 @@
       "closeTime": "2026-09-27 23:41:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 497,
@@ -1222,7 +1292,8 @@
       "closeTime": "2026-09-27 21:36:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 496,
@@ -1239,7 +1310,8 @@
       "closeTime": "2026-09-27 21:31:05",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 495,
@@ -1256,7 +1328,8 @@
       "closeTime": "2026-09-27 21:31:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 494,
@@ -1273,7 +1346,8 @@
       "closeTime": "2026-09-26 14:44:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 493,
@@ -1291,7 +1365,8 @@
       "source": "TELEGRAM_RECOVERY",
       "orderId": null,
       "reason": null,
-      "note": "RECOVERED: symbol mislabel (was LINK, corrected to AVAX via entryPrice + slotId cross-check)"
+      "note": "RECOVERED: symbol mislabel (was LINK, corrected to AVAX via entryPrice + slotId cross-check)",
+      "status": "CLOSED_SL"
     },
     {
       "id": 492,
@@ -1308,7 +1383,8 @@
       "closeTime": "2026-09-24 02:50:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 491,
@@ -1325,7 +1401,8 @@
       "closeTime": "2026-09-23 10:50:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 490,
@@ -1342,7 +1419,8 @@
       "closeTime": "2026-09-23 09:45:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 489,
@@ -1359,7 +1437,8 @@
       "closeTime": "2026-09-23 08:30:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 488,
@@ -1376,7 +1455,8 @@
       "closeTime": "2026-09-23 08:22:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 487,
@@ -1393,7 +1473,8 @@
       "closeTime": "2026-09-23 08:21:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 486,
@@ -1410,7 +1491,8 @@
       "closeTime": "2026-09-23 08:15:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 485,
@@ -1427,7 +1509,8 @@
       "closeTime": "2026-09-23 08:13:11",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 484,
@@ -1444,7 +1527,8 @@
       "closeTime": "2026-09-23 08:13:05",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 483,
@@ -1461,7 +1545,8 @@
       "closeTime": "2026-09-23 08:13:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 482,
@@ -1479,7 +1564,8 @@
       "source": "TELEGRAM_RECOVERY",
       "orderId": null,
       "reason": null,
-      "note": "RECOVERED: symbol mislabel (was LINK, corrected to AVAX)"
+      "note": "RECOVERED: symbol mislabel (was LINK, corrected to AVAX)",
+      "status": "CLOSED_SL"
     },
     {
       "id": 481,
@@ -1497,7 +1583,8 @@
       "source": "TELEGRAM_RECOVERY",
       "orderId": null,
       "reason": null,
-      "note": "RECOVERED: symbol mislabel (was LINK, corrected to AVAX)"
+      "note": "RECOVERED: symbol mislabel (was LINK, corrected to AVAX)",
+      "status": "CLOSED_SL"
     },
     {
       "id": 480,
@@ -1515,7 +1602,8 @@
       "source": "TELEGRAM_RECOVERY",
       "orderId": null,
       "reason": null,
-      "note": "RECOVERED: symbol mislabel (was LINK, corrected to AVAX)"
+      "note": "RECOVERED: symbol mislabel (was LINK, corrected to AVAX)",
+      "status": "CLOSED_SL"
     },
     {
       "id": 479,
@@ -1532,7 +1620,8 @@
       "closeTime": "2026-09-23 05:34:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 478,
@@ -1549,7 +1638,8 @@
       "closeTime": "2026-09-23 04:24:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 477,
@@ -1566,7 +1656,8 @@
       "closeTime": "2026-09-23 02:54:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 476,
@@ -1583,7 +1674,8 @@
       "closeTime": "2026-09-22 22:25:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 475,
@@ -1600,7 +1692,8 @@
       "closeTime": "2026-09-22 22:15:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 474,
@@ -1617,7 +1710,8 @@
       "closeTime": "2026-09-22 13:29:43",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 473,
@@ -1634,7 +1728,8 @@
       "closeTime": "2026-09-22 13:15:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 472,
@@ -1651,7 +1746,8 @@
       "closeTime": "2026-09-22 10:25:00",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 471,
@@ -1668,7 +1764,8 @@
       "closeTime": "2026-09-11 08:11:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 470,
@@ -1685,7 +1782,8 @@
       "closeTime": "2026-09-11 08:11:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 469,
@@ -1702,7 +1800,8 @@
       "closeTime": "2026-09-05 02:32:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 468,
@@ -1719,7 +1818,8 @@
       "closeTime": "2026-09-05 01:22:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 467,
@@ -1736,7 +1836,8 @@
       "closeTime": "2026-09-02 04:40:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 466,
@@ -1753,7 +1854,8 @@
       "closeTime": "2026-09-01 19:56:02",
       "source": "BOT",
       "orderId": null,
-      "reason": "CORRECTED: symbol was BTC due to SYMBOL env contamination; entryPrice ~7.3 confirms AVAX (BTC ~$77k)"
+      "reason": "CORRECTED: symbol was BTC due to SYMBOL env contamination; entryPrice ~7.3 confirms AVAX (BTC ~$77k)",
+      "status": "CLOSED_SL"
     },
     {
       "id": 465,
@@ -1770,7 +1872,8 @@
       "closeTime": "2026-09-01 19:46:03",
       "source": "BOT",
       "orderId": null,
-      "reason": "CORRECTED: symbol was BTC due to SYMBOL env contamination; entryPrice ~7.3 confirms AVAX (BTC ~$77k)"
+      "reason": "CORRECTED: symbol was BTC due to SYMBOL env contamination; entryPrice ~7.3 confirms AVAX (BTC ~$77k)",
+      "status": "CLOSED_SL"
     },
     {
       "id": 464,
@@ -1787,7 +1890,8 @@
       "closeTime": "2026-09-01 12:46:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 463,
@@ -1804,7 +1908,8 @@
       "closeTime": "2026-09-01 12:44:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 462,
@@ -1821,7 +1926,8 @@
       "closeTime": "2026-09-01 12:42:05",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 461,
@@ -1838,7 +1944,8 @@
       "closeTime": "2026-09-01 12:42:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 460,
@@ -1855,7 +1962,8 @@
       "closeTime": "2026-09-01 12:41:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 459,
@@ -1872,7 +1980,8 @@
       "closeTime": "2026-09-01 12:10:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 458,
@@ -1889,7 +1998,8 @@
       "closeTime": "2026-09-01 12:10:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 457,
@@ -1906,7 +2016,8 @@
       "closeTime": "2026-08-30 17:46:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 456,
@@ -1923,7 +2034,8 @@
       "closeTime": "2026-08-30 17:44:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 455,
@@ -1940,7 +2052,8 @@
       "closeTime": "2026-08-30 17:36:05",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 454,
@@ -1957,7 +2070,8 @@
       "closeTime": "2026-08-30 17:36:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 453,
@@ -1974,7 +2088,8 @@
       "closeTime": "2026-08-30 17:35:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 452,
@@ -1991,7 +2106,8 @@
       "closeTime": "2026-08-30 17:33:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 451,
@@ -2008,7 +2124,8 @@
       "closeTime": "2026-08-30 17:33:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 450,
@@ -2025,7 +2142,8 @@
       "closeTime": "2026-08-30 12:35:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 449,
@@ -2042,7 +2160,8 @@
       "closeTime": "2026-08-28 13:14:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 448,
@@ -2059,7 +2178,8 @@
       "closeTime": "2026-08-28 10:14:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 447,
@@ -2076,7 +2196,8 @@
       "closeTime": "2026-08-28 10:14:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 446,
@@ -2093,7 +2214,8 @@
       "closeTime": "2026-08-28 08:16:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 445,
@@ -2110,7 +2232,8 @@
       "closeTime": "2026-08-27 19:24:05",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 444,
@@ -2127,7 +2250,8 @@
       "closeTime": "2026-08-27 02:31:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 443,
@@ -2146,7 +2270,8 @@
       "orderId": null,
       "reason": null,
       "_corrected_at": "2026-08-25T16:45:00",
-      "_correction_reason": "Symbol mismatch: BTC→AVAX (entry $7.5x is AVAX price range)"
+      "_correction_reason": "Symbol mismatch: BTC\u2192AVAX (entry $7.5x is AVAX price range)",
+      "status": "CLOSED_SL"
     },
     {
       "id": 442,
@@ -2165,7 +2290,8 @@
       "orderId": null,
       "reason": null,
       "_corrected_at": "2026-08-25T16:45:00",
-      "_correction_reason": "Symbol mismatch: BTC→AVAX (entry $7.5x is AVAX price range)"
+      "_correction_reason": "Symbol mismatch: BTC\u2192AVAX (entry $7.5x is AVAX price range)",
+      "status": "CLOSED_SL"
     },
     {
       "id": 441,
@@ -2184,7 +2310,8 @@
       "orderId": null,
       "reason": null,
       "_corrected_at": "2026-08-25T16:45:00",
-      "_correction_reason": "Symbol mismatch: BTC→AVAX (entry $7.5x is AVAX price range)"
+      "_correction_reason": "Symbol mismatch: BTC\u2192AVAX (entry $7.5x is AVAX price range)",
+      "status": "CLOSED_SL"
     },
     {
       "id": 440,
@@ -2201,7 +2328,8 @@
       "closeTime": "2026-08-25 05:14:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 439,
@@ -2218,7 +2346,8 @@
       "closeTime": "2026-08-25 03:54:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 438,
@@ -2235,7 +2364,8 @@
       "closeTime": "2026-08-25 03:54:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 437,
@@ -2252,7 +2382,8 @@
       "closeTime": "2026-08-24 22:35:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 436,
@@ -2269,7 +2400,8 @@
       "closeTime": "2026-08-24 20:35:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 435,
@@ -2286,7 +2418,8 @@
       "closeTime": "2026-08-24 20:22:05",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 434,
@@ -2303,7 +2436,8 @@
       "closeTime": "2026-08-24 20:22:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 433,
@@ -2320,7 +2454,8 @@
       "closeTime": "2026-08-24 18:13:07",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "TP3"
     },
     {
       "id": 432,
@@ -2337,7 +2472,8 @@
       "closeTime": "2026-08-24 18:13:06",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 431,
@@ -2354,7 +2490,8 @@
       "closeTime": "2026-08-24 18:13:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "TP3"
     },
     {
       "id": 430,
@@ -2371,7 +2508,8 @@
       "closeTime": "2026-08-24 18:13:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 429,
@@ -2388,7 +2526,8 @@
       "closeTime": "2026-08-24 18:13:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "TP3"
     },
     {
       "id": 428,
@@ -2405,7 +2544,8 @@
       "closeTime": "2026-08-24 18:13:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 427,
@@ -2422,7 +2562,8 @@
       "closeTime": "2026-08-24 17:43:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 426,
@@ -2439,7 +2580,8 @@
       "closeTime": "2026-08-24 17:23:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 425,
@@ -2456,7 +2598,8 @@
       "closeTime": "2026-08-24 17:23:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 424,
@@ -2473,7 +2616,8 @@
       "closeTime": "2026-08-24 10:22:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 423,
@@ -2490,7 +2634,8 @@
       "closeTime": "2026-08-22 18:43:06",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 422,
@@ -2507,7 +2652,8 @@
       "closeTime": "2026-08-22 18:43:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 421,
@@ -2524,7 +2670,8 @@
       "closeTime": "2026-08-22 18:43:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 417,
@@ -2541,7 +2688,8 @@
       "closeTime": "2026-08-22 06:25:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 416,
@@ -2558,7 +2706,8 @@
       "closeTime": "2026-08-22 04:04:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 414,
@@ -2575,7 +2724,8 @@
       "closeTime": "2026-08-22 02:36:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 413,
@@ -2592,7 +2742,8 @@
       "closeTime": "2026-08-22 01:35:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "TP3"
     },
     {
       "id": 412,
@@ -2609,7 +2760,8 @@
       "closeTime": "2026-08-22 01:35:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 411,
@@ -2626,7 +2778,8 @@
       "closeTime": "2026-08-22 01:05:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 410,
@@ -2643,7 +2796,8 @@
       "closeTime": "2026-08-22 00:45:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 409,
@@ -2660,7 +2814,8 @@
       "closeTime": "2026-08-22 00:25:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 408,
@@ -2677,7 +2832,8 @@
       "closeTime": "2026-08-22 00:25:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 407,
@@ -2694,7 +2850,8 @@
       "closeTime": "2026-08-21 22:46:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 405,
@@ -2711,7 +2868,8 @@
       "closeTime": "2026-08-21 21:15:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "TP3"
     },
     {
       "id": 404,
@@ -2728,7 +2886,8 @@
       "closeTime": "2026-08-21 21:15:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 403,
@@ -2745,7 +2904,8 @@
       "closeTime": "2026-08-21 21:05:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 402,
@@ -2762,7 +2922,8 @@
       "closeTime": "2026-08-21 21:05:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 401,
@@ -2779,7 +2940,8 @@
       "closeTime": "2026-08-21 20:56:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 400,
@@ -2796,7 +2958,8 @@
       "closeTime": "2026-08-21 20:55:05",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 399,
@@ -2813,7 +2976,8 @@
       "closeTime": "2026-08-21 20:55:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 398,
@@ -2830,7 +2994,8 @@
       "closeTime": "2026-08-21 20:45:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 397,
@@ -2847,7 +3012,8 @@
       "closeTime": "2026-08-21 20:45:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 396,
@@ -2864,7 +3030,8 @@
       "closeTime": "2026-08-21 20:43:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "TP3"
     },
     {
       "id": 395,
@@ -2881,7 +3048,8 @@
       "closeTime": "2026-08-21 20:43:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 394,
@@ -2898,7 +3066,8 @@
       "closeTime": "2026-08-21 20:35:05",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 393,
@@ -2915,7 +3084,8 @@
       "closeTime": "2026-08-21 20:35:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 392,
@@ -2932,7 +3102,8 @@
       "closeTime": "2026-08-21 19:35:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 391,
@@ -2949,7 +3120,8 @@
       "closeTime": "2026-08-21 19:25:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 390,
@@ -2966,7 +3138,8 @@
       "closeTime": "2026-08-21 19:06:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "TP3"
     },
     {
       "id": 389,
@@ -2983,7 +3156,8 @@
       "closeTime": "2026-08-21 19:06:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 388,
@@ -3000,7 +3174,8 @@
       "closeTime": "2026-08-21 17:23:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "TP3"
     },
     {
       "id": 387,
@@ -3017,7 +3192,8 @@
       "closeTime": "2026-08-21 17:23:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 386,
@@ -3034,7 +3210,8 @@
       "closeTime": "2026-08-21 16:11:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "TP3"
     },
     {
       "id": 385,
@@ -3051,7 +3228,8 @@
       "closeTime": "2026-08-21 16:11:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 384,
@@ -3068,7 +3246,8 @@
       "closeTime": "2026-08-21 15:53:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "TP3"
     },
     {
       "id": 383,
@@ -3085,7 +3264,8 @@
       "closeTime": "2026-08-21 15:53:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 382,
@@ -3102,7 +3282,8 @@
       "closeTime": "2026-08-21 15:46:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 381,
@@ -3119,7 +3300,8 @@
       "closeTime": "2026-08-21 15:33:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 380,
@@ -3136,7 +3318,8 @@
       "closeTime": "2026-08-21 15:26:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 379,
@@ -3153,7 +3336,8 @@
       "closeTime": "2026-08-21 14:24:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3_INSUFFICIENT"
     },
     {
       "id": 378,
@@ -3170,7 +3354,8 @@
       "closeTime": "2026-08-21 03:04:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3_INSUFFICIENT"
     },
     {
       "id": 377,
@@ -3187,7 +3372,8 @@
       "closeTime": "2026-08-21 02:54:05",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 376,
@@ -3204,7 +3390,8 @@
       "closeTime": "2026-08-21 02:54:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 375,
@@ -3221,7 +3408,8 @@
       "closeTime": "2026-08-21 02:53:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 374,
@@ -3238,7 +3426,8 @@
       "closeTime": "2026-08-21 02:44:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 373,
@@ -3255,7 +3444,8 @@
       "closeTime": "2026-08-21 02:36:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 372,
@@ -3272,7 +3462,8 @@
       "closeTime": "2026-08-21 02:34:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 371,
@@ -3289,7 +3480,8 @@
       "closeTime": "2026-08-21 02:24:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 370,
@@ -3306,7 +3498,8 @@
       "closeTime": "2026-08-21 02:23:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 369,
@@ -3323,7 +3516,8 @@
       "closeTime": "2026-08-21 02:14:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 368,
@@ -3340,7 +3534,8 @@
       "closeTime": "2026-08-21 02:06:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 367,
@@ -3357,7 +3552,8 @@
       "closeTime": "2026-08-21 02:04:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 366,
@@ -3374,7 +3570,8 @@
       "closeTime": "2026-08-21 01:54:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 365,
@@ -3391,7 +3588,8 @@
       "closeTime": "2026-08-21 01:44:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 364,
@@ -3408,7 +3606,8 @@
       "closeTime": "2026-08-21 01:34:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 363,
@@ -3425,7 +3624,8 @@
       "closeTime": "2026-08-21 01:34:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 362,
@@ -3442,7 +3642,8 @@
       "closeTime": "2026-08-21 01:24:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 361,
@@ -3459,7 +3660,8 @@
       "closeTime": "2026-08-21 01:24:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 360,
@@ -3476,7 +3678,8 @@
       "closeTime": "2026-08-21 00:03:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 359,
@@ -3493,7 +3696,8 @@
       "closeTime": "2026-08-20 23:53:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 358,
@@ -3510,7 +3714,8 @@
       "closeTime": "2026-08-20 20:44:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 357,
@@ -3527,7 +3732,8 @@
       "closeTime": "2026-08-20 19:53:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 356,
@@ -3544,7 +3750,8 @@
       "closeTime": "2026-08-20 18:26:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "TP3"
     },
     {
       "id": 355,
@@ -3561,7 +3768,8 @@
       "closeTime": "2026-08-20 18:26:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 354,
@@ -3578,7 +3786,8 @@
       "closeTime": "2026-08-20 18:26:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "TP3"
     },
     {
       "id": 353,
@@ -3595,7 +3804,8 @@
       "closeTime": "2026-08-20 18:26:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 352,
@@ -3612,7 +3822,8 @@
       "closeTime": "2026-08-20 10:46:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 351,
@@ -3629,7 +3840,8 @@
       "closeTime": "2026-08-20 10:46:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 350,
@@ -3646,7 +3858,8 @@
       "closeTime": "2026-08-20 10:02:18",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3_INSUFFICIENT"
     },
     {
       "id": 349,
@@ -3663,7 +3876,8 @@
       "closeTime": "2026-08-20 10:02:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3_INSUFFICIENT"
     },
     {
       "id": 348,
@@ -3680,7 +3894,8 @@
       "closeTime": "2026-08-20 09:06:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 347,
@@ -3697,7 +3912,8 @@
       "closeTime": "2026-08-20 09:06:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 346,
@@ -3714,7 +3930,8 @@
       "closeTime": "2026-08-20 04:22:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "TP3"
     },
     {
       "id": 345,
@@ -3731,7 +3948,8 @@
       "closeTime": "2026-08-20 04:22:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 344,
@@ -3748,7 +3966,8 @@
       "closeTime": "2026-08-20 02:22:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 343,
@@ -3765,7 +3984,8 @@
       "closeTime": "2026-08-20 02:16:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3_INSUFFICIENT"
     },
     {
       "id": 342,
@@ -3782,7 +4002,8 @@
       "closeTime": "2026-08-20 02:12:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 341,
@@ -3799,7 +4020,8 @@
       "closeTime": "2026-08-19 16:54:44",
       "source": "BOT",
       "orderId": null,
-      "reason": "forced_tp3_AVAX_slot1_user_confirm"
+      "reason": "forced_tp3_AVAX_slot1_user_confirm",
+      "status": "CLOSED_TP3"
     },
     {
       "id": 340,
@@ -3816,7 +4038,8 @@
       "closeTime": "2026-08-19 15:42:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 339,
@@ -3833,7 +4056,8 @@
       "closeTime": "2026-08-19 14:56:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 338,
@@ -3850,7 +4074,8 @@
       "closeTime": "2026-08-19 14:56:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 337,
@@ -3867,7 +4092,8 @@
       "closeTime": "2026-08-19 14:55:27",
       "source": "BOT",
       "orderId": null,
-      "reason": "forced_tp1_slot3_BNB"
+      "reason": "forced_tp1_slot3_BNB",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 336,
@@ -3884,7 +4110,8 @@
       "closeTime": "2026-08-19 14:55:27",
       "source": "BOT",
       "orderId": null,
-      "reason": "forced_tp1_slot2_BNB"
+      "reason": "forced_tp1_slot2_BNB",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 335,
@@ -3901,7 +4128,8 @@
       "closeTime": "2026-08-19 14:52:05",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 334,
@@ -3918,7 +4146,8 @@
       "closeTime": "2026-08-19 14:52:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP1"
     },
     {
       "id": 333,
@@ -3935,7 +4164,8 @@
       "closeTime": "2026-08-19 12:04:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3_INSUFFICIENT"
     },
     {
       "id": 332,
@@ -3952,7 +4182,8 @@
       "closeTime": "2026-08-19 10:30:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "TP3"
     },
     {
       "id": 331,
@@ -3969,7 +4200,8 @@
       "closeTime": "2026-08-19 10:30:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 330,
@@ -3986,7 +4218,8 @@
       "closeTime": "2026-08-19 10:11:07",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 329,
@@ -4003,7 +4236,8 @@
       "closeTime": "2026-08-19 10:11:06",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 328,
@@ -4020,7 +4254,8 @@
       "closeTime": "2026-08-19 10:11:05",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 327,
@@ -4037,7 +4272,8 @@
       "closeTime": "2026-08-19 10:11:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 326,
@@ -4054,7 +4290,8 @@
       "closeTime": "2026-08-19 10:11:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 325,
@@ -4071,7 +4308,8 @@
       "closeTime": "2026-08-19 10:11:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 324,
@@ -4088,7 +4326,8 @@
       "closeTime": "2026-08-19 10:06:29",
       "source": "BOT",
       "orderId": "7384",
-      "reason": "forced_tp2_slot_3"
+      "reason": "forced_tp2_slot_3",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 323,
@@ -4105,7 +4344,8 @@
       "closeTime": "2026-08-19 10:06:29",
       "source": "BOT",
       "orderId": "14375",
-      "reason": "forced_tp2_slot_2"
+      "reason": "forced_tp2_slot_2",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 322,
@@ -4122,7 +4362,8 @@
       "closeTime": "2026-08-19 10:06:29",
       "source": "BOT",
       "orderId": "14844",
-      "reason": "forced_tp2_slot_1"
+      "reason": "forced_tp2_slot_1",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 321,
@@ -4139,7 +4380,8 @@
       "closeTime": "2026-08-19 10:01:07",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 320,
@@ -4156,7 +4398,8 @@
       "closeTime": "2026-08-19 10:01:06",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 319,
@@ -4173,7 +4416,8 @@
       "closeTime": "2026-08-19 10:01:05",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 318,
@@ -4190,7 +4434,8 @@
       "closeTime": "2026-08-19 10:01:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 317,
@@ -4207,7 +4452,8 @@
       "closeTime": "2026-08-19 10:01:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 316,
@@ -4224,7 +4470,8 @@
       "closeTime": "2026-08-19 10:01:02",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 315,
@@ -4241,7 +4488,8 @@
       "closeTime": "2026-08-19 09:51:08",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 314,
@@ -4258,7 +4506,8 @@
       "closeTime": "2026-08-19 09:51:07",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 313,
@@ -4275,7 +4524,8 @@
       "closeTime": "2026-08-19 09:51:06",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 312,
@@ -4292,7 +4542,8 @@
       "closeTime": "2026-08-19 09:51:05",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 311,
@@ -4309,7 +4560,8 @@
       "closeTime": "2026-08-19 09:51:04",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 310,
@@ -4326,7 +4578,8 @@
       "closeTime": "2026-08-19 09:51:03",
       "source": "BOT",
       "orderId": null,
-      "reason": null
+      "reason": null,
+      "status": "CLOSED_TP2"
     },
     {
       "id": 309,
@@ -4343,7 +4596,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "CLOSED_TP3_INSUFFICIENT"
     },
     {
       "id": 308,
@@ -4360,7 +4614,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 307,
@@ -4377,7 +4632,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 306,
@@ -4394,7 +4650,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 305,
@@ -4411,7 +4668,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 304,
@@ -4428,7 +4686,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 303,
@@ -4445,7 +4704,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 302,
@@ -4462,7 +4722,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 301,
@@ -4479,7 +4740,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 300,
@@ -4496,7 +4758,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 298,
@@ -4513,7 +4776,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 297,
@@ -4530,7 +4794,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "CLOSED_TP3_INSUFFICIENT"
     },
     {
       "id": 296,
@@ -4547,7 +4812,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 295,
@@ -4564,7 +4830,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 294,
@@ -4581,7 +4848,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 293,
@@ -4598,7 +4866,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 292,
@@ -4615,7 +4884,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 291,
@@ -4632,7 +4902,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 290,
@@ -4649,7 +4920,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "TP3"
     },
     {
       "id": 289,
@@ -4666,7 +4938,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "CLOSED_TP3"
     },
     {
       "id": 288,
@@ -4683,7 +4956,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 287,
@@ -4700,7 +4974,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 286,
@@ -4717,7 +4992,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 285,
@@ -4734,7 +5010,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 284,
@@ -4751,7 +5028,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 283,
@@ -4768,7 +5046,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 282,
@@ -4785,7 +5064,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 281,
@@ -4802,7 +5082,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 280,
@@ -4819,7 +5100,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP3_INSUFFICIENT"
     },
     {
       "id": 279,
@@ -4836,7 +5118,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 278,
@@ -4853,7 +5136,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 277,
@@ -4870,7 +5154,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 276,
@@ -4887,7 +5172,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 275,
@@ -4904,7 +5190,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 274,
@@ -4921,7 +5208,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 273,
@@ -4938,7 +5226,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 272,
@@ -4955,7 +5244,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 271,
@@ -4972,7 +5262,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 270,
@@ -4989,7 +5280,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 269,
@@ -5006,7 +5298,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 268,
@@ -5023,7 +5316,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 267,
@@ -5040,7 +5334,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 266,
@@ -5057,7 +5352,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 265,
@@ -5074,7 +5370,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 264,
@@ -5091,7 +5388,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 263,
@@ -5108,7 +5406,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 262,
@@ -5125,7 +5424,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 261,
@@ -5142,7 +5442,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 260,
@@ -5159,7 +5460,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 259,
@@ -5176,7 +5478,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 258,
@@ -5193,7 +5496,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 257,
@@ -5210,7 +5514,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 256,
@@ -5227,7 +5532,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 255,
@@ -5244,7 +5550,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 254,
@@ -5261,7 +5568,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 253,
@@ -5278,7 +5586,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 252,
@@ -5295,7 +5604,8 @@
       "source": "BOT",
       "orderId": null,
       "reason": null,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 226,
@@ -5575,7 +5885,8 @@
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
       "closeTime": "2026-04-23 17:23:08",
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP1"
     },
     {
       "id": 2,
@@ -5591,7 +5902,8 @@
       "seeded": false,
       "note": "TP2 hit - Manual recovery",
       "closeTime": "2026-04-23 17:23:08",
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP2"
     },
     {
       "id": 3,
@@ -5607,7 +5919,8 @@
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
       "closeTime": "2026-04-24 12:43:11",
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP1"
     },
     {
       "id": 4,
@@ -5623,7 +5936,8 @@
       "seeded": false,
       "note": "TP2 hit - Manual recovery",
       "closeTime": "2026-04-24 12:43:11",
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP2"
     },
     {
       "id": 5,
@@ -5639,7 +5953,8 @@
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
       "closeTime": "2026-04-24 16:54:08",
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP1"
     },
     {
       "id": 6,
@@ -5655,7 +5970,8 @@
       "seeded": false,
       "note": "TP2 hit - Manual recovery (missing trade)",
       "closeTime": "2026-04-24 16:54:08",
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP2"
     },
     {
       "id": 7,
@@ -5671,7 +5987,8 @@
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
       "closeTime": "2026-04-26 03:02:15",
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP1"
     },
     {
       "id": 8,
@@ -5687,7 +6004,8 @@
       "seeded": false,
       "note": "TP2 hit - Manual recovery (missing trade)",
       "closeTime": "2026-04-27 11:42:23",
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP2"
     },
     {
       "id": 9,
@@ -5703,7 +6021,8 @@
       "seeded": false,
       "note": "TP2 hit - Manual recovery (missing trade)",
       "closeTime": "2026-04-30 09:35:11",
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP2"
     },
     {
       "id": 10,
@@ -5719,7 +6038,8 @@
       "seeded": false,
       "note": "TP2 hit - Manual recovery (missing trade)",
       "closeTime": "2026-05-01 19:12:10",
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP2"
     },
     {
       "id": 11,
@@ -5735,7 +6055,8 @@
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
       "closeTime": "2026-05-04 01:42:16",
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "TP1"
     },
     {
       "id": 12,
@@ -5751,7 +6072,8 @@
       "seeded": false,
       "note": "TP2 hit - Manual recovery (missing trade)",
       "closeTime": "2026-05-04 01:42:16",
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "TP2"
     },
     {
       "id": 13,
@@ -5767,7 +6089,8 @@
       "seeded": false,
       "note": "TP2 hit - Manual recovery (missing trade)",
       "closeTime": "2026-05-04 18:25:09",
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP2"
     },
     {
       "id": 14,
@@ -5783,7 +6106,8 @@
       "seeded": false,
       "note": "TP2 hit - 30% position closed",
       "closeTime": "2026-05-04 22:11:27",
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "TP2"
     },
     {
       "id": 15,
@@ -5799,7 +6123,8 @@
       "seeded": false,
       "note": "TP2 hit - 30% position closed",
       "closeTime": "2026-05-04 23:30:00",
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP2"
     },
     {
       "id": 16,
@@ -5815,7 +6140,8 @@
       "seeded": false,
       "note": "TP2 hit - 30% position closed",
       "closeTime": "2026-05-04 23:45:00",
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP2"
     },
     {
       "id": 17,
@@ -5831,7 +6157,8 @@
       "seeded": false,
       "note": "TP1 hit - 30% position closed",
       "closeTime": "2026-05-05 00:15:00",
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP1"
     },
     {
       "id": 18,
@@ -5847,7 +6174,8 @@
       "seeded": false,
       "note": "TP1 hit - 30% position closed",
       "closeTime": "2026-05-05 00:15:00",
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP1"
     },
     {
       "id": 19,
@@ -5863,7 +6191,8 @@
       "seeded": false,
       "note": "TP1 hit - 30% position closed",
       "closeTime": "2026-05-05 00:15:00",
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP1"
     },
     {
       "id": 20,
@@ -5879,7 +6208,8 @@
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
       "closeTime": "2026-05-05 14:56:11",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP1"
     },
     {
       "id": 21,
@@ -5895,7 +6225,8 @@
       "seeded": false,
       "note": "TP2 hit - Manual recovery",
       "closeTime": "2026-05-05 14:56:11",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP2"
     },
     {
       "id": 22,
@@ -5911,7 +6242,8 @@
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
       "closeTime": "2026-05-05 15:16:21",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP1"
     },
     {
       "id": 23,
@@ -5927,7 +6259,8 @@
       "seeded": false,
       "note": "TP2 hit - Manual recovery",
       "closeTime": "2026-05-05 15:16:21",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP2"
     },
     {
       "id": 24,
@@ -5943,7 +6276,8 @@
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
       "closeTime": "2026-05-05 16:33:20",
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP1"
     },
     {
       "id": 25,
@@ -5959,7 +6293,8 @@
       "seeded": false,
       "note": "TP2 hit - Manual recovery (missing trade)",
       "closeTime": "2026-05-05 16:33:20",
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP2"
     },
     {
       "id": 26,
@@ -5975,7 +6310,8 @@
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
       "closeTime": "2026-05-05 18:01:37",
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "TP1"
     },
     {
       "id": 27,
@@ -5991,7 +6327,8 @@
       "seeded": false,
       "note": "TP1 hit - Manual recovery (missing trade)",
       "closeTime": "2026-05-05 18:51:57",
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "TP1"
     },
     {
       "id": 28,
@@ -6007,7 +6344,8 @@
       "seeded": false,
       "note": "TP1 hit - 30% position closed (manual recovery)",
       "closeTime": "2026-05-05 19:00:00",
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP1"
     },
     {
       "id": 29,
@@ -6023,7 +6361,8 @@
       "seeded": false,
       "note": "TP1 hit - 30% position closed (manual recovery)",
       "closeTime": "2026-05-05 19:00:00",
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP1"
     },
     {
       "id": 30,
@@ -6038,7 +6377,8 @@
       "timestamp": "2026-05-05T21:44:04-06:00",
       "seeded": false,
       "closeTime": "2026-05-05 21:44:04",
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP3"
     },
     {
       "id": 31,
@@ -6053,7 +6393,8 @@
       "timestamp": "2026-05-06T01:04:03-06:00",
       "seeded": false,
       "closeTime": "2026-05-06 01:04:03",
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP3"
     },
     {
       "id": 32,
@@ -6068,7 +6409,8 @@
       "timestamp": "2026-05-06T04:20:03-06:00",
       "seeded": false,
       "closeTime": "2026-05-06 04:20:03",
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "TP3"
     },
     {
       "id": 33,
@@ -6083,7 +6425,8 @@
       "timestamp": "2026-05-06T05:21:03-06:00",
       "seeded": false,
       "closeTime": "2026-05-06 05:21:03",
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "TP3"
     },
     {
       "id": 34,
@@ -6098,7 +6441,8 @@
       "timestamp": "2026-05-06T06:46:02-06:00",
       "seeded": false,
       "closeTime": "2026-05-06 06:46:02",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP3"
     },
     {
       "id": 35,
@@ -6114,7 +6458,8 @@
       "seeded": false,
       "note": "TP1 hit - Manual recovery",
       "closeTime": "2026-05-06 16:34:21",
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP1"
     },
     {
       "id": 36,
@@ -6130,7 +6475,8 @@
       "seeded": false,
       "note": "TP1 hit - AVAX Slot 1 (Mayo 7 9:56 AM)",
       "closeTime": "2026-05-07 00:06:57",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP1"
     },
     {
       "id": 37,
@@ -6146,7 +6492,8 @@
       "seeded": false,
       "note": "TP1 hit - 30% position closed",
       "closeTime": "2026-05-08 09:56:00",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP1"
     },
     {
       "id": 38,
@@ -6162,7 +6509,8 @@
       "seeded": false,
       "note": "TP2 hit - Telegram notification (11:33-11:36 AM)",
       "closeTime": "2026-05-08 11:33:00",
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP2"
     },
     {
       "id": 39,
@@ -6178,7 +6526,8 @@
       "seeded": false,
       "note": "TP2 hit - Telegram notification (11:33-11:36 AM)",
       "closeTime": "2026-05-08 11:33:00",
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP2"
     },
     {
       "id": 40,
@@ -6194,7 +6543,8 @@
       "seeded": false,
       "note": "TP1 hit - Telegram notification (11:33-11:36 AM)",
       "closeTime": "2026-05-08 11:34:00",
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP1"
     },
     {
       "id": 41,
@@ -6210,7 +6560,8 @@
       "seeded": false,
       "note": "TP2 hit - Telegram notification (11:33-11:36 AM)",
       "closeTime": "2026-05-08 11:36:00",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP2"
     },
     {
       "id": 42,
@@ -6226,7 +6577,8 @@
       "seeded": false,
       "note": "TP2 hit - Telegram notification (11:33-11:36 AM)",
       "closeTime": "2026-05-08 11:36:00",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP2"
     },
     {
       "id": 43,
@@ -6241,7 +6593,8 @@
       "timestamp": "2026-05-08T11:54:03-06:00",
       "seeded": false,
       "closeTime": "2026-05-08 11:54:03",
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP3"
     },
     {
       "id": 44,
@@ -6256,7 +6609,8 @@
       "timestamp": "2026-05-08T12:36:03-06:00",
       "seeded": false,
       "closeTime": "2026-05-08 12:36:03",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP2"
     },
     {
       "id": 45,
@@ -6271,7 +6625,8 @@
       "timestamp": "2026-05-08T13:13:02-06:00",
       "seeded": false,
       "closeTime": "2026-05-08 13:13:02",
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP3"
     },
     {
       "id": 46,
@@ -6286,7 +6641,8 @@
       "timestamp": "2026-05-08T15:26:02-06:00",
       "seeded": false,
       "closeTime": "2026-05-08 15:26:02",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP3"
     },
     {
       "id": 47,
@@ -6301,7 +6657,8 @@
       "timestamp": "2026-05-08T19:16:02-06:00",
       "seeded": false,
       "closeTime": "2026-05-08 19:16:02",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP3"
     },
     {
       "id": 48,
@@ -6316,7 +6673,8 @@
       "timestamp": "2026-05-08T19:16:04-06:00",
       "seeded": false,
       "closeTime": "2026-05-08 19:16:04",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP3"
     },
     {
       "id": 49,
@@ -6331,7 +6689,8 @@
       "timestamp": "2026-05-08T19:43:03-06:00",
       "seeded": false,
       "closeTime": "2026-05-08 19:43:03",
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP3"
     },
     {
       "id": 50,
@@ -6346,7 +6705,8 @@
       "timestamp": "2026-05-08T19:53:02-06:00",
       "seeded": false,
       "closeTime": "2026-05-08 19:53:02",
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP3"
     },
     {
       "id": 51,
@@ -6361,7 +6721,8 @@
       "timestamp": "2026-05-08T20:44:02-06:00",
       "seeded": false,
       "closeTime": "2026-05-08 20:44:02",
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP3"
     },
     {
       "id": 52,
@@ -6376,7 +6737,8 @@
       "timestamp": "2026-05-10T02:26:02-06:00",
       "seeded": false,
       "closeTime": "2026-05-10 02:26:02",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP1"
     },
     {
       "id": 53,
@@ -6391,7 +6753,8 @@
       "timestamp": "2026-05-10T03:03:03-06:00",
       "seeded": false,
       "closeTime": "2026-05-10 03:03:03",
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP1"
     },
     {
       "id": 54,
@@ -6406,7 +6769,8 @@
       "timestamp": "2026-05-10T09:24:02-06:00",
       "seeded": false,
       "closeTime": "2026-05-10 09:24:02",
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP1"
     },
     {
       "id": 55,
@@ -6421,7 +6785,8 @@
       "timestamp": "2026-05-10T10:35:02-06:00",
       "seeded": false,
       "closeTime": "2026-05-10 10:35:02",
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP2"
     },
     {
       "id": 56,
@@ -6436,7 +6801,8 @@
       "timestamp": "2026-05-10T10:36:03-06:00",
       "seeded": false,
       "closeTime": "2026-05-10 10:36:03",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP2"
     },
     {
       "id": 57,
@@ -6451,7 +6817,8 @@
       "timestamp": "2026-05-10T10:55:03-06:00",
       "seeded": false,
       "closeTime": "2026-05-10 10:55:03",
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP3"
     },
     {
       "id": 58,
@@ -6466,7 +6833,8 @@
       "timestamp": "2026-05-10T11:34:02-06:00",
       "seeded": false,
       "closeTime": "2026-05-10 11:34:02",
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP2"
     },
     {
       "id": 59,
@@ -6481,7 +6849,8 @@
       "timestamp": "2026-05-10T12:03:02-06:00",
       "seeded": false,
       "closeTime": "2026-05-10 12:03:02",
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP2"
     },
     {
       "id": 60,
@@ -6496,7 +6865,8 @@
       "timestamp": "2026-05-10T13:26:02-06:00",
       "seeded": false,
       "closeTime": "2026-05-10 13:26:02",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP3"
     },
     {
       "id": 61,
@@ -6511,7 +6881,8 @@
       "timestamp": "2026-05-10T13:42:03-06:00",
       "seeded": false,
       "closeTime": "2026-05-10 13:42:03",
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP2"
     },
     {
       "id": 62,
@@ -6526,7 +6897,8 @@
       "timestamp": "2026-05-10T17:02:02-06:00",
       "seeded": false,
       "closeTime": "2026-05-10 17:02:02",
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP3"
     },
     {
       "id": 63,
@@ -6541,7 +6913,8 @@
       "timestamp": "2026-05-11T13:40:36-06:00",
       "seeded": false,
       "closeTime": "2026-05-11 13:40:36",
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP3"
     },
     {
       "id": 64,
@@ -6556,7 +6929,8 @@
       "timestamp": "2026-05-11T17:41:42-06:00",
       "seeded": false,
       "closeTime": "2026-05-11 17:41:42",
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP3"
     },
     {
       "id": 65,
@@ -6571,7 +6945,8 @@
       "timestamp": "2026-05-12T19:18:25-06:00",
       "closeTime": "2026-05-12 19:18:25",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP1"
     },
     {
       "id": 66,
@@ -6586,7 +6961,8 @@
       "timestamp": "2026-05-12T21:13:10-06:00",
       "closeTime": "2026-05-12 21:13:10",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP3"
     },
     {
       "id": 67,
@@ -6601,7 +6977,8 @@
       "timestamp": "2026-05-12T21:17:02-06:00",
       "closeTime": "2026-05-12 21:17:02",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP1"
     },
     {
       "id": 68,
@@ -6616,7 +6993,8 @@
       "timestamp": "2026-05-13T03:24:03-06:00",
       "closeTime": "2026-05-13 03:24:03",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP1"
     },
     {
       "id": 69,
@@ -6631,7 +7009,8 @@
       "timestamp": "2026-05-14T12:15:03-06:00",
       "closeTime": "2026-05-14 12:15:03",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP3"
     },
     {
       "id": 70,
@@ -6646,7 +7025,8 @@
       "timestamp": "2026-05-14T12:25:22-06:00",
       "closeTime": "2026-05-14 12:25:22",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP3"
     },
     {
       "id": 71,
@@ -6661,7 +7041,8 @@
       "timestamp": "2026-05-14T13:05:03-06:00",
       "closeTime": "2026-05-14 13:05:03",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP1"
     },
     {
       "id": 72,
@@ -6676,7 +7057,8 @@
       "timestamp": "2026-05-14T13:15:02-06:00",
       "closeTime": "2026-05-14 13:15:02",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP2"
     },
     {
       "id": 73,
@@ -6691,7 +7073,8 @@
       "timestamp": "2026-05-15T05:02:03-06:00",
       "closeTime": "2026-05-15 05:02:03",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP2"
     },
     {
       "id": 74,
@@ -6706,7 +7089,8 @@
       "timestamp": "2026-05-15T07:53:02-06:00",
       "closeTime": "2026-05-15 07:53:02",
       "seeded": false,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "SL"
     },
     {
       "id": 75,
@@ -6721,7 +7105,8 @@
       "timestamp": "2026-05-15T08:11:02-06:00",
       "closeTime": "2026-05-15 08:11:02",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "SL"
     },
     {
       "id": 76,
@@ -6736,7 +7121,8 @@
       "timestamp": "2026-05-15T08:11:04-06:00",
       "closeTime": "2026-05-15 08:11:04",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "SL"
     },
     {
       "id": 77,
@@ -6751,7 +7137,8 @@
       "timestamp": "2026-05-16T00:23:02-06:00",
       "closeTime": "2026-05-16 00:23:02",
       "seeded": false,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "SL"
     },
     {
       "id": 78,
@@ -6766,7 +7153,8 @@
       "timestamp": "2026-05-16T01:06:21-06:00",
       "closeTime": "2026-05-16 01:06:21",
       "seeded": false,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "SL"
     },
     {
       "id": 79,
@@ -6781,7 +7169,8 @@
       "timestamp": "2026-05-16T01:21:02-06:00",
       "closeTime": "2026-05-16 01:21:02",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "SL"
     },
     {
       "id": 80,
@@ -6796,7 +7185,8 @@
       "timestamp": "2026-05-16T01:44:03-06:00",
       "closeTime": "2026-05-16 01:44:03",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "SL"
     },
     {
       "id": 81,
@@ -6811,7 +7201,8 @@
       "timestamp": "2026-05-16T01:56:17-06:00",
       "closeTime": "2026-05-16 01:56:17",
       "seeded": false,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "SL"
     },
     {
       "id": 82,
@@ -6826,7 +7217,8 @@
       "timestamp": "2026-05-16T03:26:02-06:00",
       "closeTime": "2026-05-16 03:26:02",
       "seeded": false,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "SL"
     },
     {
       "id": 83,
@@ -6841,7 +7233,8 @@
       "timestamp": "2026-05-16T03:53:02-06:00",
       "closeTime": "2026-05-16 03:53:02",
       "seeded": false,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "SL"
     },
     {
       "id": 84,
@@ -6856,7 +7249,8 @@
       "timestamp": "2026-05-16T03:54:02-06:00",
       "closeTime": "2026-05-16 03:54:02",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "SL"
     },
     {
       "id": 85,
@@ -6871,7 +7265,8 @@
       "timestamp": "2026-05-16T09:24:02-06:00",
       "closeTime": "2026-05-16 09:24:02",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "SL"
     },
     {
       "id": 86,
@@ -6886,7 +7281,8 @@
       "timestamp": "2026-05-17T19:30:02-06:00",
       "closeTime": "2026-05-17 19:30:02",
       "seeded": false,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "SL"
     },
     {
       "id": 87,
@@ -6901,7 +7297,8 @@
       "timestamp": "2026-05-17T19:35:03-06:00",
       "closeTime": "2026-05-17 19:35:03",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 88,
@@ -6916,7 +7313,8 @@
       "timestamp": "2026-05-18T08:40:02-06:00",
       "closeTime": "2026-05-18 08:40:02",
       "seeded": false,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "SL"
     },
     {
       "id": 89,
@@ -6931,7 +7329,8 @@
       "timestamp": "2026-05-18T12:41:03-06:00",
       "closeTime": "2026-05-18 12:41:03",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "SL"
     },
     {
       "id": 90,
@@ -6946,7 +7345,8 @@
       "timestamp": "2026-05-18T13:01:03-06:00",
       "closeTime": "2026-05-18 13:01:03",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "SL"
     },
     {
       "id": 91,
@@ -6961,7 +7361,8 @@
       "timestamp": "2026-05-20T20:36:03-06:00",
       "closeTime": "2026-05-20 20:36:03",
       "seeded": false,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP1"
     },
     {
       "id": 92,
@@ -6976,7 +7377,8 @@
       "timestamp": "2026-05-21T02:06:03-06:00",
       "closeTime": "2026-05-21 02:06:03",
       "seeded": false,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP1"
     },
     {
       "id": 93,
@@ -6991,7 +7393,8 @@
       "timestamp": "2026-05-21T11:33:03-06:00",
       "closeTime": "2026-05-21 11:33:03",
       "seeded": false,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP1"
     },
     {
       "id": 94,
@@ -7006,7 +7409,8 @@
       "timestamp": "2026-05-21T22:26:02-06:00",
       "closeTime": "2026-05-21 22:26:02",
       "seeded": false,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP1"
     },
     {
       "id": 95,
@@ -7021,7 +7425,8 @@
       "timestamp": "2026-05-21T22:26:05-06:00",
       "closeTime": "2026-05-21 22:26:05",
       "seeded": false,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP2"
     },
     {
       "id": 96,
@@ -7036,7 +7441,8 @@
       "timestamp": "2026-05-22T06:44:02-06:00",
       "closeTime": "2026-05-22 06:44:02",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP1"
     },
     {
       "id": 97,
@@ -7051,7 +7457,8 @@
       "timestamp": "2026-05-22T07:04:02-06:00",
       "closeTime": "2026-05-22 07:04:02",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP1"
     },
     {
       "id": 98,
@@ -7066,7 +7473,8 @@
       "timestamp": "2026-05-22T07:14:03-06:00",
       "closeTime": "2026-05-22 07:14:03",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP1"
     },
     {
       "id": 99,
@@ -7081,7 +7489,8 @@
       "timestamp": "2026-05-22T18:40:02-06:00",
       "closeTime": "2026-05-22 18:40:02",
       "seeded": false,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "SL"
     },
     {
       "id": 100,
@@ -7096,7 +7505,8 @@
       "timestamp": "2026-05-22T23:35:04-06:00",
       "closeTime": "2026-05-22 23:35:04",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 101,
@@ -7111,7 +7521,8 @@
       "timestamp": "2026-05-23T01:31:02-06:00",
       "closeTime": "2026-05-23 01:31:02",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "SL"
     },
     {
       "id": 102,
@@ -7126,7 +7537,8 @@
       "timestamp": "2026-05-23T01:55:02-06:00",
       "closeTime": "2026-05-23 01:55:02",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 103,
@@ -7141,7 +7553,8 @@
       "timestamp": "2026-05-23T02:04:03-06:00",
       "closeTime": "2026-05-23 02:04:03",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "SL"
     },
     {
       "id": 104,
@@ -7156,7 +7569,8 @@
       "timestamp": "2026-05-23T09:11:02-06:00",
       "closeTime": "2026-05-23 09:11:02",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "TP1"
     },
     {
       "id": 105,
@@ -7171,7 +7585,8 @@
       "timestamp": "2026-05-23T15:11:03-06:00",
       "closeTime": "2026-05-23 15:11:03",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "TP2"
     },
     {
       "id": 106,
@@ -7186,7 +7601,8 @@
       "timestamp": "2026-05-23T15:11:04-06:00",
       "closeTime": "2026-05-23 15:11:04",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "TP3"
     },
     {
       "id": 107,
@@ -7201,7 +7617,8 @@
       "timestamp": "2026-05-27T21:21:03-06:00",
       "closeTime": "2026-05-27 21:21:03",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "SL"
     },
     {
       "id": 108,
@@ -7216,7 +7633,8 @@
       "timestamp": "2026-05-27T21:24:02-06:00",
       "closeTime": "2026-05-27 21:24:02",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "SL"
     },
     {
       "id": 109,
@@ -7231,7 +7649,8 @@
       "timestamp": "2026-05-27T21:24:03-06:00",
       "closeTime": "2026-05-27 21:24:03",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "SL"
     },
     {
       "id": 110,
@@ -7246,7 +7665,8 @@
       "timestamp": "2026-05-27T21:25:03-06:00",
       "closeTime": "2026-05-27 21:25:03",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 111,
@@ -7261,7 +7681,8 @@
       "timestamp": "2026-05-27T21:31:02-06:00",
       "closeTime": "2026-05-27 21:31:02",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "SL"
     },
     {
       "id": 112,
@@ -7276,7 +7697,8 @@
       "timestamp": "2026-05-27T21:43:02-06:00",
       "closeTime": "2026-05-27 21:43:02",
       "seeded": false,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "SL"
     },
     {
       "id": 113,
@@ -7291,7 +7713,8 @@
       "timestamp": "2026-05-27T21:51:02-06:00",
       "closeTime": "2026-05-27 21:51:02",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "SL"
     },
     {
       "id": 114,
@@ -7306,7 +7729,8 @@
       "timestamp": "2026-05-27T22:00:03-06:00",
       "closeTime": "2026-05-27 22:00:03",
       "seeded": false,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "SL"
     },
     {
       "id": 115,
@@ -7321,7 +7745,8 @@
       "timestamp": "2026-05-27T23:54:02-06:00",
       "closeTime": "2026-05-27 23:54:02",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "SL"
     },
     {
       "id": 116,
@@ -7336,7 +7761,8 @@
       "timestamp": "2026-05-28T00:42:02-06:00",
       "closeTime": "2026-05-28 00:42:02",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "SL"
     },
     {
       "id": 117,
@@ -7351,7 +7777,8 @@
       "timestamp": "2026-05-28T00:42:04-06:00",
       "closeTime": "2026-05-28 00:42:04",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "SL"
     },
     {
       "id": 118,
@@ -7366,7 +7793,8 @@
       "timestamp": "2026-05-28T09:45:02-06:00",
       "closeTime": "2026-05-28 09:45:02",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP1"
     },
     {
       "id": 119,
@@ -7381,7 +7809,8 @@
       "timestamp": "2026-05-28T11:53:02-06:00",
       "closeTime": "2026-05-28 11:53:02",
       "seeded": false,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP1"
     },
     {
       "id": 120,
@@ -7396,7 +7825,8 @@
       "timestamp": "2026-05-28T12:11:02-06:00",
       "closeTime": "2026-05-28 12:11:02",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "TP1"
     },
     {
       "id": 121,
@@ -7411,7 +7841,8 @@
       "timestamp": "2026-05-28T12:35:03-06:00",
       "closeTime": "2026-05-28 12:35:03",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP2"
     },
     {
       "id": 122,
@@ -7426,7 +7857,8 @@
       "timestamp": "2026-05-29T08:40:02-06:00",
       "closeTime": "2026-05-29 08:40:02",
       "seeded": false,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "SL"
     },
     {
       "id": 123,
@@ -7441,7 +7873,8 @@
       "timestamp": "2026-05-29T11:24:03-06:00",
       "closeTime": "2026-05-29 11:24:03",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP1"
     },
     {
       "id": 124,
@@ -7456,7 +7889,8 @@
       "timestamp": "2026-05-29T19:15:02-06:00",
       "closeTime": "2026-05-29 19:15:02",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP3"
     },
     {
       "id": 125,
@@ -7471,7 +7905,8 @@
       "timestamp": "2026-05-29T23:42:02-06:00",
       "closeTime": "2026-05-29 23:42:02",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP1"
     },
     {
       "id": 126,
@@ -7486,7 +7921,8 @@
       "timestamp": "2026-05-29T23:42:04-06:00",
       "closeTime": "2026-05-29 23:42:04",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP1"
     },
     {
       "id": 127,
@@ -7501,7 +7937,8 @@
       "timestamp": "2026-05-30T00:02:02-06:00",
       "closeTime": "2026-05-30 00:02:02",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP2"
     },
     {
       "id": 128,
@@ -7516,7 +7953,8 @@
       "timestamp": "2026-05-30T00:02:04-06:00",
       "closeTime": "2026-05-30 00:02:04",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP2"
     },
     {
       "id": 129,
@@ -7531,7 +7969,8 @@
       "timestamp": "2026-05-30T00:34:03-06:00",
       "closeTime": "2026-05-30 00:34:03",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP1"
     },
     {
       "id": 130,
@@ -7546,7 +7985,8 @@
       "timestamp": "2026-05-30T00:34:04-06:00",
       "closeTime": "2026-05-30 00:34:04",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP1"
     },
     {
       "id": 131,
@@ -7561,7 +8001,8 @@
       "timestamp": "2026-05-30T01:32:03-06:00",
       "closeTime": "2026-05-30 01:32:03",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP3"
     },
     {
       "id": 132,
@@ -7576,7 +8017,8 @@
       "timestamp": "2026-05-30T01:32:05-06:00",
       "closeTime": "2026-05-30 01:32:05",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP3"
     },
     {
       "id": 133,
@@ -7591,7 +8033,8 @@
       "timestamp": "2026-05-30T08:42:02-06:00",
       "closeTime": "2026-05-30 08:42:02",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP1"
     },
     {
       "id": 134,
@@ -7606,7 +8049,8 @@
       "timestamp": "2026-05-30T09:12:02-06:00",
       "closeTime": "2026-05-30 09:12:02",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP1"
     },
     {
       "id": 135,
@@ -7621,7 +8065,8 @@
       "timestamp": "2026-05-30T10:12:02-06:00",
       "closeTime": "2026-05-30 10:12:02",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP2"
     },
     {
       "id": 136,
@@ -7636,7 +8081,8 @@
       "timestamp": "2026-05-30T10:32:02-06:00",
       "closeTime": "2026-05-30 10:32:02",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP3"
     },
     {
       "id": 137,
@@ -7651,7 +8097,8 @@
       "timestamp": "2026-05-30T10:32:05-06:00",
       "closeTime": "2026-05-30 10:32:05",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP2"
     },
     {
       "id": 138,
@@ -7666,7 +8113,8 @@
       "timestamp": "2026-05-30T10:42:02-06:00",
       "closeTime": "2026-05-30 10:42:02",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP3"
     },
     {
       "id": 139,
@@ -7681,7 +8129,8 @@
       "timestamp": "2026-05-30T12:02:02-06:00",
       "closeTime": "2026-05-30 12:02:02",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP3"
     },
     {
       "id": 140,
@@ -7696,7 +8145,8 @@
       "timestamp": "2026-05-30T14:16:34.594056",
       "seeded": false,
       "closeTime": "2026-05-30 14:16:34",
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP2"
     },
     {
       "id": 141,
@@ -7711,7 +8161,8 @@
       "timestamp": "2026-05-30T20:22:03-06:00",
       "closeTime": "2026-05-30 20:22:03",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP1"
     },
     {
       "id": 142,
@@ -7726,7 +8177,8 @@
       "timestamp": "2026-05-30T20:22:04-06:00",
       "closeTime": "2026-05-30 20:22:04",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "TP1"
     },
     {
       "id": 143,
@@ -7741,7 +8193,8 @@
       "timestamp": "2026-05-31T20:02:03-06:00",
       "closeTime": "2026-05-31 20:02:03",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "SL"
     },
     {
       "id": 144,
@@ -7756,7 +8209,8 @@
       "timestamp": "2026-06-01T06:10:02-06:00",
       "closeTime": "2026-06-01 06:10:02",
       "seeded": false,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "SL"
     },
     {
       "id": 145,
@@ -7771,7 +8225,8 @@
       "timestamp": "2026-06-01T10:12:02-06:00",
       "closeTime": "2026-06-01 10:12:02",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "SL"
     },
     {
       "id": 146,
@@ -7786,7 +8241,8 @@
       "timestamp": "2026-06-01T10:12:04-06:00",
       "closeTime": "2026-06-01 10:12:04",
       "seeded": false,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "SL"
     },
     {
       "id": 147,
@@ -7801,7 +8257,8 @@
       "timestamp": "2026-06-01T10:13:03-06:00",
       "closeTime": "2026-06-01 10:13:03",
       "seeded": false,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "SL"
     },
     {
       "id": 148,
@@ -7816,7 +8273,8 @@
       "timestamp": "2026-06-01T20:15:02-06:00",
       "closeTime": "2026-06-01 20:15:02",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 149,
@@ -7831,7 +8289,8 @@
       "timestamp": "2026-06-01T23:55:02-06:00",
       "closeTime": "2026-06-01 23:55:02",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 150,
@@ -7846,7 +8305,8 @@
       "timestamp": "2026-06-02T11:10:04-06:00",
       "seeded": false,
       "closeTime": "2026-06-02 11:10:04",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "EMERGENCY_MANUAL"
     },
     {
       "id": 151,
@@ -7861,7 +8321,8 @@
       "timestamp": "2026-06-02T11:10:16-06:00",
       "seeded": false,
       "closeTime": "2026-06-02 11:10:16",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "EMERGENCY_MANUAL"
     },
     {
       "id": 152,
@@ -7876,7 +8337,8 @@
       "timestamp": "2026-06-02T11:10:17-06:00",
       "seeded": false,
       "closeTime": "2026-06-02 11:10:17",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "EMERGENCY_MANUAL"
     },
     {
       "id": 153,
@@ -7891,7 +8353,8 @@
       "timestamp": "2026-06-03T12:21:02-06:00",
       "closeTime": "2026-06-03 12:21:02",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "SL"
     },
     {
       "id": 154,
@@ -7906,7 +8369,8 @@
       "timestamp": "2026-06-03T12:21:04-06:00",
       "closeTime": "2026-06-03 12:21:04",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "SL"
     },
     {
       "id": 155,
@@ -7921,7 +8385,8 @@
       "timestamp": "2026-06-03T12:21:20-06:00",
       "closeTime": "2026-06-03 12:21:20",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "SL"
     },
     {
       "id": 156,
@@ -7936,7 +8401,8 @@
       "timestamp": "2026-06-03T12:47:55-06:00",
       "closeTime": "2026-06-03 12:47:55",
       "seeded": false,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "SL"
     },
     {
       "id": 157,
@@ -7951,7 +8417,8 @@
       "timestamp": "2026-06-03T12:47:57-06:00",
       "closeTime": "2026-06-03 12:47:57",
       "seeded": false,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "SL"
     },
     {
       "id": 158,
@@ -7966,7 +8433,8 @@
       "timestamp": "2026-06-03T12:48:29-06:00",
       "closeTime": "2026-06-03 12:48:29",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "SL"
     },
     {
       "id": 159,
@@ -7981,7 +8449,8 @@
       "timestamp": "2026-06-03T12:48:40-06:00",
       "closeTime": "2026-06-03 12:48:40",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 160,
@@ -7996,7 +8465,8 @@
       "timestamp": "2026-06-03T13:25:31-06:00",
       "closeTime": "2026-06-03 13:25:31",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "SL"
     },
     {
       "id": 161,
@@ -8015,7 +8485,8 @@
       "orderId": 7772860776,
       "tp1Partial": true,
       "tp1Proceeds": 5.01,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "EMERGENCY_CLOSE"
     },
     {
       "id": 162,
@@ -8030,7 +8501,8 @@
       "timestamp": "2026-06-05T15:05:03-06:00",
       "closeTime": "2026-06-05 15:05:03",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP1"
     },
     {
       "id": 163,
@@ -8045,7 +8517,8 @@
       "timestamp": "2026-06-05T15:06:02-06:00",
       "closeTime": "2026-06-05 15:06:02",
       "seeded": false,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "TP1"
     },
     {
       "id": 164,
@@ -8060,7 +8533,8 @@
       "timestamp": "2026-06-05T22:08:48-06:00",
       "closeTime": "2026-06-05 22:08:48",
       "seeded": false,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "SL"
     },
     {
       "id": 165,
@@ -8075,7 +8549,8 @@
       "timestamp": "2026-06-06T00:02:50-06:00",
       "closeTime": "2026-06-06 00:02:50",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "TP1"
     },
     {
       "id": 166,
@@ -8090,7 +8565,8 @@
       "timestamp": "2026-06-07T02:28:23-06:00",
       "closeTime": "2026-06-07 02:28:23",
       "seeded": false,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "TP1"
     },
     {
       "id": 167,
@@ -8105,7 +8581,8 @@
       "timestamp": "2026-06-07T23:58:49-06:00",
       "closeTime": "2026-06-07 23:58:49",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "TP1"
     },
     {
       "id": 168,
@@ -8120,7 +8597,8 @@
       "timestamp": "2026-06-08T00:01:38-06:00",
       "closeTime": "2026-06-08 00:01:38",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP1"
     },
     {
       "id": 169,
@@ -8135,7 +8613,8 @@
       "timestamp": "2026-06-08T00:05:19-06:00",
       "closeTime": "2026-06-08 00:05:19",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP3"
     },
     {
       "id": 170,
@@ -8150,7 +8629,8 @@
       "timestamp": "2026-06-08T00:05:27-06:00",
       "closeTime": "2026-06-08 00:05:27",
       "seeded": false,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "TP2"
     },
     {
       "id": 171,
@@ -8165,7 +8645,8 @@
       "timestamp": "2026-06-08T00:11:49-06:00",
       "closeTime": "2026-06-08 00:11:49",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "TP3"
     },
     {
       "id": 172,
@@ -8180,7 +8661,8 @@
       "timestamp": "2026-06-08T00:19:38-06:00",
       "closeTime": "2026-06-08 00:19:38",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP2"
     },
     {
       "id": 173,
@@ -8195,7 +8677,8 @@
       "timestamp": "2026-06-08T01:13:20-06:00",
       "closeTime": "2026-06-08 01:13:20",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP1"
     },
     {
       "id": 174,
@@ -8210,7 +8693,8 @@
       "timestamp": "2026-06-08T01:13:59-06:00",
       "closeTime": "2026-06-08 01:13:59",
       "seeded": false,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "TP3"
     },
     {
       "id": 175,
@@ -8225,7 +8709,8 @@
       "timestamp": "2026-06-08T05:21:46-06:00",
       "closeTime": "2026-06-08 05:21:46",
       "seeded": false,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP1"
     },
     {
       "id": 176,
@@ -8240,7 +8725,8 @@
       "timestamp": "2026-06-08T06:57:24-06:00",
       "closeTime": "2026-06-08 06:57:24",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP2"
     },
     {
       "id": 177,
@@ -8255,7 +8741,8 @@
       "timestamp": "2026-06-10T12:44:34-06:00",
       "closeTime": "2026-06-10 12:44:34",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 178,
@@ -8270,7 +8757,8 @@
       "timestamp": "2026-06-10T12:50:29-06:00",
       "closeTime": "2026-06-10 12:50:29",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 179,
@@ -8285,7 +8773,8 @@
       "timestamp": "2026-06-10T13:12:36-06:00",
       "closeTime": "2026-06-10 13:12:36",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 180,
@@ -8300,7 +8789,8 @@
       "timestamp": "2026-06-10T13:20:20-06:00",
       "closeTime": "2026-06-10 13:20:20",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 181,
@@ -8315,7 +8805,8 @@
       "timestamp": "2026-06-10T13:32:00-06:00",
       "closeTime": "2026-06-10 13:32:00",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 182,
@@ -8330,7 +8821,8 @@
       "timestamp": "2026-06-10T13:41:24-06:00",
       "closeTime": "2026-06-10 13:41:24",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 183,
@@ -8345,7 +8837,8 @@
       "timestamp": "2026-06-10T13:50:19-06:00",
       "closeTime": "2026-06-10 13:50:19",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 184,
@@ -8360,7 +8853,8 @@
       "timestamp": "2026-06-10T14:40:35-06:00",
       "closeTime": "2026-06-10 14:40:35",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 185,
@@ -8375,7 +8869,8 @@
       "timestamp": "2026-06-10T15:10:34-06:00",
       "closeTime": "2026-06-10 15:10:34",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 186,
@@ -8390,7 +8885,8 @@
       "timestamp": "2026-06-10T15:20:24-06:00",
       "closeTime": "2026-06-10 15:20:24",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 187,
@@ -8405,7 +8901,8 @@
       "timestamp": "2026-06-10T15:40:33-06:00",
       "closeTime": "2026-06-10 15:40:33",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 188,
@@ -8420,7 +8917,8 @@
       "timestamp": "2026-06-10T15:50:22-06:00",
       "closeTime": "2026-06-10 15:50:22",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 189,
@@ -8435,7 +8933,8 @@
       "timestamp": "2026-06-10T16:10:15-06:00",
       "closeTime": "2026-06-10 16:10:15",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 190,
@@ -8450,7 +8949,8 @@
       "timestamp": "2026-06-10T16:20:18-06:00",
       "closeTime": "2026-06-10 16:20:18",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 191,
@@ -8465,7 +8965,8 @@
       "timestamp": "2026-06-10T16:30:21-06:00",
       "closeTime": "2026-06-10 16:30:21",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 192,
@@ -8480,7 +8981,8 @@
       "timestamp": "2026-06-10T16:40:25-06:00",
       "closeTime": "2026-06-10 16:40:25",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 193,
@@ -8495,7 +8997,8 @@
       "timestamp": "2026-06-10T16:47:33-06:00",
       "closeTime": "2026-06-10 16:47:33",
       "seeded": false,
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "SL"
     },
     {
       "id": 194,
@@ -8510,7 +9013,8 @@
       "timestamp": "2026-06-10T16:50:21-06:00",
       "closeTime": "2026-06-10 16:50:21",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 195,
@@ -8525,7 +9029,8 @@
       "timestamp": "2026-06-10T16:54:28-06:00",
       "closeTime": "2026-06-10 16:54:28",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "SL"
     },
     {
       "id": 196,
@@ -8540,7 +9045,8 @@
       "timestamp": "2026-06-12T09:07:24-06:00",
       "closeTime": "2026-06-12 09:07:24",
       "seeded": false,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP3"
     },
     {
       "id": 197,
@@ -8555,7 +9061,8 @@
       "timestamp": "2026-06-13T15:41:24-06:00",
       "closeTime": "2026-06-13 15:41:24",
       "seeded": false,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "TP2"
     },
     {
       "id": 198,
@@ -8570,7 +9077,8 @@
       "timestamp": "2026-06-13T15:45:40-06:00",
       "closeTime": "2026-06-13 15:45:40",
       "seeded": false,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "TP3"
     },
     {
       "id": 199,
@@ -8586,7 +9094,8 @@
       "closeTime": "2026-06-13 17:52:44",
       "seeded": false,
       "note": "Grid Bot - SL por rango desactualizado (precio $609 < SL $617)",
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "GRID_SL"
     },
     {
       "id": 200,
@@ -8601,7 +9110,8 @@
       "timestamp": "2026-06-14T19:44:56-06:00",
       "closeTime": "2026-06-14 19:44:56",
       "seeded": false,
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "TP3"
     },
     {
       "id": 201,
@@ -8617,7 +9127,8 @@
       "closeTime": "2026-06-15 09:57:03",
       "seeded": false,
       "note": "Grid Bot - Auto TP/SL",
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "GRID_TP"
     },
     {
       "id": 202,
@@ -8633,7 +9144,8 @@
       "closeTime": "2026-06-15 10:26:04",
       "seeded": false,
       "note": "Grid Bot - Auto GRID/TP",
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "GRID_TP"
     },
     {
       "id": 203,
@@ -8649,7 +9161,8 @@
       "closeTime": "2026-06-15 20:28:02",
       "seeded": false,
       "note": "Grid Bot - Auto GRID/SL",
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "GRID_SL"
     },
     {
       "id": 204,
@@ -8665,7 +9178,8 @@
       "closeTime": "2026-06-15 22:33:47",
       "seeded": false,
       "note": "Grid Bot - Auto GRID/SL",
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "GRID_SL"
     },
     {
       "id": 205,
@@ -8681,7 +9195,8 @@
       "closeTime": "2026-06-15 23:04:28",
       "seeded": false,
       "note": "Grid Bot - Auto GRID/SL",
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "GRID_SL"
     },
     {
       "id": 206,
@@ -8697,7 +9212,8 @@
       "closeTime": "2026-06-15 23:04:40",
       "seeded": false,
       "note": "Grid Bot - Auto GRID/SL",
-      "coin": "XRP"
+      "coin": "XRP",
+      "status": "GRID_SL"
     },
     {
       "id": 207,
@@ -8713,7 +9229,8 @@
       "closeTime": "2026-06-16 17:27:29",
       "seeded": false,
       "note": "Grid Bot - Auto GRID/SL",
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "GRID_SL"
     },
     {
       "symbol": "AVAX",
@@ -8766,7 +9283,7 @@
       "pnlUSDT": -1.38,
       "timestamp": "2026-07-16T23:34:00-06:00",
       "closeTime": "2026-07-16 23:34:00",
-      "note": "Recuperado desde historial Binance 2026-07-16 23:34; precio de venta pendiente reconciliación | PnL estimado reconciliado 2026-07-17",
+      "note": "Recuperado desde historial Binance 2026-07-16 23:34; precio de venta pendiente reconciliaci\u00f3n | PnL estimado reconciliado 2026-07-17",
       "source": "BINANCE_HISTORY_RECOVERY",
       "status": "CLOSED_SL",
       "strategy": "SPOT",
@@ -8790,7 +9307,7 @@
       "pnlUSDT": -0.94,
       "timestamp": "2026-07-16T23:41:00-06:00",
       "closeTime": "2026-07-16 23:41:00",
-      "note": "Recuperado desde historial Binance 2026-07-16 23:41; precio de venta pendiente reconciliación | PnL estimado reconciliado 2026-07-17",
+      "note": "Recuperado desde historial Binance 2026-07-16 23:41; precio de venta pendiente reconciliaci\u00f3n | PnL estimado reconciliado 2026-07-17",
       "source": "BINANCE_HISTORY_RECOVERY",
       "status": "CLOSED_SL",
       "strategy": "SPOT",
@@ -8837,7 +9354,8 @@
       "timestamp": "2026-08-03T20:49:08.760422",
       "source": "BOT",
       "note": "TP1 ejecutado notificado por Telegram",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 228,
@@ -8852,7 +9370,8 @@
       "timestamp": "2026-08-03T20:58:05.296263",
       "source": "BOT",
       "note": "CLOSED_TP2 notificado por Telegram",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 229,
@@ -8867,7 +9386,8 @@
       "timestamp": "2026-08-03T20:58:05.296282",
       "source": "BOT",
       "note": "CLOSED_TP3 notificado por Telegram",
-      "coin": "AVAX"
+      "coin": "AVAX",
+      "status": "CLOSED_TP3"
     },
     {
       "id": 230,
@@ -8888,7 +9408,8 @@
       "feeBuy": 1.5e-05,
       "feeSell": 0.0,
       "rawResponseSize": 0,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 231,
@@ -8909,7 +9430,8 @@
       "feeBuy": 4.2e-05,
       "feeSell": 0.0,
       "rawResponseSize": 0,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "CLOSED_TP3_INSUFFICIENT"
     },
     {
       "id": 232,
@@ -8930,7 +9452,8 @@
       "feeBuy": 1.343e-05,
       "feeSell": 0.0,
       "rawResponseSize": 0,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 233,
@@ -8951,7 +9474,8 @@
       "feeBuy": 1.227e-05,
       "feeSell": 0.0,
       "rawResponseSize": 0,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 234,
@@ -8972,7 +9496,8 @@
       "feeBuy": 1.343e-05,
       "feeSell": 1.623e-05,
       "rawResponseSize": 0,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 235,
@@ -8993,7 +9518,8 @@
       "feeBuy": 1.2e-05,
       "feeSell": 0.0,
       "rawResponseSize": 0,
-      "coin": "ETH"
+      "coin": "ETH",
+      "status": "CLOSED_SL"
     },
     {
       "id": 236,
@@ -9014,7 +9540,8 @@
       "feeBuy": 1.5e-05,
       "feeSell": 1.6e-05,
       "rawResponseSize": 0,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 237,
@@ -9035,7 +9562,8 @@
       "feeBuy": 1.2e-05,
       "feeSell": 1.5e-05,
       "rawResponseSize": 0,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 238,
@@ -9056,7 +9584,8 @@
       "feeBuy": 1.8e-05,
       "feeSell": 1.7e-05,
       "rawResponseSize": 0,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 239,
@@ -9077,7 +9606,8 @@
       "feeBuy": 1.5e-05,
       "feeSell": 1.6e-05,
       "rawResponseSize": 0,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 240,
@@ -9098,7 +9628,8 @@
       "feeBuy": 1.5e-05,
       "feeSell": 1.6e-05,
       "rawResponseSize": 0,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 241,
@@ -9119,7 +9650,8 @@
       "feeBuy": 1.5e-05,
       "feeSell": 1.6e-05,
       "rawResponseSize": 0,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 242,
@@ -9140,7 +9672,8 @@
       "feeBuy": 1.343e-05,
       "feeSell": 1.623e-05,
       "rawResponseSize": 0,
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "CLOSED_SL"
     },
     {
       "id": 243,
@@ -9161,7 +9694,8 @@
       "feeBuy": 1.5e-05,
       "feeSell": 1.6e-05,
       "rawResponseSize": 0,
-      "coin": "BNB"
+      "coin": "BNB",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 244,
@@ -9182,7 +9716,8 @@
       "feeBuy": 3.334e-05,
       "feeSell": 1.623e-05,
       "rawResponseSize": 0,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 245,
@@ -9203,7 +9738,8 @@
       "feeBuy": 6.729e-05,
       "feeSell": 6.729e-05,
       "rawResponseSize": 0,
-      "coin": "BTC"
+      "coin": "BTC",
+      "status": "CLOSED_SL"
     },
     {
       "id": 246,
@@ -9224,7 +9760,8 @@
       "feeBuy": 1.5e-05,
       "feeSell": 1.6e-05,
       "rawResponseSize": 0,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "CLOSED_TP3_INSUFFICIENT"
     },
     {
       "id": 247,
@@ -9245,7 +9782,8 @@
       "feeBuy": 1.5e-05,
       "feeSell": 1.6e-05,
       "rawResponseSize": 0,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 248,
@@ -9266,7 +9804,8 @@
       "feeBuy": 1.5e-05,
       "feeSell": 1.6e-05,
       "rawResponseSize": 0,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "CLOSED_TP1"
     },
     {
       "id": 249,
@@ -9287,7 +9826,8 @@
       "feeBuy": 8.346e-05,
       "feeSell": 1.6e-05,
       "rawResponseSize": 0,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 250,
@@ -9308,7 +9848,8 @@
       "feeBuy": 7.098e-05,
       "feeSell": 1.6e-05,
       "rawResponseSize": 0,
-      "coin": "LINK"
+      "coin": "LINK",
+      "status": "CLOSED_TP2"
     },
     {
       "id": 251,
@@ -9324,7 +9865,8 @@
       "orderId": null,
       "reason": "SL HIT",
       "closeType": "CLOSED_SL",
-      "coin": "SOL"
+      "coin": "SOL",
+      "status": "CLOSED_SL"
     },
     {
       "id": 406,
@@ -9342,7 +9884,8 @@
       "source": "BOT",
       "quantity": 5.1415,
       "reason": null,
-      "orderId": null
+      "orderId": null,
+      "status": "CLOSED_TP3"
     },
     {
       "id": 418,
@@ -9360,7 +9903,8 @@
       "source": "BOT",
       "quantity": 5.1415,
       "reason": null,
-      "orderId": null
+      "orderId": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 419,
@@ -9378,7 +9922,8 @@
       "source": "BOT",
       "quantity": 5.1415,
       "reason": null,
-      "orderId": null
+      "orderId": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 420,
@@ -9396,7 +9941,8 @@
       "source": "BOT",
       "quantity": 4.26,
       "reason": null,
-      "orderId": null
+      "orderId": null,
+      "status": "CLOSED_SL"
     },
     {
       "id": 562,
@@ -9415,7 +9961,8 @@
       "closeTime": "2026-10-14 17:37:01",
       "source": "emergency-close",
       "strategy": "SLOT_V3",
-      "timestamp": "2026-10-14T13:37:01.060943"
+      "timestamp": "2026-10-14T13:37:01.060943",
+      "status": "CLOSED_SL"
     }
   ],
   "updatedAt": "2026-10-14T23:06:04.924597",

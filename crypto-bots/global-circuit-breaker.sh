@@ -73,6 +73,12 @@ CBEOF
         else
             # Pausa expiró, limpiar flag
             rm -f "$GLOBAL_PAUSE_FILE"
+            # ✅ FIX 3: Reset de ventana 24h — los trades que dispararon el CB (antes de la pause)
+            # NO deben contar en la nueva ventana. Guardar timestamp de reset.
+            reset_ts=$(date +%s)
+            jq -n --arg rt "$reset_ts" \
+                '{"loss_window_reset": $rt, "source": "pause_expired"}' \
+                > "${WORKSPACE}/crypto-bots/cb-loss-reset-flag.json"
             
             # 🐕 ACTUALIZAR DASHBOARD STATUS - Trading reanudado
             python3 << CBEOF
@@ -120,6 +126,20 @@ with open("/home/overgon/.openclaw/workspace/crypto-bots/trade-history.json", 'r
 now = datetime.now(timezone.utc)
 cutoff_24h = now - timedelta(hours=24)
 one_hour_ago = now - timedelta(hours=1)
+
+# ✅ FIX 3: If a loss-window reset flag exists (set when CB pause expired),
+# only count trades AFTER the reset time — trades that triggered the CB
+# should NOT immediately re-trigger it (prevents perpetual re-trigger loop)
+reset_file = "/home/overgon/.openclaw/workspace/crypto-bots/cb-loss-reset-flag.json"
+try:
+    with open(reset_file) as rf:
+        reset_data = json.load(rf)
+    reset_epoch = int(reset_data.get("loss_window_reset", 0))
+    reset_time = datetime.fromtimestamp(reset_epoch, tz=timezone.utc)
+    if reset_time > cutoff_24h:
+        cutoff_24h = reset_time  # Shift cutoff to post-reset
+except (FileNotFoundError, ValueError, KeyError):
+    pass  # No reset flag — use normal 24h window
 
 losses_24h = 0
 total_loss_24h = 0
@@ -175,6 +195,8 @@ if [ -f "${WORKSPACE}/crypto-bots/cb-grace-period-flag.json" ]; then
         exit 0
     else
         rm -f "${WORKSPACE}/crypto-bots/cb-grace-period-flag.json"
+        # ✅ FIX 3: Clean up loss-window reset flag after grace period
+        rm -f "${WORKSPACE}/crypto-bots/cb-loss-reset-flag.json"
     fi
 fi
 
