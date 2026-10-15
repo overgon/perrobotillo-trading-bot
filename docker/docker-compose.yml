@@ -3,10 +3,9 @@ version: '3.5'
 services:
   ### Jesse's Workspace ################################################
   jesse:
-    image: salehmir/jesse:3.2.4
+    image: salehmir/jesse:3.3.4
     depends_on:
       - postgres
-      - redis
     tty: true
     env_file:
       - ../.env
@@ -21,7 +20,10 @@ services:
     volumes:
       - ../:/home
     container_name: jesse
-    command: bash -c "jesse install-live --no-strict && jesse run"
+    # 🔧 FIX: Skip 'jesse install-live --no-strict' — causes circular import (jesse_live→jesse.routes→jesse.models.Exchange→jesse.routes)
+    # when the plugin is already installed. Use 'jesse run' directly.
+    command: bash -c "jesse run"
+    restart: unless-stopped
 
   ### PostgreSQL ################################################
   postgres:
@@ -35,11 +37,5 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
     container_name: postgres
 
-  ### Redis ################################################
-  redis:
-    image: redis:6-alpine
-    container_name: redis
-    command: redis-server --save "" --appendonly no
-    
 volumes:
   postgres-data:
