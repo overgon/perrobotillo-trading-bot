@@ -38,6 +38,7 @@ CHAIN_CONFIG = {
     "LINK": {"chainId": "56", "symbol": "LINK"},
     "XRP": {"chainId": "56", "symbol": "XRP"},
     "AVAX": {"chainId": "56", "symbol": "AVAX"},
+    "ZEC": {"chainId": "56", "symbol": "ZEC"},
 }
 
 

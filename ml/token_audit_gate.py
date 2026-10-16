@@ -54,6 +54,7 @@ TOKEN_CONTRACTS = {
     "LINK": "0x70e4d21a2fcaa975af5a385775b4e88555d60626",  # LINK en BSC
     "XRP": "0x1ab60b307e40c4d7fe9cc66df5c25ee15cb898c2",  # XRP en BSC
     "AVAX": "0x1ba7dde3616c83b8e0b2d751c8a6e1c788a76ad5",  # AVAX en BSC
+    "ZEC": "0x1ba42e5193dfa8b03d15dd1b86a3113bbbef8eeb",  # ZEC (Binance-Peg) en BSC
 }
 
 # Config: chain mapping per coin (BSC = 56 es default para spot Binance)
