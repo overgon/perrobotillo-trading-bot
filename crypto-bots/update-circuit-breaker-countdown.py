@@ -23,7 +23,7 @@ def update_circuit_breaker_status():
         # No hay circuit breaker activo
         status = {
             "circuitBreakerActive": False,
-            "status": "ACTIVE",
+            "status": "RESUMED",
             "message": "Trading Normal - Circuit Breaker OFF",
             "lastChecked": datetime.now().isoformat()
         }
@@ -36,7 +36,7 @@ def update_circuit_breaker_status():
         if not pause_until_str:
             status = {
                 "circuitBreakerActive": False,
-                "status": "ACTIVE",
+                "status": "RESUMED",
                 "message": "Trading Normal",
                 "lastChecked": datetime.now().isoformat()
             }
