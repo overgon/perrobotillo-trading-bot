@@ -345,10 +345,11 @@ for COIN in "${COINS[@]}"; do
                     else
                         log "     ⚠️ Sin balance ${COIN} en cuenta - posición ya vendida externamente"
                         tmp_file=$(mktemp)
-                        jq --argjson sid "$slot_id" '.slots = [.slots[] | if .slotId == $sid then . | .status = "CLOSED_SL_EMERGENCY" | .quantity = null | .entryPrice = null | .usdtSpent = null | .stopLoss = null | .tp1 = null | .tp2 = null | .tp3 = null | .exitPrice = null | .pnlUSDT = null | .closeNote = "0 ZEC balance" | .closeType = "CLOSED_SL_EMERGENCY" | .closeTime = (now | todate) else . end]' "$STATE_FILE" > "$tmp_file" 2>/dev/null && mv "$tmp_file" "$STATE_FILE"
+                        # 🔧 FIX: closeNote now uses $coin arg instead of hardcoded "0 ZEC balance"
+                        jq --argjson sid "$slot_id" --arg coin "$COIN" '.slots = [.slots[] | if .slotId == $sid then . | .status = "CLOSED_SL_EMERGENCY" | .quantity = null | .entryPrice = null | .usdtSpent = null | .stopLoss = null | .tp1 = null | .tp2 = null | .tp3 = null | .exitPrice = null | .pnlUSDT = null | .closeNote = ("0 " + $coin + " balance") | .closeType = "CLOSED_SL_EMERGENCY" | .closeTime = (now | todate) else . end]' "$STATE_FILE" > "$tmp_file" 2>/dev/null && mv "$tmp_file" "$STATE_FILE"
                         # 🔧 FIX: Log to trade history for dashboard visibility
-                        log_emergency_trade "$COIN" "$slot_id" "$entry_price" "" "" "0" "Position already sold externally (0 ZEC balance)" "$sl"
-                        report+="⚠️ <b>${COIN} Slot ${slot_id}</b>: Ya vendida externamente (0 ZEC)
+                        log_emergency_trade "$COIN" "$slot_id" "$entry_price" "" "" "0" "Position already sold externally (0 ${COIN} balance)" "$sl"
+                        report+="⚠️ <b>${COIN} Slot ${slot_id}</b>: Ya vendida externamente (0 ${COIN})
 
 "
                         closed_count=$((closed_count + 1))
