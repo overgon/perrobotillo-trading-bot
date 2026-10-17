@@ -1,0 +1,629 @@
+{
+  "coin": "AVAX",
+  "timeframe": "1h",
+  "days": 180,
+  "n_trials": 25,
+  "best_value": 1.2031,
+  "best_params": {
+    "ema_fast": 15,
+    "ema_slow": 103,
+    "ema_trend": 243,
+    "tp1_percent": 3.8159219396672484,
+    "tp2_percent": 11.170203565046737,
+    "tp3_percent": 5.633683498476867,
+    "stop_loss_percent": 4.3467745362214485,
+    "ml_min_confidence": 42.91272096594194,
+    "position_size_percent": 18.515198027013888
+  },
+  "best_trial_metrics": {
+    "total_trades": 42,
+    "net_profit": 136.62,
+    "win_rate": 61.9,
+    "max_drawdown": 20.04,
+    "tp_hits": 26,
+    "sl_hits": 15
+  },
+  "all_trials": [
+    {
+      "trial": 0,
+      "params": {
+        "ema_fast": 18,
+        "ema_slow": 152,
+        "ema_trend": 258,
+        "tp1_percent": 1.3517072865928716,
+        "tp2_percent": 3.7935361975782382,
+        "tp3_percent": 11.178641214907561,
+        "stop_loss_percent": 5.978274331210434,
+        "ml_min_confidence": 43.05238698691109,
+        "position_size_percent": 5.100762806960413
+      },
+      "value": -3.4728,
+      "user_attrs": {
+        "total_trades": 42,
+        "net_profit": -108.89,
+        "win_rate": 64.29,
+        "max_drawdown": 6.27,
+        "tp_hits": 27,
+        "sl_hits": 14
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 1,
+      "params": {
+        "ema_fast": 23,
+        "ema_slow": 81,
+        "ema_trend": 257,
+        "tp1_percent": 5.025738519460212,
+        "tp2_percent": 9.195583845407032,
+        "tp3_percent": 4.8503914665234165,
+        "stop_loss_percent": 4.0714742710135265,
+        "ml_min_confidence": 42.98223641816527,
+        "position_size_percent": 14.052313830676535
+      },
+      "value": -1.7824,
+      "user_attrs": {
+        "total_trades": 49,
+        "net_profit": -218.51,
+        "win_rate": 59.18,
+        "max_drawdown": 18.27,
+        "tp_hits": 29,
+        "sl_hits": 20
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 2,
+      "params": {
+        "ema_fast": 21,
+        "ema_slow": 54,
+        "ema_trend": 145,
+        "tp1_percent": 3.505542320136108,
+        "tp2_percent": 8.969980869780912,
+        "tp3_percent": 14.962046855180159,
+        "stop_loss_percent": 2.474814280966344,
+        "ml_min_confidence": 39.25439679966888,
+        "position_size_percent": 15.806106498161688
+      },
+      "value": -3.0162,
+      "user_attrs": {
+        "total_trades": 58,
+        "net_profit": -375.3,
+        "win_rate": 41.38,
+        "max_drawdown": 19.94,
+        "tp_hits": 24,
+        "sl_hits": 33
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 3,
+      "params": {
+        "ema_fast": 24,
+        "ema_slow": 156,
+        "ema_trend": 149,
+        "tp1_percent": 4.171511619385315,
+        "tp2_percent": 11.735912907245185,
+        "tp3_percent": 10.313087529055757,
+        "stop_loss_percent": 2.8672925591305756,
+        "ml_min_confidence": 36.2703986683274,
+        "position_size_percent": 17.991931691531647
+      },
+      "value": -3.7347,
+      "user_attrs": {
+        "total_trades": 44,
+        "net_profit": -435.98,
+        "win_rate": 40.91,
+        "max_drawdown": 22.79,
+        "tp_hits": 18,
+        "sl_hits": 25
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 4,
+      "params": {
+        "ema_fast": 13,
+        "ema_slow": 62,
+        "ema_trend": 114,
+        "tp1_percent": 3.721920240521618,
+        "tp2_percent": 3.2639999939240534,
+        "tp3_percent": 10.966300307228753,
+        "stop_loss_percent": 3.037511116407591,
+        "ml_min_confidence": 31.657891662783534,
+        "position_size_percent": 10.846022451031613
+      },
+      "value": -1.9412,
+      "user_attrs": {
+        "total_trades": 66,
+        "net_profit": -195.35,
+        "win_rate": 54.55,
+        "max_drawdown": 13.57,
+        "tp_hits": 36,
+        "sl_hits": 29
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 5,
+      "params": {
+        "ema_fast": 28,
+        "ema_slow": 150,
+        "ema_trend": 140,
+        "tp1_percent": 1.161971916844485,
+        "tp2_percent": 11.080564718741513,
+        "tp3_percent": 3.3645221196826935,
+        "stop_loss_percent": 2.5161960265389625,
+        "ml_min_confidence": 42.491500465756886,
+        "position_size_percent": 13.846670396416219
+      },
+      "value": -5.5902,
+      "user_attrs": {
+        "total_trades": 76,
+        "net_profit": -577.67,
+        "win_rate": 48.68,
+        "max_drawdown": 19.58,
+        "tp_hits": 37,
+        "sl_hits": 38
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 6,
+      "params": {
+        "ema_fast": 8,
+        "ema_slow": 176,
+        "ema_trend": 205,
+        "tp1_percent": 3.2513234068962067,
+        "tp2_percent": 6.5761814305148,
+        "tp3_percent": 8.153872825984426,
+        "stop_loss_percent": 5.693780365132656,
+        "ml_min_confidence": 30.029940295993406,
+        "position_size_percent": 6.756088151041427
+      },
+      "value": -3.3443,
+      "user_attrs": {
+        "total_trades": 43,
+        "net_profit": -178.73,
+        "win_rate": 60.47,
+        "max_drawdown": 8.63,
+        "tp_hits": 26,
+        "sl_hits": 16
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 7,
+      "params": {
+        "ema_fast": 30,
+        "ema_slow": 151,
+        "ema_trend": 151,
+        "tp1_percent": 3.7227999932356357,
+        "tp2_percent": 11.995503886493974,
+        "tp3_percent": 11.938137156228445,
+        "stop_loss_percent": 3.7309631038147915,
+        "ml_min_confidence": 56.074371838271105,
+        "position_size_percent": 11.56597270919135
+      },
+      "value": -6.4746,
+      "user_attrs": {
+        "total_trades": 38,
+        "net_profit": -478.73,
+        "win_rate": 39.47,
+        "max_drawdown": 16.36,
+        "tp_hits": 15,
+        "sl_hits": 22
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 8,
+      "params": {
+        "ema_fast": 22,
+        "ema_slow": 167,
+        "ema_trend": 173,
+        "tp1_percent": 5.6085800397373875,
+        "tp2_percent": 9.30220636565658,
+        "tp3_percent": 12.204392422393278,
+        "stop_loss_percent": 4.307638002917281,
+        "ml_min_confidence": 44.720012163637406,
+        "position_size_percent": 23.009027733840544
+      },
+      "value": -6.333,
+      "user_attrs": {
+        "total_trades": 35,
+        "net_profit": -965.95,
+        "win_rate": 40.0,
+        "max_drawdown": 31.73,
+        "tp_hits": 14,
+        "sl_hits": 20
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 9,
+      "params": {
+        "ema_fast": 13,
+        "ema_slow": 120,
+        "ema_trend": 236,
+        "tp1_percent": 2.2526971482306903,
+        "tp2_percent": 3.8601743925659275,
+        "tp3_percent": 6.361692969891086,
+        "stop_loss_percent": 4.678978041473476,
+        "ml_min_confidence": 59.56632813035263,
+        "position_size_percent": 17.504651446104294
+      },
+      "value": -1.6291,
+      "user_attrs": {
+        "total_trades": 72,
+        "net_profit": -312.92,
+        "win_rate": 70.83,
+        "max_drawdown": 21.21,
+        "tp_hits": 51,
+        "sl_hits": 21
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 10,
+      "params": {
+        "ema_fast": 16,
+        "ema_slow": 156,
+        "ema_trend": 176,
+        "tp1_percent": 1.3790551578019168,
+        "tp2_percent": 5.687334175510672,
+        "tp3_percent": 12.281490580873015,
+        "stop_loss_percent": 4.67207704944663,
+        "ml_min_confidence": 57.04668613417709,
+        "position_size_percent": 24.328886210389676
+      },
+      "value": -3.2808,
+      "user_attrs": {
+        "total_trades": 44,
+        "net_profit": -506.66,
+        "win_rate": 59.09,
+        "max_drawdown": 29.07,
+        "tp_hits": 26,
+        "sl_hits": 17
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 11,
+      "params": {
+        "ema_fast": 18,
+        "ema_slow": 96,
+        "ema_trend": 233,
+        "tp1_percent": 4.210014882074972,
+        "tp2_percent": 10.190116486416668,
+        "tp3_percent": 3.9819936076429334,
+        "stop_loss_percent": 4.108127051983224,
+        "ml_min_confidence": 43.514594967066266,
+        "position_size_percent": 18.43347342448017
+      },
+      "value": -0.1335,
+      "user_attrs": {
+        "total_trades": 49,
+        "net_profit": -18.45,
+        "win_rate": 63.27,
+        "max_drawdown": 21.04,
+        "tp_hits": 31,
+        "sl_hits": 18
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 12,
+      "params": {
+        "ema_fast": 17,
+        "ema_slow": 75,
+        "ema_trend": 270,
+        "tp1_percent": 3.641131681660739,
+        "tp2_percent": 4.22684175022115,
+        "tp3_percent": 3.0211382689477273,
+        "stop_loss_percent": 3.7041658608712864,
+        "ml_min_confidence": 40.594897480694755,
+        "position_size_percent": 18.121665109663468
+      },
+      "value": -1.3908,
+      "user_attrs": {
+        "total_trades": 125,
+        "net_profit": -417.41,
+        "win_rate": 71.2,
+        "max_drawdown": 22.72,
+        "tp_hits": 89,
+        "sl_hits": 36
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 13,
+      "params": {
+        "ema_fast": 16,
+        "ema_slow": 63,
+        "ema_trend": 240,
+        "tp1_percent": 4.409565733143884,
+        "tp2_percent": 5.969344223947498,
+        "tp3_percent": 5.94855322385271,
+        "stop_loss_percent": 3.576713607319018,
+        "ml_min_confidence": 44.43818490330319,
+        "position_size_percent": 20.972378607763687
+      },
+      "value": -0.1754,
+      "user_attrs": {
+        "total_trades": 85,
+        "net_profit": -49.04,
+        "win_rate": 65.88,
+        "max_drawdown": 24.86,
+        "tp_hits": 56,
+        "sl_hits": 28
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 14,
+      "params": {
+        "ema_fast": 21,
+        "ema_slow": 76,
+        "ema_trend": 274,
+        "tp1_percent": 4.696157615399211,
+        "tp2_percent": 5.936496658310114,
+        "tp3_percent": 6.462504236857135,
+        "stop_loss_percent": 4.364364855219649,
+        "ml_min_confidence": 47.745803016485084,
+        "position_size_percent": 17.47152321497254
+      },
+      "value": -1.169,
+      "user_attrs": {
+        "total_trades": 66,
+        "net_profit": -246.91,
+        "win_rate": 66.67,
+        "max_drawdown": 21.64,
+        "tp_hits": 44,
+        "sl_hits": 22
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 15,
+      "params": {
+        "ema_fast": 15,
+        "ema_slow": 54,
+        "ema_trend": 267,
+        "tp1_percent": 5.568531687253056,
+        "tp2_percent": 8.383850446106006,
+        "tp3_percent": 7.515611862926905,
+        "stop_loss_percent": 3.6417682056037655,
+        "ml_min_confidence": 43.02755586098074,
+        "position_size_percent": 17.07780772127648
+      },
+      "value": -0.4868,
+      "user_attrs": {
+        "total_trades": 70,
+        "net_profit": -104.7,
+        "win_rate": 57.14,
+        "max_drawdown": 21.55,
+        "tp_hits": 40,
+        "sl_hits": 29
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 16,
+      "params": {
+        "ema_fast": 16,
+        "ema_slow": 87,
+        "ema_trend": 198,
+        "tp1_percent": 4.472867339819621,
+        "tp2_percent": 7.982718643006635,
+        "tp3_percent": 4.939370897677572,
+        "stop_loss_percent": 3.147393015905325,
+        "ml_min_confidence": 41.58006843082471,
+        "position_size_percent": 15.51799934267517
+      },
+      "value": -1.6618,
+      "user_attrs": {
+        "total_trades": 69,
+        "net_profit": -264.55,
+        "win_rate": 56.52,
+        "max_drawdown": 19.02,
+        "tp_hits": 39,
+        "sl_hits": 30
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 17,
+      "params": {
+        "ema_fast": 15,
+        "ema_slow": 52,
+        "ema_trend": 246,
+        "tp1_percent": 4.634917793974116,
+        "tp2_percent": 5.371114158993086,
+        "tp3_percent": 8.264038838836019,
+        "stop_loss_percent": 2.4319821530085863,
+        "ml_min_confidence": 40.309863826202324,
+        "position_size_percent": 21.916374748368124
+      },
+      "value": -1.0948,
+      "user_attrs": {
+        "total_trades": 90,
+        "net_profit": -289.02,
+        "win_rate": 51.11,
+        "max_drawdown": 26.51,
+        "tp_hits": 46,
+        "sl_hits": 43
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 18,
+      "params": {
+        "ema_fast": 14,
+        "ema_slow": 88,
+        "ema_trend": 196,
+        "tp1_percent": 3.439905961534949,
+        "tp2_percent": 7.221342944043931,
+        "tp3_percent": 4.792005575732734,
+        "stop_loss_percent": 4.560872717010913,
+        "ml_min_confidence": 48.65298833881776,
+        "position_size_percent": 23.23391213578778
+      },
+      "value": -2.3227,
+      "user_attrs": {
+        "total_trades": 64,
+        "net_profit": -597.83,
+        "win_rate": 65.62,
+        "max_drawdown": 28.94,
+        "tp_hits": 42,
+        "sl_hits": 22
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 19,
+      "params": {
+        "ema_fast": 17,
+        "ema_slow": 79,
+        "ema_trend": 224,
+        "tp1_percent": 4.718102208408055,
+        "tp2_percent": 11.277926402476337,
+        "tp3_percent": 6.138461582185162,
+        "stop_loss_percent": 3.2581581706171736,
+        "ml_min_confidence": 43.66191689205587,
+        "position_size_percent": 23.419111761030145
+      },
+      "value": -0.1659,
+      "user_attrs": {
+        "total_trades": 54,
+        "net_profit": -30.95,
+        "win_rate": 53.7,
+        "max_drawdown": 26.15,
+        "tp_hits": 29,
+        "sl_hits": 24
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 20,
+      "params": {
+        "ema_fast": 20,
+        "ema_slow": 90,
+        "ema_trend": 267,
+        "tp1_percent": 4.270774502902955,
+        "tp2_percent": 9.734395582346753,
+        "tp3_percent": 6.9939584150460785,
+        "stop_loss_percent": 4.2674322895884975,
+        "ml_min_confidence": 45.49172780098558,
+        "position_size_percent": 21.774362155639974
+      },
+      "value": -0.0633,
+      "user_attrs": {
+        "total_trades": 45,
+        "net_profit": -11.2,
+        "win_rate": 62.22,
+        "max_drawdown": 25.0,
+        "tp_hits": 28,
+        "sl_hits": 17
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 21,
+      "params": {
+        "ema_fast": 19,
+        "ema_slow": 54,
+        "ema_trend": 243,
+        "tp1_percent": 4.307642325357042,
+        "tp2_percent": 9.192628322935793,
+        "tp3_percent": 6.485656044850053,
+        "stop_loss_percent": 3.7624010455840997,
+        "ml_min_confidence": 49.323200759178036,
+        "position_size_percent": 21.30263812829428
+      },
+      "value": -0.8743,
+      "user_attrs": {
+        "total_trades": 71,
+        "net_profit": -225.48,
+        "win_rate": 59.15,
+        "max_drawdown": 25.18,
+        "tp_hits": 42,
+        "sl_hits": 29
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 22,
+      "params": {
+        "ema_fast": 16,
+        "ema_slow": 113,
+        "ema_trend": 219,
+        "tp1_percent": 4.662944453241777,
+        "tp2_percent": 9.95547174123944,
+        "tp3_percent": 7.370827603715432,
+        "stop_loss_percent": 4.167308787709877,
+        "ml_min_confidence": 46.37200109726315,
+        "position_size_percent": 23.795752526853672
+      },
+      "value": -2.1012,
+      "user_attrs": {
+        "total_trades": 49,
+        "net_profit": -441.3,
+        "win_rate": 55.1,
+        "max_drawdown": 30.14,
+        "tp_hits": 27,
+        "sl_hits": 22
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 23,
+      "params": {
+        "ema_fast": 15,
+        "ema_slow": 103,
+        "ema_trend": 243,
+        "tp1_percent": 3.8159219396672484,
+        "tp2_percent": 11.170203565046737,
+        "tp3_percent": 5.633683498476867,
+        "stop_loss_percent": 4.3467745362214485,
+        "ml_min_confidence": 42.91272096594194,
+        "position_size_percent": 18.515198027013888
+      },
+      "value": 1.2031,
+      "user_attrs": {
+        "total_trades": 42,
+        "net_profit": 136.62,
+        "win_rate": 61.9,
+        "max_drawdown": 20.04,
+        "tp_hits": 26,
+        "sl_hits": 15
+      },
+      "state": "TrialState.COMPLETE"
+    },
+    {
+      "trial": 24,
+      "params": {
+        "ema_fast": 17,
+        "ema_slow": 105,
+        "ema_trend": 249,
+        "tp1_percent": 4.24868261593811,
+        "tp2_percent": 10.649265003365452,
+        "tp3_percent": 3.5735537976535774,
+        "stop_loss_percent": 4.10143988231992,
+        "ml_min_confidence": 42.08894772096585,
+        "position_size_percent": 18.685984837410466
+      },
+      "value": 0.8808,
+      "user_attrs": {
+        "total_trades": 44,
+        "net_profit": 98.56,
+        "win_rate": 63.64,
+        "max_drawdown": 20.95,
+        "tp_hits": 28,
+        "sl_hits": 15
+      },
+      "state": "TrialState.COMPLETE"
+    }
+  ],
+  "created_at": "2026-10-17T13:50:08.785319"
+}
