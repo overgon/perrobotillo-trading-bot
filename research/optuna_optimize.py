@@ -76,19 +76,32 @@ ALL_COINS = list(PER_COIN_CONFIG.keys())
 
 
 # ── Data loading ──────────────────────────────────────────────────────
-def load_csv(coin: str, timeframe: str, days: int) -> "pandas.DataFrame | None":
-    """Load 1h CSV and expand to 1m if timeframe='1m'."""
-    tf_suffix = f"_{timeframe}"
+def load_csv(coin: str, timeframe: str, days: int, data_source: str = 'auto') -> "pandas.DataFrame | None":
+    """Load 1h CSV and expand to 1m if timeframe='1m'.
+
+    data_source: 'auto' (90d/180d), '90d', '180d', or 'bull' (2023-2024 bull run)
+    """
     path_180 = DATA_DIR / f"{coin}USDT_1h_180days.csv"
     path_90 = DATA_DIR / f"{coin}USDT_1h_90days.csv"
+    path_bull = DATA_DIR / f"{coin}USDT_1h_bull2023_2024.csv"
 
-    # Choose file based on days requested
-    if days >= 180 and path_180.exists():
-        path = path_180
-    elif path_90.exists():
+    # Choose file based on data_source
+    if data_source == 'bull' and path_bull.exists():
+        path = path_bull
+    elif data_source == '90d' and path_90.exists():
         path = path_90
-    elif path_180.exists():
+    elif data_source == '180d' and path_180.exists():
         path = path_180
+    elif data_source == 'auto':
+        if days >= 180 and path_180.exists():
+            path = path_180
+        elif path_90.exists():
+            path = path_90
+        elif path_180.exists():
+            path = path_180
+        else:
+            print(f"  ⚠️  No CSV for {coin}, skipping")
+            return None
     else:
         print(f"  ⚠️  No CSV for {coin}, skipping")
         return None
@@ -508,16 +521,16 @@ def objective(trial, coin: str, df, timeframe: str, days: int):
         return -999.0
 
 
-def optimize_single_coin(coin: str, trials: int, timeframe: str, days: int):
+def optimize_single_coin(coin: str, trials: int, timeframe: str, days: int, data_source: str = 'auto'):
     """Run Optuna optimization for a single coin."""
     import optuna
     import pandas as pd
 
     print(f"\n{'='*60}")
-    print(f"  Optuna Optimization: {coin}-USDT | {trials} trials | {timeframe} | {days}d")
+    print(f"  Optuna Optimization: {coin}-USDT | {trials} trials | {timeframe} | {days}d | data={data_source}")
     print(f"{'='*60}\n")
 
-    df = load_csv(coin, timeframe, days)
+    df = load_csv(coin, timeframe, days, data_source=data_source)
     if df is None or len(df) == 0:
         print(f"  ❌ No data for {coin}")
         return None
@@ -575,7 +588,8 @@ def optimize_single_coin(coin: str, trials: int, timeframe: str, days: int):
         'created_at': datetime.now().isoformat(),
     }
 
-    out_path = RESEARCH_DIR / f'optuna_optimize_{coin}_{timeframe}_{days}d.json'
+    data_suffix = f"_{data_source}" if data_source != 'auto' else ""
+    out_path = RESEARCH_DIR / f'optuna_optimize_{coin}_{timeframe}_{days}d{data_suffix}.json'
     with open(out_path, 'w') as f:
         json.dump(results, f, indent=2, default=str)
     print(f"\n  💾 Saved: {out_path}")
@@ -583,12 +597,12 @@ def optimize_single_coin(coin: str, trials: int, timeframe: str, days: int):
     return results
 
 
-def optimize_all_coins(trials: int, timeframe: str, days: int):
+def optimize_all_coins(trials: int, timeframe: str, days: int, data_source: str = 'auto'):
     """Run Optuna for all coins, using per-coin config."""
     all_results = {}
 
     for coin in ALL_COINS:
-        result = optimize_single_coin(coin, trials, timeframe, days)
+        result = optimize_single_coin(coin, trials, timeframe, days, data_source=data_source)
         if result:
             all_results[coin] = result
 
@@ -606,7 +620,8 @@ def optimize_all_coins(trials: int, timeframe: str, days: int):
               f"{result['best_trial_metrics']['max_drawdown']:>6.2f}%")
 
     # Save combined results
-    combined_path = RESEARCH_DIR / f'optuna_optimize_all_{timeframe}_{days}d.json'
+    data_suffix = f"_{data_source}" if data_source != 'auto' else ""
+    combined_path = RESEARCH_DIR / f'optuna_optimize_all_{timeframe}_{days}d{data_suffix}.json'
     with open(combined_path, 'w') as f:
         json.dump(all_results, f, indent=2, default=str)
     print(f"\n  💾 Combined results: {combined_path}")
@@ -624,9 +639,11 @@ if __name__ == '__main__':
                         help='Timeframe (default: 1h)')
     parser.add_argument('--days', type=int, default=180,
                         help='Days of data to use (180 for full period, 90 for bear market)')
+    parser.add_argument('--data', default='auto', choices=['auto', '90d', '180d', 'bull'],
+                        help='Data source: auto(90d/180d), 90d, 180d, or bull(bull2023_2024)')
     args = parser.parse_args()
 
     if args.coin == 'ALL':
-        optimize_all_coins(args.trials, args.tf, args.days)
+        optimize_all_coins(args.trials, args.tf, args.days, data_source=args.data)
     else:
-        optimize_single_coin(args.coin, args.trials, args.tf, args.days)
+        optimize_single_coin(args.coin, args.trials, args.tf, args.days, data_source=args.data)
