@@ -323,4 +323,10 @@ CONFIG_LOG="$WORKSPACE/logs/config-change-trace.log"
 final_ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 echo "{\"timestamp\":\"$final_ts\",\"event\":\"config.apply\",\"market_mode\":\"$FINAL_MODE\",\"override\":\"$OVERRIDE\",\"dynamic_config\":\"$DYNAMIC_CONFIG\"}" >> "$CONFIG_LOG" 2>/dev/null || true
 
+
+# PASO 5: Regime-Aware Config Switch (per-coin-config bull/bear)
+echo ""
+echo "🔄 PASO 5/5: Regime config switch..."
+"${SCRIPT_DIR}/switch-per-coin-config.sh" >> "$WORKSPACE/logs/auto-adjust.log" 2>&1 || echo "⚠️ Regime switcher failed (non-blocking)"
+
 exit 0
