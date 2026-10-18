@@ -127,3 +127,7 @@ crypto-bots/dynamic-config.env
 crypto-bots/market-mode.conf
 crypto-bots/cb-loss-reset-flag.json
 *.json.bak
+
+# Regime detector state
+state/market-regime.json
+state/last-regime-switch.time
