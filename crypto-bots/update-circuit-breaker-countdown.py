@@ -61,14 +61,45 @@ def update_circuit_breaker_status():
                 }
             else:
                 # Circuit breaker activo - datos básicos para el dashboard
+                # 🐕 FIX (2026-10-18): El pause flag tiene field names inconsistentes
+                # según cuál Rule disparó: Rule 3 usa 'losses_1h', Rules 1/2/4 usan
+                # 'losses_24h'. También falta 'activated_at' en el pause flag.
+                # Este fix mapea correctamente y preserva metadata del dashboard anterior.
+                
+                triggered_by = pause_data.get('triggered_by', 'unknown')
+                
+                # Consolidar loss count: try losses_24h, fall back to losses_1h
+                losses_count = pause_data.get('losses_24h')
+                if losses_count is None:
+                    losses_count = pause_data.get('losses_1h', 0)
+                
+                # Preservar activatedAt del dashboard existente si el pause flag no lo tiene
+                activated_at = pause_data.get('activated_at')
+                if not activated_at:
+                    try:
+                        with open(dashboard_file) as f:
+                            old_dashboard = json.load(f)
+                        activated_at = old_dashboard.get('activatedAt', 'unknown')
+                    except Exception:
+                        activated_at = 'unknown'
+                
+                # Construir mensaje específico según la rule
+                messages = {
+                    'hourly_losses': f"🔴 CB ON - {losses_count} losses en 1h",
+                    'drawdown_threshold': f"🔴 CB ON - drawdown > umbral",
+                    'loss_rate': f"🔴 CB ON - {pause_data.get('loss_rate', '?')}% loss rate",
+                    'losses_count': f"🔴 CB ON - {losses_count} losses en 24h",
+                }
+                message = messages.get(triggered_by, f"🔴 Circuit Breaker ON ({triggered_by})")
+                
                 status = {
                     "circuitBreakerActive": True,
                     "status": "GLOBAL_PAUSE",
-                    "triggeredBy": pause_data.get('triggered_by', 'unknown'),
-                    "activatedAt": pause_data.get('activated_at', 'unknown'),
+                    "triggeredBy": triggered_by,
+                    "activatedAt": activated_at,
                     "pauseUntil": pause_until_str,
-                    "losses24h": pause_data.get('losses_24h', 0),
-                    "message": f"🔴 Circuit Breaker ON",
+                    "losses24h": losses_count,
+                    "message": message,
                     "allowedOperations": ["SL Management", "TP Management", "Emergency Close"],
                     "blockedOperations": ["New Entries", "DCA Operations"],
                     "lastChecked": now.isoformat()

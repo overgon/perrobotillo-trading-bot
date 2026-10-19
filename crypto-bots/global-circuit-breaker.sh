@@ -279,6 +279,7 @@ with open("/home/overgon/.openclaw/workspace/crypto-bots/dashboard-circuit-break
 CBEOF
     
     echo "GLOBAL_PAUSE_48H|\$${total_loss_24h} pérdidas en 24h (threshold: -$50)"
+    log_cb "cb.triggered" "drawdown_threshold_-50usdt" 2>/dev/null || true
     exit 1
 fi
 
@@ -311,6 +312,7 @@ with open("/home/overgon/.openclaw/workspace/crypto-bots/dashboard-circuit-break
 CBEOF
     
     echo "GLOBAL_PAUSE_4H|$losses_1h losses en última hora (threshold: 2)"
+    log_cb "cb.triggered" "hourly_losses_>=2" 2>/dev/null || true
     exit 1
 fi
 
@@ -346,6 +348,7 @@ with open("/home/overgon/.openclaw/workspace/crypto-bots/dashboard-circuit-break
 CBEOF
         
         echo "GLOBAL_PAUSE_12H|${loss_rate}% loss rate en 24h (threshold: 60%)"
+        log_cb "cb.triggered" "loss_rate_gt_60pct" 2>/dev/null || true
         exit 1
     fi
 fi

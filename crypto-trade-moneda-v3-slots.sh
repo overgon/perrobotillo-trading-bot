@@ -2868,24 +2868,10 @@ Se recomienda esperar condiciones mejores. 🐕"
         log "⚠️ Position size reducido: $original_percent% → ${TRADE_PERCENT}% (1 SL reciente)"
     fi
     
-    # Check if we can open new trades
-    if [ "$active_count" -ge "$MAX_SLOTS" ]; then
-        log "⏸️ Máximo de slots alcanzado ($active_count / $MAX_SLOTS)"
-        return 0
-    fi
-    
-    # 🐕 FIX: Per-coin enable/disable check
-    if [ "${SYMBOL_ENABLED:-true}" = "false" ]; then
-        log "❌ TRADING DESHABILITADO para $SYMBOL en per-coin-config.env"
-        return 0
-    fi
-    
-    # 🛡️ BACKUP CB PAUSE CHECK — Independent of get_available_slot()
-    # This directly reads global-pause-flag.json as a second layer of defense.
-    # get_available_slot() can fail to detect the pause if the pause flag file
-    # is momentarily unavailable or jq/date fail. This check ensures NO new
-    # trades open while CB pause is active, regardless of get_available_slot()
-    # behavior. See: ZEC LONG at 2026-10-15 10:17 slipped through.
+    # 🛡️ BACKUP CB PAUSE CHECK — MUST come BEFORE max-slots check
+    # Placed before active_count check so BTC/BNB (always 3/3 slots) still
+    # see the CB pause log message. Previously, max-slots check returned first,
+    # bypassing the backup defense for coins with full slots.
     CB_PAUSE_FILE="${WORKSPACE}/crypto-bots/global-pause-flag.json"
     if [ -f "$CB_PAUSE_FILE" ]; then
         cb_pause_until=$(jq -r '.pause_until // null' "$CB_PAUSE_FILE" 2>/dev/null)
@@ -2899,7 +2885,19 @@ Se recomienda esperar condiciones mejores. 🐕"
             fi
         fi
     fi
-
+    
+    # Check if we can open new trades
+    if [ "$active_count" -ge "$MAX_SLOTS" ]; then
+        log "⏸️ Máximo de slots alcanzado ($active_count / $MAX_SLOTS)"
+        return 0
+    fi
+    
+    # 🐕 FIX: Per-coin enable/disable check
+    if [ "${SYMBOL_ENABLED:-true}" = "false" ]; then
+        log "❌ TRADING DESHABILITADO para $SYMBOL en per-coin-config.env"
+        return 0
+    fi
+    
     # Get available slot
     local available_slot=$(get_available_slot)
     # CB guard + defensive check: abort if no slot available (CB pause active or
