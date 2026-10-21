@@ -1,3 +1,0 @@
-services:
-  jesse:
-    command: sleep infinity
