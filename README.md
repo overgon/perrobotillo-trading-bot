@@ -16,7 +16,7 @@
 │  🤖 Trading Bot          🧠 ML Pipeline     📊 Dashboard │
 │  crypto-trade-moneda-    auto-retrain-v2.py  app.py       │
 │  v3-slots.sh             ml_validator_       static/js/  │
-│  (7 coins, 21 slots)     wrapper.py          app.js      │
+│  (8 coins, 24 slots)     wrapper.py          app.js      │
 │  └─ TP1/TP2/TP3/SL       └─ models_optimized/ └─ mobile.js  │
 │                                                         │
 │  🛡️ Circuit Breaker    🕵️ IP Monitor      🔔 Notify     │
@@ -37,10 +37,10 @@
 
 | Componente | Detalle |
 |---|---|
-| **Monedas** | BTC, ETH, BNB, SOL, LINK, XRP, AVAX |
-| **Slots** | 21 (3 por moneda, max) |
+| **Monedas** | BTC, ETH, BNB, SOL, LINK, XRP, AVAX, ZEC |
+| **Slots** | 24 (3 por moneda, max) |
 | **Exchange** | Binance Spot |
-| **ML** | RandomForest (7 modelos, 72-94% accuracy) |
+| **ML** | RandomForest (8 modelos, 68-94% accuracy) |
 | **CB** | Circuit Breaker (6 losses/24h → pausa) |
 | **Schedule** | Cron-only (systemd reservado para watchs) |
 | **Notify** | Telegram con `--data-urlencode` + `parse_mode=Markdown` |
@@ -227,7 +227,7 @@ El bot logueaba con `closeType: "SL"` y `log_trade_to_history.py` con `closeType
 ```
 workspace/
 ├── crypto-bots/
-│   ├── crypto-trade-moneda-v3-slots.sh    # Bot principal (7 monedas)
+│   ├── crypto-trade-moneda-v3-slots.sh    # Bot principal (8 monedas)
 │   ├── auto-adjust-strategy.sh            # Strategy engine
 │   ├── ml-market-validator.sh             # ML validator wrapper
 │   ├── market-sentiment.sh                # F&G + EMAs + RSI
@@ -349,8 +349,8 @@ bash lib/send-telegram.sh
 
 **Desarrollado por:** [Perrobotron](https://t.me/perrobotron) 🐕  
 **Para:** Jefe (Rull Ox)  
-**Versión:** FASE 1 v2.1  
-**Fecha:** 2026-08-25
+**Versión:** FASE 1 v2.1.1  
+**Fecha:** 2026-10-21
 
 *"'Nunca confiar, siempre verificar.' — Perrobotron Aterrorizar!!"*
 

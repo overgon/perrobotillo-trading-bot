@@ -1,10 +1,10 @@
 # 🐕 PERROBOTILLO TRADING BOT - CHEATSHEET OPERATIVO
 
-> **Última actualización:** 2026-07-14
-> **Estado:** Operativo / Esperando señales limpias
-> **Coins activas:** BNB, AVAX, SOL
-> **Slots totales:** 9
-> **Capital Spot:** ~210.09 USDT
+> **Última actualización:** 2026-10-21
+> **Estado:** Operativo — 8 monedas, 23/24 slots ACTIVE
+> **Coins activas:** BTC, ETH, BNB, SOL, LINK, XRP, AVAX, ZEC
+> **Slots totales:** 24 (3 por moneda, max)
+> **Capital Spot:** Consultar en vivo vía `scripts/balance-now.sh`
 
 ---
 
@@ -28,9 +28,9 @@ Lista los **scripts que un operador puede correr manualmente**, con una descripc
 **Ejemplos:**
 ```bash
 cd /home/overgon/.openclaw/workspace
-./crypto-trade-moneda-v3-slots.sh AVAX
-./crypto-trade-monenda-v3-slots.sh BNB
-./crypto-trade-moneda-v3-slots.sh SOL
+./crypto-trade-moneda-v3-slots.sh BTC
+./crypto-trade-moneda-v3-slots.sh ETH
+./crypto-trade-moneda-v3-slots.sh ZEC
 ```
 
 **Notas:**
@@ -100,7 +100,7 @@ python3 scripts/reconcile-binance-state.py
 **Ejemplo:**
 ```bash
 cd /home/overgon/.openclaw/workspace
-bash scripts/tp-monitor.sh AVAX
+bash scripts/tp-monitor.sh ZEC
 ```
 
 ### `scripts/check-tp.py`
@@ -193,4 +193,4 @@ python3 /home/overgon/.openclaw/workspace/scripts/reconcile-binance-state.py
 - **No agregar capital manualmente sin coordinación.**
 - **No desactivar ML validator ni fallback.** Solo reentrenar.
 - **No subir** `secrets/binance.env` ni backups sensibles.
-- El repo remoto mantiene solo código y documentación; el estado vivo queda en `.archive/` fuera de producción si aplica.
+- El repo mantiene código, docs y modelos ML entrenados. El estado vivo (trade-state.json, logs, cache) se genera en runtime y está en `.gitignore`.

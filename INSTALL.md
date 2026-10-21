@@ -280,7 +280,7 @@ Si configuraste Telegram, deberías recibir un mensaje:
 
 ```bash
 # Iniciar bot para todas las monedas
-for coin in BTC ETH BNB SOL LINK XRP AVAX; do
+for coin in BTC ETH BNB SOL LINK XRP AVAX ZEC; do
     echo "Iniciando $coin..."
     ./crypto-trade-moneda-v3-slots.sh $coin &
 done
@@ -318,6 +318,46 @@ crontab -e
 
 ---
 
+## PASO 10: Acceso Remoto al Dashboard (Opcional)
+
+### 10.1 Iniciar Dashboard
+
+```bash
+cd dashboard
+./setup-auth.sh    # Configurar usuario/password HTTP Basic
+./start.sh         # Inicia Flask en puerto 8080
+# Local:    http://localhost:8080
+# Red LAN:  http://192.168.1.100:8080
+```
+
+**Credenciales HTTP Basic:** el `setup-auth.sh` crea un archivo `.htpasswd` con tu usuario y password. Guardalo en un gestor seguro.
+
+### 10.2 Acceso Remoto con NGROK
+
+Para acceder al dashboard desde fuera de tu red (ej. desde el celular):
+
+1. **Instalar NGROK:**
+```bash
+curl -s https://ngrok.com/download | tar xz
+sudo cp ngrok /usr/local/bin/
+```
+
+2. **Crear cuenta gratuita:** ve a [https://ngrok.com](https://ngrok.com), creá una cuenta y copiá tu authtoken desde [https://dashboard.ngrok.com/get-started/your-authtoken](https://dashboard.ngrok.com/get-started/your-authtoken)
+
+3. **Configurar y lanzar:**
+```bash
+ngrok config add-authtoken TU_AUTHTOKEN_AQUI
+ngrok http 8080
+```
+
+4. **Acceder:** usá la URL HTTPS que NGROK te da (ej. `https://abc123.ngrok-free.app`). El dashboard ya requiere auth HTTP Basic.
+
+**Notas:**
+- Plan gratuito: la URL cambia cada reinicio. Usá `ngrok http --domain=tu-subdominio 8080` si tenés plan de pago.
+- Usá HTTPS siempre — NGROK lo provee automáticamente.
+
+---
+
 ## ✅ CHECKLIST FINAL
 
 Antes de operar con dinero real:
@@ -329,8 +369,10 @@ Antes de operar con dinero real:
 - [ ] Telegram configurado (opcional)
 - [ ] Script de verificación pasó sin errores
 - [ ] Bot de prueba (BTC) funcionando
-- [ ] Todas las monedas iniciadas
-- [ ] Cron jobs configurados (opcional)
+- [ ] ZEC agregado a la lista de monedas
+- [ ] Cron jobs configurados vía `restore-crontab.sh`
+- [ ] Dashboard iniciado y auth HTTP Basic configurada (`./dashboard/setup-auth.sh`)
+- [ ] Acceso remoto NGROK configurado para Dashboard (opcional)
 - [ ] Leíste SECURITY.md y entendés los riesgos
 
 ---
