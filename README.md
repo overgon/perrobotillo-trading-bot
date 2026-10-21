@@ -77,6 +77,17 @@ crontab -l
 
 ---
 
+### 🤖 Instalación Asistida por IA (AI Agent)
+¿Quieres que un agente de IA haga toda la instalación por ti? Dale a tu agente favorito este archivo:
+
+```bash
+cat AI-SETUP-PROMPT.md
+```
+
+> 📄 Ver [`AI-SETUP-PROMPT.md`](AI-SETUP-PROMPT.md) — prompt estructurado para agentes de IA que instala todo de forma autónoma: dependencias, secrets, ML models, cron, dashboard, NGROK y pruebas.
+
+---
+
 ## 🧠 ML PIPELINE
 
 ### Modelos
