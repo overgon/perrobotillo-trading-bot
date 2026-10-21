@@ -358,8 +358,7 @@ bash lib/send-telegram.sh
 
 ## 🐕 CRÉDITOS
 
-**Desarrollado por:** [Perrobotron](https://t.me/perrobotron) 🐕  
-**Para:** Jefe (Rull Ox)  
+**Vibe coded with ❤️ by Rull  
 **Versión:** FASE 1 v2.1.1  
 **Fecha:** 2026-10-21
 
@@ -369,6 +368,6 @@ bash lib/send-telegram.sh
 
 <div align="center">
 
-**🚀 El bot está operativo, Jefe. ¡A operar se ha dicho!**
+**🚀 El bot está operativo, ¡A operar se ha dicho!**
 
 </div>
