@@ -235,19 +235,6 @@ crypto-bots/trade-history.json
 crypto-bots/trade-history-PRE-GRID-*.backup.json
 
 # ════════════════════════════════════════════════════════
-# 🍯 HONEYGAIN (binarios y runtime, nunca subir al release)
-# ════════════════════════════════════════════════════════
-honeygain
-libhg.so*
-libmsquic*
-.honeygain_cooldown
-.honeygain.pid
-.honeygain_startup.log
-.honeygain_supervisor.log
-.honeygain_monitor.pid
-.honeygain_env.bak
-
-# ════════════════════════════════════════════════════════
 # 📋 CRONTAB BACKUPS (auto-generated, never track)
 # ════════════════════════════════════════════════════════
 crypto-bots/crontab-backup-*.txt
