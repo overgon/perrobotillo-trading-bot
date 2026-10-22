@@ -56,10 +56,10 @@ cd ~
 mkdir -p bots
 cd bots
 
-# Clone repo
-git clone git@github.com:overgon/perrobotillo-trading-bot.git
-# OR if using HTTPS:
-# git clone https://github.com/overgon/perrobotillo-trading-bot.git
+# Clone repo (HTTPS recommended for autonomous agents — no SSH key setup needed)
+git clone https://github.com/overgon/perrobotillo-trading-bot.git
+# Optional: use SSH if you have keys configured:
+# git clone git@github.com:overgon/perrobotillo-trading-bot.git
 
 # Enter directory
 cd perrobotillo-trading-bot
@@ -208,36 +208,41 @@ curl -s \
 ### Step 8: Deploy Trained ML Models
 
 ```bash
-# Verify model files exist
-ls -la ml/models/*.pkl
+# Verify model files exist in the ACTIVE model directory
+ls -la ml/models_optimized/*_optimized_model.pkl
 
-# Expected files (7 coins):
-#   btc-ml-model.pkl
-#   eth-ml-model.pkl
-#   bnb-ml-model.pkl
-#   sol-ml-model.pkl
-#   link-ml-model.pkl
-#   xrp-ml-model.pkl
-#   avax-ml-model.pkl
+# Expected files (8 coins — all tracked in repo):
+#   BTC_optimized_model.pkl
+#   ETH_optimized_model.pkl
+#   BNB_optimized_model.pkl
+#   SOL_optimized_model.pkl
+#   LINK_optimized_model.pkl
+#   XRP_optimized_model.pkl
+#   AVAX_optimized_model.pkl
+#   ZEC_optimized_model.pkl
+#
+# Each coin also has: *_scaler_optimized.pkl, *_selected_features.pkl, *_optimized_metadata.json
 ```
 
-If models don't exist, download from the repo's ML model registry:
+> **IMPORTANTE:** The bot uses `ml/models_optimized/` (NOT `ml/models/` which contains legacy FASE 4/5 models). The `ml_validator_wrapper.py` hardcodes `MODEL_DIR = Path("ml/models_optimized")`.
+
+Verify each model loads:
 ```bash
-# (Models are committed in the repo, no download needed)
-# Verify each model loads:
 python3 -c "
 import joblib
 import glob
-for f in sorted(glob.glob('ml/models/*.pkl')):
+models = sorted(glob.glob('ml/models_optimized/*_optimized_model.pkl'))
+for f in models:
     model = joblib.load(f)
     print(f'  {f}: {type(model).__name__}')
-print('✅ All 7 models loaded')
+print(f'✅ All {len(models)} models loaded')
 "
 ```
 
 **Verification checkpoint:**
-- ✅ All 7 `.pkl` files exist
-- ✅ All models load via `joblib.load()`
+- ✅ All 8 `.pkl` files exist in `ml/models_optimized/`
+- ✅ All models load via `joblib.load()` (8/8 including ZEC)
+- ✅ `ml_validator_wrapper.py` points to `models_optimized/` (not `models/`)
 
 ### Step 9: Syntax Check All Shell Scripts
 
@@ -270,8 +275,8 @@ crontab -l | grep -c "crypto-trade-moneda"
 ```
 
 **Verification checkpoint:**
-- ✅ Crontab has ~47 entries
-- ✅ 7 trading bot entries (one per coin: BTC, ETH, BNB, SOL, LINK, XRP, AVAX)
+- ✅ Crontab has ~32 active entries
+- ✅ 8 trading bot entries (one per coin: BTC, ETH, BNB, SOL, LINK, XRP, AVAX, ZEC)
 - ✅ Circuit breaker, portfolio updater, daily report, IP monitor, drawdown alert all present
 
 ### Step 11: Start Dashboard (Local)
@@ -310,40 +315,65 @@ pkill -f "python3 app.py"
 - ✅ Dashboard returns HTTP 200 locally
 - ✅ Auth prompt appears when accessing without credentials
 
-### Step 12: Configure NGROK for Remote Access
+### Step 12: Production Deployment (Primary) + NGROK (Quick Access)
+
+**Option A: Production Deployment with NGINX + systemd (RECOMMENDED)**
+
+The repo includes a production deployment stack in `deploy/`:
+```bash
+# 1. Install NGINX
+sudo apt-get install -y nginx
+
+# 2. Configure NGINX reverse proxy (SSL + security headers)
+sudo cp deploy/nginx-perrobotillo.conf /etc/nginx/sites-available/perrobotillo
+sudo ln -s /etc/nginx/sites-available/perrobotillo /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+
+# Or use the automated deployment script:
+bash deploy/deploy.sh
+
+# 3. Configure systemd service for the dashboard
+sudo cp deploy/perrobotillo-dashboard.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable perrobotillo-dashboard
+sudo systemctl start perrobotillo-dashboard
+
+# 4. Verify
+sudo systemctl status perrobotillo-dashboard
+# Dashboard accessible via SSL at your domain
+```
+
+**Option B: NGROK for Quick Remote Access (Development Only)**
+
+> ⚠️ **Security Warning:** NGROK exposes the dashboard through a third-party tunnel. For production with real capital, **use Option A (NGINX + systemd) instead.**
 
 ```bash
-# Install ngrok if not present
+# Install ngrok
 which ngrok || {
-    curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | \
-    sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
-    echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | \
-    sudo tee /etc/apt/sources.list.d/ngrok.list
+    curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc
+    echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
     sudo apt update && sudo apt install ngrok
 }
 
-# Configure authtoken (agent should obtain from user or use:
+# Configure authtoken
 ngrok config add-authtoken "$NGROK_AUTHTOKEN"
-# If no token, prompt user to provide one
 
-# Start ngrok in background (tmux recommended)
+# Start ngrok in background
 tmux new-session -d -s ngrok "ngrok http 8080"
-
-# Wait for ngrok to be ready
 sleep 3
 
 # Get forwarding URL
 NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
 echo "Dashboard URL: $NGROK_URL"
 
-# Test remote access
-curl -s -o /dev/null -w "%{http_code}" -u "admin:$(htpasswd -nv admin 2>/dev/null | cut -d: -f2)" "$NGROK_URL/"
-# Expected: 401 (auth required) or 200 (if auth provided)
+# Test
+curl -s -o /dev/null -w "%{http_code}" "$NGROK_URL/"
+# Expected: 401 (auth required)
 ```
 
 **Verification checkpoint:**
-- ✅ `ngrok http 8080` running
-- ✅ Public HTTPS URL obtained
+- ✅ NGINX + systemd serving dashboard over HTTPS (Option A)
+- OR ✅ `ngrok http 8080` running with public HTTPS URL (Option B)
 - ✅ URL returns auth prompt (401) without credentials
 
 ### Step 13: Run Smoke Test — Single Coin
@@ -396,12 +426,12 @@ After completing all steps, the agent should produce a report with the following
 | Dependencies installed | ✅/❌ | |
 | Binance API connected | ✅/❌ | |
 | Telegram notifications sent | ✅/❌ | |
-| ML models present (7/7) | ✅/❌ | |
+| ML models present (8/8) | ✅/❌ | |
 | Shell scripts syntax-checked | ✅/❌ | |
-| Crontab configured (~47 entries) | ✅/❌ | |
+| Crontab configured (~32 entries) | ✅/❌ | |
 | Dashboard accessible locally | ✅/❌ | |
 | Dashboard HTTP Basic Auth | ✅/❌ | |
-| NGROK remote access working | ✅/❌ | |
+| Production deployment working | ✅/❌ | NGINX+systemd OR NGROK |
 | Smoke test (BTC trade cycle) | ✅/❌ | |
 | Circuit breaker initialized | ✅/❌ | |
 | Secrets protected (chmod 600) | ✅/❌ | |
@@ -429,7 +459,7 @@ git ls-files secrets/
 | `crontab: command not found` | cron not installed | `sudo apt install cron` |
 | `Permission denied` on .sh | Script not executable | `chmod +x *.sh crypto-bots/*.sh` |
 | `secrets file not found` | Forgot to copy from .example | `cp secrets/*.env.example secrets/*.env` |
-| `Model file not found` | Models not in repo | Pull latest: `git pull origin master` |
+| `Model file not found` | Models not in correct path | Check `ml/models_optimized/`, run `bash -n restore-crontab.sh` |
 
 ---
 
@@ -442,17 +472,17 @@ git ls-files secrets/
 - [ ] `git status` shows no secret files staged
 - [ ] IP whitelist updated in Binance dashboard
 - [ ] Dashboard auth (HTTP Basic) is enabled
-- [ ] NGROK URL is HTTPS only
+- [ ] Production deployment uses NGINX + systemd (not NGROK)
 
 ---
 
 ## 📞 If Something Goes Wrong
 
-1. Check logs: `tail -f logs/trade-BTC.log`
-2. Check OpenClaw: `openclaw status`
-3. Check Binance connectivity: test API endpoint manually
-4. Open GitHub issue: https://github.com/overgon/perrobotillo-trading-bot/issues
-5. Include logs WITHOUT secrets
+2. Check logs: `tail -f logs/trade-BTC.log`
+3. Check service status: `systemctl status perrobotillo-dashboard` or `crontab -l | head -5`
+4. Check Binance connectivity: test API endpoint manually
+5. Open GitHub issue: https://github.com/overgon/perrobotillo-trading-bot/issues
+6. Include logs WITHOUT secrets
 
 ---
 

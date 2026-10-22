@@ -33,6 +33,7 @@ PYTHON=/usr/bin/python3
 4,14,24,34,44,54 * * * * /home/overgon/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh LINK >> /home/overgon/.openclaw/logs/cron-LINK.log 2>&1
 5,15,25,35,45,55 * * * * /home/overgon/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh XRP >> /home/overgon/.openclaw/logs/cron-XRP.log 2>&1
 6,16,26,36,46,56 * * * * /home/overgon/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh AVAX >> /home/overgon/.openclaw/logs/cron-AVAX.log 2>&1
+7,17,27,37,47,57 * * * * /home/overgon/.openclaw/workspace/crypto-trade-moneda-v3-slots.sh ZEC >> /home/overgon/.openclaw/logs/cron-ZEC.log 2>&1
 
 # ════════════════════════════════════════════════════════
 # GLOBAL CIRCUIT BREAKER - Cada 5 minutos (LOCAL, SIN LLM)
