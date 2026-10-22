@@ -194,7 +194,8 @@ class OptimizedMLPipeline:
         n_features = X.shape[1]
         
         # Override por moneda: LINK usa features reducidas para mitigar overfitting
-        coin_k_override = {'LINK': 5, 'XRP': 14}
+        # ZEC añadido: datos esparcidos (51 samples) necesitan features reducidas
+        coin_k_override = {'LINK': 5, 'XRP': 14, 'ZEC': 8}
         if k is None:
             k = coin_k_override.get(self.coin, int(np.sqrt(n_features)))
         
@@ -241,8 +242,10 @@ class OptimizedMLPipeline:
         X = df[feature_cols].values
         y = df['label'].values
         
-        # Limpiar NaN
-        mask = ~np.isnan(X).any(axis=1) & ~np.isnan(y)
+        # Limpiar NaN e Inf (CRITICAL: ZEC sparse data with 51 samples + 216 features
+        # can produce inf values from division-by-zero in indicators like RSI/MACD)
+        X = np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)
+        mask = ~np.isnan(X).any(axis=1) & ~np.isinf(X).any(axis=1) & ~np.isnan(y)
         X = X[mask]
         y = y[mask]
         feature_cols_clean = feature_cols
@@ -252,7 +255,8 @@ class OptimizedMLPipeline:
         # Feature selection (opcional)
         if self.use_feature_selection:
             # LINK: excluir features de volumen para reducir overfitting ruidoso
-            if self.coin == 'LINK':
+            # ZEC: added as LINK's parallel — same volume noise issue with sparse data
+            if self.coin in ('LINK', 'ZEC'):
                 vol_features = [c for c in feature_cols_clean if 'volume' in c.lower()]
                 non_vol_features = [c for c in feature_cols_clean if c not in vol_features]
                 if non_vol_features:
