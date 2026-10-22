@@ -10,6 +10,7 @@ WORKSPACE="${WORKSPACE:-$SCRIPT_DIR/..}"
 
 LOG_FILE="$WORKSPACE/logs/early-warning-alert.log"
 WARNING_THRESHOLD=0.80  # 80% de distancia al SL
+EARLY_WARNING_NOTIFY=false
 
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE" 2>/dev/null || true
@@ -78,6 +79,10 @@ done
 
 # Send alert if there are warnings
 if [ ${#warnings[@]} -gt 0 ]; then
+    if [ "$EARLY_WARNING_NOTIFY" != "true" ]; then
+        log "🔇 Alerta early-warning SUPERVENIDA (EARLY_WARNING_NOTIFY=false) - ${#warnings[@]} slots en riesgo"
+        exit 0
+    fi
     message="⚠️ **SLOTS EN RIESGO**
 "
     for w in "${warnings[@]}"; do

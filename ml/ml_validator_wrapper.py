@@ -158,16 +158,16 @@ def validate_trade(coin: str, direction: str = "LONG", trade_type: str = "NORMAL
         result['source'] = 'ML'
         result['base_position_size'] = result['position_size']
 
-        # Adjust position size according to confidence
+        # Position sizing based on confidence (uses MIN_CONFIDENCE, not hardcoded 60)
         confidence = prediction['confidence']
         if confidence >= 80:
             result['position_size'] = 100  # Full position
         elif confidence >= 70:
             result['position_size'] = 75   # 75% position
-        elif confidence >= 60:
-            result['position_size'] = 50   # Half position
+        elif confidence >= MIN_CONFIDENCE:  # ✅ Uses global constant (55), not hardcoded 60
+            result['position_size'] = 50   # 50% position (matches _deploy_optimized_model sizing)
         else:
-            result['position_size'] = 25   # Minimal position
+            result['position_size'] = 25   # Minimal position (was: position_size=0 + signal=WAIT)
 
         # Optional alpha reinforcement — never cancels ML approval
         try:

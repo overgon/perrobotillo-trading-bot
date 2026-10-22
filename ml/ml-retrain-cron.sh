@@ -4,10 +4,12 @@
 # ════════════════════════════════════════════════════════
 # Corre todos los domingos a las 3:00 AM
 # Re-entrena el modelo ML validator con nuevos trades
+# Pipeline: auto-retrain-v2.py (8 coins, sin Docker)
 # ════════════════════════════════════════════════════════
 
 HOME="/home/overgon"
 WORKSPACE="$HOME/.openclaw/workspace"
+ML_DIR="$WORKSPACE/ml"
 LOG_FILE="$HOME/.openclaw/logs/ml-retrain-cron.log"
 
 log() {
@@ -18,65 +20,40 @@ log "╔════════════════════════
 log "║  🧠 ML Auto-Retrain - Domingo 3:00 AM                 ║"
 log "╚═══════════════════════════════════════════════════════╝"
 
-# Activar virtualenv si existe
-if [ -f "$WORKSPACE/venv/bin/activate" ]; then
-    source "$WORKSPACE/venv/bin/activate"
-    log "✅ Virtualenv activado"
-fi
+# Usar python directo (no venv, no Docker)
+PYTHON="/usr/bin/python3"
+RETAIN_DAYS=90
 
-# Ejecutar re-entrenamiento Fase 5 (pipeline completo de 7 monedas)
-# run_fase5_all.sh ejecuta fase5_train.py dentro del container jesse
-# 7 monedas × ~2 min cada una = ~15 min total
-# cd a jesse-research (ruta forzada absoluta para evitar corrupción de paths)
-cd "$HOME/jesse-research" 2>/dev/null || {
-    log "❌ No se pudo cd a jesse-research: $(pwd)"
+cd "$ML_DIR" || {
+    log "❌ No se pudo cd a $ML_DIR"
     exit_code=1
 }
-if [ "${exit_code:-2}" -ne 1 ] && [ -f "run_fase5_all.sh" ]; then
-    chmod +x run_fase5_all.sh
-    timeout 3600 ./run_fase5_all.sh
+
+if [ "${exit_code:-0}" -eq 0 ]; then
+    log "🚀 Ejecutando auto-retrain-v2.py con timeout 3600s..."
+    timeout 3600 "$PYTHON" "$ML_DIR/auto-retrain-v2.py" >> "$LOG_FILE" 2>&1
     exit_code=$?
-else
-    log "❌ run_fase5_all.sh no encontrado en $(pwd)"
-    exit_code=1
+    log "Exit code: $exit_code"
 fi
 
 if [ $exit_code -eq 0 ]; then
     log "✅ Re-entrenamiento completado exitosamente"
-    
-    # ═══ Sync new models to production ═══
-    JESSE_MODELS_DIR="$HOME/jesse-research/fase5_models"
-    PROD_MODELS_DIR="$WORKSPACE/ml/models_optimized"
-    PROD_FEATURES_DIR="$WORKSPACE/ml/features"
-    
-    for coin in BTC ETH BNB SOL LINK XRP AVAX; do
-        coin_model_dir="$JESSE_MODELS_DIR/$coin"
-        if [ -f "$coin_model_dir/${coin}_optimized_model.pkl" ]; then
-            cp "$coin_model_dir/${coin}_optimized_model.pkl" "$PROD_MODELS_DIR/"
-            cp "$coin_model_dir/${coin}_scaler_optimized.pkl" "$PROD_MODELS_DIR/"
-            cp "$coin_model_dir/${coin}_selected_features.pkl" "$PROD_MODELS_DIR/"
-            cp "$coin_model_dir/${coin}_optimized_metadata.json" "$PROD_MODELS_DIR/"
-            log "  ✅ $coin modelos sincronizados a producción"
-        fi
-    done
-    log "✅ Modelos Fase 5 desplegados en models_optimized/"
-    
-    # ═══ Refresh feature CSVs with BTC context features ═══
-    python3 "$WORKSPACE/ml/patch_context_features.py" >> "$LOG_FILE" 2>&1
-    log "✅ Feature CSVs actualizados con BTC context (btc_ema_cross, fear_greed, market_mode, confidence_score)"
-    
+
+    # ═══ Patch context features for BTC (needed since auto-retrain-v2 uses system CSVs) ═══
+    if [ -f "$ML_DIR/patch_context_features.py" ]; then
+        "$PYTHON" "$ML_DIR/patch_context_features.py" >> "$LOG_FILE" 2>&1
+        log "✅ Feature CSVs actualizados con BTC context"
+    fi
+
     # ═══ Telegram success notification ═══
     TELEGRAM_ENV="$WORKSPACE/secrets/telegram.env"
     if [ -f "$TELEGRAM_ENV" ]; then
         source "$TELEGRAM_ENV"
         message="✅ *ML Auto-Retrain EXITOSO*
-
-✅ 7 monedas re-entrenadas y desplegadas
-📊 Models Fase 5 en models_optimized/
-🎯 Feature CSVs refrescados con BTC context
-📅 Domingo $(date '+%Y-%m-%d %H:%M')
-
-Revisar: \`ml-retrain.log\`"
+- 8 monedas re-entrenadas y desplegadas
+- Models en models_optimized/
+- Feature CSVs refrescados con BTC context
+- Domingo $(date '+%Y-%m-%d %H:%M')"
         curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             -d "chat_id=${TELEGRAM_CHAT_ID}" \
             --data-urlencode "text=${message}" \
@@ -84,25 +61,21 @@ Revisar: \`ml-retrain.log\`"
         log "✅ Notificación Telegram enviada"
     fi
 else
-    log "❌ Error en el re-entrenamiento"
-    
+    log "❌ Error en el re-entrenamiento (exit code $exit_code)"
+
     # Notificar error
     TELEGRAM_ENV="$WORKSPACE/secrets/telegram.env"
     if [ -f "$TELEGRAM_ENV" ]; then
         source "$TELEGRAM_ENV"
-        
         message="🚨 *ML Auto-Retrain FALLÓ*
-
-❌ Error al re-entrenar el modelo
-🕐 Domingo $(date '+%Y-%m-%d %H:%M')
-
-Revisar logs: \`ml-retrain.log\`"
-        
+- Error al re-entrenar modelos (exit code $exit_code)
+- Domingo $(date '+%Y-%m-%d %H:%M')
+- Revisar: ml-retrain-cron.log"
         curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             -d "chat_id=${TELEGRAM_CHAT_ID}" \
             --data-urlencode "text=${message}" \
-            -d "parse_mode=Markdown" > /dev/null
+            -d "parse_mode=Markdown" > /dev/null 2>&1
     fi
 fi
 
-log ""
+log "═══ FIN ML RETRAIN ═══"

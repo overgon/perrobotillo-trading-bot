@@ -20,7 +20,12 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import SelectKBest, mutual_info_classif
-from imblearn.over_sampling import SMOTE
+try:
+    from imblearn.over_sampling import SMOTE
+    HAS_SMOTE = True
+except ImportError:
+    HAS_SMOTE = False
+    print("⚠️ imblearn not installed - SMOTE disabled. Using class_weight='balanced' instead")
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -51,15 +56,15 @@ OPTIMIZED_CONFIG = {
 # Overrides por moneda para casos con overfitting alto
 COIN_CONFIG_OVERRIDES = {
     'LINK': {
-        'max_depth': 6,                # Reducido de 7 → 6: menos capacidad de sobreajuste
-        'min_samples_split': 50,       # Aumentado de 40 → 50: más regularización
-        'min_samples_leaf': 25,        # Aumentado de 20 → 25: leaves más grandes
-        'n_estimators': 300,           # Más árboles para estabilidad con profundidad reducida
-        'max_features': 'log2',        # Menos features por árbol
-        'max_leaf_nodes': 15,          # Reducido de 20 → 15: limitar complejidad
+        'max_depth': 6,
+        'min_samples_split': 50,
+        'min_samples_leaf': 25,
+        'n_estimators': 300,
+        'max_features': 'log2',
+        'max_leaf_nodes': 12,  # Reducido de 15 → 12 para LINK con gap 7.55%
         'class_weight': 'balanced',
-        'random_state': 123,           # Seed de diversidad
-        'ccp_alpha': 0.02              # Endurecido de 0.01 → 0.02: pruning fuerte para LINK con 90 días
+        'random_state': 123,
+        'ccp_alpha': 0.03  # Endurecido de 0.02 → 0.03 para reducir gap
     },
     'XRP': {
         'max_depth': 6,
@@ -73,15 +78,26 @@ COIN_CONFIG_OVERRIDES = {
         'ccp_alpha': 0.003
     },
     'AVAX': {
-        'max_depth': 5,                # Reducido de 7 → 5: depth muy controlada
-        'min_samples_split': 50,       # Regularización alta
-        'min_samples_leaf': 25,        # Leaves grandes
-        'n_estimators': 300,           # Más árboles para estabilidad
-        'max_features': 'log2',        # Menos features por árbol (vs sqrt)
-        'max_leaf_nodes': 20,          # Limitar hojas
+        'max_depth': 5,
+        'min_samples_split': 50,
+        'min_samples_leaf': 25,
+        'n_estimators': 300,
+        'max_features': 'log2',
+        'max_leaf_nodes': 20,
         'class_weight': 'balanced',
         'random_state': 42,
-        'ccp_alpha': 0.02              # Pruning muy fuerte
+        'ccp_alpha': 0.02
+    },
+    'ZEC': {  # NUEVO: ZEC como paralela a LINK, aplicar overrides agresivos
+        'max_depth': 5,
+        'min_samples_split': 60,
+        'min_samples_leaf': 30,
+        'n_estimators': 400,
+        'max_features': 'log2',
+        'max_leaf_nodes': 12,
+        'class_weight': 'balanced',
+        'random_state': 123,
+        'ccp_alpha': 0.03
     }
 }
 

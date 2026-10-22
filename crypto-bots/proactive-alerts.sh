@@ -280,7 +280,7 @@ if [ "$should_alert" = "true" ]; then
     log "   🚨 ALERTA: $consecutive_losses pérdidas consecutivas (-\$${total_loss})"
     
     notify "PROACTIVE_ALERT" "🚨 ALERTA - RACHA DE PÉRDIDAS
-${consecutive_losses} pérdidas consecutivas | PnL: -\\$${total_loss} USDT
+${consecutive_losses} pérdidas consecutivas | PnL: -\$${total_loss} USDT
 🪙 ${coins}
 • Pausar trading temporalmente
 • Revisar patrones comunes en pérdidas
@@ -310,7 +310,7 @@ if [ "$should_alert" = "true" ]; then
     log "   🚨 ALERTA: Win Rate ${win_rate}% (<${MIN_WINRATE_THRESHOLD}%)"
     
     notify "PROACTIVE_ALERT" "🚨 ALERTA - WIN RATE BAJO
-WR: ${win_rate}% (<${MIN_WINRATE_THRESHOLD}%) | PnL: \\$${total_pnl} USDT
+WR: ${win_rate}% (<${MIN_WINRATE_THRESHOLD}%) | PnL: \$${total_pnl} USDT
 ${losses_count}/10 pérdidas
 • Modelo desactualizado? Retrain manual si WR < 40%
 • Monitorear 24h 🐕"
@@ -335,12 +335,13 @@ notified_today=$(echo "$result" | jq -r '.notified_today // false')
 if [ "$should_alert" = "true" ]; then
     trades_count=$(echo "$result" | jq -r '.trades_count // 0')
     coins=$(echo "$result" | jq -r '.coins | join(", ") // "N/A"')
+    daily_remaining=$(awk "BEGIN {printf \"%.2f\", 3.0 - $daily_loss}" 2>/dev/null || echo "0.00")
     notified=$(echo "$result" | jq -r '.notified_today // false')
     
     log "   🚨 ALERTA: Pérdida diaria \$${daily_loss} USDT (umbral: ${DAILY_LOSS_ALERT}%)"
     
     notify "PROACTIVE_ALERT" "🚨 ALERTA - PÉRDIDA DIARIA
-\\$${daily_loss} USDT acumulados hoy | \\$$(awk "BEGIN {printf \"%.2f\", 15 - $daily_loss}") faltan para límite 3%
+\$${daily_loss} USDT acumulados hoy | \$${daily_remaining} faltan para límite 3%
 ${trades_count} trades perdedores | ${coins} 🐕"
     
     # Actualizar estado solo si no habíamos notificado hoy

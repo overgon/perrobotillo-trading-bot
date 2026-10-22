@@ -24,7 +24,7 @@ from pathlib import Path
 
 # Configuración
 CRYPTO_BOTS = Path("/home/overgon/.openclaw/workspace/crypto-bots")
-COINS = ["BTC", "ETH", "BNB", "SOL", "ZEC", "XRP", "AVAX"]
+COINS = ["BTC", "ETH", "BNB", "SOL", "ZEC", "LINK", "XRP", "AVAX"]
 TELEGRAM_CHAT_ID = "7543955537"  # Rull Ox
 
 def load_trade_state(coin):
@@ -62,7 +62,7 @@ def clean_slot_data(slot):
     slot["trailingStop"] = None
     
     # Limpiar campos de cierre si existen
-    for field in ["closedAt", "closeType", "exitPrice", "exitReason", "exitTimestamp", "pnlUSDT"]:
+    for field in ["closedAt", "closeType", "exitPrice", "exitReason", "exitTimestamp", "pnlUSDT", "closeNote", "closeTime"]:
         if field in slot:
             del slot[field]
 
@@ -159,6 +159,7 @@ def repair_slot(slot, coin, slot_id):
     # Caso 5: Status ACTIVE sin posición → inconsistencia grave
     if current_status == "ACTIVE" and not has_position:
         repairs.append(f"ACTIVE sin posición - marcando como READY")
+        slot["status"] = "READY"
         clean_slot_data(slot)
         return slot, repairs
     

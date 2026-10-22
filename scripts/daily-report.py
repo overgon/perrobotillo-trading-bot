@@ -19,7 +19,7 @@ LOGS_DIR = WORKSPACE / "logs"
 CRYPTO_BOTS_DIR = WORKSPACE / "crypto-bots"
 SECRETS_DIR = Path.home() / ".openclaw" / "secrets"
 
-COINS = ["BTC", "ETH", "BNB", "SOL", "ZEC", "XRP", "AVAX"]
+COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX", "ZEC"]
 
 
 def load_env_file(filepath):
@@ -151,8 +151,9 @@ def get_portfolio_total():
             try:
                 if p.exists():
                     snap = json.loads(p.read_text())
-                    total_usdt = float(snap.get("totalUSDT", snap.get("value", 0)) or 0)
+                    total_usdt = float(snap.get("totalUSDT", snap.get("total_usdt", snap.get("value", 0))) or 0)
                     mxn_rate = float(snap.get("mxn_rate", 17.44) or 17.44)
+                    total_mxn = float(snap.get("total_mx", snap.get("total_mxn", snap.get("value_mx", 0))) or 0)
                     if total_usdt > 0:
                         return round(total_usdt, 2), round(total_usdt * mxn_rate, 2)
             except Exception:
@@ -262,7 +263,11 @@ def get_yesterday_trades():
 
         if not trades:
             # Fallback: leer logs de cron SOLO para trades realmente cerrados
-            for coin in COINS:
+            # ✅ FIX: iterar todos los monedas con trade-state.json, no solo COINS
+            import glob
+            slot_files = sorted(glob.glob(str(CRYPTO_BOTS_DIR / "*-trade-state.json")))
+            for slot_file in slot_files:
+                coin = Path(slot_file).stem.replace('-trade-state', '').upper()
                 log_file = Path.home() / ".openclaw" / "logs" / f"cron-{coin}.log"
                 if log_file.exists():
                     try:

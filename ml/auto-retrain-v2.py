@@ -43,9 +43,9 @@ logger = logging.getLogger(__name__)
 # Parámetros de entrenamiento
 DAYS_HISTORICAL = 90  # Aumentado de 60 → 90: LINK/XRP necesitan más samples con 216 features
 MODEL_TYPE = "random_forest"  # random_forest, gradient_boosting, logistic_regression
-USE_SMOTE = True  # Balancear clases automáticamente
+USE_SMOTE = False  # SMOTE causó severe overfitting en LINK (7.18% -> 29.75%). Usar class_weight='balanced' en su lugar.
 
-COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX", "ZEC"]
 
 # ════════════════════════════════════════════════════════
 # AUTO RETRAIN
