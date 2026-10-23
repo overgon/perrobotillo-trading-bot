@@ -1,0 +1,84 @@
+name: CI Backtest Gate
+
+# ──────────────────────────────────────────────────────────────────
+# Triggers: any change to strategy code, research scripts, or routes
+# ──────────────────────────────────────────────────────────────────
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'strategies/perrobotillo/**'
+      - 'research/**'
+      - 'routes.py'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'strategies/perrobotillo/**'
+      - 'research/**'
+      - 'routes.py'
+
+jobs:
+  backtest-gate:
+    name: Backtest Regression Gate
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: jesse_user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: jesse_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Jesse AI 3.4.0
+        run: |
+          python -m pip install --upgrade pip
+          pip install jesse==3.4.0
+
+      - name: Configure .env for PostgreSQL
+        run: |
+          cat > .env <<EOF
+          PASSWORD=gates123
+          APP_PORT=9000
+          LSP_PORT=9001
+          MCP_PORT=9002
+          MCP_LOG_IN_TERMINAL=false
+          POSTGRES_HOST=localhost
+          POSTGRES_NAME=jesse_db
+          POSTGRES_PORT=5432
+          POSTGRES_USERNAME=jesse_user
+          POSTGRES_PASSWORD=password
+          LICENSE_API_TOKEN=
+          EOF
+
+      - name: Run CI Backtest Gate
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USERNAME: jesse_user
+          POSTGRES_PASSWORD: password
+          POSTGRES_NAME: jesse_db
+        run: |
+          python3 research/ci_backtest_gate.py --coins BNB --days 14
+
+      - name: Upload backtest result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-backtest-result
+          path: research/ci_backtest_result.json
