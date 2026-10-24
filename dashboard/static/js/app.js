@@ -136,6 +136,7 @@ async function loadData(forceHistory = false) {
         updateOnChainGateStatus(data);
         updateTradesTable({ history: data.history });
         updateTimestamp(data.timestamp);
+        updateVersion(data.version);
 
         if (window.onDashboardDataUpdated) {
             window.onDashboardDataUpdated();
@@ -882,6 +883,13 @@ function updateTimestamp(timestamp) {
     const el = document.getElementById('lastUpdate');
     if (el && timestamp) {
         el.textContent = new Date(timestamp).toLocaleTimeString();
+    }
+}
+
+function updateVersion(version) {
+    const el = document.getElementById('bot-version');
+    if (el && version) {
+        el.textContent = `v${version}`;
     }
 }
 

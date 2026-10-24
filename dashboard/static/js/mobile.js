@@ -106,6 +106,7 @@ async function loadData(forceHistory = false) {
         updateCircuitBreakerStatus(data);
         updateTradesTable({ history: data.history });
         updateTimestamp(data.timestamp);
+        updateVersion(data.version);
         
         console.log('✅ Data updated:', new Date(data.timestamp).toLocaleTimeString(), 'trades:', data.history?.trades?.length || 0);
     } catch (error) {
@@ -700,6 +701,13 @@ function updateTimestamp(timestamp) {
     const el = document.getElementById('lastUpdate');
     if (el && timestamp) {
         el.textContent = new Date(timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+}
+
+function updateVersion(version) {
+    const el = document.getElementById('bot-version');
+    if (el && version) {
+        el.textContent = `v${version}`;
     }
 }
 

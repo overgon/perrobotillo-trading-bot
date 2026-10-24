@@ -22,6 +22,7 @@ WORKSPACE = Path.home() / ".openclaw" / "workspace"
 SECRETS = WORKSPACE / "secrets"
 LOGS = WORKSPACE / "logs"
 BINANCE_BASE = "https://api.binance.com"
+VERSION_FILE = WORKSPACE / "VERSION"
 SUPPORTED_SYMBOLS = {"BTC", "ETH", "BNB", "SOL", "ZEC", "XRP", "AVAX"}
 
 MAX_SLOTS = 3
@@ -252,8 +253,29 @@ def run_cycle(symbol: str, dry_run: bool = False) -> None:
         release_lock(WORKSPACE / "crypto-bots" / f".bot_cli_{symbol}.lock")
 
 
+def _get_bot_version() -> str:
+    """Obtener versión del bot desde VERSION file o git describe."""
+    # Try VERSION file first
+    if VERSION_FILE.exists():
+        return VERSION_FILE.read_text().strip()
+    # Fall back to git describe
+    try:
+        result = subprocess.run(
+            ["git", "describe", "--tags", "--always", "--dirty"],
+            capture_output=True, text=True, timeout=5,
+            cwd=str(WORKSPACE)
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout.strip()
+    except Exception:
+        pass
+    return "unknown"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Perrobotillo Trading Bot CLI")
+    parser.add_argument("--version", action="version",
+                        version=f"Perrobotillo v{_get_bot_version()}")
     parser.add_argument("--symbol", required=True, choices=sorted(SUPPORTED_SYMBOLS))
     sub = parser.add_subparsers(dest="command")
     sub.add_parser("cycle")

@@ -111,6 +111,26 @@ def hide_server_headers(response):
 WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
 CRYPTO_BOTS = f"{WORKSPACE}/crypto-bots"
 CONFIG_FILE = f"{WORKSPACE}/config/capital-config.sh"
+VERSION_FILE = f"{WORKSPACE}/VERSION"
+
+
+def get_bot_version():
+    """Leer versión del archivo VERSION, fallback a git describe."""
+    try:
+        with open(VERSION_FILE) as f:
+            return f.read().strip()
+    except (FileNotFoundError, IOError):
+        pass
+    try:
+        result = subprocess.run(
+            ["git", "-C", WORKSPACE, "describe", "--tags", "--always", "--dirty"],
+            capture_output=True, text=True, timeout=5
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout.strip()
+    except Exception:
+        pass
+    return "unknown"
 
 # ════════════════════════════════════════════════════════
 # 🔒 SECURITY - HIDE SERVER HEADERS
@@ -1086,6 +1106,7 @@ def _api_status_data():
         'onChainStatus': get_on_chain_status(),
         'coin_configs': _load_effective_config(),
         'param_multipliers': _load_param_multipliers(),
+        'version': get_bot_version(),
         'timestamp': now.isoformat()
     }
 
