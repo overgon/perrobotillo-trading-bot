@@ -396,22 +396,44 @@ find . -name "*BTC*log" -newest -exec tail -20 {} \;
 - ✅ Price data retrieved
 - ✅ USDT balance detected
 
-### Step 14: Verify Global Circuit Breaker
+### Step 14: Verify Global Circuit Breaker (v2.1.2+)
 
 ```bash
-# Check circuit breaker status
-cat crypto-bots/dashboard-circuit-breaker-status.json 2>/dev/null
-# Expected: JSON with "status", "drawdown", "active" fields
+# Check circuit breaker status dashboard
+cat crypto-bots/dashboard-circuit-breaker-status.json 2>/dev/null | python3 -m json.tool
+# Expected fields (v2.1.2+):
+#   circuitBreakerActive: true/false
+#   status: "GLOBAL_PAUSE" | "RESUMED"
+#   triggeredBy: "losses_count" | "hourly_losses" | "drawdown_threshold" | "loss_rate"
+#   triggeredAt: "YYYY-MM-DD HH:MM:SS"  (stable — derived from pause flag triggered_at)
+#   activatedAt: "YYYY-MM-DD HH:MM:SS"  (same as triggeredAt — stable across cron runs)
+#   pauseUntil: "YYYY-MM-DD HH:MM:SS"
+#   timeRemaining: "Xh Ym"
+#   losses24h: <int>  (actual count, not hardcoded 0)
+#   totalLoss: "<float>"
 
-# Verify pause flag exists
+# Verify pause flag exists (v2.1.2+ structure)
 cat crypto-bots/global-pause-flag.json 2>/dev/null | python3 -m json.tool
-# Expected: {"paused_until": "...", "active": false}
+# Expected fields (v2.1.2+):
+#   pause_until: "YYYY-MM-DD HH:MM:SS"
+#   triggered_by: "losses_count" | "hourly_losses" | "drawdown_threshold" | "loss_rate"
+#   triggered_at: <epoch>  (CRITICAL: used as reset cutoff when pause expires)
+#   losses_24h: <int>  (full 24h window count)
+#   total_loss: "<float>"
+#   losses_full: <int>  (copy of full-window count)
+
+# If no pause flag exists, CB is OFF — that's OK
+# If paused, verify triggered_at is present (required for correct reset logic)
 ```
 
+> **v2.1.2 NOTE:** The `triggered_at` epoch field is **required** in the pause flag. When a pause expires, the reset cutoff uses `triggered_at` (pause start time) instead of `date +%s` (pause expiry). This preserves trades that closed *during* the pause in the next evaluation window. Without it, the reset would exclude all trades and Rule 1 (24h pause) would never re-trigger.
+
 **Verification checkpoint:**
-- ✅ Circuit breaker status file exists
-- ✅ Global pause flag exists and is valid JSON
+- ✅ Circuit breaker dashboard JSON has `triggeredBy` matching pause flag
+- ✅ `triggeredAt` == `activatedAt` (stable, not changing every 5 min)
+- ✅ Pause flag has `triggered_at` epoch field
 - ✅ No errors when running `crypto-bots/global-circuit-breaker.sh`
+- ✅ No errors when running `crypto-bots/update-circuit-breaker-countdown.py`
 
 ---
 
