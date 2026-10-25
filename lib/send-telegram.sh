@@ -2,8 +2,8 @@
 # ════════════════════════════════════════════════════════
 # 📱 Send Telegram Message - Direct API v2 (url-encoded)
 # ════════════════════════════════════════════════════════
-# Uso: ./send-telegram.sh "Mensaje en Markdown" [parse_mode]
-# Fix: usa --data-urlencode para escapar correctamente
+# Uso: ./send-telegram.sh "Mensaje en HTML" [parse_mode]
+# Fix: usa --data-urlencode + HTML escaping para evitar \\ en Telegram
 # ════════════════════════════════════════════════════════
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -31,13 +31,16 @@ fi
 # Función para enviar mensaje usando --data-urlencode (evita comillas extra)
 send_telegram() {
     local message="$1"
-    local parse_mode="${2:-Markdown}"
+    local parse_mode="${2:-HTML}"
+    # ✅ FIX: HTML escaping to prevent special chars breaking Telegram
+    local escaped_message
+    escaped_message=$(printf '%s' "$message" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
 
     local result
     result=$(curl -s -w "\nHTTP_CODE:%{http_code}" \
         -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
         -d "chat_id=${TELEGRAM_CHAT_ID}" \
-        --data-urlencode "text=${message}" \
+        --data-urlencode "text=${escaped_message}" \
         -d "parse_mode=${parse_mode}" \
         --max-time 10 2>&1)
 
@@ -67,5 +70,5 @@ if [ "${BASH_SOURCE[0]}" = "$0" ]; then
         echo "Uso: $0 \"Mensaje\" [parse_mode]"
         exit 1
     fi
-    send_telegram "$1" "${2:-Markdown}"
+    send_telegram "$1" "${2:-HTML}"
 fi

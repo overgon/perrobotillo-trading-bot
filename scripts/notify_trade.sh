@@ -39,11 +39,13 @@ MSG="📜 ${SYMBOL} ${CLOSE_TYPE} [Trade #${TRADE_ID}]
 Exit: \$${EXIT} | Entrada: \$${ENTRY} | PnL: ${PNL_SIGN}\$${PNL}
 $(date '+%H:%M:%S') CST 🐕"
 
-# Enviar a Telegram con --data-urlencode para evitar comillas extra
+# 📱 Enviar a Telegram con HTML escaping (evita \\ bugs de Markdown)
+# ✅ FIX: Use HTML parse_mode — only < > & need escaping, no fragile sed chains
+escaped_message=$(printf '%s' "$MSG" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
 curl -s -X POST "https://api.telegram.org/bot${TOKEN}/sendMessage" \
     -d "chat_id=${CHAT_ID}" \
-    --data-urlencode "text=${MSG}" \
-    -d "parse_mode=Markdown" \
+    --data-urlencode "text=${escaped_message}" \
+    -d "parse_mode=HTML" \
     >/dev/null 2>&1 || true
 
 echo "✅ Enviado: ${SYMBOL} ${CLOSE_TYPE} PnL=${PNL_SIGN}\$${PNL}"

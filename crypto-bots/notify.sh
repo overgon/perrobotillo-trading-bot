@@ -51,12 +51,12 @@ send_telegram() {
     TELEGRAM_LOG="$WORKSPACE/logs/telegram-notification-delivery.log"
     local notify_ts
     notify_ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-
+    
     # ✅ FIX: Intentar cargar desde openclaw.json primero
     if [ -f "$config_file" ]; then
         bot_token="$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)"
     fi
-
+    
     # ✅ FIX FALLBACK: Si no hay token en openclaw.json, intentar en secrets/telegram.env
     # NOTE: telegram.env no existe actualmente; openclaw.json es source primario
     if [ -z "$bot_token" ] || [ "$bot_token" = "null" ]; then
@@ -66,20 +66,25 @@ send_telegram() {
             bot_token="${TELEGRAM_BOT_TOKEN:-}"
         fi
     fi
-
+    
     if [ -z "$bot_token" ] || [ "$bot_token" = "null" ]; then
         log "Bot token no encontrado (ni en openclaw.json ni en telegram.env)"
         return 1
     fi
-
+    
+    # ✅ FIX: Use HTML parse_mode — only < > & need escaping, no fragile sed chains
+    # This prevents the double-backslash bug (-, ., | showing literally in Telegram)
+    local escaped_message
+    escaped_message=$(printf '%s' "$message" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
+    
     # ✅ FIX: Usar printf para evitar issue con \\n en -w flag
     local http_response
     local curl_result
     curl_result=$(curl -s --max-time 10 -w "\n%{http_code}" -X POST \
         "https://api.telegram.org/bot${bot_token}/sendMessage" \
         -d "chat_id=${CHAT_ID}" \
-        --data-urlencode "text=${message}" \
-        -d "parse_mode=Markdown" 2>&1)
+        --data-urlencode "text=${escaped_message}" \
+        -d "parse_mode=HTML" 2>&1)
 
     # Parsear: el último field es el HTTP code
     local code
