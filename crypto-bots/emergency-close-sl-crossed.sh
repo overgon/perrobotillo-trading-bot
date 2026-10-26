@@ -31,37 +31,60 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [EMERGENCY-SL] $1" | tee -a "$LOGS/emergency-close-sl-crossed.log" >&2
 }
 
-# 🔧 FIX (2026-10-14): Check if a trade already exists in history to prevent duplicates
+# 🔧 FIX (2026-10-25): Check if a trade already exists in history to prevent duplicates.
+# Now includes minute-level timestamp check — a slot can have multiple CLOSED_SL_EMERGENCY
+# entries from different trade cycles. Only skip if symbol+slotId+closeType+same-minute match
+# (prevents false positive: Slot 1 closed on Oct 14 shouldn't block Oct 25 close).
 trade_already_logged() {
     local coin="$1" slot="$2" close_type="$3"
     if [ -f "$HISTORY_FILE" ]; then
-        local count=$(jq --arg sy "$coin" --argjson sid "$slot" --arg ct "$close_type" \
-            '[.trades[] | select(.symbol == $sy and .slotId == $sid and .closeType == $ct)] | length' \
+        local now_minute
+        now_minute=$(date '+%Y-%m-%dT%H:%M')
+        local count
+        count=$(jq --arg sy "$coin" --argjson sid "$slot" --arg ct "$close_type" --arg minute "$now_minute" \
+            '[.trades[] | select(.symbol == $sy and .slotId == $sid and .closeType == $ct and (.timestamp // "" | startswith($minute)))] | length' \
             "$HISTORY_FILE" 2>/dev/null || echo "0")
         [ "${count:-0}" -gt 0 ] && return 0 || return 1
     fi
     return 1
 }
 
-# 🔧 FIX (2026-10-14): Log emergency close to trade history for dashboard visibility
+# 🔧 FIX (2026-10-25): Log emergency close to trade history for dashboard visibility
 # This ensures CLOSED_SL_EMERGENCY slots appear in RECENT TRADES HISTORY.
-# Uses trade_already_logged() to prevent duplicates (dedup at minute level in Python too).
+# Uses trade_already_logged() to prevent duplicates (dedup at minute level).
+# FIX: Capture Python exit code (no more 2>/dev/null || true that hides failures)
+# FIX: Always recalculate PnL — caller may pass "0" as placeholder for external-sell case
 log_emergency_trade() {
     local coin="$1" slot_id="$2" entry="$3" exit_price="$4" qty="$5" pnl="$6" reason="$7"
+    # $8 = sl_price (fallback when exit_price is empty, i.e. position sold externally)
+    # FIX (2026-10-25): qty param may be empty for "no balance"/"below step size" paths.
+    # Fall back to outer-scope $quantity (derived from usdtSpent/entryPrice in main loop).
+    if [ -z "$qty" ]; then
+        qty="$quantity"
+    fi
     if [ -z "$exit_price" ] || [ "$exit_price" = "null" ] || [ "$exit_price" = "0" ]; then
         # No actual sell — use SL as approximate exit for P&L estimation
         exit_price="$8"
     fi
-    if [ -z "$pnl" ] || [ "$pnl" = "null" ]; then
-        # Estimate PnL from entry, SL exit price, and quantity (0.1% fee estimate)
+    # FIX (2026-10-25): Always recalculate PnL when exit_price was derived from SL
+    # or when PnL is 0/null — the "no balance" path passes pnl="0" as placeholder,
+    # but the real PnL must be calculated from (SL - entry) * qty * 0.999 (0.1% fee)
+    if [ -z "$pnl" ] || [ "$pnl" = "null" ] || [ "$pnl" = "0" ]; then
         local sl_price="$8"
         pnl=$(awk -v e="$entry" -v x="$sl_price" -v q="$qty" 'BEGIN {printf "%.8f", ((x - e) * q) * 0.999}')
     fi
     if ! trade_already_logged "$coin" "$slot_id" "CLOSED_SL_EMERGENCY"; then
-        SYMBOL="$coin" "$PYTHON" "$WORKSPACE/scripts/log_trade_to_history.py" \
+        # FIX (2026-10-25): Don't suppress stderr — capture it for diagnostics
+        local py_output
+        py_output=$(SYMBOL="$coin" "$PYTHON" "$WORKSPACE/scripts/log_trade_to_history.py" \
             "$slot_id" "CLOSED_SL_EMERGENCY" "$entry" "$exit_price" "$qty" "$pnl" \
-            "" "emergency-close" "$reason" 2>/dev/null || true
-        log "     📜 Trade logged to history: ${coin} slot ${slot_id} ${reason}"
+            "" "emergency-close" "$reason" 2>&1) || true
+        # FIX: Only print "logged to history" if Python actually wrote the trade
+        if echo "$py_output" | grep -q "Trade logged to history"; then
+            log "     📜 Trade logged to history: ${coin} slot ${slot_id} ${reason}"
+        else
+            log "     ⚠️  FAILED to log trade: ${coin} slot ${slot_id} — Python output: ${py_output}"
+        fi
     else
         log "     ⏭️  Trade already in history: ${coin} slot ${slot_id} - skip"
     fi
