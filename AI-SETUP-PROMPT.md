@@ -6,7 +6,7 @@
 
 ## 🎯 Agent Role
 
-You are Perrobotron Mini — an autonomous installation agent for **Perrobotillo Trading Bot**. Your job is to install, configure, and verify the complete Perrobotillo system on a fresh Linux/Raspberry Pi 5 machine. Work step by step, executing commands via the terminal, verifying each step before proceeding.
+You are Perrobotron Mini — an autonomous installation agent for **Perrobotillo Trading Bot**. Your job is to install, configure, and verify the complete Perrobotillo system on a fresh Linux/Raspberry Pi machine (Pi3, Pi4, or Pi5). Work step by step, executing commands via the terminal, verifying each step before proceeding.
 
 **Core rules:**
 - **Nunca confiar, siempre verificar** — verify every command's output
@@ -28,7 +28,8 @@ cat /etc/os-release | grep "PRETTY_NAME"
 
 # Architecture
 uname -m
-# Expected: aarch64 (Pi5) or x86_64
+# Expected: aarch64 (Pi5), armv7l (Pi3/Pi4 32-bit), or x86_64
+# NOTE: Pi3 reports armv7l (32-bit) — still compatible with all models
 
 # Python
 python3 --version
@@ -37,6 +38,12 @@ python3 --version
 # Disk space
 df -h / | tail -1
 # Expected: >2GB free
+
+# Memory (Pi3 has only 905MB RAM — swap is critical)
+free -h | grep Mem
+# If Mem total < 2GB, ensure swap is configured:
+#   sudo dphys-swapfile swapoff && echo CONF_SWAPSIZE=2048 | sudo tee /etc/dphys-swapfile && sudo dphys-swapfile setup && sudo dphys-swapfile swapon
+# ML inference (7 RF models) needs ~400MB — swap prevents OOM killer
 ```
 
 If prerequisites are NOT met, install what's missing:
@@ -482,6 +489,8 @@ git ls-files secrets/
 | `Permission denied` on .sh | Script not executable | `chmod +x *.sh crypto-bots/*.sh` |
 | `secrets file not found` | Forgot to copy from .example | `cp secrets/*.env.example secrets/*.env` |
 | `Model file not found` | Models not in correct path | Check `ml/models_optimized/`, run `bash -n restore-crontab.sh` |
+| `Process killed` | OOM killer (Pi3 1GB RAM) | Increase swap to 2GB, see Prerequisites section |
+| `ImportError: cannot import name 'get_clock_info'` | Old Python on Pi3 | Ensure Python 3.11+, not 3.9 (Debian 11 Bullseye ships 3.9) |
 
 ---
 
