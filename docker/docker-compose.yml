@@ -3,10 +3,9 @@ version: '3.5'
 services:
   ### Jesse's Workspace ################################################
   jesse:
-    image: salehmir/jesse:3.2.3
+    image: salehmir/jesse:3.5.3
     depends_on:
       - postgres
-      - redis
     tty: true
     env_file:
       - ../.env
@@ -21,7 +20,9 @@ services:
     volumes:
       - ../:/home
     container_name: jesse
-    command: bash -c "jesse install-live --no-strict && jesse run"
+    # FIX (2026-10-26): Use 'jesse run' directly — 'jesse install-live --no-strict' causes
+    # circular import when plugin is already installed. Matches jesse-research setup.
+    command: bash -c "jesse run"
 
   ### PostgreSQL ################################################
   postgres:
@@ -35,11 +36,20 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
     container_name: postgres
 
-  ### Redis ################################################
-  redis:
-    image: redis:6-alpine
-    container_name: redis
-    command: redis-server --save "" --appendonly no
-    
+  ### Honeygain ################################################
+  # Docker-rpi5-v2: unique device name to avoid "Network Overused" conflict
+  # with old Docker myPi5-b / Docker myPi3 devices on same public IP
+  # env_file loads credentials from /home/overgon/.honeygain.env (never in git)
+  # ${VAR} interpolation reads from .env (git-ignored) at compose startup
+  honeygain:
+    image: honeygain/honeygain:latest
+    container_name: honeygain-rpi5-v2
+    restart: unless-stopped
+    network_mode: host
+    working_dir: /app
+    env_file:
+      - /home/overgon/.honeygain.env
+    command: ["-tou-accept", "-email", "${HONEYGAIN_EMAIL}", "-pass", "${HONEYGAIN_PASS}", "-device", "Docker-rpi5-v2"]
+
 volumes:
   postgres-data:
