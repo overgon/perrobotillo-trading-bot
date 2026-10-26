@@ -8,7 +8,7 @@ Scheduled via cron:
   - Weekly optimization + deploy gate:   0 3 * * 0 (Sunday 3 AM CST)
   - ML retrain:                          0 3 * * 0 (Sunday 3 AM CST, after opt)
 
-Phase 1 (Daily):   Backtest all 7 coins → compare to baseline → Telegram alert
+Phase 1 (Daily):   Backtest all 8 coins → compare to baseline → Telegram alert
 Phase 2 (Weekly):  Optuna optimization (100 trials) → save best params
 Phase 3 (Weekly):  Deploy gate → if Sharpe improved → commit + git tag
 Phase 4 (Weekly):  ML retrain → validate CV gap → deploy
@@ -44,7 +44,7 @@ os.chdir(PROJECT_ROOT)
 from jesse.research import backtest, get_candles
 from jesse.services.db import database
 
-COINS = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX']
+COINS = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX', 'ZEC']
 EXCHANGE = 'Binance Spot'
 TIMEFRAME = '1h'
 OPTIMIZATION_RESULTS = os.path.join(PROJECT_ROOT, 'research', 'optuna_results.json')
@@ -134,9 +134,9 @@ def run_backtest(candles, routes, data_routes, hyperparams=None):
 
 
 def phase_daily_backtest():
-    """Phase 1: Daily backtest of all 7 coins. Compare to baseline."""
+    """Phase 1: Daily backtest of all 8 coins. Compare to baseline."""
     print("=" * 60)
-    print("  Phase 1: Daily Backtest — All 7 Coins")
+    print("  Phase 1: Daily Backtest — All 8 Coins")
     print("=" * 60)
 
     database.open_connection()
@@ -150,7 +150,10 @@ def phase_daily_backtest():
         loaded = [k for k in candles if k != f'{EXCHANGE}-BTC-USDT']
         print(f"  Loaded candles: {len(loaded)}/{len(coins)} coins")
 
-        routes = build_routes(coins)
+        # Filter to only coins with candles loaded (ZEC may lack historical data)
+        available_symbols = {v['symbol'] for v in candles.values()}
+        coins_with_data = [c for c in coins if f'{c}-USDT' in available_symbols]
+        routes = build_routes(coins_with_data)
         data_routes = build_data_routes()
 
         # Use optimized params if available, else baseline
@@ -244,9 +247,9 @@ def phase_daily_backtest():
 
 
 def phase_optuna_optimize():
-    """Phase 2: Weekly Optuna optimization for all 7 coins."""
+    """Phase 2: Weekly Optuna optimization for all 8 coins."""
     print("=" * 60)
-    print("  Phase 2: Optuna Optimization — All 7 Coins")
+    print("  Phase 2: Optuna Optimization — All 8 Coins")
     print("=" * 60)
 
     import optuna
@@ -331,7 +334,11 @@ def phase_optuna_optimize():
 
         # Validate on test period
         test_candles = load_candles(COINS, test_start, test_end, include_btc=True)
-        result = run_backtest(test_candles, routes, data_routes, best_hp)
+        # Filter routes to only coins with test candles (ZEC may lack data)
+        test_available = {v['symbol'] for v in test_candles.values()}
+        test_coins = [c for c in COINS if f'{c}-USDT' in test_available]
+        test_routes = build_routes(test_coins)
+        result = run_backtest(test_candles, test_routes, data_routes, best_hp)
         test_metrics = result['metrics']
 
         print(f"\n  Test period ({TEST_START.date()} → {TEST_END.date()}):")
@@ -562,7 +569,7 @@ def main():
     if args.phase == 'daily':
         passed = phase_daily_backtest()
         status = '✅ PASS' if passed else '❌ FAIL'
-        msg = f"Daily backtest all 7 coins:\nSharpe={passed}\nStatus: {status}"
+        msg = f"Daily backtest all 8 coins:\nSharpe={passed}\nStatus: {status}"
         send_telegram_report("Perrobotillo CI/CD — Daily Backtest", msg, 'daily')
         sys.exit(0 if passed else 1)
 
