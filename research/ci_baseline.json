@@ -1,6 +1,6 @@
 {
   "description": "Baseline metrics for Perrobotillo strategy CI/CD regression gate. Updated automatically by ci_cd_pipeline.py after each successful deploy.",
-  "version": "3.4.0",
+  "version": "3.5.3",
   "date_established": "2026-10-23",
   "test_period": {
     "start": "2026-03-09",

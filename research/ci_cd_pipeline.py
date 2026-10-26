@@ -337,7 +337,7 @@ def phase_optuna_optimize():
         print(f"\n  Test period ({TEST_START.date()} → {TEST_END.date()}):")
         print(f"    Sharpe:  {test_metrics.get('sharpe_ratio', 0):.3f}")
         print(f"    Net PnL: ${test_metrics.get('net_profit', 0):.2f}")
-        print(f"    Trades:  {test_metrics.get('total_trades', 0)}")
+        print(f"    Trades:  {test_metrics.get('total', 0)}")
 
         # Save results
         output = {
@@ -346,7 +346,7 @@ def phase_optuna_optimize():
             'test_result': {
                 'sharpe_ratio': test_metrics.get('sharpe_ratio', 0),
                 'net_profit': test_metrics.get('net_profit', 0),
-                'total_trades': test_metrics.get('total_trades', 0),
+                'total_trades': test_metrics.get('total', 0),
                 'win_rate': test_metrics.get('win_rate', 0),
             },
             'n_trials': len(study.trials),
@@ -414,7 +414,7 @@ def phase_deploy_gate(opt_results):
         baseline['metrics']['sharpe_ratio'] = test_sharpe
         baseline['metrics']['net_profit'] = test_profit
         baseline['hyperparameters'] = best_hp
-        baseline['version'] = baseline.get('version', '3.4.0')
+        baseline['version'] = baseline.get('version', '3.5.3')
         with open(BASELINE_FILE, 'w') as f:
             json.dump(baseline, f, indent=2)
 
