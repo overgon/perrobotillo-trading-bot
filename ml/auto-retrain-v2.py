@@ -43,9 +43,16 @@ logger = logging.getLogger(__name__)
 # Parámetros de entrenamiento
 DAYS_HISTORICAL = 90  # Aumentado de 60 → 90: LINK/XRP necesitan más samples con 216 features
 MODEL_TYPE = "random_forest"  # random_forest, gradient_boosting, logistic_regression
-USE_SMOTE = True  # Balancear clases automáticamente
+USE_SMOTE = False  # SMOTE causó severe overfitting en LINK (7.18% -> 29.75%). Usar class_weight='balanced' en su lugar.
 
-COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX", "ZEC"]
+
+# ZEC needs more samples due to sparse production trades (43 vs 60+ for other coins)
+# Uses backtest-augmented features CSV + larger training window
+COIN_MIN_SAMPLES = {
+    'ZEC': 500,  # 500 recent + 750 backfill = 1250 samples (vs default 60)
+    # Others use default max(60, last_n * 1.5)
+}
 
 # ════════════════════════════════════════════════════════
 # AUTO RETRAIN
@@ -158,10 +165,18 @@ def run_auto_retrain():
                 if trade_history_path.exists():
                     with open(trade_history_path) as f:
                         current_count = len(json.load(f).get('trades', []))
-                if current_count - last_count > 0:
-                    kwargs['last_n'] = current_count - last_count
+                new_trades = current_count - last_count
+                if new_trades > 0:
+                    kwargs['last_n'] = new_trades
+                # ZEC override: use minimum sample count (backtest-augmented)
+                if coin in COIN_MIN_SAMPLES:
+                    min_s = COIN_MIN_SAMPLES[coin]
+                    kwargs['last_n'] = max(new_trades, min_s)
+                    logger.info(f"{coin}: Using min_samples={min_s} (backtest-augmented features)")
             except Exception:
-                pass
+                if coin in COIN_MIN_SAMPLES:
+                    kwargs['last_n'] = COIN_MIN_SAMPLES[coin]
+                    kwargs.pop('days', None)
             df = pipeline.load_data(**kwargs)
             
             if df is None or len(df) == 0:
