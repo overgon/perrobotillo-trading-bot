@@ -22,14 +22,18 @@ PEAK_FILE="$WORKSPACE/crypto-bots/portfolio-peak.json"  # Track peak portfolio v
 # FUNCIONES
 # ============================================
 
-log() {
-    # ✅ FIX: stderr to avoid polluting stdout captured by $(get_portfolio_value)
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [DRAWDOWN] $1" | tee -a "$LOGS/drawdown-alert.log" >&2
-}
-
-# ✅ BUG #9/#10 FIX: Source centralized notify.sh (Markdown, --data-urlencode)
+# ✅ BUG #9/#10 FIX: Source centralized notify.sh BEFORE log() definition.
+# notify.sh ALSO defines log() — it writes to STDOUT (no >&2 redirect).
+# If sourced AFTER our log(), our stderr-logging get_drawdown_log() gets
+# overridden, and log() inside calculate_drawdown() writes to stdout,
+# polluting the drawdown=$(...) capture with log text → false alert triggers.
 WORKSPACE="$HOME/.openclaw/workspace"
 source "$WORKSPACE/crypto-bots/notify.sh" 2>/dev/null || true
+
+log() {
+    # ✅ FIX: stderr to avoid polluting stdout captured by $(calculate_drawdown)
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [DRAWDOWN] $1" | tee -a "$LOGS/drawdown-alert.log" >&2
+}
 
 get_portfolio_value() {
     # ✅ FIX: Use real API key (not $BINANCE_API_KEY), recvWindow=60000 for timestamp tolerance
@@ -52,7 +56,11 @@ get_portfolio_value() {
     # Extraer balances de USDT y coins
     local usdt_balance=$(echo "$account" | jq -r '.balances[] | select(.asset=="USDT") | .free + .locked' 2>/dev/null || echo "0")
 
-    local coins=("BTC" "ETH" "BNB" "SOL" "ZEC" "XRP" "AVAX")
+    local coins=("BTC" "ETH" "BNB" "SOL" "LINK" "XRP" "AVAX" "ZEC")
+    # ✅ FIX (2026-10-28): Added LINK to coins array. Bot trades 8 coins per
+    # per-coin-config.env (all ENABLED=true), but LINK was missing here, causing
+    # portfolio value to be undercounted by ~$38 USDT and drawdown to be
+    # inflated. This was the root cause of the "inconsistent" drawdown alert.
     local portfolio_value=$usdt_balance
 
     for coin in "${coins[@]}"; do
@@ -172,7 +180,10 @@ _Jefe, es momento de estar atento_ 🐕"
     echo "$_dd_now" >> "$_dd_dedup"
     
 else
-    log "✅ Drawdown dentro de límites (${drawdown}% < ${DRAWDOWN_THRESHOLD}%) — Peak: \$$peak_value USDT"
+    # ✅ FIX (2026-10-28): peak_value is set in subshell by calculate_drawdown,
+    # so it doesn't propagate to this scope. Re-read from peak file.
+    peak_value=$(jq -r '.peak_value // 0' "$PEAK_FILE" 2>/dev/null || echo "0")
+    log "✅ Drawdown dentro de límites (${drawdown}% < ${DRAWDOWN_THRESHOLD}%) — Peak: $peak_value USDT"
 fi
 
 log "Verificación completada"
