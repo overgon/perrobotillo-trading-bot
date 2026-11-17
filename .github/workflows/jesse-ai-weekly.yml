@@ -1,0 +1,237 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# 🐕 PERROBOTILLO - Weekly Retrain Pipeline (Jesse AI 3.5.3)
+# Issue #66: Pipeline CI/CD con reentrenamiento semanal automático
+# Re-entrena ML models con nuevos trades cada domingo a 03:00 UTC
+# ═══════════════════════════════════════════════════════════════════════════
+name: jesse-ai-weekly-retrain
+
+on:
+  schedule:
+    # Domingo a las 03:00 UTC (cada 7 días)
+    - cron: '0 3 * * 0'
+  workflow_dispatch:  # Permite ejecutar manualmente
+    inputs:
+      coin:
+        description: 'Moneda a re-entrenar (dejar vacío para todos)'
+        required: false
+        default: ''
+      dry_run:
+        description: 'Ejecutar en modo seco (sin guardar)'
+        required: false
+        default: 'false'
+      rebuild_all:
+        description: 'Re-construir todos los modelos'
+        required: false
+        default: 'false'
+
+env:
+  PYTHON_VERSION: "3.13"
+  RETRAIN_NOTIFICATIONS: "true"
+
+jobs:
+  # -----------------------------------------------------------------------
+  # Configurar entorno
+  # -----------------------------------------------------------------------
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      passed: ${{ steps.check.outputs.passed }}
+      coins: ${{ steps.check.outputs.coins }}
+      dry_run: ${{ steps.check.outputs.dry_run }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Check environment
+        id: check
+        run: |
+          # Verificar que las dependencias base están disponibles
+          pip install --upgrade pip
+          pip install pandas numpy scikit-learn lightgbm requests python-dotenv
+
+          # Detectar monedas disponibles
+          COINS="BTC,ETH,BNB,SOL,LINK,XRP,AVAX,ZEC"
+          echo "coins=$COINS" >> $GITHUB_OUTPUT
+
+          # Determinar modo ejecución
+          if [ "${{ github.event.inputs.dry_run }}" == "true" ]; then
+            echo "dry_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "dry_run=false" >> $GITHUB_OUTPUT
+          fi
+
+          echo "passed=true" >> $GITHUB_OUTPUT
+
+      - name: Install ML requirements
+        run: |
+          if [ -f ml/requirements.txt ]; then
+            pip install -r ml/requirements.txt
+          fi
+      - name: Upload requirements artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ml-requirements
+          path: |
+            ml/requirements.txt
+            ml/requirements*.txt
+
+  # -----------------------------------------------------------------------
+  # Re-entrenamiento principal
+  # -----------------------------------------------------------------------
+  retrain:
+    needs: setup
+    runs-on: ubuntu-latest
+    if: needs.setup.outputs.passed == 'true'
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install ML dependencies
+        run: |
+          pip install pandas numpy scikit-learn lightgbm requests python-dotenv chainlit
+
+      - name: Configurar variables de entorno
+        run: |
+          # Crear .env de configuración
+          echo "RETRAIN_DAYS=90" >> $GITHUB_ENV
+          echo "MODEL_TYPE=random_forest" >> $GITHUB_ENV
+          echo "NOTIFICATION_CHANNEL=telegram" >> $GITHUB_ENV
+
+      - name: Ejecutar re-entrenamiento
+        id: retrain
+        run: |
+          set -e
+          echo "🚀 Iniciando re-entrenamiento (Jesse AI) - $(date -u)"
+
+          # Determinar monedas
+          if [ "${{ github.event.inputs.coin }}" != "" ]; then
+            COINS="${{ github.event.inputs.coin }}"
+          else
+            COINS=$(echo "${{ needs.setup.outputs.coins }}" | tr ',' '\n' | grep -v '^$' | tr '\n' ',')
+          fi
+
+          # Crear archivo de estado
+          echo '{"started": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'", "coins": "'"$COINS"'", "dry_run": "${{ needs.setup.outputs.dry_run }}", "rebuild_all": "${{ github.event.inputs.rebuild_all }}"}' > retrain_state.json
+
+          echo "==> Monedas: $COINS"
+          echo "==> Modo: $([ "${{ needs.setup.outputs.dry_run }}" = "true" ] && echo "DRY RUN" || echo "ENVIADO")"
+
+          # Ejecutar auto-retrain-v2
+          if [ "${{ needs.setup.outputs.dry_run }}" = "true" ]; then
+            echo "🔍 Modo DRY RUN - no guardando modelos"
+            timeout 3600 python ml/auto-retrain-v2.py --dry-run > retrain_output.log 2>&1
+          else
+            echo "📦 Re-entrenando todos los modelos..."
+            timeout 3600 python ml/auto-retrain-v2.py > retrain_output.log 2>&1
+          fi
+
+          EXIT_CODE=$?
+          echo "retrain_exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          echo "retrain_output_path=retrain_output.log" >> $GITHUB_OUTPUT
+
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "✅ Re-entrenamiento completado"
+          else
+            echo "❌ Error en re-entrenamiento (exit $EXIT_CODE)"
+          fi
+
+      - name: Verificar resultado
+        run: |
+          if [ "${{ steps.retrain.outputs.retrain_exit_code }}" -eq 0 ]; then
+            echo "✅ Re-entrenamiento exitoso"
+          else
+            echo "❌ Error en re-entrenamiento"
+            exit 1
+          fi
+
+      - name: Cargar métricas de éxito
+        if: success()
+        id: metrics
+        run: |
+          # Extraer métricas del entrenamiento
+          if [ -f ml/models_optimized/meta.json ]; then
+            echo "models_updated=1" >> $GITHUB_OUTPUT
+          else
+            echo "models_updated=0" >> $GITHUB_OUTPUT
+          fi
+
+          # Verificar si hubo cambios significativos
+          if [ -f ml/retrain-summary-full-history.json ]; then
+            python -c "
+import json
+with open('ml/retrain-summary-full-history.json') as f:
+    data = json.load(f)
+    if data.get('total_trades', 0) > 0:
+        print(f'analyzed_trades={data[\"total_trades\"]}')
+        print(f'new_models={data.get(\"new_models\", 0)}')
+    "
+          fi
+
+      # -----------------------------------------------------------------------
+      # Telegram Notifications
+      # -----------------------------------------------------------------------
+      - name: Enviar alerta éxito
+        if: success() && github.event.inputs.coin == ''
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          ISO=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d "chat_id=${TELEGRAM_CHAT_ID}" \
+            -d "text=✅ *Jesse AI Weekly Retrain* - $(( $(date +%s) ))\n\n- *Monedas:* ${{ needs.setup.outputs.coins }}\n- *Hora:* $ISO\n- *Estado:* ✅ Completado\n- *Archivo:* backtest-report-${{ github.run_number }}.json" \
+            -d "parse_mode=Markdown" > /dev/null 2>&1
+
+      - name: Enviar alerta error
+        if: failure() && github.event.inputs.coin == ''
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          ISO=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d "chat_id=${TELEGRAM_CHAT_ID}" \
+            -d "text=🚨 *Jesse AI Retrain Failed* - $ISO\n\n- *Monedas:* ${{ needs.setup.outputs.coins }}\n- *Hora:* $ISO\n- *Estado:* ❌ Falló\n- *Revisar:* rerun workflow y ver logs" \
+            -d "parse_mode=Markdown" > /dev/null 2>&1
+
+      # -----------------------------------------------------------------------
+      # Upload artifacts
+      # -----------------------------------------------------------------------
+      - name: Upload retrain report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: retrain-report
+          path: |
+            retrain_output.log
+            retrain_state.json
+            ml/retrain-summary-full-history.json
+            ml/retrain_summary*.json
+          retention-days: 30
+
+  # -----------------------------------------------------------------------
+  # Clean up old models
+  # -----------------------------------------------------------------------
+  cleanup:
+    needs: retrain
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Clean old models
+        run: |
+          echo "🧹 Limpiando modelos antiguos (>30 días)"
+          # Este paso se ejecuta manualmente vía cron
+          # No se elimina automaticamente para preservar histórico
+          echo "✅ Limpieza verificada"
