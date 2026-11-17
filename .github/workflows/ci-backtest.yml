@@ -1,0 +1,97 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# 🐕 PERROBOTILLO - CI (Jesse AI 3.5.3) — Backtest Gate
+# Issue #66: Pipeline CI/CD con backtest gate + regression check
+# Triggered en PR/push a strategies/, research/, routes.py
+# ═══════════════════════════════════════════════════════════════════════════
+name: ci-backtest
+
+on:
+  pull_request:
+    paths:
+      - "strategies/**"
+      - "research/**"
+      - "routes.py"
+      - ".github/workflows/ci-backtest.yml"
+  push:
+    branches: [master]
+    paths:
+      - "strategies/**"
+      - "research/**"
+      - "routes.py"
+
+env:
+  PYTHON_VERSION: "3.13"
+  BACKTEST_DAYS: 14
+  BACKTEST_SYMBOL: "BNBUSDT"
+
+jobs:
+  # -----------------------------------------------------------------------
+  # Instalar entorno
+  # -----------------------------------------------------------------------
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      passed: ${{ steps.backtest.outputs.passed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas numpy scipy scikit-learn lightgbm requests psycopg2-binary
+
+      - name: Start PostgreSQL (service) + wait
+        run: |
+          sudo systemctl start postgresql
+          sudo systemctl enable postgresql
+          for i in $(seq 1 30); do
+            pg_isready -h localhost -U postgres && break
+            sleep 2
+          done
+          psql -c "SELECT 1" -h localhost -U postgres
+
+      - name: Backtest gate
+        id: backtest
+        env:
+          BACKTEST_DAYS: ${{ env.BACKTEST_DAYS }}
+          BACKTEST_SYMBOL: ${{ env.BACKTEST_SYMBOL }}
+        run: |
+          python research/run_full_backtest.py --symbol "$BACKTEST_SYMBOL" --days "$BACKTEST_DAYS" > backtest.json
+          python research/ci_backtest_gate.py backtest.json
+          echo "passed=$(python research/ci_backtest_gate.py backtest.json --json)" >> $GITHUB_OUTPUT
+
+      - name: Upload backtest artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backtest-report
+          path: backtest.json
+
+  # -----------------------------------------------------------------------
+  # Regresión
+  # -----------------------------------------------------------------------
+  regression:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: |
+          pip install pandas numpy scipy scikit-learn lightgbm requests
+      - name: Regresión check
+        run: |
+          if [ "${{ needs.setup.outputs.passed }}" != "true" ]; then
+            echo "❌ Backtest gate falló (regression ≥ threshold)"
+            exit 1
+          fi
+          echo "✅ Backtest pasó (Sharpe Δ ≥ -0.3, PnL drop ≤ 15%, win rate ≥ 40%)"
+
+  # -----------------------------------------------------------------------
+  # Nota: deploy-gate se ejecuta en el CD (cron en el Pi), no aquí.
+  # -----------------------------------------------------------------------
