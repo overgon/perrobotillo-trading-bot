@@ -274,7 +274,7 @@ class OptimizedMLPipeline:
         if self.use_feature_selection:
             # LINK: excluir features de volumen para reducir overfitting ruidoso
             # ZEC: added as LINK's parallel — same volume noise issue with sparse data
-            if self.coin in ('LINK', 'ZEC'):
+            if self.coin in ('LINK', 'ZEC', 'AVAX'):
                 vol_features = [c for c in feature_cols_clean if 'volume' in c.lower()]
                 non_vol_features = [c for c in feature_cols_clean if c not in vol_features]
                 if non_vol_features:
