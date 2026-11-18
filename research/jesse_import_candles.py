@@ -174,6 +174,12 @@ def main() -> None:
 
     print(f"\n=== Resumen ===\n  ✅ {ok}\n  ❌ {fail}")
 
+    # CI (#66): si alguna moneda falló, salir con código 1. Antes se imprimía el
+    # resumen y se salía con 0, así que el step de importación quedaba "verde"
+    # con 0 velas y el error explotaba dos steps después (CandleNotFoundInDatabase).
+    if fail:
+        sys.exit(1)
+
 
 if __name__ == '__main__':
     main()

@@ -93,7 +93,10 @@ jobs:
 
       - name: Backtest gate
         run: |
-          python research/run_full_backtest.py --symbol "$BACKTEST_SYMBOL" --days "$BACKTEST_DAYS" --out backtest.json
+          # --slippage-bps 5 para que el fee efectivo (0.15%) sea el mismo con el
+          # que se generó research/ci_baseline.json. Sin esta flag el backtest
+          # usaba 0.10% y el gate comparaba contra un baseline distinto.
+          python research/run_full_backtest.py --symbol "$BACKTEST_SYMBOL" --days "$BACKTEST_DAYS" --slippage-bps 5 --out backtest.json
           python research/ci_backtest_gate.py backtest.json
         env:
           BACKTEST_DAYS: ${{ env.BACKTEST_DAYS }}
