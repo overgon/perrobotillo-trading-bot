@@ -1,20 +1,21 @@
 {
-  "Sharpe": 0.47838605691525427,
-  "totalPnL": 787.4020016211571,
-  "winRate": 0.4794520547945205,
-  "source": "research/run_full_backtest.py --symbol ALL --days 90 (data limpia 2026-11-18)",
+  "Sharpe": 2.8029634077433854,
+  "totalPnL": 4381.909925427454,
+  "winRate": 0.6666666666666666,
+  "source": "research/run_full_backtest.py --symbol ALL --days 90 --slippage-bps 5 (config proxy, sin modelo ML)",
   "period": {
     "start": "2026-08-20",
     "end": "2026-11-18"
   },
-  "generated_at": "2026-11-18T14:48:58.441993",
+  "generated_at": "2026-11-18T16:05:18.924998",
   "metrics": {
-    "Sharpe": 0.47838605691525427,
-    "totalPnL": 787.4020016211571,
-    "winRate": 0.4794520547945205,
-    "totalTrades": 73,
-    "netProfitPct": 0.9842525020264463,
-    "maxDrawdown": -4.0166349866963325,
-    "calmar": 0.9249703540771365
-  }
+    "Sharpe": 2.8029634077433854,
+    "totalPnL": 4381.909925427454,
+    "winRate": 0.6666666666666666,
+    "totalTrades": 33,
+    "netProfitPct": 5.477387406784318,
+    "maxDrawdown": -0.8027590275523022,
+    "calmar": 27.36943974906772
+  },
+  "nota": "Los modelos ML (strategies/perrobotillo/ml_data/model_*) estan en .gitignore y no existen en un checkout limpio; el CI corre la estrategia en modo proxy determinista. Este baseline reproduce ese modo (verificado: local sin modelo == CI, 33 trades)."
 }
