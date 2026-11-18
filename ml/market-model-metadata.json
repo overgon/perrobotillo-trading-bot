@@ -1,6 +1,6 @@
 {
-  "accuracy": 0.9970238095238095,
-  "trained_at": "2026-07-26T06:59:04.070693",
+  "accuracy": 0.9910714285714286,
+  "trained_at": "2026-11-18T13:56:33.962807",
   "version": "1.0.0",
   "feature_cols": [
     "rsi",
@@ -26,7 +26,8 @@
   "classes": [
     "BEAR",
     "BULL",
-    "LATERAL"
+    "LATERAL",
+    "LATERAL_BULL"
   ],
   "n_samples": 3360
 }

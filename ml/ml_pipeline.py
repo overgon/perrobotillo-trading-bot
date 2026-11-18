@@ -38,7 +38,7 @@ REPORTS_DIR = ML_DIR / "reports"
 for dir_path in [MODELS_DIR, FEATURES_DIR, REPORTS_DIR]:
     dir_path.mkdir(parents=True, exist_ok=True)
 
-COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX", "ZEC"]
 
 # ════════════════════════════════════════════════════════
 # ML PIPELINE CLASS

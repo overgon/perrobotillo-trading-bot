@@ -1,20 +1,20 @@
 {
-  "Sharpe": 0.47579516481441086,
-  "totalPnL": 2510.1930894138286,
-  "winRate": 0.5,
-  "source": "research/run_full_backtest.py --symbol ALL --days 90",
+  "Sharpe": 0.47838605691525427,
+  "totalPnL": 787.4020016211571,
+  "winRate": 0.4794520547945205,
+  "source": "research/run_full_backtest.py --symbol ALL --days 90 (data limpia 2026-11-18)",
   "period": {
-    "start": "2026-08-19",
-    "end": "2026-11-17"
+    "start": "2026-08-20",
+    "end": "2026-11-18"
   },
-  "generated_at": "2026-11-17T17:34:48.816975",
+  "generated_at": "2026-11-18T14:48:58.441993",
   "metrics": {
-    "Sharpe": 0.47579516481441086,
-    "totalPnL": 2510.1930894138286,
-    "winRate": 0.5,
-    "totalTrades": 8,
-    "netProfitPct": 3.1377413617672856,
-    "maxDrawdown": -31.777805512326452,
-    "calmar": 0.38376062301725306
+    "Sharpe": 0.47838605691525427,
+    "totalPnL": 787.4020016211571,
+    "winRate": 0.4794520547945205,
+    "totalTrades": 73,
+    "netProfitPct": 0.9842525020264463,
+    "maxDrawdown": -4.0166349866963325,
+    "calmar": 0.9249703540771365
   }
 }

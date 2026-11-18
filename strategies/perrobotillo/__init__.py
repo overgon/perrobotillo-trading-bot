@@ -11,7 +11,7 @@ Entry logic:
 
 Exit logic:
   - TP1 (35%): primer take profit
-  - TP2 (30%): segundo take profit
+  - TP2 (35%): segundo take profit
   - TP3 (30%): tercer take profit
   - SL: stop loss basado en market mode
 
@@ -29,6 +29,7 @@ from jesse.strategies import Strategy, cached
 import jesse.indicators as ta
 from jesse import utils
 import os
+from pathlib import Path
 import numpy as np
 
 
@@ -55,9 +56,95 @@ COIN_OVERRIDES = {
     'AVAX': {'tp1': 2.5,  'tp2': 5.0,  'tp3': 7.5,  'sl': 2.0,  'pos': 10, 'ml_min': 35},
 }
 
-# TP allocation percentages (35% / 30% / 30%)
+# ============================================================================
+# CONFIG DE PRODUCCIÓN (fuente autoritativa)
+# ============================================================================
+# Lee crypto-bots/per-coin-config.env y crypto-bots/market-mode.conf. Si no
+# existen, se usan los COIN_OVERRIDES/MODE_PARAMS de arriba.
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _parse_env_file(path: Path) -> dict:
+    values = {}
+    try:
+        text = path.read_text()
+    except OSError:
+        return values
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith('#') or '=' not in line:
+            continue
+        key, value = line.split('=', 1)
+        values[key.strip()] = value.strip().strip('"').strip("'")
+    return values
+
+
+def _load_production_config() -> tuple:
+    per_coin_raw = _parse_env_file(_PROJECT_ROOT / 'crypto-bots' / 'per-coin-config.env')
+    market_raw = _parse_env_file(_PROJECT_ROOT / 'crypto-bots' / 'market-mode.conf')
+
+    coin_keys = {'tp1': 'TP1', 'tp2': 'TP2', 'tp3': 'TP3',
+                 'sl': 'SL', 'pos': 'POSITION_SIZE', 'ml_min': 'ML_MIN_CONFIDENCE'}
+    prod_coin = {}
+    for coin in ('BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX', 'ZEC'):
+        entry = {}
+        for cfg_key, env_key in coin_keys.items():
+            raw = per_coin_raw.get(f'{coin}_{env_key}')
+            if raw is None:
+                continue
+            try:
+                entry[cfg_key] = float(raw)
+            except ValueError:
+                continue
+        if entry:
+            prod_coin[coin] = entry
+
+    prod_global = {}
+    for cfg_key, env_key in (('tp1', 'TP1'), ('tp2', 'TP2'), ('tp3', 'TP3'),
+                             ('sl', 'SL'), ('pos', 'POSITION_SIZE')):
+        raw = market_raw.get(env_key)
+        if raw is None:
+            continue
+        try:
+            prod_global[cfg_key] = float(raw)
+        except ValueError:
+            continue
+    prod_global['trailing'] = market_raw.get('TRAILING_STOP', '').lower() in ('true', '1', 'yes')
+    return prod_coin, prod_global
+
+
+_PROD_COIN, _PROD_GLOBAL = _load_production_config()
+
+# ============================================================================
+# MODELO ML REAL (research lab)
+# ============================================================================
+# Los modelos se entrenan en strategies/perrobotillo/ml_data/model_{COIN}/.
+# Se cachean por moneda; si faltan o fallan, se cae al proxy técnico.
+_ML_MODEL_CACHE = {}
+
+
+def _load_ml_model(coin: str):
+    if coin in _ML_MODEL_CACHE:
+        return _ML_MODEL_CACHE[coin]
+    model_dir = _PROJECT_ROOT / 'strategies' / 'perrobotillo' / 'ml_data' / f'model_{coin}'
+    model_path = model_dir / 'model.pkl'
+    scaler_path = model_dir / 'scaler.pkl'
+    if not model_path.exists():
+        _ML_MODEL_CACHE[coin] = None
+        return None
+    try:
+        import joblib
+        model = joblib.load(model_path)
+        scaler = joblib.load(scaler_path) if scaler_path.exists() else None
+        _ML_MODEL_CACHE[coin] = (model, scaler)
+    except Exception:  # noqa: BLE001
+        _ML_MODEL_CACHE[coin] = None
+    return _ML_MODEL_CACHE[coin]
+
+
+# TP allocation percentages (35% / 35% / 30% = 100%)
 TP1_PCT = 0.35
-TP2_PCT = 0.30
+TP2_PCT = 0.35
 TP3_PCT = 0.30
 
 # In production, BTC is suspended due to ML model review (issue #30)
@@ -165,22 +252,30 @@ class perrobotillo(Strategy):
 
     @property
     def per_coin_config(self):
-        """Get per-coin overrides, falling back to market mode defaults."""
+        """
+        Config efectiva por moneda. Jerarquía:
+          1. MODE_PARAMS según el modo detectado
+          2. COIN_OVERRIDES (hardcodeado, respaldo)
+          3. market-mode.conf (global de producción)
+          4. per-coin-config.env (por moneda, gana sobre el global)
+          5. self.hp SOLO si JESSE_HP_OVERRIDE=1 (Optuna/investigación)
+        """
         coin = self.coin
-        cfg = COIN_OVERRIDES.get(coin, {})
         mode = self.detected_market_mode
-        mode_cfg = MODE_PARAMS[mode]
+        cfg = dict(MODE_PARAMS.get(mode, MODE_PARAMS['LATERAL']))
+        cfg.update(COIN_OVERRIDES.get(coin, {}))
+        cfg.update(_PROD_GLOBAL)
+        cfg.update(_PROD_COIN.get(coin, {}))
 
-        result = {
-            'tp1': cfg.get('tp1', mode_cfg['tp1']),
-            'tp2': cfg.get('tp2', mode_cfg['tp2']),
-            'tp3': cfg.get('tp3', mode_cfg['tp3']),
-            'sl': cfg.get('sl', mode_cfg['sl']),
-            'pos': cfg.get('pos', mode_cfg['pos']),
-            'ml_min': cfg.get('ml_min', 40),
-            'trailing': mode_cfg['trailing'],
-        }
-        return result
+        if os.environ.get('JESSE_HP_OVERRIDE') == '1':
+            hp = getattr(self, 'hp', None) or {}
+            for cfg_key, hp_key in (('tp1', 'tp1_percent'), ('tp2', 'tp2_percent'),
+                                    ('tp3', 'tp3_percent'), ('sl', 'stop_loss_percent'),
+                                    ('pos', 'position_size_percent'),
+                                    ('ml_min', 'ml_min_confidence')):
+                if hp_key in hp:
+                    cfg[cfg_key] = hp[hp_key]
+        return cfg
 
     @property
     def detected_market_mode(self):
@@ -361,6 +456,28 @@ class perrobotillo(Strategy):
         score = float(np.clip(score, 0, 100))
         return score
 
+    def ml_model_confidence(self) -> float:
+        """
+        Confianza 0-100 del modelo ML real (model_{COIN}).
+        Si no hay modelo o el feature vector no coincide, cae al proxy.
+        """
+        loaded = _load_ml_model(self.coin)
+        if loaded is None:
+            return self.ml_confidence_proxy()
+        model, scaler = loaded
+        try:
+            features = self.get_ml_features()
+            names = sorted(features.keys())
+            X = np.array([[float(features[n]) for n in names]], dtype=float)
+            if scaler is not None:
+                X = scaler.transform(X)
+            proba = np.asarray(model.predict_proba(X))[0]
+            classes = list(getattr(model, 'classes_', [0, 1]))
+            idx = classes.index(1) if 1 in classes else len(proba) - 1
+            return float(np.clip(proba[idx] * 100.0, 0.0, 100.0))
+        except Exception:  # noqa: BLE001
+            return self.ml_confidence_proxy()
+
     # ------------------------------------------------------------------ #
     # JESSE STRATEGY METHODS
     # ------------------------------------------------------------------ #
@@ -374,9 +491,9 @@ class perrobotillo(Strategy):
         return True
 
     def filter_ml_proxy(self):
-        """ML validator proxy: reject if confidence below threshold."""
-        score = self.ml_confidence_proxy()
-        ml_min = self.hp.get('ml_min_confidence', 40)
+        """ML validator: modelo real con fallback al proxy técnico."""
+        score = self.ml_model_confidence()
+        ml_min = self.per_coin_config['ml_min']
         return score >= ml_min
 
     def should_long(self) -> bool:
@@ -386,9 +503,13 @@ class perrobotillo(Strategy):
         if not self.is_coin_enabled(coin):
             return False
 
-        # ML validator proxy
-        score = self.ml_confidence_proxy()
-        ml_min = self.hp.get('ml_min_confidence', 40)
+        # No piramidar: una sola posición abierta por símbolo
+        if self.position.is_long:
+            return False
+
+        # ML validator (modelo real / proxy)
+        score = self.ml_model_confidence()
+        ml_min = self.per_coin_config['ml_min']
 
         if score < ml_min:
             return False
@@ -407,7 +528,10 @@ class perrobotillo(Strategy):
         return False
 
     def should_cancel_entry(self) -> bool:
-        return True
+        """Cancelar la entrada pendiente si el setup deja de ser válido."""
+        if not getattr(self, 'entry_orders', None):
+            return False
+        return self.ml_model_confidence() < self.per_coin_config['ml_min']
 
     def is_coin_enabled(self, coin: str) -> bool:
         """Check per-coin enabled status."""
@@ -418,12 +542,12 @@ class perrobotillo(Strategy):
     def go_long(self):
         """
         Entry: market order at current price.
-        Sets TP1 (35%), TP2 (30%), TP3 (30%), and SL.
+        Sets TP1 (35%), TP2 (35%), TP3 (30%), and SL.
         For spot trading, TPs and SL go in on_open_position(), not go_long().
         """
         entry_price = self.price
         balance = self.balance
-        position_percent = self.hp.get('position_size_percent', 10.0)
+        position_percent = self.per_coin_config['pos']
 
         # Calculate order value and quantity
         order_value = balance * (position_percent / 100)
@@ -437,15 +561,17 @@ class perrobotillo(Strategy):
         entry_price = self.average_entry_price
         qty = self.position.qty
 
-        # TP levels (from hyperparameters for Optuna optimization)
-        tp1_price = entry_price * (1 + self.hp.get('tp1_percent', 3.0) / 100)
-        tp2_price = entry_price * (1 + self.hp.get('tp2_percent', 6.0) / 100)
-        tp3_price = entry_price * (1 + self.hp.get('tp3_percent', 9.0) / 100)
+        cfg = self.per_coin_config
+
+        # TP levels (config de producción / JESSE_HP_OVERRIDE)
+        tp1_price = entry_price * (1 + cfg['tp1'] / 100)
+        tp2_price = entry_price * (1 + cfg['tp2'] / 100)
+        tp3_price = entry_price * (1 + cfg['tp3'] / 100)
 
         # Stop loss
-        sl_price = entry_price * (1 - self.hp.get('stop_loss_percent', 3.5) / 100)
+        sl_price = entry_price * (1 - cfg['sl'] / 100)
 
-        # Partial take profits: 35% / 30% / 30%
+        # Partial take profits: 35% / 35% / 30%
         qty_tp1 = qty * TP1_PCT
         qty_tp2 = qty * TP2_PCT
         qty_tp3 = qty * TP3_PCT
@@ -457,6 +583,12 @@ class perrobotillo(Strategy):
         ]
         self.stop_loss = qty, sl_price
 
+        # Seguimiento para stop a breakeven tras TP1
+        self._initial_qty = qty
+        self._entry_price = entry_price
+        self._current_sl_price = sl_price
+        self._tp1_filled = False
+
     def on_close_position(self, order, closed_trade):
         """En modo gather el label es la dirección futura; no etiquetamos por trade."""
         pass
@@ -465,20 +597,33 @@ class perrobotillo(Strategy):
         pass
 
     def update_position(self):
-        """Trailing stop logic (ATR-based, when enabled)."""
+        """Stop a breakeven tras TP1 + trailing stop (ATR) si está habilitado."""
+        if not self.position.is_long:
+            return
+
         cfg = self.per_coin_config
 
-        if cfg.get('trailing', False) and self.position.is_long:
+        # 1) Tras el primer take profit, mover el stop a breakeven (entry + fee)
+        if not getattr(self, '_tp1_filled', False) and getattr(self, '_initial_qty', 0) > 0:
+            if self.position.qty <= self._initial_qty * (1 - TP1_PCT) + 1e-6:
+                self._tp1_filled = True
+                be_price = self._entry_price * (1 + self.fee_rate)
+                # Solo re-submetemos el SL si queda por debajo del precio actual
+                # (STOP). Si el precio ya está por debajo del SL original, deja
+                # que el STOP original dispare: re-submetir como LIMIT solaparía
+                # con los TP y Jesse lo rechaza con InsufficientBalance.
+                if be_price < self.price and self.price > self._current_sl_price:
+                    self._current_sl_price = be_price
+                    self.stop_loss = self.position.qty, be_price
+                    return
+
+        # 2) Trailing stop (opcional): nunca bajar el stop actual
+        if cfg.get('trailing', False):
             current_atr = self.atr
-            entry_price = self.average_entry_price
             current_price = self.price
-
-            # Trailing stop at 2x ATR below current price
             trailing_sl = current_price - (current_atr * 2)
-
-            # Only move SL up, never down
-            current_sl = entry_price * (1 - cfg['sl'] / 100)
-            if trailing_sl > current_sl:
+            if trailing_sl > self._current_sl_price:
+                self._current_sl_price = trailing_sl
                 self.stop_loss = self.position.qty, trailing_sl
 
     def before(self):
@@ -507,14 +652,19 @@ class perrobotillo(Strategy):
         pass
 
     def hyperparameters(self):
-        """Hyperparameters para Optuna optimization."""
+        """
+        Hyperparameters para Optuna/investigación.
+
+        Nota: los TP/SL/posición/ml_min de producción mandan a menos que
+        JESSE_HP_OVERRIDE=1. Los de indicadores (ema/rsi/adx) sí se usan.
+        """
         return [
             {'name': 'tp1_percent', 'type': float, 'min': 1.0, 'max': 10.0, 'default': 3.0},
-            {'name': 'tp2_percent', 'type': float, 'min': 2.0, 'max': 15.0, 'default': 14.4},
-            {'name': 'tp3_percent', 'type': float, 'min': 3.0, 'max': 20.0, 'default': 18.2},
-            {'name': 'stop_loss_percent', 'type': float, 'min': 1.0, 'max': 10.0, 'default': 7.2},
-            {'name': 'position_size_percent', 'type': float, 'min': 5.0, 'max': 30.0, 'default': 18.0},
-            {'name': 'ml_min_confidence', 'type': float, 'min': 40.0, 'max': 90.0, 'default': 55.0},
+            {'name': 'tp2_percent', 'type': float, 'min': 2.0, 'max': 15.0, 'default': 6.0},
+            {'name': 'tp3_percent', 'type': float, 'min': 3.0, 'max': 20.0, 'default': 9.0},
+            {'name': 'stop_loss_percent', 'type': float, 'min': 1.0, 'max': 10.0, 'default': 3.5},
+            {'name': 'position_size_percent', 'type': float, 'min': 5.0, 'max': 30.0, 'default': 10.0},
+            {'name': 'ml_min_confidence', 'type': float, 'min': 40.0, 'max': 90.0, 'default': 45.0},
             {'name': 'ema_fast', 'type': int, 'min': 5, 'max': 50, 'default': 12},
             {'name': 'ema_slow', 'type': int, 'min': 20, 'max': 200, 'default': 140},
             {'name': 'rsi_overbought', 'type': int, 'min': 60, 'max': 85, 'default': 75},
@@ -644,8 +794,5 @@ class perrobotillo(Strategy):
         features['fear_greed'] = float(self.fear_greed_proxy)
         mode_map = {'BEAR': 0, 'LATERAL': 1, 'BULL': 2, 'VOLATILE_BEAR': 3, 'VOLATILE_BULL': 4, 'LATERAL_BULL': 5}
         features['market_mode'] = mode_map.get(self.detected_market_mode, 1)
-
-        # Confidence score (ML proxy)
-        features['confidence_score'] = float(self.ml_confidence_proxy())
 
         return features

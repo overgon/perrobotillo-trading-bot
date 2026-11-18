@@ -137,6 +137,48 @@ def sanitize_data_points(data_points: list) -> list:
     return clean
 
 
+def walk_forward_evaluation(data_points: list, estimator_factory, n_splits: int = 5) -> list:
+    """Evaluación walk-forward: entrena en el prefijo y prueba en la siguiente ventana.
+
+    Más honesta que un solo split temporal: mide cómo se degrada el modelo
+    sobre ventanas futuras contiguas.
+    """
+    from sklearn.metrics import accuracy_score, matthews_corrcoef, roc_auc_score
+    from sklearn.preprocessing import StandardScaler
+
+    data_points = sorted(data_points, key=lambda p: p['time'])
+    if len(data_points) < 100:
+        return []
+    names = sorted(data_points[0]['features'].keys())
+    n = len(data_points)
+    fold_size = max(20, n // (n_splits + 1))
+    results = []
+    for i in range(n_splits):
+        cut = n - (n_splits - i) * fold_size
+        train = data_points[:cut]
+        test = data_points[cut:cut + fold_size]
+        if len(train) < 100 or len(test) < 20:
+            continue
+        Xtr = np.array([[p['features'].get(f, 0.0) for f in names] for p in train], dtype=float)
+        ytr = np.array([1 if p['label']['value'] else 0 for p in train], dtype=int)
+        Xte = np.array([[p['features'].get(f, 0.0) for f in names] for p in test], dtype=float)
+        yte = np.array([1 if p['label']['value'] else 0 for p in test], dtype=int)
+        scaler = StandardScaler().fit(Xtr)
+        est = estimator_factory()
+        est.fit(scaler.transform(Xtr), ytr)
+        proba = np.asarray(est.predict_proba(scaler.transform(Xte)))[:, 1]
+        pred = (proba >= 0.5).astype(int)
+        results.append({
+            'fold': i + 1,
+            'train_size': len(train),
+            'test_size': len(test),
+            'accuracy': float(accuracy_score(yte, pred)),
+            'roc_auc': float(roc_auc_score(yte, proba)) if len(set(yte.tolist())) > 1 else None,
+            'mcc': float(matthews_corrcoef(yte, pred)),
+        })
+    return results
+
+
 def fetch_candles(symbol: str, start_ms: int, end_ms: int) -> np.ndarray:
     c = get_candles(EXCHANGE, symbol, '1m', start_ms, end_ms)
     if isinstance(c, tuple):
@@ -147,7 +189,8 @@ def fetch_candles(symbol: str, start_ms: int, end_ms: int) -> np.ndarray:
 
 
 def train_coin(coin: str, start_ms: int, end_ms: int, warmup: int, test_ratio: float,
-               model_kind: str, verbose: bool) -> dict:
+               model_kind: str, verbose: bool, walk_forward: bool = False,
+               wf_splits: int = 5) -> dict:
     symbol = f'{coin}-USDT'
     print(f"\n{'=' * 60}\n🤖 {symbol}\n{'=' * 60}")
 
@@ -191,6 +234,9 @@ def train_coin(coin: str, start_ms: int, end_ms: int, warmup: int, test_ratio: f
         'metrics': result.get('metrics'),
         'class_weights': result.get('class_weights'),
         'backtest_metrics': bt.get('metrics'),
+        'walk_forward': walk_forward_evaluation(
+            data_points, lambda: make_estimator(model_kind), n_splits=wf_splits
+        ) if walk_forward else [],
         'created_at': datetime.now().isoformat(),
     }
     (ML_DIR / f'metrics_{coin}.json').write_text(json.dumps(metrics, indent=2, default=float))
@@ -207,6 +253,8 @@ def main() -> None:
     ap.add_argument('--test-ratio', type=float, default=0.2)
     ap.add_argument('--model', default='rf', choices=['rf', 'gbm', 'lr'])
     ap.add_argument('--fast', action='store_true', help='omite el reporte costoso de importancia por feature')
+    ap.add_argument('--walk-forward', action='store_true', help='evaluación walk-forward (ventanas contiguas)')
+    ap.add_argument('--wf-splits', type=int, default=5, help='número de ventanas walk-forward')
     ap.add_argument('--quiet', action='store_true')
     args = ap.parse_args()
 
@@ -224,7 +272,8 @@ def main() -> None:
     for coin in coins:
         try:
             summary[coin] = train_coin(coin, start_ms, end_ms, args.warmup,
-                                       args.test_ratio, args.model, verbose=not args.quiet)
+                                       args.test_ratio, args.model, verbose=not args.quiet,
+                                       walk_forward=args.walk_forward, wf_splits=args.wf_splits)
         except Exception as exc:  # noqa: BLE001
             print(f"  ❌ {coin}: {type(exc).__name__}: {exc}")
             summary[coin] = {'error': f'{type(exc).__name__}: {exc}'}

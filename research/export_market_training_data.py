@@ -42,8 +42,9 @@ def candles_to_df(symbol: str, start_ms: int, end_ms: int) -> pd.DataFrame:
         c = c[1]
     if c is None or len(c) == 0:
         raise RuntimeError(f'sin velas para {symbol}')
-    df = pd.DataFrame(c, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
-    # Jesse 3.6: [timestamp, open, high, low, close, volume] — ya en orden de columnas
+    # Jesse 3.6 get_candles: [timestamp, open, close, high, low, volume]
+    # (CANDLE_SOURCE_MAPPING: close=[:,2], high=[:,3], low=[:,4])
+    df = pd.DataFrame(c, columns=['timestamp', 'open', 'close', 'high', 'low', 'volume'])
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
     for col in ['open', 'high', 'low', 'close', 'volume']:
         df[col] = df[col].astype(float)

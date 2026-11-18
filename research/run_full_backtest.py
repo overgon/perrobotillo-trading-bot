@@ -61,6 +61,9 @@ def main() -> int:
     ap.add_argument('--start')
     ap.add_argument('--end')
     ap.add_argument('--warmup', type=int, default=200, help='velas 1h de calentamiento')
+    ap.add_argument('--fee', type=float, default=0.001, help='fee total (0.001 = 0.1%%)')
+    ap.add_argument('--slippage-bps', type=float, default=0.0,
+                    help='slippage en bps; se suma al fee (Jesse no modela slippage nativo)')
     ap.add_argument('--baseline', default=str(BASELINE_PATH))
     ap.add_argument('--out', default='backtest.json')
     ap.add_argument('--json', action='store_true')
@@ -85,7 +88,8 @@ def main() -> int:
     routes = [{'exchange': EXCHANGE, 'symbol': f'{c}-USDT', 'timeframe': '1h',
                'strategy': 'perrobotillo', 'stake': 1000.0} for c in coins]
     data_routes = [{'exchange': EXCHANGE, 'symbol': 'BTC-USDT', 'timeframe': '1h'}]
-    config = {'starting_balance': 10_000.0 * len(coins), 'fee': 0.001, 'type': 'spot',
+    fee = args.fee + args.slippage_bps / 10_000.0
+    config = {'starting_balance': 10_000.0 * len(coins), 'fee': fee, 'type': 'spot',
               'simulation_model': 'spot', 'annualization': 365,
               'exchange': EXCHANGE, 'warm_up_candles': args.warmup}
 
@@ -112,6 +116,7 @@ def main() -> int:
         print(f"Backtest {payload['symbol']} {payload['period']['start']} → {payload['period']['end']}")
         print(f"  trades={latest['totalTrades']}  PnL={latest['totalPnL']:+.2f}  "
               f"WR={latest['winRate'] * 100:.1f}%  Sharpe={latest['Sharpe']:+.3f}")
+        print(f"  fee efectivo={fee * 100:.3f}% (slippage {args.slippage_bps:.0f} bps)")
         print(f"  → {args.out}")
     return 0
 

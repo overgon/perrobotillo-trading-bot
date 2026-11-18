@@ -95,7 +95,9 @@ def expand_1h_to_1m(rows: list) -> np.ndarray:
             else:
                 m_open = o + (c - o) * (minute / 59.0)
                 m_close = m_open
-            out.append([t, m_open, h, l, m_close, vol_min])
+            # Jesse/store_candles espera [timestamp, open, close, high, low, volume]
+            # (CANDLE_SOURCE_MAPPING: close=[:,2], high=[:,3], low=[:,4])
+            out.append([t, m_open, m_close, h, l, vol_min])
 
         prev_close = c
         prev_ts = ts

@@ -55,8 +55,9 @@ def main() -> int:
                 f.write('timestamp,open,high,low,close,volume\n')
                 for row in c:
                     ts = datetime.fromtimestamp(row[0] / 1000).strftime('%Y-%m-%d %H:%M:%S')
-                    # Jesse 3.6: [timestamp, open, high, low, close, volume]
-                    f.write(f"{ts},{row[1]},{row[2]},{row[3]},{row[4]},{row[5]}\n")
+                    # Jesse 3.6 get_candles: [timestamp, open, close, high, low, volume]
+                    # (CANDLE_SOURCE_MAPPING: close=[:,2], high=[:,3], low=[:,4])
+                    f.write(f"{ts},{row[1]},{row[3]},{row[4]},{row[2]},{row[5]}\n")
             print(f"  ✅ {coin}: {len(c)} velas → {out.name}")
         except Exception as exc:  # noqa: BLE001
             print(f"  ❌ {coin}: {type(exc).__name__}: {exc}")
