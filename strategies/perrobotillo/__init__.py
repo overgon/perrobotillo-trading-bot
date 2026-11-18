@@ -460,7 +460,14 @@ class perrobotillo(Strategy):
         """
         Confianza 0-100 del modelo ML real (model_{COIN}).
         Si no hay modelo o el feature vector no coincide, cae al proxy.
+
+        PERROBOTILLO_ML_DISABLE=1 fuerza el proxy: es el modo determinista que
+        usan el CI gate y el CD daily. Los modelos (ml_data/model_*) están en
+        .gitignore, asi que un checkout limpio (y el CI) no los tiene; sin esta
+        bandera el gate compararia configuraciones distintas.
         """
+        if os.environ.get('PERROBOTILLO_ML_DISABLE') == '1':
+            return self.ml_confidence_proxy()
         loaded = _load_ml_model(self.coin)
         if loaded is None:
             return self.ml_confidence_proxy()
