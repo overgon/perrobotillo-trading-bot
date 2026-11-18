@@ -115,7 +115,7 @@ jobs:
           END=$(date -u +%Y-%m-%d)
           python research/jesse_ml_train.py \
             --coins "${{ needs.setup.outputs.coins }}" \
-            --start "$START" --end "$END" --model rf --fast
+            --start "$START" --end "$END" --model rf --fast --quiet
         env:
           RETRAIN_YEARS: ${{ env.RETRAIN_YEARS }}
 
