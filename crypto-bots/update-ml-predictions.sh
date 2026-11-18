@@ -32,9 +32,9 @@ log_ml_prediction() {
     echo "{\"timestamp\":\"$ts\",\"event\":\"$event\",\"detail\":\"$detail\"}" >> "$ML_INPUT_LOG"
 }
 
-# Verificar que existan los modelos
-if [ ! -f "${ML_DIR}/models/BTC_ml_model.pkl" ]; then
-    log "❌ Error: Modelos ML no encontrados. Ejecutar auto-retrain primero."
+# Verificar que exista el modelo de mercado (market-classifier.pkl)
+if [ ! -f "${ML_DIR}/market-classifier.pkl" ]; then
+    log "❌ Error: Modelo de mercado no encontrado. Ejecutar market-classifier.py --predict."
     log_ml_prediction "ml.predict.error" "models_not_found"
     exit 1
 fi
