@@ -1,0 +1,20 @@
+{
+  "Sharpe": 0.47579516481441086,
+  "totalPnL": 2510.1930894138286,
+  "winRate": 0.5,
+  "source": "research/run_full_backtest.py --symbol ALL --days 90",
+  "period": {
+    "start": "2026-08-19",
+    "end": "2026-11-17"
+  },
+  "generated_at": "2026-11-17T17:34:48.816975",
+  "metrics": {
+    "Sharpe": 0.47579516481441086,
+    "totalPnL": 2510.1930894138286,
+    "winRate": 0.5,
+    "totalTrades": 8,
+    "netProfitPct": 3.1377413617672856,
+    "maxDrawdown": -31.777805512326452,
+    "calmar": 0.38376062301725306
+  }
+}

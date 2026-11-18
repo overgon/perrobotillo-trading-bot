@@ -17,7 +17,7 @@ import sys
 # Límites de regresión (CI)
 SHARPE_DELTA_MIN = -0.3      # Sharpe no puede bajar más de 0.3
 PNL_DROP_MAX = 0.15          # PnL no puede bajar más del 15%
-WIN_RATE_MIN = 0.40          # win rate no puede bajar de 40%
+WIN_RATE_DROP_MAX = 0.20     # win rate no puede caer más del 20% relativo
 
 def load(path):
     try:
@@ -31,6 +31,9 @@ def check(backtest):
     baseline = backtest.get("baseline", {})
     latest   = backtest.get("latest", {})
 
+    if not baseline:
+        raise ValueError("baseline vacío: genera research/ci_baseline.json con el backtest de referencia")
+
     sharpe_b = baseline.get("Sharpe", 0)
     sharpe_l = latest.get("Sharpe", 0)
     sharpe_delta = sharpe_l - sharpe_b
@@ -41,6 +44,7 @@ def check(backtest):
 
     wr_b = baseline.get("winRate", 0) or 0
     wr_l = latest.get("winRate", 0) or 0
+    wr_drop = (wr_b - wr_l) / (abs(wr_b) + 1e-9)
 
     results = {
         "baseline": baseline,
@@ -49,12 +53,13 @@ def check(backtest):
         "pnl_drop": round(pnl_drop, 4),
         "win_rate_baseline": wr_b,
         "win_rate_latest": wr_l,
+        "win_rate_drop": round(wr_drop, 4),
     }
 
     checks = {
         "sharpe_delta": sharpe_delta >= SHARPE_DELTA_MIN,
         "pnl_drop": pnl_drop <= PNL_DROP_MAX,
-        "win_rate": wr_l >= WIN_RATE_MIN,
+        "win_rate_drop": wr_drop <= WIN_RATE_DROP_MAX,
     }
 
     ok = all(checks.values())
@@ -71,20 +76,20 @@ def main():
 
     try:
         data = load(args.backtest)
-    except SystemExit:
+        results = check(data)
+    except (ValueError, SystemExit) as exc:
+        if isinstance(exc, ValueError):
+            print(f"❌ {exc}")
         sys.exit(2)
-
-    # El backtest puede tener la estructura:
-    # { "baseline": {...}, "latest": {...} }  o  { "baseline": {...}, "delta": {...} }
-    results = check(data)
 
     if args.json:
         print(json.dumps(results, indent=2))
     else:
         print("═ CI BACKTEST GATE ═")
-        print(f"Sharpe Δ      = {results['sharpe_delta']:+.3f}   (min {SHARPE_DELTA_MIN})")
-        print(f"PnL drop %    = {results['pnl_drop']*100:.2f}%      (max {PNL_DROP_MAX*100:.2f}%)")
-        print(f"Win rate L    = {results['win_rate_latest']*100:.1f}%  (min {WIN_RATE_MIN*100:.0f}%)")
+        print(f"Sharpe Δ        = {results['sharpe_delta']:+.3f}   (min {SHARPE_DELTA_MIN})")
+        print(f"PnL drop %      = {results['pnl_drop']*100:.2f}%      (max {PNL_DROP_MAX*100:.2f}%)")
+        print(f"Win rate drop % = {results['win_rate_drop']*100:.2f}%      (max {WIN_RATE_DROP_MAX*100:.2f}%)")
+        print(f"  (baseline WR {results['win_rate_baseline']*100:.1f}% → latest {results['win_rate_latest']*100:.1f}%)")
         print("─" * 40)
         for k, v in results["checks"].items():
             print(f"  [{'✅' if v else '❌'}] {k}")

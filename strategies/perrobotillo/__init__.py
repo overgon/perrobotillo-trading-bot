@@ -458,13 +458,8 @@ class perrobotillo(Strategy):
         self.stop_loss = qty, sl_price
 
     def on_close_position(self, order, closed_trade):
-        """Record trade-level label in gather mode.
-
-        If after() already consumed the current data point (it has a
-        price_direction label), this is a no-op — no warning.
-        """
-        if self.ml_mode == "gather" and self._current_ml_point is not None:
-            self.record_label('is_profitable', closed_trade.pnl > 0)
+        """En modo gather el label es la dirección futura; no etiquetamos por trade."""
+        pass
 
     def go_short(self):
         pass
@@ -487,30 +482,29 @@ class perrobotillo(Strategy):
                 self.stop_loss = self.position.qty, trailing_sl
 
     def before(self):
-        """Called before each candle. Record ML features in gather mode."""
+        """Called before each candle. Record ML features in gather mode.
+
+        Las features se registran en la vela t y la etiqueta es la dirección de
+        la vela t+1 (label futura): el punto abierto en t se etiqueta en el
+        siguiente before() con close[t] > close[t-1]. Así el modelo predice y
+        no memoriza el cierre actual (sin fuga de `price_change_1h`).
+        """
         if self.ml_mode == "gather":
+            pending = getattr(self, '_pending_ml_point', None)
+            if pending is not None and len(self.candles) >= 2:
+                prev_close = float(self.candles[-2][2])
+                cur_close = float(self.candles[-1][2])
+                pending['label'] = {'name': 'price_direction', 'value': cur_close > prev_close}
+                self._ml_data_points.append(pending)
+                self._pending_ml_point = None
+
             self.record_features(self.get_ml_features())
+            self._pending_ml_point = self._current_ml_point
+            self._current_ml_point = None
 
     def after(self):
-        """Called after each candle.
-
-        In gather mode, label each candle's data point with price direction
-        (close > prev_close) to maximize data collection.
-
-        Issue #44: with EMA 12/140 entry filter, only ~19 trades close in 2 years
-        of 1h data — insufficient for ML training (need ≥50). By labeling EVERY
-        candle in after(), we yield ~17k data points per coin from the same
-        backtest. Trade-level labels (on_close_position) and candle-level labels
-        (after) are compatible: both are booleans, prepare_xy converts to 0/1.
-
-        If a trade closed this candle, on_close_position() already consumed the
-        open data point, so _current_ml_point is None here and we skip.
-        """
-        if self.ml_mode == "gather" and self._current_ml_point is not None:
-            if len(self.candles) >= 2:
-                close = float(self.candles[-1][2])
-                prev_close = float(self.candles[-2][2])
-                self.record_label('price_direction', close > prev_close)
+        """Sin label contemporáneo: la etiqueta es futura (ver before())."""
+        pass
 
     def hyperparameters(self):
         """Hyperparameters para Optuna optimization."""
