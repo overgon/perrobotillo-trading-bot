@@ -24,9 +24,9 @@ if [ ! -f "$SECRETS_FILE" ]; then
     exit 1
 fi
 
-# Leer credenciales
-API_KEY=$(grep BINANCE_API_KEY "$SECRETS_FILE" | cut -d'=' -f2)
-API_SECRET=$(grep BINANCE_API_SECRET "$SECRETS_FILE" | cut -d'=' -f2)
+# Leer credenciales (admite valor con o sin comillas)
+API_KEY=$(grep '^BINANCE_API_KEY=' "$SECRETS_FILE" | head -1 | cut -d'=' -f2- | tr -d '"')
+API_SECRET=$(grep '^BINANCE_API_SECRET=' "$SECRETS_FILE" | head -1 | cut -d'=' -f2- | tr -d '"')
 
 if [ -z "$API_KEY" ] || [ -z "$API_SECRET" ]; then
     log "❌ Error: Credenciales inválidas"
