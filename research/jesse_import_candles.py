@@ -26,6 +26,9 @@ sys.path.insert(0, '/home')
 from jesse.research import store_candles  # noqa: E402
 
 BINANCE_API = "https://api.binance.com/api/v3/klines"
+# api.binance.com geo-bloquea (HTTP 451) los runners de GitHub Actions; el
+# endpoint público de datos data-api.binance.vision sirve los mismos klines.
+BINANCE_HOSTS = ["https://api.binance.com", "https://data-api.binance.vision"]
 EXCHANGE = "Binance Spot"
 INTERVAL = "1h"
 RATE_LIMIT_SLEEP = 0.1
@@ -33,23 +36,36 @@ CHUNK_ROWS = 20_000  # filas 1m por llamada a store_candles
 
 
 def download_klines(symbol: str, start_ts: int, end_ts: int) -> list:
-    """Descarga klines 1h de Binance con paginación (máx. 1000 por página)."""
+    """Descarga klines 1h de Binance con paginación (máx. 1000 por página).
+
+    Prueba los hosts en orden y usa el primero que responda 200. Si todos
+    fallan, eleva el último error (con el host que lo produjo).
+    """
     rows = []
     current = start_ts
     while current < end_ts:
-        resp = requests.get(
-            BINANCE_API,
-            params={
-                'symbol': symbol,
-                'interval': INTERVAL,
-                'startTime': current,
-                'endTime': end_ts,
-                'limit': 1000,
-            },
-            timeout=30,
-        )
-        if resp.status_code != 200:
-            raise RuntimeError(f"HTTP {resp.status_code} para {symbol}: {resp.text[:200]}")
+        params = {
+            'symbol': symbol,
+            'interval': INTERVAL,
+            'startTime': current,
+            'endTime': end_ts,
+            'limit': 1000,
+        }
+        resp = None
+        last_err = None
+        for host in BINANCE_HOSTS:
+            url = f"{host}/api/v3/klines"
+            try:
+                r = requests.get(url, params=params, timeout=30)
+            except requests.RequestException as exc:
+                last_err = RuntimeError(f"{host} para {symbol}: {type(exc).__name__}: {exc}")
+                continue
+            if r.status_code == 200:
+                resp = r
+                break
+            last_err = RuntimeError(f"{host} → HTTP {r.status_code} para {symbol}: {r.text[:200]}")
+        if resp is None:
+            raise last_err
         data = resp.json()
         if not data:
             break
