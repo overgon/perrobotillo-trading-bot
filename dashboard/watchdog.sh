@@ -15,6 +15,9 @@ TELEGRAM_SENT_FILE="/tmp/watchdog-telegram-sent.txt"
 
 # ✅ BUG #9/#10 FIX: Source centralized notify.sh (Markdown parse_mode, --data-urlencode)
 WORKSPACE="$HOME/.openclaw/workspace"
+# Binario real dentro del repo (no existe /usr/local/bin/ngrok en esta máquina)
+NGROK_BIN="$WORKSPACE/.ngrok/ngrok"
+[ -x "$NGROK_BIN" ] || NGROK_BIN="$HOME/.ngrok/ngrok"
 source "$WORKSPACE/crypto-bots/notify.sh" 2>/dev/null || true
 
 log() {
@@ -116,7 +119,7 @@ restart_ngrok() {
     sleep 2
 
     # Iniciar ngrok con config file (inspect: false, tunnel nombrado "dashboard")
-    /usr/local/bin/ngrok start dashboard --config=/home/overgon/.config/ngrok/ngrok.yml >> "$NGROK_LOG" 2>&1 &
+    "$NGROK_BIN" start dashboard --config=/home/overgon/.config/ngrok/ngrok.yml --log stdout --log-format term >> "$NGROK_LOG" 2>&1 &
     local ngrok_pid=$!
     log "✅ Ngrok iniciado (PID: $ngrok_pid) - inspect: false, tunnel: dashboard"
 

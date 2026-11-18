@@ -163,14 +163,25 @@ def is_mobile_device():
 AUTH_FILE = f"{WORKSPACE}/dashboard/.htpasswd"
 
 def check_auth(username, password):
-    """Verificar credenciales usando subprocess con htpasswd"""
+    """Verificar credenciales comparando MD5 simple con .htpasswd"""
+    import hashlib
+    
     try:
-        result = subprocess.run(
-            ['htpasswd', '-vb', AUTH_FILE, username, password],
-            capture_output=True,
-            text=True
-        )
-        return result.returncode == 0
+        if not os.path.exists(AUTH_FILE):
+            print(f"Auth error: file {AUTH_FILE} not found")
+            return False
+        
+        with open(AUTH_FILE, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if not line or ':' not in line:
+                    continue
+                stored_user, stored_hash = line.split(':', 1)
+                if stored_user == username:
+                    # MD5 simple
+                    calc = hashlib.md5(password.encode()).hexdigest()
+                    return calc == stored_hash
+        return False
     except Exception as e:
         print(f"Auth error: {e}")
         return False
@@ -242,8 +253,16 @@ def get_portfolio_value():
         
         with open(secrets_file, 'r') as f:
             lines = f.readlines()
-            API_KEY = lines[0].split('=')[1].strip()
-            API_SECRET = lines[1].split('=')[1].strip()
+            API_KEY = None
+            API_SECRET = None
+            for line in lines:
+                if line.startswith('BINANCE_API_KEY'):
+                    API_KEY = line.split('=', 1)[1].strip().strip('"')
+                elif line.startswith('BINANCE_SECRET_KEY'):
+                    API_SECRET = line.split('=', 1)[1].strip().strip('"')
+        if not API_KEY or not API_SECRET:
+            print("❌ No se pudieron leer las claves de Binance del archivo")
+            raise Exception("Missing API key or secret in binance.env")
         
         # 3. Get balance from Binance
         # Sincronizar timestamp con Binance para evitar -1021 / -2015 por desfase
@@ -827,6 +846,9 @@ def _parse_env_file(filepath, strip_export=False):
             val = val.strip()
             if strip_export and key.startswith("export "):
                 key = key[7:].strip()
+            # quitar comillas envolventes (el .env escribe SCALPING_ENABLED="true")
+            if len(val) >= 2 and val[0] == val[-1] and val[0] in ('"', "'"):
+                val = val[1:-1]
             if key and val:
                 result[key] = val
     return result
@@ -1018,16 +1040,42 @@ def _api_status_data():
     except:
         public_ip = 'error'
     
-    # Verificar Gateway (Ollama)
+    # Verificar Gateway (Hermes Agent)
+    import socket
+    gateway = 'error'
+    hermes_pid = None
     try:
-        import requests
-        gateway_url = 'http://localhost:11434/api/tags'
-        requests.get(gateway_url, timeout=2)
-        gateway = 'ok'
-    except:
-        gateway = 'error'
-    
-    # Calcular próximo auto-ajuste (cada 6 horas)
+        import subprocess
+        result = subprocess.run(['pgrep', '-f', 'hermes.*gateway', '-u', 'overgon'], capture_output=True, text=True, timeout=5)
+        if result.returncode == 0:
+            pids = result.stdout.strip().split('\n')
+            for pid in pids:
+                if pid.isdigit():
+                    hermes_pid = pid
+                    break
+    except Exception:
+        pass
+
+    if hermes_pid:
+        try:
+            # Verificar socket del gateway
+            s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            s.settimeout(2)
+            s.connect('/home/overgon/.hermes/gateway.sock')
+            s.close()
+            gateway = 'ok'
+        except Exception:
+            try:
+                # Fallback: verificar con curl si el socket HTTP está disponible
+                import urllib.request
+                req = urllib.request.Request('http://localhost/gateway/health')
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    if resp.status == 200:
+                        gateway = 'ok'
+            except Exception:
+                gateway = 'error'
+    else:
+        gateway = 'n/a'
     from datetime import datetime, timedelta
     now = datetime.now()
     # Próxima hora múltiplo de 6 (0, 6, 12, 18)

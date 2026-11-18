@@ -1,0 +1,43 @@
+{
+  "weekly_retrain": {
+    "enabled": true,
+    "schedule": "0 3 * * 0",
+    "timezone": "UTC",
+    "coins": ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX", "ZEC"],
+    "min_samples": {
+      "ZEC": 500,
+      "default": 60
+    },
+    "historical_days": 90,
+    "model_type": "random_forest",
+    "use_smote": false,
+    "validation": {
+      "min_accuracy": 0.85,
+      "min_f1_macro": 0.80,
+      "sharpe_delta_threshold": -0.3,
+      "pnl_drop_threshold": 15,
+      "win_rate_min": 40
+    },
+    "notifications": {
+      "telegram": {
+        "enabled": true,
+        "success_message": "✅ *ML Auto-Retrain EXITOSO*\n- 8 monedas re-entrenadas y desplegadas\n- Models en models_optimized/\n- Feature CSVs refrescados con BTC context\n- Domingo $(date '+%Y-%m-%d %H:%M')",
+        "error_message": "🚨 *ML Auto-Retrain FALLÓ*\n- Error al re-entrenar modelos (exit code $?)\n- Domingo $(date '+%Y-%m-%d %H:%M')\n- Revisar: ml-retrain-cron.log"
+      }
+    },
+    "retention": {
+      "models": "90",
+      "artifacts": "30",
+      "logs": "180"
+    }
+  },
+  "jesse_ai": {
+    "version": "3.5.3",
+    "workspace": "/home/overgon/.openclaw/workspace",
+    "env_file": "~/.openclaw/workspace/secrets/jesse.env",
+    "features": ["trading", "reinforcement", "ml", "backtesting"],
+    "auto_retrain": true,
+    "weekly_training": true,
+    "ssl_verify": false
+  }
+}

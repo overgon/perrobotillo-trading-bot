@@ -104,8 +104,18 @@ class FeatureEngineer:
         # 13. Token Audit Risk Features (integración Binance Skill Hub)
         df = self._add_token_audit_features(df, coin)
         
-        # Limpiar NaN
-        df.dropna(inplace=True)
+        # Limpiar NaN sin descartar todas las filas: las features de contexto
+        # externo (fear&greed, smart money, token audit) pueden fallar y dejar
+        # columnas enteras en NaN, lo que antes vaciaba el dataset completo.
+        df = df.dropna(subset=['open', 'high', 'low', 'close', 'volume'])
+        num_cols = df.select_dtypes(include=['number']).columns
+        df[num_cols] = df[num_cols].ffill().fillna(0)
+        if 'fear_greed' in df.columns:
+            df['fear_greed'] = df['fear_greed'].fillna(50)
+        if 'market_mode' in df.columns:
+            df['market_mode'] = df['market_mode'].ffill().fillna('LATERAL')
+        if 'confidence_score' in df.columns:
+            df['confidence_score'] = df['confidence_score'].fillna(0)
         
         print(f"  Datos finales: {len(df.columns)} columnas")
         print(f"  Features generados: {len(df.columns) - 5} automáticos")

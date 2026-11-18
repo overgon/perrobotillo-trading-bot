@@ -277,6 +277,13 @@ RSI=${RSI}
 LAST_UPDATE=$(date +%s)
 EOF
 
+# Per-coin overrides: se copian a market-mode.conf para que el bot los lea
+if [ -f "${SCRIPT_DIR}/per-coin-config.env" ]; then
+    echo "" >> "$CONFIG_FILE"
+    echo "# Per-coin overrides (desde per-coin-config.env)" >> "$CONFIG_FILE"
+    grep -E '^[A-Z]{2,5}_(TP1|TP2|TP3|STOP_LOSS|SL|POSITION_SIZE|ML_MIN_CONFIDENCE|TRAILING_STOP)=' "${SCRIPT_DIR}/per-coin-config.env" >> "$CONFIG_FILE"
+fi
+
 echo "✅ Configuración guardada en: ${CONFIG_FILE}"
 echo ""
 

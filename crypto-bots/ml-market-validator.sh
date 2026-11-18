@@ -78,6 +78,16 @@ if [ "$ML_DISCREPANCY" = "true" ]; then
         
         # Actualizar dynamic-config.env con ML mode
         if [ -f "$DYNAMIC_CONFIG" ]; then
+            # Parámetros coherentes con el modo que se va a aplicar (si solo se
+            # cambia MARKET_MODE, los TP/SL quedan desincronizados).
+            case "$ML_MODE" in
+                BULL)          V_TP1=3.0; V_TP2=6.0;  V_TP3=10.0; V_SL=4.0; V_POS=25; V_TRAIL=false ;;
+                BEAR)          V_TP1=1.8; V_TP2=3.5;  V_TP3=5.5;  V_SL=2.5; V_POS=10; V_TRAIL=false ;;
+                VOLATILE_BULL) V_TP1=3.5; V_TP2=7.0;  V_TP3=12.0; V_SL=5.0; V_POS=15; V_TRAIL=true  ;;
+                VOLATILE_BEAR) V_TP1=1.8; V_TP2=3.5;  V_TP3=5.5;  V_SL=2.5; V_POS=10; V_TRAIL=false ;;
+                *)             V_TP1=1.5; V_TP2=3.0;  V_TP3=5.0;  V_SL=3.5; V_POS=10; V_TRAIL=false ;;
+            esac
+            sed -i -E "s/^export TP1=.*/export TP1=${V_TP1}/; s/^export TP2=.*/export TP2=${V_TP2}/; s/^export TP3=.*/export TP3=${V_TP3}/; s/^export STOP_LOSS=.*/export STOP_LOSS=${V_SL}/; s/^export POSITION_SIZE=.*/export POSITION_SIZE=${V_POS}/; s/^export TRAILING_STOP=.*/export TRAILING_STOP=${V_TRAIL}/" "$DYNAMIC_CONFIG"
             # Reemplazar MARKET_MODE
             sed -i "s/^export MARKET_MODE=.*/export MARKET_MODE=\"$ML_MODE\"/" "$DYNAMIC_CONFIG"
             

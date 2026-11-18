@@ -200,9 +200,23 @@ analysis_fase5/
 fase5_models/
 
 # ════════════════════════════════════════════════════════
-# 🧪 RESEARCH OPTUNA RESULTS
+# 🐕 JESSE AI RESEARCH LAB (Issue #44 / Issue #62)
 # ════════════════════════════════════════════════════════
-research/optuna_*.json
+jesse.log
+jesse.pid
+jesse_config.py
+venv-jesse/
+storage/logs/jesse-*.log
+processes.txt
+backtest/jesse_output.json
+backtest/jesse_backtest_*.json
+research/jesse_research_*.json
+
+# Modelos y datasets entrenados (~180 MB, se regeneran con research/jesse_ml_train.py)
+strategies/perrobotillo/ml_data/
+
+# === BACKTEST JESSE ===
+backtest/jesse_*/
 
 # ════════════════════════════════════════════════════════
 # 📈 ADDITIONAL RUNTIME STATE (ml/ directory)

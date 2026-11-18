@@ -276,7 +276,8 @@ def _deploy_optimized_model(coin: str, model_path: Path, metadata_path: Path) ->
     for col in missing:
         df[col] = 0.0
     
-    X = df[selected_features].values
+    # Copia escribible: con pandas/numpy recientes .values puede ser read-only
+    X = df[selected_features].to_numpy(dtype=float, copy=True)
     
     # Handle NaN
     col_means = np.nanmean(X, axis=0)

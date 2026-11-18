@@ -269,6 +269,18 @@ for coin, p in sorted(preds.items()):
         OVERRIDE="✅ ML override aplicado"
         echo "🔁 Override ML aprobado (conf=$ML_CONFIDENCE, f1_macro=$ML_F1_MACRO, cv_mean=$ML_CV_MEAN)"
         if [ -f "$DYNAMIC_CONFIG" ]; then
+            # Aplicar también los parámetros del modo final: si solo se cambia
+            # MARKET_MODE, los TP/SL quedan desincronizados (modo nuevo con
+            # params del modo anterior).
+            case "$FINAL_MODE" in
+                BULL)          MPL_TP1=3.0; MPL_TP2=6.0;  MPL_TP3=10.0; MPL_SL=4.0; MPL_POS=25; MPL_TRAIL=false ;;
+                BEAR)          MPL_TP1=1.8; MPL_TP2=3.5;  MPL_TP3=5.5;  MPL_SL=2.5; MPL_POS=10; MPL_TRAIL=false ;;
+                VOLATILE_BULL) MPL_TP1=3.5; MPL_TP2=7.0;  MPL_TP3=12.0; MPL_SL=5.0; MPL_POS=15; MPL_TRAIL=true  ;;
+                VOLATILE_BEAR) MPL_TP1=1.8; MPL_TP2=3.5;  MPL_TP3=5.5;  MPL_SL=2.5; MPL_POS=10; MPL_TRAIL=false ;;
+                *)             MPL_TP1=1.5; MPL_TP2=3.0;  MPL_TP3=5.0;  MPL_SL=3.5; MPL_POS=10; MPL_TRAIL=false ;;
+            esac
+            sed -i -E "s/^export TP1=.*/export TP1=${MPL_TP1}/; s/^export TP2=.*/export TP2=${MPL_TP2}/; s/^export TP3=.*/export TP3=${MPL_TP3}/; s/^export STOP_LOSS=.*/export STOP_LOSS=${MPL_SL}/; s/^export POSITION_SIZE=.*/export POSITION_SIZE=${MPL_POS}/; s/^export TRAILING_STOP=.*/export TRAILING_STOP=${MPL_TRAIL}/" "$DYNAMIC_CONFIG"
+            TP1=$MPL_TP1; TP2=$MPL_TP2; TP3=$MPL_TP3; SL=$MPL_SL; POSITION_SIZE=$MPL_POS
             sed -i "s/^export MARKET_MODE=.*/export MARKET_MODE=\"$FINAL_MODE\"/" "$DYNAMIC_CONFIG"
             echo "" >> "$DYNAMIC_CONFIG"
             echo "# ML Override: $(python3 -c "import json; d=json.load(open('$ML_RESULT_FILE')); print(d.get('reason', ''))" 2>/dev/null || echo "")" >> "$DYNAMIC_CONFIG"
@@ -288,6 +300,18 @@ if [ "$FINAL_MODE" = "$MARKET_MODE" ] && [ -n "$ML_MODE" ] && [ "$ML_MODE" != "U
 fi
 else
     OVERRIDE="⚠️ ML no disponible"
+fi
+
+# Alinear market-mode.conf con el modo final (el dashboard lo usa como fuente)
+if [ -f "$CONFIG_FILE" ]; then
+    case "$FINAL_MODE" in
+        BULL)          F_TP1=3.0; F_TP2=6.0;  F_TP3=10.0; F_SL=4.0; F_POS=25; F_TRAIL=false ;;
+        BEAR)          F_TP1=1.8; F_TP2=3.5;  F_TP3=5.5;  F_SL=2.5; F_POS=10; F_TRAIL=false ;;
+        VOLATILE_BULL) F_TP1=3.5; F_TP2=7.0;  F_TP3=12.0; F_SL=5.0; F_POS=15; F_TRAIL=true  ;;
+        VOLATILE_BEAR) F_TP1=1.8; F_TP2=3.5;  F_TP3=5.5;  F_SL=2.5; F_POS=10; F_TRAIL=false ;;
+        *)             F_TP1=1.5; F_TP2=3.0;  F_TP3=5.0;  F_SL=3.5; F_POS=10; F_TRAIL=false ;;
+    esac
+    sed -i -E "s/^MARKET_MODE=.*/MARKET_MODE=\"$FINAL_MODE\"/; s/^TP1=.*/TP1=$F_TP1/; s/^TP2=.*/TP2=$F_TP2/; s/^TP3=.*/TP3=$F_TP3/; s/^SL=.*/SL=$F_SL/; s/^POSITION_SIZE=.*/POSITION_SIZE=$F_POS/; s/^TRAILING_STOP=.*/TRAILING_STOP=$F_TRAIL/" "$CONFIG_FILE"
 fi
 
 # Notificación única final

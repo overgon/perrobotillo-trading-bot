@@ -47,11 +47,9 @@ USE_SMOTE = False  # SMOTE causó severe overfitting en LINK (7.18% -> 29.75%). 
 
 COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX", "ZEC"]
 
-# ZEC needs more samples due to sparse production trades (43 vs 60+ for other coins)
-# Uses backtest-augmented features CSV + larger training window
+# ZEC ahora tiene features de backtest (~27k muestras), así que ya no requiere
+# una ventana reducida: se entrena con days=90 como el resto.
 COIN_MIN_SAMPLES = {
-    'ZEC': 500,  # 500 recent + 750 backfill = 1250 samples (vs default 60)
-    # Others use default max(60, last_n * 1.5)
 }
 
 # ════════════════════════════════════════════════════════
