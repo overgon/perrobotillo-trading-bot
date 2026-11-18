@@ -251,6 +251,24 @@ class OptimizedMLPipeline:
         feature_cols_clean = feature_cols
         
         print(f"\n📊 Datos limpios: {len(X)} samples, {len(feature_cols_clean)} features")
+
+        # Balanceo de clases: submuestrear la mayoritaria (WAIT) para que el
+        # modelo no converja a predecir solo WAIT (dataset original: 98% WAIT).
+        counts = np.bincount(y, minlength=3)
+        minority = int(counts[counts > 0].min())
+        target = max(minority * 2, 200)
+        rng = np.random.default_rng(42)
+        idx = []
+        for cls in range(3):
+            ci = np.flatnonzero(y == cls)
+            if len(ci) > target:
+                ci = rng.choice(ci, target, replace=False)
+            idx.append(ci)
+        idx = np.sort(np.concatenate(idx))
+        X = X[idx]
+        y = y[idx]
+        print(f"   Balanceo: {dict(enumerate(counts.tolist()))} -> "
+              f"{dict(enumerate(np.bincount(y, minlength=3).tolist()))} ({len(y)} samples)")
         
         # Feature selection (opcional)
         if self.use_feature_selection:

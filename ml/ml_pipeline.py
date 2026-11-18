@@ -78,7 +78,7 @@ class MLPipeline:
         self.metadata_path = MODELS_DIR / f"{coin}_ml_metadata.json"
         self.features_log = FEATURES_DIR / f"{coin}_features.csv"
     
-    def gather_phase(self, days: int = 30) -> pd.DataFrame:
+    def gather_phase(self, days: int = 30, lookforward: int = 12, threshold: float = 0.003):
         """
         FASE 1: GATHER - Recolectar features y labels
         
@@ -117,7 +117,7 @@ class MLPipeline:
         
         # 3. Crear labels (target variable)
         print("3️⃣ Creando labels...")
-        df_with_labels = self._create_labels(df_features)
+        df_with_labels = self._create_labels(df_features, lookforward=lookforward, threshold=threshold)
         
         # 4. Guardar features a CSV
         df_with_labels.to_csv(self.features_log, index=False)
