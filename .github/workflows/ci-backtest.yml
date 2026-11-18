@@ -101,6 +101,9 @@ jobs:
         env:
           BACKTEST_DAYS: ${{ env.BACKTEST_DAYS }}
           BACKTEST_SYMBOL: ${{ env.BACKTEST_SYMBOL }}
+          # Modo determinista: sin modelo ML (está en .gitignore), el mismo que
+          # usa el baseline. Ver strategies/perrobotillo.
+          PERROBOTILLO_ML_DISABLE: "1"
 
       - name: Upload backtest artifact
         if: always()
