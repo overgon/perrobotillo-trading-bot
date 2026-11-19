@@ -234,6 +234,19 @@ def _deploy_optimized_model(coin: str, model_path: Path, metadata_path: Path) ->
     models_opt_dir = WORKSPACE / 'ml' / 'models_optimized'
     features_dir = WORKSPACE / 'ml' / 'features'
     
+    # Cargar metadata real (antes el accuracy estaba hardcodeado en 88.81%)
+    model_accuracy = None
+    model_test_score = None
+    try:
+        import json as _json
+        with open(metadata_path) as f:
+            _meta = _json.load(f)
+        _m = _meta.get('metrics', {})
+        model_accuracy = _m.get('accuracy')
+        model_test_score = _m.get('test_score')
+    except Exception:
+        pass
+    
     # Load optimized model
     model = joblib.load(model_path)
     
@@ -315,13 +328,20 @@ def _deploy_optimized_model(coin: str, model_path: Path, metadata_path: Path) ->
         signal = 'WAIT'
         action = '⏸️ ESPERAR MEJOR OPORTUNIDAD'
     
+    # 🔧 FIX 2026-11-18: si el modelo no tiene edge demostrable (test_score
+    # bajo), el gate no debe dejarlo como único árbitro: la nota lo deja claro
+    # para que el fallback técnico decida.
+    quality_note = ''
+    if model_test_score is not None and model_test_score < 0.55:
+        quality_note = f' | modelo sin edge (test_score={model_test_score:.3f})'
+
     return {
         'signal': signal,
         'confidence': round(confidence, 2),
         'position_size_percent': position_size,
         'action': action,
-        'model_accuracy': 88.81,
-        'note': f'OptimizedPipeline deploy (features={len(selected_features)}, selected={len(available)})'
+        'model_accuracy': model_accuracy,
+        'note': f'OptimizedPipeline deploy (features={len(selected_features)}, selected={len(available)}){quality_note}'
     }
 
 
