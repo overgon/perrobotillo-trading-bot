@@ -18,6 +18,12 @@ Uso: venv/bin/python3 research/train_outcome_model.py
 import numpy as np
 import pandas as pd
 from pathlib import Path
+import sys
+import json
+
+SAVE_DIR = None
+if '--save' in sys.argv:
+    SAVE_DIR = '/home/overgon/work/perrobotillo-trading-bot/ml'
 
 DATA = Path('/home/overgon/work/perrobotillo-trading-bot/backtest/data')
 COINS = ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX', 'ZEC']
@@ -175,6 +181,20 @@ def main():
     mfull = RandomForestClassifier(n_estimators=400, max_depth=8, min_samples_leaf=20,
                                    class_weight='balanced', random_state=42, n_jobs=-1)
     mfull.fit(df[feat_cols].to_numpy(), df['y'].to_numpy())
+
+    # guardar para produccion (ml_validator_wrapper lo usa como modulador de tamano)
+    if SAVE_DIR:
+        import joblib
+        out = Path(SAVE_DIR); out.mkdir(parents=True, exist_ok=True)
+        joblib.dump(mfull, out / 'outcome_model.pkl')
+        (out / 'outcome_features.json').write_text(json.dumps({
+            'features': feat_cols, 'tp1': TP1, 'tp2': TP2, 'tp3': TP3, 'sl': SL,
+            'cost': COST, 'horizon_h': HORIZON_H,
+            'train_samples': int(len(df)),
+            'pooled_auc': float(roc_auc_score(yte, prob)),
+        }, indent=2))
+        print(f"\n✅ modelo guardado en {out/'outcome_model.pkl'} ({len(feat_cols)} features)")
+
     imp = pd.Series(mfull.feature_importances_, index=feat_cols).sort_values(ascending=False)
     print("\n=== features mas importantes ===")
     for name, v in imp.head(15).items():
