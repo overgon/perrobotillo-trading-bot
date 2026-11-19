@@ -64,6 +64,8 @@ def load_trade_history():
         data = json.load(f)
     
     trades = data.get('trades', [])
+    # 🔧 FIX 2026-11-18: los trades importados del CSV de Binance no son del bot.
+    trades = [t for t in trades if t.get('source') != 'BINANCE_IMPORT']
     print(f"✅ Cargados {len(trades)} trades del historial")
     
     return trades

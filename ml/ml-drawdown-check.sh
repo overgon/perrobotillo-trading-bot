@@ -45,6 +45,11 @@ if not trades:
 # Parsear timestamps y ordenar
 df_trades = []
 for t in trades:
+    # 🔧 FIX 2026-11-18: los trades importados del CSV de Binance no son del bot.
+    # Incluirlos inflaba la racha de pérdidas (10 seguidas) y disparaba PAUSE
+    # global falso. El risk checker solo debe mirar los trades del bot.
+    if t.get('source') == 'BINANCE_IMPORT':
+        continue
     try:
         ts_str = t['timestamp']
         # Manejar diferentes formatos
@@ -206,6 +211,9 @@ from datetime import timedelta
 
 df_trades = []
 for t in trades:
+    # 🔧 FIX 2026-11-18: ignorar trades importados del CSV (no son del bot).
+    if t.get('source') == 'BINANCE_IMPORT':
+        continue
     try:
         ts_str = t['timestamp']
         if '+' not in ts_str and 'Z' not in ts_str:
@@ -230,6 +238,13 @@ now = datetime.now(timezone.utc)
 # Después: usa solo trades de la moneda específica
 # ════════════════════════════════════════════════════════
 symbol_trades = [t for t in df_trades if t['symbol'] == '$SYMBOL']
+
+# 🔧 FIX 2026-11-18: sin trades propios no hay evidencia de riesgo. El modelo
+# entrenado con data antigua puede predecir HIGH_RISK sobre features todo-cero
+# (p.ej. ZEC), lo que dejaba la moneda pausada para siempre.
+if len(symbol_trades) < 3:
+    print("LOW_RISK|NORMAL|40|Sin trades del bot (historial importado excluido)")
+    exit(0)
 
 # Features 24h (ESPECÍFICAS DE LA MONEDA)
 trades_24h = [t for t in symbol_trades if t['timestamp'] >= (now - timedelta(hours=24))]
