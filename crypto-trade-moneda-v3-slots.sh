@@ -1973,8 +1973,8 @@ ACUMULADO: 5% se queda HODL 📈
 import sys
 entry = float('$entry')
 local_sym = '$SYMBOL'
-RANGES = {'BTC':(20000,120000),'ETH':(800,8000),'BNB':(200,1000),'SOL':(40,500),'AVAX':(4.0,30.0),'ZEC':(500,5000),'XRP':(0.2,5.0)}
-KNOWN = {'BTC','ETH','BNB','SOL','AVAX','ZEC','XRP'}
+RANGES = {'BTC':(20000,200000),'ETH':(500,10000),'BNB':(200,2000),'SOL':(40,600),'LINK':(3.0,40.0),'AVAX':(3.0,60.0),'ZEC':(100,3000),'XRP':(0.1,10.0)}
+KNOWN = {'BTC','ETH','BNB','SOL','LINK','AVAX','ZEC','XRP'}
 # 🔧 FIX (2026-09-25): trust local_symbol when price is plausible for it;
 # only override via price when local_symbol range doesn't match.
 if local_sym in KNOWN:

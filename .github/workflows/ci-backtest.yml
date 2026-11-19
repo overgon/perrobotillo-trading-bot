@@ -27,7 +27,9 @@ on:
 
 env:
   PYTHON_VERSION: "3.13"
-  BACKTEST_DAYS: 90
+  # Start EXPLICITO (medianoche): con --days 90 el start llevaba la hora del runner
+  # y el mismo periodo daba Sharpe 2.79 o 2.01 segun la hora -> falsas regresiones.
+  BACKTEST_START: "2026-08-21"
   BACKTEST_SYMBOL: "ALL"
 
 jobs:
@@ -83,23 +85,24 @@ jobs:
 
       - name: Importar velas del periodo
         run: |
-          START=$(date -u -d "-$((BACKTEST_DAYS + 20)) days" +%Y-%m-%d)
+          START=$(date -u -d "$BACKTEST_START - 20 days" +%Y-%m-%d)
           END=$(date -u +%Y-%m-%d)
           echo "Velas: 8 monedas  $START → $END"
           python research/jesse_import_candles.py \
             --coins BTC,ETH,BNB,SOL,LINK,XRP,AVAX,ZEC --start "$START" --end "$END"
         env:
-          BACKTEST_DAYS: ${{ env.BACKTEST_DAYS }}
+          BACKTEST_START: ${{ env.BACKTEST_START }}
 
       - name: Backtest gate
         run: |
           # --slippage-bps 5 para que el fee efectivo (0.15%) sea el mismo con el
           # que se generó research/ci_baseline.json. Sin esta flag el backtest
           # usaba 0.10% y el gate comparaba contra un baseline distinto.
-          python research/run_full_backtest.py --symbol "$BACKTEST_SYMBOL" --days "$BACKTEST_DAYS" --slippage-bps 5 --out backtest.json
+          # --start explicito (no --days) para que la ventana sea reproducible.
+          python research/run_full_backtest.py --symbol "$BACKTEST_SYMBOL" --start "$BACKTEST_START" --slippage-bps 5 --out backtest.json
           python research/ci_backtest_gate.py backtest.json
         env:
-          BACKTEST_DAYS: ${{ env.BACKTEST_DAYS }}
+          BACKTEST_START: ${{ env.BACKTEST_START }}
           BACKTEST_SYMBOL: ${{ env.BACKTEST_SYMBOL }}
           # Modo determinista: sin modelo ML (está en .gitignore), el mismo que
           # usa el baseline. Ver strategies/perrobotillo.

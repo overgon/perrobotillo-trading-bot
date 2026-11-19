@@ -1,15 +1,15 @@
 {
-  "Sharpe": 2.8029634077433854,
+  "Sharpe": 2.7886100327161416,
   "totalPnL": 4381.909925427454,
   "winRate": 0.6666666666666666,
-  "source": "research/run_full_backtest.py --symbol ALL --days 90 --slippage-bps 5 (config proxy, sin modelo ML)",
+  "source": "research/run_full_backtest.py --symbol ALL --start 2026-08-21 --end 2026-11-19 --slippage-bps 5 (config proxy, sin modelo ML, start EXPLICITO)",
   "period": {
-    "start": "2026-08-20",
-    "end": "2026-11-18"
+    "start": "2026-08-21",
+    "end": "2026-11-19"
   },
-  "generated_at": "2026-11-18T16:05:18.924998",
+  "generated_at": "2026-11-19T12:10:31.223445",
   "metrics": {
-    "Sharpe": 2.8029634077433854,
+    "Sharpe": 2.7886100327161416,
     "totalPnL": 4381.909925427454,
     "winRate": 0.6666666666666666,
     "totalTrades": 33,
@@ -17,5 +17,5 @@
     "maxDrawdown": -0.8027590275523022,
     "calmar": 27.36943974906772
   },
-  "nota": "Los modelos ML (strategies/perrobotillo/ml_data/model_*) estan en .gitignore y no existen en un checkout limpio; el CI corre la estrategia en modo proxy determinista. Este baseline reproduce ese modo (verificado: local sin modelo == CI, 33 trades)."
+  "nota": "Los modelos ML estan en .gitignore; el CI corre en modo proxy determinista. La ventana usa --start EXPLICITO (medianoche) para que sea reproducible: con --days 90 la hora del start movia el Sharpe 2.79 -> 2.01 y generaba falsas regresiones."
 }

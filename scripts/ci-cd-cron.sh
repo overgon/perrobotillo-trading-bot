@@ -47,8 +47,19 @@ log "=== CD PIPELINE — fase: $PHASE — inicio ==="
 case "$PHASE" in
   daily)
     OUT="$LOG_DIR/ci-backtest-latest.json"
-    log "▶ Backtest 90d (fee 0.15%)"
-    if ! "$PYTHON" research/run_full_backtest.py --symbol ALL --days 90 --slippage-bps 5 --out "$OUT" >>"$LOG_FILE" 2>&1; then
+    # 🔧 2026-11-19: ventana determinista. `--days 90` calcula el start como
+    # "hoy - 90d" CON HORA; esa hora movia el resultado (mismo periodo registrado:
+    # Sharpe 2.79 vs 2.01) y disparaba falsas regresiones. Ahora el start sale del
+    # baseline (fecha explicita, medianoche) y solo crece el final.
+    GATE_START=$("$PYTHON" -c "import json;print(json.load(open('$WORKSPACE/research/ci_baseline.json'))['period']['start'])" 2>/dev/null) || GATE_START=""
+    if [ -n "$GATE_START" ]; then
+        GATE_START_FLAG="--start $GATE_START"
+        log "▶ Backtest (fee 0.15%, start fijo $GATE_START)"
+    else
+        GATE_START_FLAG="--days 90"
+        log "▶ Backtest 90d (fee 0.15%) — ⚠️ sin period.start en el baseline"
+    fi
+    if ! "$PYTHON" research/run_full_backtest.py --symbol ALL $GATE_START_FLAG --slippage-bps 5 --out "$OUT" >>"$LOG_FILE" 2>&1; then
         log "❌ backtest falló"
         notify_telegram "ci-cd-daily-error" "🚨 *CI/CD daily* — backtest FALLÓ. Ver logs/ci-cd-daily.log"
         exit 1
