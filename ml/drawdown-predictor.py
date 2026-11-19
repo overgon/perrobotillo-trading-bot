@@ -349,6 +349,35 @@ def predict_risk(symbol='BTC'):
     # Features actuales
     trades = load_trade_history()
     risk_features = calculate_risk_features(trades, target_coin=symbol) if trades else {}
+
+    # 🔧 FIX 2026-11-18: sin trades propios no hay evidencia de riesgo. El modelo
+    # entrenado con data antigua puede predecir HIGH_RISK sobre features todo-cero
+    # (p.ej. ZEC), lo que dejaba la moneda pausada para siempre.
+    own_trades = [t for t in (trades or []) if t.get('symbol') == symbol]
+    if len(own_trades) < 3:
+        low = RISK_LEVELS['LOW_RISK']
+        result = {
+            'symbol': symbol,
+            'risk_level': 'LOW_RISK',
+            'action': low['action'],
+            'position_size': low['position_size'],
+            'confidence': 1.0,
+            'message': 'Sin trades del bot (historial importado excluido)',
+            'probabilities': {'LOW_RISK': 1.0},
+            'risk_indicators': {
+                'loss_streak': 0, 'loss_rate_24h': 0, 'drawdown_24h': 0,
+                'drawdown_7d': 0, 'hour': datetime.now().hour
+            },
+        }
+        output = {
+            'timestamp': datetime.now().isoformat(),
+            'model_accuracy': metadata.get('accuracy'),
+            'predictions': {symbol: result}
+        }
+        with open(RECOMMENDATIONS_FILE, 'w') as f:
+            json.dump(output, f, indent=2)
+        print(f"LOW_RISK|NORMAL|40|Sin trades del bot para {symbol} (historial importado excluido)")
+        return result
     
     hour = datetime.now().hour
     hour_sin = np.sin(2 * np.pi * hour / 24)
