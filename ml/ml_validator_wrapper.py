@@ -156,18 +156,7 @@ def validate_trade(coin: str, direction: str = "LONG", trade_type: str = "NORMAL
         result['approved'] = True
         result['reason'] = f"ML aprobado ({prediction['confidence']:.1f}% confianza)"
         result['source'] = 'ML'
-        result['base_position_size'] = result['position_size']
-
-        # Position sizing based on confidence (uses MIN_CONFIDENCE, not hardcoded 60)
-        confidence = prediction['confidence']
-        if confidence >= 80:
-            result['position_size'] = 100  # Full position
-        elif confidence >= 70:
-            result['position_size'] = 75   # 75% position
-        elif confidence >= MIN_CONFIDENCE:  # ✅ Uses global constant (55), not hardcoded 60
-            result['position_size'] = 50   # 50% position (matches _deploy_optimized_model sizing)
-        else:
-            result['position_size'] = 25   # Minimal position (was: position_size=0 + signal=WAIT)
+        result = apply_modulation(result, coin)
 
         # Optional alpha reinforcement — never cancels ML approval
         try:
@@ -207,10 +196,8 @@ def validate_trade(coin: str, direction: str = "LONG", trade_type: str = "NORMAL
             result['reason'] = f"FALLBACK activado: {fallback['reason']}"
             result['signal'] = fallback.get('signal', result['signal'])
             result['confidence'] = fallback.get('confidence', 0.0)
-            result['base_position_size'] = result['position_size']
-            # 🔧 Posición dinámica según el régimen (BULL 50 / LATERAL 35 / BEAR 20)
-            result['position_size'] = fallback.get('position_size', FALLBACK_POSITION_PERCENT)
             result['regime'] = fallback.get('regime', 'LATERAL')
+            result = apply_modulation(result, coin)
             result['source'] = 'FALLBACK'
         else:
             result['reason'] = f"{result['reason']} | Fallback: {fallback.get('reason', 'sin datos')}"
@@ -505,6 +492,122 @@ def _technical_fallback(coin: str, direction: str = "LONG") -> dict:
     }
 
 
+# ════════════════════════════════════════════════════════
+# MODELO DE OUTCOME (modulador de tamaño) — paso 3 de #77
+# ════════════════════════════════════════════════════════
+OUTCOME_MODEL = Path("/home/overgon/.openclaw/workspace/ml/outcome_model.pkl")
+OUTCOME_META = Path("/home/overgon/.openclaw/workspace/ml/outcome_features.json")
+REGIME_MULT = {'BULL': 1.0, 'LATERAL': 0.75, 'BEAR': 0.45}
+
+
+def _rsi_s(c: pd.Series, n: int = 14) -> float:
+    d = c.diff()
+    g = d.clip(lower=0).rolling(n).mean()
+    l = (-d.clip(upper=0)).rolling(n).mean().replace(0, 1e-9)
+    return float((100 - 100 / (1 + g / l)).iloc[-1])
+
+
+def per_coin_position_size(coin: str, default: float = 10.0) -> float:
+    """Posicion base (%) por moneda desde crypto-bots/per-coin-config.env."""
+    try:
+        p = Path(os.path.expanduser('~/.openclaw/workspace/crypto-bots/per-coin-config.env'))
+        for line in p.read_text().splitlines():
+            line = line.strip()
+            if line.startswith(f'{coin}_POSITION_SIZE='):
+                return float(line.split('=', 1)[1].strip().strip('"').strip("'"))
+    except Exception:
+        pass
+    return default
+
+
+def outcome_probability(coin: str):
+    """
+    Probabilidad (0-1) de que un trade iniciado ahora cierre con P&L > 0,
+    segun el modelo de outcome entrenado en research/train_outcome_model.py.
+    Devuelve None si no hay modelo o no se pudo calcular.
+    """
+    if not OUTCOME_MODEL.exists() or not OUTCOME_META.exists():
+        return None
+    try:
+        import joblib
+        import ccxt
+        import pandas as pd
+        import numpy as np
+        meta = json.loads(OUTCOME_META.read_text())
+        model = joblib.load(OUTCOME_MODEL)
+
+        ex = ccxt.binance({'options': {'defaultType': 'spot'}})
+        frames = {}
+        for sym in {coin, 'BTC'}:
+            o = ex.fetch_ohlcv(f'{sym}/USDT', timeframe='1h', limit=500)
+            df = pd.DataFrame(o, columns=['ts', 'open', 'high', 'low', 'close', 'volume'])
+            df['ts'] = pd.to_datetime(df['ts'], unit='ms')
+            frames[sym] = df.set_index('ts')
+
+        h = frames[coin]
+        b = frames['BTC']
+        c = h['close']
+        feat = {}
+        for n in (1, 4, 12, 24):
+            feat[f'ret_{n}h'] = float(c.pct_change(n).iloc[-1])
+        feat['rsi14'] = _rsi_s(c)
+        ema12 = c.ewm(span=12, adjust=False).mean()
+        ema26 = c.ewm(span=26, adjust=False).mean()
+        feat['macd_hist'] = float((ema12 - ema26).iloc[-1] - (ema12 - ema26).ewm(span=9, adjust=False).mean().iloc[-1])
+        for n in (20, 50, 200):
+            feat[f'dist_ema{n}'] = float(c.iloc[-1] / c.ewm(span=n, adjust=False).mean().iloc[-1] - 1)
+        tr = pd.concat([h['high'] - h['low'],
+                        c - h['low'].shift(1).fillna(c),
+                        h['high'].shift(1).fillna(c) - c], axis=1).max(axis=1)
+        feat['atr_pct'] = float(tr.rolling(14).mean().iloc[-1] / c.iloc[-1])
+        ma = c.rolling(20).mean()
+        feat['bb_width'] = float((c.rolling(20).std() * 4).iloc[-1] / ma.iloc[-1])
+        feat['dist_high50'] = float(c.iloc[-1] / h['high'].rolling(50).max().iloc[-1] - 1)
+        feat['dist_low50'] = float(c.iloc[-1] / h['low'].rolling(50).min().iloc[-1] - 1)
+        feat['vol_ratio'] = float(h['volume'].iloc[-1] / h['volume'].rolling(20).mean().iloc[-1])
+        hour = h.index[-1].hour
+        feat['hour_sin'] = float(np.sin(2 * np.pi * hour / 24))
+        feat['hour_cos'] = float(np.cos(2 * np.pi * hour / 24))
+        feat['btc_ret_24h'] = float(b['close'].pct_change(24).iloc[-1])
+        for cn in ['BTC', 'ETH', 'BNB', 'SOL', 'LINK', 'XRP', 'AVAX', 'ZEC']:
+            feat[f'c_{cn}'] = 1 if cn == coin else 0
+
+        X = pd.DataFrame([[feat.get(f, 0.0) for f in meta['features']]], columns=meta['features'])
+        return float(model.predict_proba(X.to_numpy())[0][1])
+    except Exception as e:
+        print(f"⚠️  outcome model no disponible: {e}", file=sys.stderr)
+        return None
+
+
+def modulated_position(coin: str, approved: bool, base_size: float, regime: str = 'LATERAL'):
+    """
+    Regla del paso 3: el modelo modula el tamaño (no veta).
+      tamaño = base * regime_mult * clip(prob, 0.25, 1.0)
+    """
+    if not approved:
+        return 0.0, None
+    p = outcome_probability(coin)
+    if p is None:
+        mult = REGIME_MULT.get(regime, 0.75)
+        return round(min(base_size, base_size * mult), 2), None
+    mult = REGIME_MULT.get(regime, 0.75) * min(1.0, max(0.25, p))
+    return round(min(base_size, base_size * mult), 2), p
+
+
+def apply_modulation(result: dict, coin: str) -> dict:
+    """Aplica el modulador de tamaño (modelo de outcome) a un trade ya aprobado."""
+    base = per_coin_position_size(coin)
+    reg = result.get('regime') or _market_regime(coin)
+    size, p = modulated_position(coin, True, base, reg)
+    result['position_size'] = size
+    result['regime'] = reg
+    result['outcome_prob'] = p
+    result['base_position_size'] = base
+    if p is not None:
+        result['reason'] = f"{result['reason']} | outcome p={p:.2f} → tamaño {size:.1f}%"
+    return result
+
+
 def print_validation(result: dict, coin: str):
     """Imprimir resultado formateado"""
     
@@ -516,6 +619,8 @@ def print_validation(result: dict, coin: str):
     print(f"Position size: {result['position_size']}%")
     if result.get('regime'):
         print(f"Régimen de mercado: {result['regime']}")
+    if result.get('outcome_prob') is not None:
+        print(f"Outcome model: p={result['outcome_prob']:.2f} → tamaño {result['position_size']}%")
     
     if 'model_accuracy' in result:
         print(f"Model accuracy: {result['model_accuracy']:.2%}")
