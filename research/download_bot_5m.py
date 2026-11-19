@@ -58,6 +58,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument('--days', type=int, default=95)
     ap.add_argument('--coins', default='ALL')
+    ap.add_argument('--max-iters', type=int, default=40, help='paginas de 1000 velas por moneda')
     args = ap.parse_args()
 
     coins = ALL_COINS if args.coins.upper() == 'ALL' else [c.strip().upper() for c in args.coins.split(',')]
@@ -71,7 +72,7 @@ def main() -> None:
     for coin in coins:
         symbol = f'{coin}USDT'
         try:
-            rows = download(symbol, start_ms, end_ms)
+            rows = download(symbol, start_ms, end_ms, max_iters=args.max_iters)
         except Exception as exc:  # noqa: BLE001
             print(f'  ❌ {coin}: {exc}', flush=True)
             continue
