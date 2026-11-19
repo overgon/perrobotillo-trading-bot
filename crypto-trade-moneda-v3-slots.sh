@@ -2644,15 +2644,18 @@ _Jefe, el bot está en pausa global._ 🐕" 2>/dev/null || true
         if [ -n "$ML_POSITION_SIZE" ] && [ "$ML_POSITION_SIZE" != "40" ]; then
             log "🧠 ML: Position size recomendado: ${ML_POSITION_SIZE}%"
             
-            # Aplicar ML position size (respetando límites 15-50%)
-            if [ "$ML_POSITION_SIZE" -ge 15 ] && [ "$ML_POSITION_SIZE" -le 50 ]; then
+            # 🔧 2026-11-18: tope 15-20% (antes 15-50%). El modelo pide 25/40/50,
+            # que con 3 slots por moneda desplegaba demasiado capital.
+            if [ "$ML_POSITION_SIZE" -ge 15 ] && [ "$ML_POSITION_SIZE" -le 20 ]; then
                 TRADE_PERCENT=$ML_POSITION_SIZE
-                log "✅ ML override aplicado: TRADE_PERCENT=${TRADE_PERCENT}%"
+            elif [ "$ML_POSITION_SIZE" -gt 20 ]; then
+                TRADE_PERCENT=20
             else
-                log "⚠️ ML position size fuera de rango (${ML_POSITION_SIZE}%), usando default 40%"
+                TRADE_PERCENT=15
             fi
+            log "✅ ML override aplicado: TRADE_PERCENT=${TRADE_PERCENT}% (tope 15-20%)"
         else
-            log "🧠 ML: Usando position size default (40%)"
+            log "🧠 ML: Usando position size del config (${TRADE_PERCENT}%)"
         fi
     else
         log "⚠️ ML position size script no disponible"
@@ -2798,7 +2801,7 @@ Se recomienda esperar condiciones mejores. 🐕"
                 
                 if [ "$ML_RISK_ACTION" = "REDUCE" ]; then
                     log "⚠️ ML: Riesgo MEDIO - Reduciendo position size"
-                    if [ "$ML_RISK_POSITION" -lt "$TRADE_PERCENT" ]; then
+                    if [ "$(printf '%s\n' "$ML_RISK_POSITION < $TRADE_PERCENT" | bc -l 2>/dev/null || echo 0)" = "1" ]; then
                         TRADE_PERCENT=$ML_RISK_POSITION
                         log "✅ Risk override aplicado: TRADE_PERCENT=${TRADE_PERCENT}%"
                     fi
