@@ -16,6 +16,10 @@ numpy>=1.24.0
 scikit-learn>=1.2.0
 lightgbm>=3.3.0
 joblib>=1.2.0
+imbalanced-learn>=0.12.0   # SMOTE para el balanceo de clases del ML
+
+# Market data / fallback técnico del gate ML
+ccxt>=4.0.0
 
 # HTTP Requests
 requests>=2.31.0
