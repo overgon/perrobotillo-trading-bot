@@ -909,6 +909,7 @@ execute_long() {
     local ml_position="N/A"
     local ml_reason="N/A"
     local ml_signal="N/A"
+    local ml_outcome="N/A"
     
     if [ -f "$ML_VALIDATOR" ]; then
         log "🧠 ML Validator: Consultando validación pre-trade (Jesse AI Pipeline)..."
@@ -927,9 +928,11 @@ execute_long() {
         ml_signal=$(echo "$ml_result" | grep -oE 'Señal ML:[[:space:]]*(WAIT|LONG|SHORT)' | sed -E 's/.*Señal ML:[[:space:]]*//' | head -n1)
         ml_position=$(echo "$ml_result" | grep -oE 'size:[[:space:]]*[0-9]+(\.[0-9]+)?%' | sed -E 's/.*size:[[:space:]]*//;s/%//' | head -n1)
         ml_reason=$(echo "$ml_result" | grep -oE 'Razón:[[:space:]].+' | sed -E 's/.*Razón:[[:space:]]*//' | head -n1)
+        ml_outcome=$(echo "$ml_result" | grep -oE 'Outcome p:[[:space:]]*(N/A|[0-9]+(\.[0-9]+)?)' | sed -E 's/.*Outcome p:[[:space:]]*//' | head -n1)
+        [ -z "$ml_outcome" ] && ml_outcome="N/A"
         
         log "🔍 ML Parseado: approved='${ml_approved:-N/A}', confidence='${ml_confidence:-N/A}%', signal='${ml_signal:-N/A}'"
-        log "🔍 ML Position size: ${ml_position:-N/A}%, Razón: ${ml_reason:-N/A}"
+        log "🔍 ML Position size: ${ml_position:-N/A}%, Outcome p: ${ml_outcome}, Razón: ${ml_reason:-N/A}"
         
         # Si ML rechaza el trade, skippear
         if [ -z "$ml_approved" ] || [ "$ml_approved" = "N/A" ] || [ "$ml_approved" = "None" ]; then
@@ -956,7 +959,7 @@ execute_long() {
             log "   Razón: ${ml_reason:-No se pudo parsear respuesta ML}"
             
             # Log a archivo de rechazos
-            echo "$(date -Iseconds),$SYMBOL,LONG,${ml_signal:-N/A},${ml_confidence:-0},${ml_reason:-parse_failed}" >> "$WORKSPACE/logs/ml-rejections.csv"
+            echo "$(date -Iseconds),$SYMBOL,LONG,${ml_signal:-N/A},${ml_confidence:-0},${ml_outcome:-N/A},${ml_reason:-parse_failed}" >> "$WORKSPACE/logs/ml-rejections.csv"
             
             return 1
         fi

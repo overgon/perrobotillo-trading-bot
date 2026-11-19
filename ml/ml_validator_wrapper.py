@@ -127,6 +127,8 @@ def validate_trade(coin: str, direction: str = "LONG", trade_type: str = "NORMAL
         'signal': prediction.get('signal', 'WAIT'),
         'model_accuracy': metadata['metrics']['accuracy'],
         'model_type': 'optimized',  # ✅ Usando modelo optimizado
+        # telemetry del modelo de outcome (paso 3 de #77): se calcula siempre
+        'outcome_prob': outcome_probability(coin),
         'overfitting_gap': metadata['metrics'].get('overfitting_gap', 'N/A')
     }
     
@@ -536,7 +538,7 @@ def outcome_probability(coin: str):
         meta = json.loads(OUTCOME_META.read_text())
         model = joblib.load(OUTCOME_MODEL)
 
-        ex = ccxt.binance({'options': {'defaultType': 'spot'}})
+        ex = ccxt.binance({'options': {'defaultType': 'spot'}, 'timeout': 8000})
         frames = {}
         for sym in {coin, 'BTC'}:
             o = ex.fetch_ohlcv(f'{sym}/USDT', timeframe='1h', limit=500)
@@ -598,7 +600,11 @@ def apply_modulation(result: dict, coin: str) -> dict:
     """Aplica el modulador de tamaño (modelo de outcome) a un trade ya aprobado."""
     base = per_coin_position_size(coin)
     reg = result.get('regime') or _market_regime(coin)
-    size, p = modulated_position(coin, True, base, reg)
+    p = result.get('outcome_prob')
+    if p is None:
+        p = outcome_probability(coin)
+    mult = REGIME_MULT.get(reg, 0.75) * (1.0 if p is None else min(1.0, max(0.25, p)))
+    size = round(min(base, base * mult), 2)
     result['position_size'] = size
     result['regime'] = reg
     result['outcome_prob'] = p
@@ -619,8 +625,8 @@ def print_validation(result: dict, coin: str):
     print(f"Position size: {result['position_size']}%")
     if result.get('regime'):
         print(f"Régimen de mercado: {result['regime']}")
-    if result.get('outcome_prob') is not None:
-        print(f"Outcome model: p={result['outcome_prob']:.2f} → tamaño {result['position_size']}%")
+    p_out = result.get('outcome_prob')
+    print(f"Outcome p: {p_out:.4f}" if p_out is not None else "Outcome p: N/A")
     
     if 'model_accuracy' in result:
         print(f"Model accuracy: {result['model_accuracy']:.2%}")
