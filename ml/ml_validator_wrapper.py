@@ -208,7 +208,9 @@ def validate_trade(coin: str, direction: str = "LONG", trade_type: str = "NORMAL
             result['signal'] = fallback.get('signal', result['signal'])
             result['confidence'] = fallback.get('confidence', 0.0)
             result['base_position_size'] = result['position_size']
-            result['position_size'] = FALLBACK_POSITION_PERCENT
+            # 🔧 Posición dinámica según el régimen (BULL 50 / LATERAL 35 / BEAR 20)
+            result['position_size'] = fallback.get('position_size', FALLBACK_POSITION_PERCENT)
+            result['regime'] = fallback.get('regime', 'LATERAL')
             result['source'] = 'FALLBACK'
         else:
             result['reason'] = f"{result['reason']} | Fallback: {fallback.get('reason', 'sin datos')}"
@@ -346,7 +348,45 @@ def _deploy_optimized_model(coin: str, model_path: Path, metadata_path: Path) ->
 
 
 
-def _calculate_fallback_confidence(approved: bool, bullish_trend: bool, rsi: float, volume_ok: bool) -> float:
+def _market_regime(coin: str) -> str:
+    """
+    Régimen de mercado de la moneda. Fuente primaria: ml/market-predictions.json
+    (market-classifier, actualizado cada 2h). Respaldo: crypto-bots/market-mode.conf.
+    """
+    ws = Path(os.path.expanduser('~/.openclaw/workspace'))
+    mode = None
+    try:
+        with open(ws / 'ml' / 'market-predictions.json') as f:
+            preds = json.load(f).get('predictions', {})
+        mode = (preds.get(coin) or {}).get('market_mode')
+    except Exception:
+        pass
+    if not mode:
+        try:
+            with open(ws / 'crypto-bots' / 'market-mode.conf') as f:
+                for line in f:
+                    if line.strip().startswith('MARKET_MODE='):
+                        mode = line.split('=', 1)[1].strip().strip('"').strip("'")
+                        break
+        except Exception:
+            pass
+    return mode if mode in REGIME_PARAMS else 'LATERAL'
+
+
+# ════════════════════════════════════════════════════════
+# UMBRALES DINÁMICOS SEGÚN RÉGIMEN DE MERCADO
+# ════════════════════════════════════════════════════════
+# BULL: perseguir momentum (SMA20, RSI hasta 72). LATERAL: más confirmación.
+# BEAR: solo recuperaciones fuertes (precio > SMA50) con RSI bajo.
+REGIME_PARAMS = {
+    'BULL':    {'trend_sma': 20, 'rsi_min': 40, 'rsi_max': 72, 'position': 50},
+    'LATERAL': {'trend_sma': 20, 'rsi_min': 35, 'rsi_max': 62, 'position': 35},
+    'BEAR':    {'trend_sma': 50, 'rsi_min': 25, 'rsi_max': 55, 'position': 20},
+}
+
+
+def _calculate_fallback_confidence(approved: bool, bullish_trend: bool, rsi: float,
+                                   volume_ok: bool, regime: str = 'LATERAL') -> float:
     """
     Calculate dynamic confidence for fallback trades based on technical signals.
     Instead of hardcoded 40%, derives real confidence from signal strength.
@@ -359,17 +399,23 @@ def _calculate_fallback_confidence(approved: bool, bullish_trend: bool, rsi: flo
     # Base confidence for approved fallback
     confidence += 45  # Base approval threshold
     
-    # RSI factor: neutral zone (55-70) adds confidence
-    if 55 <= rsi <= 70:
-        confidence += 10  # Bonus por estar en zona neutra-no sobrecomprada
-    elif rsi < 55:
-        confidence += 5   # Oversold-ish
-    elif rsi > 70:
-        confidence -= 15  # Penalty por sobrecomprado
+    # RSI dentro de la banda del régimen (más cerca del centro, más confianza)
+    p = REGIME_PARAMS.get(regime, REGIME_PARAMS['LATERAL'])
+    if p['rsi_min'] <= rsi <= p['rsi_max']:
+        mid = (p['rsi_min'] + p['rsi_max']) / 2
+        confidence += 15 - abs(rsi - mid) * 0.3
+    else:
+        confidence -= 15
     
     # Trend factor: confirmado bullish trend
     if bullish_trend:
         confidence += 15  # Bonus fuerte por tendencia confirmada
+
+    # En BEAR se exige más y se da menos confianza; en BULL se permite momentum
+    if regime == 'BULL':
+        confidence += 5
+    elif regime == 'BEAR':
+        confidence -= 5
     
     # Volume factor
     if volume_ok:
@@ -399,19 +445,26 @@ def _technical_fallback(coin: str, direction: str = "LONG") -> dict:
 
     approved = False
     reason = 'Fallback: condiciones técnicas no cumplidas'
+    regime = 'LATERAL'
+    bullish_trend = False
+    rsi = 50.0
+    volume_ok = False
+    position_size = 0
 
     try:
         exchange = ccxt.binance({'options': {'defaultType': 'spot'}})
         symbol = f'{coin}/USDT'
-        ohlcv = exchange.fetch_ohlcv(symbol, timeframe='1h', limit=50)
+        ohlcv = exchange.fetch_ohlcv(symbol, timeframe='1h', limit=60)
         if not ohlcv:
             raise RuntimeError('OHLCV vacío')
 
         closes = np.array([c[4] for c in ohlcv], dtype=float)
         volumes = np.array([c[5] for c in ohlcv], dtype=float)
 
-        sma20 = np.mean(closes[-20:])
-        sma50 = np.mean(closes[-50:])
+        regime = _market_regime(coin)
+        p = REGIME_PARAMS[regime]
+
+        sma_trend = np.mean(closes[-p['trend_sma']:])
         current = closes[-1]
 
         delta = np.diff(closes)
@@ -421,30 +474,34 @@ def _technical_fallback(coin: str, direction: str = "LONG") -> dict:
         avg_loss = np.mean(loss[-14:]) if len(loss) >= 14 and np.mean(loss[-14:]) != 0 else 1e-9
         rsi = 100 - (100 / (1 + (avg_gain / avg_loss))) if avg_loss else 50.0
 
-        bullish_trend = current > sma20  # Relajado: solo requiere estar sobre SMA20
-        oversold = rsi < 70  # Relajado de 62 → 70: tolerar RSI más alto en tendencia alcista
-        volume_ok = True  # Relajado: permitir entrada si trend + RSI son good, incluso con volumen bajo
+        bullish_trend = current > sma_trend
+        rsi_ok = p['rsi_min'] <= rsi <= p['rsi_max']
+        volume_ok = True  # sin penalización por volumen bajo
+        position_size = p['position']
+        base = (f"{regime}: trend={bullish_trend} (SMA{p['trend_sma']}), "
+                f"RSI={rsi:.1f} [{p['rsi_min']}-{p['rsi_max']}], vol={volume_ok}")
 
         if direction == 'LONG':
-            approved = bool(bullish_trend and oversold and volume_ok)
-            reason = f'Fallback LONG aprobado (trend={bullish_trend}, RSI={rsi:.1f}, vol={volume_ok})' if approved else f'Fallback LONG rechazado (trend={bullish_trend}, RSI={rsi:.1f}, vol={volume_ok})'
+            approved = bool(bullish_trend and rsi_ok and volume_ok)
+            reason = f'Fallback LONG {"aprobado" if approved else "rechazado"} ({base})'
         elif direction == 'SHORT':
-            not_bullish = current < sma20 < sma50  # Mantener estricto para SHORT
-            overbought = rsi > 55  # Relajado de 55 (igual) pero ahora usará threshold relajado
+            not_bullish = current < sma_trend
+            overbought = rsi > p['rsi_max']
             if not_bullish and overbought and volume_ok:
                 approved = True
-                reason = f'Fallback SHORT aprobado (RSI={rsi:.1f})'
+                reason = f'Fallback SHORT aprobado ({base})'
             else:
-                reason = f'Fallback SHORT rechazado (RSI={rsi:.1f}, trend={not_bullish})'
+                reason = f'Fallback SHORT rechazado ({base})'
     except Exception as e:
         reason = f'Fallback error: {e}'
 
     return {
         'approved': approved,
         'reason': reason,
-        'confidence': _calculate_fallback_confidence(approved, bullish_trend, rsi, volume_ok) if approved else 0.0,
-        'position_size': 25,
+        'confidence': _calculate_fallback_confidence(approved, bullish_trend, rsi, volume_ok, regime) if approved else 0.0,
+        'position_size': position_size if approved else 0,
         'signal': direction if approved else 'WAIT',
+        'regime': regime,
     }
 
 
@@ -457,6 +514,8 @@ def print_validation(result: dict, coin: str):
     print(f"Confianza: {result['confidence']:.1f}%")
     print(f"Señal ML: {result['signal']}")
     print(f"Position size: {result['position_size']}%")
+    if result.get('regime'):
+        print(f"Régimen de mercado: {result['regime']}")
     
     if 'model_accuracy' in result:
         print(f"Model accuracy: {result['model_accuracy']:.2%}")
