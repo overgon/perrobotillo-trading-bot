@@ -972,7 +972,10 @@ execute_long() {
         fi
         
         # Si ML aprueba pero sugiere menor posición, ajustar
-        if [ -n "$ml_position" ] && [ "$ml_position" != "N/A" ] && [ "$ml_position" -lt "$position_percent" ] 2>/dev/null; then
+        # 🔧 FIX 2026-11-18: `[ "$a" -lt "$b" ]` es comparación de ENTEROS y falla
+        # con decimales (p.ej. 4.7), así que la reducción nunca se aplicaba. Usamos bc.
+        if [ -n "$ml_position" ] && [ "$ml_position" != "N/A" ] \
+           && [ "$(printf '%s\n' "$ml_position < $position_percent" | bc -l 2>/dev/null || echo 0)" = "1" ]; then
             log "⚠️ ML sugiere reducir posición: ${position_percent}% → ${ml_position}%"
             position_percent="$ml_position"
         fi
