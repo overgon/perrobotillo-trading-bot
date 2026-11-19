@@ -189,6 +189,16 @@ log "╔════════════════════════
 log "║  🐕 Dashboard Watchdog - Check                        ║"
 log "╚═══════════════════════════════════════════════════════╝"
 
+# 🔧 FIX 2026-11-18: evitar instancias duplicadas de ngrok. Dos agentes con el
+# mismo tunnel dejan el acceso público respondiendo ERR_NGROK_6030 (el tunnel
+# queda inutilizable). Se deja solo la primera instancia.
+NGROK_COUNT=$(pgrep -x "ngrok" | wc -l)
+if [ "$NGROK_COUNT" -gt 1 ]; then
+    log "⚠️  Hay $NGROK_COUNT procesos ngrok - dejando solo uno"
+    pgrep -x "ngrok" | tail -n +2 | xargs -r kill
+    sleep 2
+fi
+
 # Verificar dashboard
 if check_dashboard; then
     log "✅ Dashboard está ONLINE"
