@@ -82,7 +82,7 @@ status = {
     "resumedAt": datetime.now().isoformat(),
     "lastChecked": datetime.now().isoformat()
 }
-with open("/home/overgon/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json", 'w') as f:
+with open("${HOME}/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json", 'w') as f:
     json.dump(status, f, indent=2)
 CBEOF
             
@@ -106,12 +106,13 @@ if [ ! -f "$TRADE_HISTORY" ]; then
 fi
 
 # Usar Python para parsing correcto de timestamps (bash jq tiene problemas con timezones)
-losses_data=$(python3 << 'PYEOF'
+losses_data=$(CB_TRADE_HISTORY="$TRADE_HISTORY" CB_RESET_FILE="$WORKSPACE/crypto-bots/cb-loss-reset-flag.json" python3 << 'PYEOF'
 import json
+import os
 from datetime import datetime, timezone, timedelta
 import sys
 
-with open("/home/overgon/.openclaw/workspace/crypto-bots/trade-history.json", 'r') as f:
+with open(os.environ['CB_TRADE_HISTORY'], 'r') as f:
     data = json.load(f)
 
 now = datetime.now(timezone.utc)
@@ -123,7 +124,7 @@ one_hour_ago = now - timedelta(hours=1)
 # the CB should NOT immediately re-trigger it (prevents perpetual re-trigger loop)
 # Rule 1 uses the FULL 24h window with a guard (losses_24h >= 1) to prevent
 # re-triggering on the same losses.
-reset_file = "/home/overgon/.openclaw/workspace/crypto-bots/cb-loss-reset-flag.json"
+reset_file = os.environ['CB_RESET_FILE']
 cutoff_reset = cutoff_24h  # Start with same as full window
 try:
     with open(reset_file) as rf:
@@ -257,7 +258,7 @@ status = {
     "blockedOperations": ["New Entries", "DCA Operations"],
     "lastChecked": datetime.now().isoformat()
 }
-with open("/home/overgon/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json", 'w') as f:
+with open("${HOME}/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json", 'w') as f:
     json.dump(status, f, indent=2)
 CBEOF
     
@@ -288,7 +289,7 @@ status = {
     "blockedOperations": ["New Entries", "DCA Operations"],
     "lastChecked": datetime.now().isoformat()
 }
-with open("/home/overgon/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json", 'w') as f:
+with open("${HOME}/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json", 'w') as f:
     json.dump(status, f, indent=2)
 CBEOF
     
@@ -321,7 +322,7 @@ status = {
     "blockedOperations": ["New Entries", "DCA Operations"],
     "lastChecked": datetime.now().isoformat()
 }
-with open("/home/overgon/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json", 'w') as f:
+with open("${HOME}/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json", 'w') as f:
     json.dump(status, f, indent=2)
 CBEOF
     
@@ -357,7 +358,7 @@ status = {
     "blockedOperations": ["New Entries", "DCA Operations"],
     "lastChecked": datetime.now().isoformat()
 }
-with open("/home/overgon/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json", 'w') as f:
+with open("${HOME}/.openclaw/workspace/crypto-bots/dashboard-circuit-breaker-status.json", 'w') as f:
     json.dump(status, f, indent=2)
 CBEOF
         
