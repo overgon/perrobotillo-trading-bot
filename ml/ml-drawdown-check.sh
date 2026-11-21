@@ -331,9 +331,14 @@ else
     python3 "${ML_DIR}/drawdown-predictor.py" --predict "$SYMBOL" > /dev/null 2>&1
     
     if [ -f "$RECOMMENDATIONS_FILE" ]; then
+        # 🔧 2026-11-21: primero el archivo por moneda (antes solo habia uno
+        # compartido que cada coin sobreescribía -> se leia la predicción de otra).
         python3 << PYEOF
-import json
-with open('$RECOMMENDATIONS_FILE', 'r') as f:
+import json, os
+rec = os.path.join('${ML_DIR}', 'drawdown-recommendations-${SYMBOL}.json')
+if not os.path.exists(rec):
+    rec = '${RECOMMENDATIONS_FILE}'
+with open(rec, 'r') as f:
     data = json.load(f)
 pred = data['predictions'].get('$SYMBOL', {})
 risk = pred.get('risk_level', 'LOW_RISK')

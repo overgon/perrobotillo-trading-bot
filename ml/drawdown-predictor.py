@@ -42,7 +42,16 @@ MODEL_FILE = os.path.join(ML_DIR, "drawdown-predictor.pkl")
 RECOMMENDATIONS_FILE = os.path.join(ML_DIR, "drawdown-recommendations.json")
 METADATA_FILE = os.path.join(ML_DIR, "drawdown-metadata.json")
 
-COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX"]
+
+def rec_file(symbol):
+    """🔧 2026-11-21: recomendaciones por moneda.
+
+    Antes era un solo archivo compartido que cada moneda sobreescribía al predecir,
+    así que el wrapper podía leer la predicción de OTRA moneda (race).
+    """
+    return os.path.join(ML_DIR, f"drawdown-recommendations-{symbol}.json")
+
+COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "XRP", "AVAX", "ZEC"]
 
 RISK_LEVELS = {
     'LOW_RISK': {'action': 'NORMAL', 'position_size': 40, 'message': 'Riesgo bajo - operar normal'},
@@ -84,6 +93,16 @@ def calculate_risk_features(trades, target_coin=None):
     df['pnlUSDT'] = df['pnlUSDT'].astype(float)
     df['is_loss'] = df['pnlUSDT'] < 0
     
+    # 🔧 2026-11-21: TODAS las features por moneda (coherente con
+    # ml-drawdown-check.sh). Antes las ventanas 24h/7d y el drawdown eran globales,
+    # así que las pérdidas de otras monedas pausaban esta.
+    if target_coin:
+        df = df[df['symbol'] == target_coin].copy()
+        if df.empty:
+            return {'loss_streak': 0, 'loss_rate_24h': 0, 'loss_rate_7d': 0,
+                    'drawdown_24h': 0, 'drawdown_7d': 0, 'avg_loss_size': 0,
+                    'loss_volatility': 0, 'total_trades_24h': 0, 'total_trades_7d': 0}
+
     features = {
         'loss_streak': 0,
         'loss_rate_24h': 0,
@@ -126,8 +145,15 @@ def calculate_risk_features(trades, target_coin=None):
         if len(losses_7d) > 1:
             features['loss_volatility'] = abs(losses_7d.std())
     
-    # Rachas de pérdidas (últimos 10 trades)
-    recent = df.sort_values('timestamp', ascending=False).head(10)
+    # 🔧 2026-11-21: racha por MONEDA y con ventana de 48h.
+    # Antes: head(10) GLOBAL y sin límite de tiempo. Una racha de otra moneda
+    # pausaba esta (el mismo bug que ya se corrigió en ml-drawdown-check.sh) y,
+    # como la pausa impide operar, la racha nunca bajaba -> moneda pausada para
+    # siempre. Caso real: LINK en HIGH_RISK por 10 SL de otras monedas.
+    streak_window = df[df['timestamp'] >= (now - timedelta(hours=48))]
+    if target_coin:
+        streak_window = streak_window[streak_window['symbol'] == target_coin]
+    recent = streak_window.sort_values('timestamp', ascending=False).head(10)
     if len(recent) > 0:
         losses = recent['is_loss'].astype(int)
         current_loss_streak = 0
@@ -374,7 +400,7 @@ def predict_risk(symbol='BTC'):
             'model_accuracy': metadata.get('accuracy'),
             'predictions': {symbol: result}
         }
-        with open(RECOMMENDATIONS_FILE, 'w') as f:
+        with open(rec_file(symbol), 'w') as f:
             json.dump(output, f, indent=2)
         print(f"LOW_RISK|NORMAL|40|Sin trades del bot para {symbol} (historial importado excluido)")
         return result
@@ -442,10 +468,10 @@ def predict_risk(symbol='BTC'):
         'predictions': {symbol: result}
     }
     
-    with open(RECOMMENDATIONS_FILE, 'w') as f:
+    with open(rec_file(symbol), 'w') as f:
         json.dump(output, f, indent=2)
     
-    print(f"\n✅ Recomendaciones guardadas: {RECOMMENDATIONS_FILE}")
+    print(f"\n✅ Recomendaciones guardadas: {rec_file(symbol)}")
     
     return result
 
