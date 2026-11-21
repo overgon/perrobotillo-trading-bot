@@ -36,7 +36,7 @@ if [ -f "$GLOBAL_PAUSE_FILE" ]; then
             # 🐕 FIX: Permitir gestión de trades activos (SL/TP) incluso con pause flag
             # Verificar si hay trades activos que necesitan gestión
             HAS_ACTIVE_TRADES=false
-            for coin in BTC ETH BNB SOL ZEC XRP AVAX; do
+            for coin in BTC ETH BNB SOL LINK ZEC XRP AVAX; do
                 state_file="$WORKSPACE/crypto-bots/${coin}-trade-state.json"
                 if [ -f "$state_file" ]; then
                     active=$(jq '[.slots[] | select(.status == "ACTIVE")] | length' "$state_file" 2>/dev/null || echo 0)
@@ -58,13 +58,14 @@ if [ -f "$GLOBAL_PAUSE_FILE" ]; then
             fi
         else
             # Pausa expiró, limpiar flag
-            # ✅ FIX: Use triggered_at (pause start) as reset cutoff, NOT now (expiry)
-            # This ensures trades that closed DURING the pause are counted in the next evaluation
-            triggered_at_epoch=$(jq -r '.triggered_at // 0' "$GLOBAL_PAUSE_FILE" 2>/dev/null || echo 0)
+            # 🔧 2026-11-20: el corte del reset es la EXPIRACIÓN de la pausa, no el
+            # trigger. Con triggered_at, los SL de posiciones abiertas ANTES del CB
+            # (que cierran durante la pausa) contaban como pérdidas "nuevas" y el CB
+            # se reactivaba justo al reanudar, sin que el bot operara nada nuevo.
+            pause_until_raw=$(jq -r '.pause_until // ""' "$GLOBAL_PAUSE_FILE" 2>/dev/null)
             rm -f "$GLOBAL_PAUSE_FILE"
-            if [ "$triggered_at_epoch" -gt 0 ] 2>/dev/null; then
-                reset_ts="$triggered_at_epoch"
-            else
+            reset_ts=$(date -d "$pause_until_raw" +%s 2>/dev/null || echo 0)
+            if [ "${reset_ts:-0}" -le 0 ] 2>/dev/null; then
                 reset_ts=$(date +%s)
             fi
             jq -n --arg rt "$reset_ts" \
@@ -332,9 +333,10 @@ CBEOF
 fi
 
 # Regla 4: Loss rate > 60% en 24h → PAUSE 12h
-# 🔧 FIX: requerir mínimo 3 trades en 24h antes de evaluar loss rate
-# Con 1-2 trades, un solo SL dispara 100% loss rate → CB se perpetúa
-if [ "$trades_24h" -ge 3 ]; then
+# 🔧 FIX: requerir mínimo 5 trades en 24h antes de evaluar loss rate.
+# Antes 3: con 3 trades, 3 SL = 100% y el CB se reactivaba con cierres de
+# posiciones viejas (muestra demasiado pequeña). Con 5 la señal es más firme.
+if [ "$trades_24h" -ge 5 ]; then
     loss_rate=$(echo "scale=2; $losses_24h * 100 / $trades_24h" | bc)
     if (( $(echo "$loss_rate > 60" | bc -l) )); then
         pause_until=$(date -d '+12 hours' '+%Y-%m-%d %H:%M:%S')
