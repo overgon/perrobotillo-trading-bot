@@ -168,12 +168,14 @@ def calculate_risk_features(trades, target_coin=None):
         
         features['loss_streak'] = max_loss_streak
     
-    # Features específicas por coin
+    # Features específicas por coin — 🔧 2026-11-21: ventana de 7d.
+    # Antes usaban TODOS los trades de la moneda, así que una racha vieja dejaba la
+    # moneda pausada para siempre (deadlock: pausada -> no opera -> no se resetea).
     if target_coin:
-        coin_trades = df[df['symbol'] == target_coin]
-        if len(coin_trades) > 0:
-            features[f'{target_coin}_loss_rate'] = coin_trades['is_loss'].mean()
-            features[f'{target_coin}_loss_count'] = coin_trades['is_loss'].sum()
+        coin_7d = df[df['timestamp'] >= (now - timedelta(days=7))]
+        if len(coin_7d) > 0:
+            features[f'{target_coin}_loss_rate'] = coin_7d['is_loss'].mean()
+            features[f'{target_coin}_loss_count'] = coin_7d['is_loss'].sum()
         else:
             features[f'{target_coin}_loss_rate'] = 0
             features[f'{target_coin}_loss_count'] = 0
