@@ -22,9 +22,9 @@ warnings.filterwarnings('ignore')
 # CONFIGURACIÓN
 # ════════════════════════════════════════════════════════
 
-WORKSPACE = Path("/home/overgon/.openclaw/workspace")
-SECRETS = Path("/home/overgon/.openclaw/secrets")
-LOGS_DIR = Path("/home/overgon/.openclaw/logs")
+WORKSPACE = Path(os.environ.get("WORKSPACE") or (Path.home() / ".openclaw" / "workspace"))
+SECRETS = Path(os.environ.get("SECRETS") or (Path.home() / ".openclaw" / "secrets"))
+LOGS_DIR = Path(os.environ.get("LOGS_DIR") or (Path.home() / ".openclaw" / "logs"))
 CONFIG_DIR = WORKSPACE / "config" / "grid"
 
 CONFIG_DIR.mkdir(parents=True, exist_ok=True)
@@ -32,7 +32,7 @@ CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 # Configuración por defecto para cada moneda
 DEFAULT_GRID_CONFIG = {
     "BTC": {
-        "enabled": False  # Desactivado en migración a Slots,
+        "enabled": False,  # Desactivado en migración a Slots,
         "low_price": 57904,      # ✅ ACTUALIZADO: BTC ~$65,754 (Jun 2026)
         "high_price": 73696,     # Rango: $56k-$76k (±15% del precio actual)
         "grid_levels": 10,       # Número de niveles
@@ -42,7 +42,7 @@ DEFAULT_GRID_CONFIG = {
         "take_profit": 1.05,     # TP si precio sube 5% encima del rango
     },
     "ETH": {
-        "enabled": False  # Desactivado en migración a Slots,
+        "enabled": False,  # Desactivado en migración a Slots,
         "low_price": 1575,       # ✅ ACTUALIZADO: ETH ~$1,783 (Jun 2026)
         "high_price": 2005,      # Rango: $1.5k-$2k (±15% del precio actual)
         "grid_levels": 12,
@@ -52,7 +52,7 @@ DEFAULT_GRID_CONFIG = {
         "take_profit": 1.05,
     },
     "BNB": {
-        "enabled": False  # Desactivado en migración a Slots,
+        "enabled": False,  # Desactivado en migración a Slots,
         "low_price": 534,
         "high_price": 680,
         "grid_levels": 15,
@@ -62,7 +62,7 @@ DEFAULT_GRID_CONFIG = {
         "take_profit": 1.10,
     },
     "SOL": {
-        "enabled": False  # Desactivado en migración a Slots,  # ✅ Habilitado para Grid Trading
+        "enabled": False,  # Desactivado en migración a Slots,  # ✅ Habilitado para Grid Trading
         "low_price": 64.59,    # Actualizado: SOL ~$73.88
         "high_price": 82.21,
         "grid_levels": 10,
@@ -72,7 +72,7 @@ DEFAULT_GRID_CONFIG = {
         "take_profit": 1.12,
     },
     "ZEC": {
-        "enabled": False  # Desactivado en migración a Slots,  # ✅ Habilitado para Grid Trading
+        "enabled": False,  # Desactivado en migración a Slots,  # ✅ Habilitado para Grid Trading
         "low_price": 7.23,   # Actualizado: LINK ~$8.46
         "high_price": 9.21,
         "grid_levels": 10,
@@ -82,7 +82,7 @@ DEFAULT_GRID_CONFIG = {
         "take_profit": 1.12,
     },
     "XRP": {
-        "enabled": False  # Desactivado en migración a Slots,
+        "enabled": False,  # Desactivado en migración a Slots,
         "low_price": 1.07,   # ⚠️ AJUSTADO: Antes $1.20 (-5%), ahora $1.15 (-8%)
         "high_price": 1.37,
         "grid_levels": 12,
@@ -92,7 +92,7 @@ DEFAULT_GRID_CONFIG = {
         "take_profit": 1.05,
     },
     "AVAX": {
-        "enabled": False  # Desactivado en migración a Slots,  # ✅ Habilitado para Grid Trading
+        "enabled": False,  # Desactivado en migración a Slots,  # ✅ Habilitado para Grid Trading
         "low_price": 6.0,     # Actualizado: AVAX ~$6.95
         "high_price": 7.64,
         "grid_levels": 15,
@@ -104,7 +104,7 @@ DEFAULT_GRID_CONFIG = {
         "skill_confirmed": True
     },
     "BTC": {
-        "enabled": False  # Desactivado en migración a Slots,  # ✅ Habilitado para Grid Trading
+        "enabled": False,  # Desactivado en migración a Slots,  # ✅ Habilitado para Grid Trading
         "low_price": 57904,   # Actualizado: BTC ~$66,660
         "high_price": 73696,
         "grid_levels": 10,
@@ -114,7 +114,7 @@ DEFAULT_GRID_CONFIG = {
         "take_profit": 1.08,
     },
     "ETH": {
-        "enabled": False  # Desactivado en migración a Slots,  # ✅ Habilitado para Grid Trading
+        "enabled": False,  # Desactivado en migración a Slots,  # ✅ Habilitado para Grid Trading
         "low_price": 1575,   # Actualizado: ETH ~$1,816
         "high_price": 2005,
         "grid_levels": 12,

@@ -15,10 +15,11 @@ RACE CONDITION FIX (2026-10-24):
 """
 
 import json
+import os
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-WORKSPACE = Path("/home/overgon/.openclaw")
+WORKSPACE = Path(os.environ.get("WORKSPACE") or (Path.home() / ".openclaw"))
 CRYPTO_BOTS = WORKSPACE / "workspace" / "crypto-bots"
 CST = timezone(timedelta(hours=-6))
 
