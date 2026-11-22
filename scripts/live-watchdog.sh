@@ -23,12 +23,18 @@ tun=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$NGROK_URL/" || echo
 # 3) Ciclo del bot vivo: los logs cron-*.log deben tener actividad reciente (<=20 min)
 now=$(date +%s)
 stale=""
-for f in "$LOGS"/cron-*.log; do
-  [ -e "$f" ] || { stale="$stale $(basename "$f")"; continue; }
-  m=$(stat -c %Y "$f")
-  age=$(( (now - m) / 60 ))
-  [ "$age" -gt 20 ] && stale="$stale $(basename "$f"):${age}m"
-done
+shopt -s nullglob
+cron_logs=("$LOGS"/cron-*.log)
+shopt -u nullglob
+if [ ${#cron_logs[@]} -eq 0 ]; then
+  problems+=("no existen logs cron-*.log en $LOGS")
+else
+  for f in "${cron_logs[@]}"; do
+    m=$(stat -c %Y "$f")
+    age=$(( (now - m) / 60 ))
+    [ "$age" -gt 20 ] && stale="$stale $(basename "$f"):${age}m"
+  done
+fi
 [ -n "$stale" ] && problems+=("logs del bot sin actividad:$stale")
 
 # 4) Errores duros en los logs de trade (ultimas 2h), en AMBOS arboles de logs.
