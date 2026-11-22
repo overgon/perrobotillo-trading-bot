@@ -1,0 +1,32 @@
+{
+  "coin": "AVAX",
+  "trained_at": "2026-11-22T03:00:52.707206",
+  "config": {
+    "max_depth": 5,
+    "min_samples_split": 50,
+    "min_samples_leaf": 25,
+    "n_estimators": 300,
+    "max_features": "log2",
+    "max_leaf_nodes": 20,
+    "class_weight": "balanced",
+    "random_state": 42,
+    "ccp_alpha": 0.02
+  },
+  "use_feature_selection": true,
+  "n_features_original": 227,
+  "n_features_selected": 8,
+  "samples": 968,
+  "metrics": {
+    "accuracy": 0.42783505154639173,
+    "precision": 0.42938731614058573,
+    "recall": 0.42783505154639173,
+    "f1": 0.4154185204054301,
+    "cv_mean": 0.4354478854478855,
+    "cv_std": 0.03674467047359065,
+    "train_score": 0.46770025839793283,
+    "test_score": 0.42783505154639173,
+    "overfitting_gap": 0.03225237295004735
+  },
+  "is_optimized": true,
+  "last_trade_count": 968
+}

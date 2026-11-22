@@ -1,0 +1,32 @@
+{
+  "coin": "XRP",
+  "trained_at": "2026-11-22T03:00:44.074088",
+  "config": {
+    "max_depth": 6,
+    "min_samples_split": 35,
+    "min_samples_leaf": 20,
+    "n_estimators": 200,
+    "max_features": "sqrt",
+    "max_leaf_nodes": 30,
+    "class_weight": "balanced",
+    "random_state": 42,
+    "ccp_alpha": 0.003
+  },
+  "use_feature_selection": true,
+  "n_features_original": 227,
+  "n_features_selected": 14,
+  "samples": 968,
+  "metrics": {
+    "accuracy": 0.5979381443298969,
+    "precision": 0.5834274317725213,
+    "recall": 0.5979381443298969,
+    "f1": 0.5819683678043158,
+    "cv_mean": 0.6174492174492174,
+    "cv_std": 0.05201909680357936,
+    "train_score": 0.7390180878552972,
+    "test_score": 0.5979381443298969,
+    "overfitting_gap": 0.12156887040607978
+  },
+  "is_optimized": true,
+  "last_trade_count": 968
+}

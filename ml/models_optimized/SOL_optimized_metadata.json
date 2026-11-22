@@ -1,0 +1,30 @@
+{
+  "coin": "SOL",
+  "trained_at": "2026-11-22T03:00:28.578726",
+  "config": {
+    "max_features": "sqrt",
+    "max_depth": 8,
+    "min_samples_split": 20,
+    "min_samples_leaf": 10,
+    "n_estimators": 150,
+    "class_weight": "balanced",
+    "random_state": 42
+  },
+  "use_feature_selection": true,
+  "n_features_original": 227,
+  "n_features_selected": 15,
+  "samples": 968,
+  "metrics": {
+    "accuracy": 0.6701030927835051,
+    "precision": 0.6689014585609624,
+    "recall": 0.6701030927835051,
+    "f1": 0.6693940811208853,
+    "cv_mean": 0.6951714951714951,
+    "cv_std": 0.04104489484668102,
+    "train_score": 0.8010335917312662,
+    "test_score": 0.6701030927835051,
+    "overfitting_gap": 0.10586209655977108
+  },
+  "is_optimized": true,
+  "last_trade_count": 968
+}

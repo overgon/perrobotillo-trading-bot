@@ -1,0 +1,30 @@
+{
+  "coin": "ETH",
+  "trained_at": "2026-11-22T03:00:17.484511",
+  "config": {
+    "max_features": "sqrt",
+    "max_depth": 8,
+    "min_samples_split": 20,
+    "min_samples_leaf": 10,
+    "n_estimators": 150,
+    "class_weight": "balanced",
+    "random_state": 42
+  },
+  "use_feature_selection": true,
+  "n_features_original": 227,
+  "n_features_selected": 15,
+  "samples": 968,
+  "metrics": {
+    "accuracy": 0.6443298969072165,
+    "precision": 0.66017715918963,
+    "recall": 0.6443298969072165,
+    "f1": 0.6357649540099226,
+    "cv_mean": 0.6913253413253413,
+    "cv_std": 0.05528053517219766,
+    "train_score": 0.8062015503875969,
+    "test_score": 0.6443298969072165,
+    "overfitting_gap": 0.1148762090622556
+  },
+  "is_optimized": true,
+  "last_trade_count": 968
+}
