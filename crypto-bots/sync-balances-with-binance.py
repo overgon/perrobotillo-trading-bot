@@ -12,8 +12,8 @@ import json
 import os
 from pathlib import Path
 
-WORKSPACE = Path("/home/overgon/.openclaw/workspace")
-SECRETS = Path("/home/overgon/.openclaw/secrets")
+WORKSPACE = Path(os.environ.get("WORKSPACE") or (Path.home() / ".openclaw" / "workspace"))
+SECRETS = Path(os.environ.get("SECRETS") or (Path.home() / ".openclaw" / "secrets"))
 
 # Cargar credenciales
 def load_secrets():

@@ -16,7 +16,7 @@ from pathlib import Path
 from datetime import datetime
 
 # Configuración
-WORKSPACE = Path("/home/overgon/.openclaw/workspace")
+WORKSPACE = Path(os.environ.get("WORKSPACE") or (Path.home() / ".openclaw" / "workspace"))
 SECRETS_FILE = WORKSPACE.parent / "secrets" / "binance.env"
 OUTPUT_FILE = WORKSPACE / "crypto-bots" / "bnb-fee-status.json"
 LOG_FILE = WORKSPACE / "logs" / "bnb-fee-detector.log"

@@ -109,7 +109,7 @@ import urllib.request
 import os
 import sys
 
-workspace = "/home/overgon/.openclaw/workspace"
+workspace = os.environ.get("WORKSPACE") or os.path.expanduser("~/.openclaw/workspace")
 
 try:
     # 1. Precio actual de BTC
