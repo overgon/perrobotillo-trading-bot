@@ -1,0 +1,32 @@
+{
+  "coin": "ZEC",
+  "trained_at": "2026-11-22T03:01:03.408088",
+  "config": {
+    "max_depth": 5,
+    "min_samples_split": 60,
+    "min_samples_leaf": 30,
+    "n_estimators": 400,
+    "max_features": "log2",
+    "max_leaf_nodes": 12,
+    "class_weight": "balanced",
+    "random_state": 123,
+    "ccp_alpha": 0.03
+  },
+  "use_feature_selection": true,
+  "n_features_original": 227,
+  "n_features_selected": 8,
+  "samples": 968,
+  "metrics": {
+    "accuracy": 0.44329896907216493,
+    "precision": 0.46388331504183866,
+    "recall": 0.44329896907216493,
+    "f1": 0.4452310364545078,
+    "cv_mean": 0.4521145521145521,
+    "cv_std": 0.059820856790974125,
+    "train_score": 0.4780361757105943,
+    "test_score": 0.44329896907216493,
+    "overfitting_gap": 0.02592162359604222
+  },
+  "is_optimized": true,
+  "last_trade_count": 968
+}

@@ -1,0 +1,30 @@
+{
+  "coin": "BNB",
+  "trained_at": "2026-11-22T03:00:22.979133",
+  "config": {
+    "max_features": "sqrt",
+    "max_depth": 8,
+    "min_samples_split": 20,
+    "min_samples_leaf": 10,
+    "n_estimators": 150,
+    "class_weight": "balanced",
+    "random_state": 42
+  },
+  "use_feature_selection": true,
+  "n_features_original": 227,
+  "n_features_selected": 15,
+  "samples": 741,
+  "metrics": {
+    "accuracy": 0.7516778523489933,
+    "precision": 0.7571544786309886,
+    "recall": 0.7516778523489933,
+    "f1": 0.7510019593617782,
+    "cv_mean": 0.6995762711864406,
+    "cv_std": 0.0833728001916918,
+    "train_score": 0.8361486486486487,
+    "test_score": 0.7516778523489933,
+    "overfitting_gap": 0.13657237746220807
+  },
+  "is_optimized": true,
+  "last_trade_count": 968
+}

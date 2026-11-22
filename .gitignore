@@ -262,3 +262,25 @@ crypto-bots/auto-repair-states.sh.backup*
 
 # Resultados de Optuna (se regeneran cada domingo)
 research/optuna_results.json
+
+# ════════════════════════════════════════════════════════
+# 🔧 TOOLING LOCAL Y DATOS PERSONALES (nunca al repo)
+# ════════════════════════════════════════════════════════
+# binario/log de ngrok (se reinstala con el tunnel)
+.ngrok/
+# contiene un password en texto plano
+jesse_ws_config.py
+# historial personal de Binance del usuario (datos financieros)
+crypto-bots/binance-exports/
+crypto-bots/binance-import-report.json
+crypto-bots/trade-history.json.bak-*
+# estado runtime de SL / pausas / sizing
+crypto-bots/*-sl-tracking.json
+crypto-bots/*-pause-flag.json
+crypto-bots/position-sizing-config.json
+# recomendaciones y dataset de drawdown (se regeneran)
+ml/drawdown-recommendations-*.json
+ml/drawdown-training.csv
+ml/models_optimized/*.pkl
+ml/models_optimized/*_scaler_*.pkl
+ml/models_optimized/*_selected_features.pkl

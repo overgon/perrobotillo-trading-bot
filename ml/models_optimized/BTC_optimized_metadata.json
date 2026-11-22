@@ -1,0 +1,30 @@
+{
+  "coin": "BTC",
+  "trained_at": "2026-11-22T03:00:11.463823",
+  "config": {
+    "max_features": "sqrt",
+    "max_depth": 8,
+    "min_samples_split": 20,
+    "min_samples_leaf": 10,
+    "n_estimators": 150,
+    "class_weight": "balanced",
+    "random_state": 42
+  },
+  "use_feature_selection": true,
+  "n_features_original": 227,
+  "n_features_selected": 15,
+  "samples": 841,
+  "metrics": {
+    "accuracy": 0.7041420118343196,
+    "precision": 0.7078339403303536,
+    "recall": 0.7041420118343196,
+    "f1": 0.7016021323243152,
+    "cv_mean": 0.6816725197541704,
+    "cv_std": 0.06542107118476516,
+    "train_score": 0.8244047619047619,
+    "test_score": 0.7041420118343196,
+    "overfitting_gap": 0.14273224215059144
+  },
+  "is_optimized": true,
+  "last_trade_count": 968
+}
