@@ -1,6 +1,6 @@
 {
-  "accuracy": 0.5625,
-  "trained_at": "2026-05-15T20:59:00.428782",
+  "accuracy": 0.7539267015706806,
+  "trained_at": "2026-11-18T15:11:14.532790",
   "version": "1.0.0",
   "feature_cols": [
     "win_rate_24h",
@@ -28,7 +28,7 @@
     "LOW",
     "MEDIUM"
   ],
-  "n_samples": 76,
+  "n_samples": 953,
   "position_sizes": {
     "HIGH": 50,
     "MEDIUM": 40,

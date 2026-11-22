@@ -5,7 +5,7 @@
 # Wrapper bash para ejecutar Grid Trading Bot
 # ════════════════════════════════════════════════════════
 
-WORKSPACE="/home/overgon/.openclaw/workspace"
+WORKSPACE="${HOME}/.openclaw/workspace"
 VENV_PYTHON="$WORKSPACE/venv/bin/python3"
 GRID_SCRIPT="$WORKSPACE/crypto-bots/grid-trading-bot.py"
 LOG_FILE="$WORKSPACE/logs/grid-trading.log"

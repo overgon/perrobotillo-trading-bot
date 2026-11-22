@@ -57,13 +57,15 @@ send_telegram() {
         bot_token="$(jq -r '.channels.telegram.botToken // empty' "$config_file" 2>/dev/null)"
     fi
     
-    # ✅ FIX FALLBACK: Si no hay token en openclaw.json, intentar en secrets/telegram.env
-    # NOTE: telegram.env no existe actualmente; openclaw.json es source primario
+    # ✅ FIX FALLBACK: Si no hay token en openclaw.json, intentar en telegram.env
+    # Nota: telegram.env está en secrets/ dentro del workspace
     if [ -z "$bot_token" ] || [ "$bot_token" = "null" ]; then
-        local env_file="$HOME/.openclaw/secrets/telegram.env"
+        local env_file="$WORKSPACE/secrets/telegram.env"
         if [ -f "$env_file" ]; then
             source "$env_file"
             bot_token="${TELEGRAM_BOT_TOKEN:-}"
+            TELEGRAM_CHAT_ID="${TELEGRAM_CHAT_ID:-}"
+            CHAT_ID="${TELEGRAM_CHAT_ID:-$CHAT_ID}"
         fi
     fi
     
@@ -222,16 +224,13 @@ notify() {
 
 # CLI directo
 if [ "${BASH_SOURCE[0]}" = "$0" ]; then
-    action="${1:-}"
-
-    if [ "$action" = "process-queue" ]; then
+    if [ "$#" -ge 1 ] && [ "$1" = "process-queue" ]; then
         process_queue
         exit $?
     fi
-
-    key="${2:-}"
-    message="${3:-}"
-    if [ -z "$action" ] || [ -z "$key" ] || [ -z "$message" ]; then
+    key="${1:-}"
+    message="${2:-}"
+    if [ -z "$key" ] || [ -z "$message" ]; then
         echo "Uso:"
         echo "  $0 <event_key> <message>              # Enviar notificación"
         echo "  $0 process-queue                       # Procesar cola pendiente"

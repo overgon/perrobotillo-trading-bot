@@ -4,7 +4,7 @@
 # Monitorea anuncios de mantenimiento de Binance
 # ════════════════════════════════════════════════════════
 
-WORKSPACE="/home/overgon/.openclaw/workspace"
+WORKSPACE="${WORKSPACE:-$HOME/.openclaw/workspace}"
 LOG_FILE="/home/overgon/.openclaw/logs/binance-maintenance.log"
 STATE_FILE="$WORKSPACE/crypto-bots/binance-maintenance-state.json"
 

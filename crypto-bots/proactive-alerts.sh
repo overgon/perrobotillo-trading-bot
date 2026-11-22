@@ -4,8 +4,8 @@
 # Detecta condiciones peligrosas ANTES de que se acumulen pérdidas
 # ════════════════════════════════════════════════════════
 
-WORKSPACE="/home/overgon/.openclaw/workspace"
-LOG_FILE="/home/overgon/.openclaw/logs/proactive-alerts.log"
+WORKSPACE="${HOME}/.openclaw/workspace"
+LOG_FILE="${HOME}/.openclaw/logs/proactive-alerts.log"
 TRADE_HISTORY="$WORKSPACE/crypto-bots/trade-history.json"
 ALERTS_STATE="$WORKSPACE/crypto-bots/alerts-state.json"
 
