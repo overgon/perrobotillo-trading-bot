@@ -834,14 +834,14 @@ function updateTradesTable(data) {
     
     console.log('📜 Updating trades table, trades:', trades.length);
     
-    // Ordenar del más reciente al más antiguo (descendente por timestamp)
+    // Ordenar del más reciente al más antiguo: mayor ID primero (el bot asigna
+    // ids crecientes, así que el trade más nuevo tiene el ID más alto).
     const sortedTrades = [...trades].sort((a, b) => {
-      const ta = new Date((b.timestamp || '').replace(' ', 'T')).getTime();
-      const tb = new Date((a.timestamp || '').replace(' ', 'T')).getTime();
-      const da = ta || 0;
-      const db = tb || 0;
-      if (da !== db) return da - db;
-      return (b.id || 0) - (a.id || 0);
+      const idDiff = (b.id || 0) - (a.id || 0);
+      if (idDiff !== 0) return idDiff;
+      const ta = new Date((a.timestamp || '').replace(' ', 'T')).getTime();
+      const tb = new Date((b.timestamp || '').replace(' ', 'T')).getTime();
+      return (tb || 0) - (ta || 0);
     });
     const limit = showAllTrades ? sortedTrades.length : CONFIG.MAX_TRADES_DISPLAY;
     const tradesToShow = sortedTrades.slice(0, limit);

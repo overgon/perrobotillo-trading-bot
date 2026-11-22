@@ -756,6 +756,26 @@ body::before {
     padding: 2rem !important;
 }
 
+/* 📈 RECENT TRADES HISTORY — scroll interno: con cientos de trades la página
+   dejaba de ser usable ( decenas de miles de px de alto). El contenedor
+   acota la altura y la tabla scrolllea por dentro, con encabezado fijo. */
+.trades-table-container {
+    max-height: 70vh;
+    overflow-y: auto;
+    border-radius: 8px;
+}
+
+.trades-table-container .cyber-table {
+    margin-top: 0;
+}
+
+.trades-table-container .cyber-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--dark-panel);
+}
+
 /* ════════════════════════════════════════════════════════
    FOOTER
    ════════════════════════════════════════════════════════ */

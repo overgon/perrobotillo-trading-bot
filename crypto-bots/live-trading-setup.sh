@@ -8,7 +8,7 @@
 
 set -e
 
-WORKSPACE="/home/overgon/.openclaw/workspace"
+WORKSPACE="${HOME}/.openclaw/workspace"
 LOGS_DIR="$WORKSPACE/logs"
 SECRETS_DIR="$HOME/.openclaw/secrets"
 
