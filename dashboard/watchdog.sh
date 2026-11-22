@@ -110,6 +110,12 @@ start_dashboard() {
     fi
 }
 
+# Alerta crítica inmediata (sin rate limit): el dashboard caído no puede esperar.
+send_telegram() {
+    local message="$1"
+    notify "WATCHDOG_CRITICAL" "$message"
+}
+
 # Reiniciar ngrok
 restart_ngrok() {
     log "🔄 Reiniciando ngrok..."
@@ -123,15 +129,22 @@ restart_ngrok() {
     local ngrok_pid=$!
     log "✅ Ngrok iniciado (PID: $ngrok_pid) - inspect: false, tunnel: dashboard"
 
-    sleep 8
+    # Esperar hasta 30s a que el tunnel responda, verificando el endpoint real
+    local i=0 code="000"
+    while [ $i -lt 6 ]; do
+        sleep 5
+        local url=$(get_ngrok_url)
+        [ -z "$url" ] && url="https://knapsack-divinity-diffuser.ngrok-free.dev"
+        code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 8 "$url" 2>/dev/null)
+        if [ "$code" = "200" ] || [ "$code" = "401" ] || [ "$code" = "403" ]; then
+            log "✅ Ngrok verificado - Tunnel activo (HTTP $code, $url)"
+            return 0
+        fi
+        i=$((i+1))
+    done
 
-    if check_ngrok; then
-        log "✅ Ngrok verificado - Tunnel activo"
-        return 0
-    else
-        log "❌ Ngrok no se pudo iniciar correctamente"
-        return 1
-    fi
+    log "❌ Ngrok no se pudo iniciar correctamente (último HTTP $code)"
+    return 1
 }
 
 # Enviar alerta de ngrok (con rate limiting)
@@ -173,7 +186,7 @@ send_ngrok_alert() {
 
 **Recomendación:**
 Si el problema persiste, reiniciar la RPi5:
-`sudo reboot`
+\`sudo reboot\`
 
 🐕 Perrobotillo Trading Bot"
 
@@ -286,7 +299,7 @@ elif [ "$dashboard_ok" = false ] && [ "$ngrok_ok" = false ]; then
 
 **Acción requerida:**
 Reiniciar RPi5 manualmente:
-`sudo reboot`
+\`sudo reboot\`
 
 🐕 Perrobotillo Trading Bot"
     fi
