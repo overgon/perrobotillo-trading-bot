@@ -170,7 +170,8 @@ for trial in study.trials:
         'state': str(trial.state),
     })
 
-with open('/home/research/optuna_results.json', 'w') as f:
+RESULTS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'optuna_results.json')
+with open(RESULTS_FILE, 'w') as f:
     json.dump({
         'best_params': study.best_params,
         'best_value': study.best_value,
@@ -179,4 +180,4 @@ with open('/home/research/optuna_results.json', 'w') as f:
         'all_trials': all_trials,
     }, f, indent=2, default=str)
 
-print("\nResults saved to /home/research/optuna_results.json")
+print(f"\nResults saved to {RESULTS_FILE}")

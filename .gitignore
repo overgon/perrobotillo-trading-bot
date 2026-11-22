@@ -259,3 +259,6 @@ crypto-bots/crontab-adaptado.sh
 # ════════════════════════════════════════════════════════
 crypto-bots/grid-trading-bot.py.migration-backup-*
 crypto-bots/auto-repair-states.sh.backup*
+
+# Resultados de Optuna (se regeneran cada domingo)
+research/optuna_results.json
