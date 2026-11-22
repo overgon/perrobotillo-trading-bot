@@ -342,9 +342,26 @@ check_binance_system_status() {
     # API: https://api.binance.com/sapi/v1/system/status
     # status: 0 = normal, 1 = mantenimiento
     
-    local status_response=$(curl -s --max-time 5 "https://api.binance.com/sapi/v1/system/status" 2>/dev/null)
-    local status=$(echo "$status_response" | jq -r '.status // 0')
-    local msg=$(echo "$status_response" | jq -r '.msg // "unknown"')
+    # 🔧 2026-11-22: sapi/v1/system/status es INTERMITENTE desde esta maquina
+    # (480/674 ciclos con timeout de 5s -> "No se pudo verificar status").
+    # Se reintenta 2 veces y, si no responde, se usa /api/v3/ping como referencia
+    # de salud (el API responde -> no hay mantenimiento que nos afecte).
+    local status_response="" status="" msg=""
+    for _try in 1 2; do
+        status_response=$(curl -s --max-time 4 "https://api.binance.com/sapi/v1/system/status" 2>/dev/null)
+        status=$(printf '%s' "$status_response" | jq -r '.status // empty' 2>/dev/null)
+        if [ -n "$status" ]; then
+            msg=$(printf '%s' "$status_response" | jq -r '.msg // "unknown"')
+            break
+        fi
+        sleep 1
+    done
+    if [ -z "$status" ]; then
+        if curl -s -o /dev/null --max-time 4 "https://api.binance.com/api/v3/ping" 2>/dev/null; then
+            status="0"
+            msg="normal (via /api/v3/ping; sapi sin respuesta)"
+        fi
+    fi
     
     if [ "$status" = "1" ]; then
         log "⚠️ BINANCE EN MANTENIMIENTO: $msg"
