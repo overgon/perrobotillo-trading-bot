@@ -8,17 +8,21 @@
 
 import ccxt
 import json
+import os
 import re
+import time
 from datetime import datetime
 from pathlib import Path
 
 WORKSPACE = Path("/home/overgon/.openclaw/workspace")
 DASHBOARD = WORKSPACE / "dashboard"
+# 🔧 2026-11-22: CRYPTO_BOTS faltaba (NameError en el loop de monedas)
+CRYPTO_BOTS = WORKSPACE / "crypto-bots"
 GRID_STATUS_FILE = DASHBOARD / "grid-status.json"
 SECRETS = Path("/home/overgon/.openclaw/secrets/binance.env")
 CONFIG_FILE = WORKSPACE / "crypto-bots" / "grid-trading-bot.py"
 
-COINS = ["BTC", "ETH", "BNB", "SOL", "ZEC", "XRP", "AVAX"]
+COINS = ["BTC", "ETH", "BNB", "SOL", "LINK", "ZEC", "XRP", "AVAX"]
 
 def load_binance_credentials():
     """Cargar credenciales de Binance"""
@@ -26,9 +30,12 @@ def load_binance_credentials():
     if SECRETS.exists():
         with open(SECRETS) as f:
             for line in f:
-                if '=' in line:
-                    key, val = line.strip().split('=', 1)
-                    creds[key] = val
+                line = line.strip()
+                if '=' in line and not line.startswith('#'):
+                    key, val = line.split('=', 1)
+                    # 🔧 2026-11-22: el archivo trae comillas ("clave"); sin quitarlas
+                    # ccxt recibia la clave con comillas -> -2008 Invalid Api-Key ID.
+                    creds[key.strip()] = val.strip().strip('"').strip("'")
     return creds
 
 def get_grid_ranges():
@@ -111,10 +118,13 @@ def main():
     total_orders = 0
     
     # Consultar cada moneda
+    # 🔧 2026-11-22: la primera llamada firmada a veces da -1021 (recvWindow);
+    # se reintenta una vez antes de dar la moneda por fallida.
     for coin in COINS:
         symbol = f"{coin}/USDT"
-        
-        try:
+        last_err = None
+        for attempt in (1, 2):
+          try:
             # Obtener órdenes abiertas
             open_orders = exchange.fetch_open_orders(symbol)
             orders_count = len(open_orders)
@@ -131,6 +141,17 @@ def main():
             # Obtener rangos configurados
             coin_range = grid_ranges.get(coin, {'low': 0, 'high': 0})
             
+            # Cargar slots desde trade-state.json si existe
+            slots = []
+            state_file = f"{CRYPTO_BOTS}/{coin}-trade-state.json"
+            if os.path.exists(state_file):
+                try:
+                    with open(state_file, 'r') as f:
+                        state = json.load(f)
+                    slots = state.get('slots', [])
+                except Exception as e:
+                    print(f"  ⚠️ Error leyendo slots {coin}: {e}")
+            
             status_data["bots"][coin] = {
                 "active": orders_count > 0,
                 "pid": bot_pid,
@@ -138,7 +159,8 @@ def main():
                 "price": price,
                 "range": coin_range,
                 "balanceUSDT": balance_usdt,
-                "balanceCoin": balance_coin
+                "balanceCoin": balance_coin,
+                "slots": slots
             }
             
             total_orders += orders_count
@@ -147,9 +169,14 @@ def main():
                 print(f"✅ {coin}: {orders_count} órdenes @ ${price:,.2f}")
             else:
                 print(f"⚪ {coin}: Sin órdenes @ ${price:,.2f}")
-                
-        except Exception as e:
-            print(f"❌ Error con {coin}: {e}")
+            last_err = None
+            break
+          except Exception as e:
+            last_err = e
+            if attempt == 1:
+                time.sleep(1)
+        if last_err is not None:
+            print(f"❌ Error con {coin}: {last_err}")
             status_data["bots"][coin] = {
                 "active": False,
                 "pid": bot_pid,
