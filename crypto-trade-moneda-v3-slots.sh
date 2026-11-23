@@ -1079,14 +1079,19 @@ execute_long() {
     [ -z "$price" ] || [ "$price" = "0" ] && { log "⚠️ Precio no disponible"; return 1; }
 
     order_value=$(awk -v bal="$usdt_balance" -v pct="${position_percent:-10}" 'BEGIN {printf "%.2f", bal * pct / 100}')
-    if (( $(awk -v val="$order_value" -v min="10" 'BEGIN {print (val < min) ? 1 : 0}') )); then
-        log "⚠️ ${position_percent:-10}% = \$${order_value} < \$10 mínimo"
-        if (( $(awk -v bal="$usdt_balance" -v min="10" 'BEGIN {print (bal < min) ? 1 : 0}') )); then
-            log "❌ Balance insuficiente para trade mínimo (\$${usdt_balance} < \$10)"
+    # Piso de la orden: Binance exige ~$10 de notional minimo. Si el porcentaje
+    # calculado no llega, NO se usa el 100% del balance (ese fallback gastaba todo
+    # el USDT en una sola moneda y dejaba a las demas sin capital). Se usa un piso
+    # fijo de $12, que si respeta la intencion del ML de exponer poco.
+    MIN_ORDER_VALUE=12
+    if (( $(awk -v val="$order_value" -v min="$MIN_ORDER_VALUE" 'BEGIN {print (val < min) ? 1 : 0}') )); then
+        log "⚠️ ${position_percent:-10}% = \$${order_value} < \$${MIN_ORDER_VALUE} mínimo"
+        if (( $(awk -v bal="$usdt_balance" -v min="$MIN_ORDER_VALUE" 'BEGIN {print (bal < min) ? 1 : 0}') )); then
+            log "❌ Balance insuficiente para trade mínimo (\$${usdt_balance} < \$${MIN_ORDER_VALUE})"
             return 1
         fi
-        log "💡 Usando 100% del balance (\$${usdt_balance}) en vez de ${position_percent:-10}%"
-        order_value="$usdt_balance"
+        log "💡 Posición menor al mínimo: usando piso de \$${MIN_ORDER_VALUE} (no el 100% del balance \$${usdt_balance})"
+        order_value="$MIN_ORDER_VALUE"
     fi
 
     quantity=$(awk -v val="$order_value" -v p="$price" 'BEGIN {printf "%.8f", val / p}')
