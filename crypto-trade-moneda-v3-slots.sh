@@ -62,6 +62,25 @@ BINANCE="https://api.binance.com"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAX_SLOTS=3
 
+# ════════════════════════════════════════════════════════
+# 💱 COMISIÓN REAL DE UNA ORDEN DE VENTA
+# Suma TODOS los fills y convierte BNB a USDT con el precio real de BNB.
+# Uso: fee_usd=$(sell_fee_usd "$sell_result")
+# ════════════════════════════════════════════════════════
+sell_fee_usd() {
+    local res="${1:-{\}}"
+    local bnbp
+    bnbp=$(curl -s -m 5 "${BINANCE}/api/v3/ticker/price?symbol=BNBUSDT" 2>/dev/null | jq -r '.price // empty' 2>/dev/null)
+    if [ -z "$bnbp" ] || [ "$bnbp" = "null" ]; then
+        bnbp="500"
+    fi
+    printf '%s' "$res" | jq -r --arg b "$bnbp" '
+        [ .fills[]? |
+          if .commissionAsset == "BNB" then ((.commission | tonumber) * ($b | tonumber))
+          else (.commission | tonumber) end
+        ] | add // 0'
+}
+
 # Cargar notify.sh una sola vez
 if [ -f "$WORKSPACE/crypto-bots/notify.sh" ]; then
     # shellcheck source=/dev/null
@@ -1135,7 +1154,7 @@ execute_long() {
     local fee_buy
     fee_buy=$(printf '%s' "$buy_result" | jq -r '.fills[0].commission // empty')
     local total_cost
-    total_cost=$(printf '%s' "$buy_result" | jq -r '.fills[0].qty // empty')
+    total_cost=$(printf '%s' "$buy_result" | jq -r '.cummulativeQuoteQty // empty')
     
     if [ "$buy_status" = "NEW" ] || [ "$buy_status" = "FILLED" ]; then
 
@@ -1259,12 +1278,7 @@ check_slot_tp_sl() {
                     
                     # Calcular PnL
                     local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
-                    local fee_bnb=$(echo "$sell_result" | jq -r '.fills[0].commission // 0')
-                    local fee_asset=$(echo "$sell_result" | jq -r '.fills[0].commissionAsset // "USDT"')
-                    local fee_usd=$fee_bnb
-                    if [ "$fee_asset" = "BNB" ]; then
-                        fee_usd=$(awk -v b="$fee_bnb" -v p="$exit_price" 'BEGIN {printf "%.8f", b * p}')
-                    fi
+                    local fee_usd; fee_usd=$(sell_fee_usd "$sell_result")
                     
                     # Calcular PnL ANTES de guardar
                     local pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
@@ -1693,17 +1707,17 @@ El slot permanece activo."
                     register_capital_move "$SYMBOL" "TP3" "$sell_value" "$sell_qty" "$current_price" "$sell_order_id" "TP3 Slot $slot_id CIERRE TOTAL"
                 
                 # Calcular PnL ANTES de guardar en histórico
-                local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$quantity" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
+                local pnl=$(awk -v e="$entry" -v x="$current_price" -v q="$sell_qty" -v f="$fee_buy" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
                 
                 # LOG TRADE TO HISTORY
-                log_trade_to_history "$slot_id" "CLOSED_TP3" "$entry" "$current_price" "$quantity" "$pnl"
+                log_trade_to_history "$slot_id" "CLOSED_TP3" "$entry" "$current_price" "$sell_qty" "$pnl"
                 # 🐕 FIX persistencia TP3 si log_trade_to_history falló
                 local tp3_history_check
                 tp3_history_check=$(jq --arg sy "$SYMBOL" --argjson sid "$slot_id" --arg ct "CLOSED_TP3" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType==$ct)] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)
                 if [ "$tp3_history_check" = "0" ]; then
                     log "  ⚠️ log_trade_to_history no persistió CLOSED_TP3; reintento forzado"
                     sleep 1
-                    log_trade_to_history "$slot_id" "CLOSED_TP3" "$entry" "$current_price" "$quantity" "$pnl"
+                    log_trade_to_history "$slot_id" "CLOSED_TP3" "$entry" "$current_price" "$sell_qty" "$pnl"
                     tp3_history_check=$(jq --arg sy "$SYMBOL" --argjson sid "$slot_id" --arg ct "CLOSED_TP3" '[.trades[] | select(.symbol==$sy and .slotId==$sid and .closeType==$ct)] | length' "$HISTORY_FILE" 2>/dev/null || echo 0)
                     if [ "$tp3_history_check" = "0" ]; then
                         log "  ❌ SEGURIDAD: history no persistió CLOSED_TP3 tras reintento; abortando cierre para evitar pérdida de datos"
@@ -1731,17 +1745,12 @@ El slot permanece activo."
                 
                 # Actualizar PnL
                 local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
-                local fee_bnb=$(echo "$sell_result" | jq -r '.fills[0].commission // 0')
-                local fee_asset=$(echo "$sell_result" | jq -r '.fills[0].commissionAsset // "USDT"')
-                local fee_usd=$fee_bnb
-                if [ "$fee_asset" = "BNB" ]; then
-                    fee_usd=$(awk -v b="$fee_bnb" -v p="$current_price" 'BEGIN {printf "%.8f", b * p}')
-                fi
-                update_pnl_after_close "$slot_id" "TP3" "$entry" "$exit_price" "$quantity" "$fee_usd"
+                local fee_usd; fee_usd=$(sell_fee_usd "$sell_result")
+                update_pnl_after_close "$slot_id" "TP3" "$entry" "$exit_price" "$sell_qty" "$fee_usd"
                 log "  📱 DEBUG: Después de update_pnl, antes de send_telegram" "$entry" "$exit_price" "$quantity" "$fee_usd"
                 
                 # Calcular PnL total para notificación
-                local pnl_total=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
+                local pnl_total=$(awk -v e="$entry" -v x="$exit_price" -v q="$sell_qty" -v f="$fee_usd" 'BEGIN {printf "%.2f", ((x - e) * q) - f}')
                 local pnl_icon="🟢"
                 [ $(echo "$pnl_total > 0" | bc -l) -eq 1 ] || pnl_icon="🔴"
                 
@@ -1794,14 +1803,9 @@ Mantiene 5% acumulado 📈"
                         if [ "$final_sell_status" = "FILLED" ]; then
                             log "  ✅ Venta final forzada exitosa: $final_sell_qty"
                             local final_exit=$(echo "$final_sell_result" | jq -r '.fills[0].price // 0')
-                            local final_fee=$(echo "$final_sell_result" | jq -r '.fills[0].commission // 0')
-                            local final_fee_asset=$(echo "$final_sell_result" | jq -r '.fills[0].commissionAsset // "USDT"')
-                            local final_fee_usd=$final_fee
-                            if [ "$final_fee_asset" = "BNB" ]; then
-                                final_fee_usd=$(awk -v b="$final_fee" -v p="$final_exit" 'BEGIN {printf "%.8f", b * p}')
-                            fi
-                            local final_pnl=$(awk -v e="$entry" -v x="$final_exit" -v q="$quantity" -v f="$final_fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
-                            log_trade_to_history "$slot_id" "CLOSED_TP3" "$entry" "$final_exit" "$quantity" "$final_pnl"
+                            local final_fee_usd; final_fee_usd=$(sell_fee_usd "$final_sell_result")
+                            local final_pnl=$(awk -v e="$entry" -v x="$final_exit" -v q="$final_sell_qty" -v f="$final_fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
+                            log_trade_to_history "$slot_id" "CLOSED_TP3" "$entry" "$final_exit" "$final_sell_qty" "$final_pnl"
                             update_slot_field "$slot_id" "status" "CLOSED_TP3"
                             update_slot_field "$slot_id" "tp3Done" "true"
                             notify "TP3_HIT|$SYMBOL|$slot_id|FORCED" "🎯 TP3 - $SYMBOL [Cierre forzado]
@@ -1858,14 +1862,9 @@ Razón: Balance insuficiente en el primer fallo
                         if [ "$final_sell_status" = "FILLED" ]; then
                             log "  ✅ Venta final forzada exitosa: $final_sell_qty"
                             local final_exit=$(echo "$final_sell_result" | jq -r '.fills[0].price // 0')
-                            local final_fee=$(echo "$final_sell_result" | jq -r '.fills[0].commission // 0')
-                            local final_fee_asset=$(echo "$final_sell_result" | jq -r '.fills[0].commissionAsset // "USDT"')
-                            local final_fee_usd=$final_fee
-                            if [ "$final_fee_asset" = "BNB" ]; then
-                                final_fee_usd=$(awk -v b="$final_fee" -v p="$final_exit" 'BEGIN {printf "%.8f", b * p}')
-                            fi
-                            local final_pnl=$(awk -v e="$entry" -v x="$final_exit" -v q="$quantity" -v f="$final_fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
-                            log_trade_to_history "$slot_id" "CLOSED_TP3" "$entry" "$final_exit" "$quantity" "$final_pnl"
+                            local final_fee_usd; final_fee_usd=$(sell_fee_usd "$final_sell_result")
+                            local final_pnl=$(awk -v e="$entry" -v x="$final_exit" -v q="$final_sell_qty" -v f="$final_fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
+                            log_trade_to_history "$slot_id" "CLOSED_TP3" "$entry" "$final_exit" "$final_sell_qty" "$final_pnl"
                             update_slot_field "$slot_id" "status" "CLOSED_TP3"
                             update_slot_field "$slot_id" "tp3Done" "true"
                             notify "TP3_HIT|$SYMBOL|$slot_id|FORCED" "🎯 TP3 - $SYMBOL [Cierre forzado]
@@ -1975,12 +1974,7 @@ ACUMULADO: 5% se queda HODL 📈
                 
                 # Actualizar PnL
                 local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
-                local fee_bnb=$(echo "$sell_result" | jq -r '.fills[0].commission // 0')
-                local fee_asset=$(echo "$sell_result" | jq -r '.fills[0].commissionAsset // "USDT"')
-                local fee_usd=$fee_bnb
-                if [ "$fee_asset" = "BNB" ]; then
-                    fee_usd=$(awk -v b="$fee_bnb" -v p="$current_price" 'BEGIN {printf "%.8f", b * p}')
-                fi
+                local fee_usd; fee_usd=$(sell_fee_usd "$sell_result")
                 
                 # Calcular PnL ANTES de guardar en histórico
                 local pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
@@ -2096,12 +2090,7 @@ execute_trailing_stop() {
 
         # Calcular PnL antes de update de estado para armar la alerta
         local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
-        local fee_bnb=$(echo "$sell_result" | jq -r '.fills[0].commission // 0')
-        local fee_asset=$(echo "$sell_result" | jq -r '.fills[0].commissionAsset // "USDT"')
-        local fee_usd=$fee_bnb
-        if [ "$fee_asset" = "BNB" ]; then
-            fee_usd=$(awk -v b="$fee_bnb" -v p="$exit_price" 'BEGIN {printf "%.8f", b * p}')
-        fi
+        local fee_usd; fee_usd=$(sell_fee_usd "$sell_result")
         local trailing_pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')
         local trailing_exit_display=$(awk -v p="$exit_price" 'BEGIN {printf "%.2f", p}')
         local trailing_pnl_display=$(awk -v p="$trailing_pnl" 'BEGIN {printf "%.2f", p}')
@@ -2139,12 +2128,7 @@ Razón: $reason
         
         # Actualizar PnL
         local exit_price=$(echo "$sell_result" | jq -r '.fills[0].price // 0')
-        local fee_bnb=$(echo "$sell_result" | jq -r '.fills[0].commission // 0')
-        local fee_asset=$(echo "$sell_result" | jq -r '.fills[0].commissionAsset // "USDT"')
-        local fee_usd=$fee_bnb
-        if [ "$fee_asset" = "BNB" ]; then
-            fee_usd=$(awk -v b="$fee_bnb" -v p="$exit_price" 'BEGIN {printf "%.8f", b * p}')
-        fi
+        local fee_usd; fee_usd=$(sell_fee_usd "$sell_result")
         
         # Calcular PnL ANTES de guardar en histórico
         local pnl=$(awk -v e="$entry" -v x="$exit_price" -v q="$quantity" -v f="$fee_usd" 'BEGIN {printf "%.8f", ((x - e) * q) - f}')

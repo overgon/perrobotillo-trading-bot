@@ -98,6 +98,29 @@ if (playPromise) {
 
 ---
 
+## Issues Creados - 2026-11-23
+
+### ✅ Issue #97: PnL de TP3 con cantidad obsoleta + totalCost
+
+**Título:** `🐛 [BUG] PnL de TP3 usaba cantidad obsoleta (sobrestimaba ganancia) + totalCost guardaba cantidad`
+
+**URL:** https://github.com/overgon/perrobotillo-trading-bot/issues/97
+
+**Descripción:**
+Hallazgos durante la verificación del TP3 de XRP (2026-11-23):
+
+- **Bug 1 (crítico):** el PnL de TP3 usaba `$quantity` (cantidad leída al inicio del ciclo) en vez de `$sell_qty`. Cuando TP2 y TP3 ocurren en el mismo ciclo, TP3 sobrestimaba. Caso XRP: reportó $19.52 en vez de $12.69.
+- **Bug 2:** `totalCost` guardaba `.fills[0].qty` (cantidad) en vez de `.cummulativeQuoteQty` (costo USDT).
+- **Bug 3 (pendiente):** TP/SL se calculan sobre el precio de mercado previo a la orden, no sobre el fill.
+
+**Fixes aplicados:** Bug 1 y Bug 2 en `crypto-trade-moneda-v3-slots.sh`.
+**Datos corregidos:** `trade-history.json` (agregados recalculados) y `XRP-daily-pnl.json`.
+**PnL real de la operación:** +$27.19.
+
+**Follow-up pendiente:** alinear `*-daily-pnl.json` (solo acumula la pata final) y decidir el Bug 3.
+
+---
+
 ## 📊 Resumen:
 
 | Issue | Tipo | Estado | Prioridad |

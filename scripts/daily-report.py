@@ -10,6 +10,7 @@
 
 import json
 import os
+import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -390,6 +391,89 @@ def get_system_status():
         return status
 
 
+def get_honeygain_status():
+    """Estado de Honeygain sin root: systemctl + /proc del proceso del contenedor."""
+    hg = {
+        'installed': False, 'active': False, 'state': 'desconocido',
+        'uptime': '', 'restarts': 0, 'rss_mb': 0.0, 'cpu_pct': 0.0,
+        'rx_mb': 0.0, 'tx_mb': 0.0, 'alerts': [],
+    }
+    try:
+        r = subprocess.run(['systemctl', 'is-active', 'honeygain'],
+                           capture_output=True, text=True, timeout=10)
+        hg['installed'] = True
+        hg['state'] = r.stdout.strip() or 'inactivo'
+        hg['active'] = (hg['state'] == 'active')
+    except FileNotFoundError:
+        return hg
+    except Exception as e:
+        hg['alerts'].append(f'Error consultando Honeygain: {e}')
+        return hg
+
+    try:
+        props = subprocess.run(
+            ['systemctl', 'show', 'honeygain', '-p', 'NRestarts',
+             '-p', 'ActiveEnterTimestamp'],
+            capture_output=True, text=True, timeout=10).stdout
+        started = None
+        for line in props.splitlines():
+            if '=' not in line:
+                continue
+            k, v = line.split('=', 1)
+            if k == 'NRestarts':
+                try:
+                    hg['restarts'] = int(v)
+                except ValueError:
+                    pass
+            elif k == 'ActiveEnterTimestamp' and v.strip():
+                try:
+                    started = datetime.strptime(v.rsplit(' ', 1)[0],
+                                                '%a %Y-%m-%d %H:%M:%S')
+                except ValueError:
+                    pass
+        if started:
+            delta = datetime.now() - started
+            hours, rem = divmod(int(delta.total_seconds()), 3600)
+            mins = rem // 60
+            hg['uptime'] = f'{hours}h {mins}m' if hours else f'{mins}m'
+    except Exception:
+        pass
+
+    # Proceso del contenedor (netns propia) → RAM, CPU y tráfico
+    try:
+        pids = subprocess.run(['pgrep', '-x', 'honeygain'],
+                              capture_output=True, text=True, timeout=10).stdout.split()
+        if pids:
+            pid = pids[0]
+            with open(f'/proc/{pid}/status') as f:
+                for line in f:
+                    if line.startswith('VmRSS:'):
+                        hg['rss_mb'] = int(line.split()[1]) / 1024
+                        break
+            with open(f'/proc/{pid}/net/dev') as f:
+                for line in f:
+                    if line.strip().startswith('eth0:'):
+                        parts = line.split()
+                        hg['rx_mb'] = int(parts[1]) / 1048576
+                        hg['tx_mb'] = int(parts[9]) / 1048576
+                        break
+            try:
+                cpu = subprocess.run(['ps', '-o', 'pcpu=', '-p', pid],
+                                     capture_output=True, text=True, timeout=10).stdout.strip()
+                hg['cpu_pct'] = float(cpu)
+            except ValueError:
+                pass
+    except Exception:
+        pass
+
+    if hg['installed'] and not hg['active']:
+        hg['alerts'].append('Honeygain está detenido')
+    if hg['restarts'] and hg['restarts'] > 3:
+        hg['alerts'].append(f'Honeygain reinició {hg["restarts"]} veces')
+
+    return hg
+
+
 def get_win_rate(days=1):
     """Calcula win rate de los últimos N días
     FIX: timezone-aware comparison
@@ -440,6 +524,7 @@ def generate_report():
     yesterday_trades = get_yesterday_trades()
     active_trades = get_active_trades()
     system = get_system_status()
+    honeygain = get_honeygain_status()
 
     total_pnl = sum(d['pnl_24h'] for d in pnl_data.values())
 
@@ -496,6 +581,23 @@ def generate_report():
     if system['alerts']:
         for alert in system['alerts']:
             lines.append(f"⚠️ {alert}")
+
+    # Honeygain: solo en el reporte de las 9 AM (hora local)
+    if datetime.now().hour == 9:
+        lines.append("")
+        lines.append("🍯 **HONEYGAIN**")
+        if not honeygain['installed']:
+            lines.append("No instalado")
+        elif honeygain['active']:
+            up = f"up {honeygain['uptime']}" if honeygain['uptime'] else "activo"
+            lines.append(f"Estado: ✅ {up} | Reinicios: {honeygain['restarts']}")
+            lines.append(f"RAM: {honeygain['rss_mb']:.0f} MB | CPU: {honeygain['cpu_pct']:.1f}% "
+                         f"| Red: ↓{honeygain['rx_mb']:.1f} MB ↑{honeygain['tx_mb']:.1f} MB")
+        else:
+            lines.append(f"Estado: ⚠️ {honeygain['state']}")
+        for alert in honeygain['alerts']:
+            lines.append(f"⚠️ {alert}")
+
     lines.append("━━━━━━━━━━━━━━━━━━━━━━")
     lines.append("🤖 Perrobotillo v2.1")
 
