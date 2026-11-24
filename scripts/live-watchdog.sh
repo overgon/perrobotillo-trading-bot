@@ -49,10 +49,24 @@ errs=$(grep -hE "Traceback|CRITICAL|Error de Binance|APIError|Insufficient|pausa
 # 5) Modelo de outcome presente
 [ ! -f "$WS/ml/outcome_model.pkl" ] && problems+=("falta ml/outcome_model.pkl")
 
-# 6) Circuit Breaker activo (el bot no deberia estar operando)
+# 6) Circuit Breaker activo — se notifica SOLO al cambiar de estado,
+#    no en cada pasada (antes bombardeaba cada 30 min mientras durara la pausa).
 cb_file="$WS/crypto-bots/dashboard-circuit-breaker-status.json"
+cb_state_file="$HOME/.openclaw/live-watchdog-cb.state"
+mkdir -p "$(dirname "$cb_state_file")"
+cb_active=false
 if [ -f "$cb_file" ] && grep -q '"circuitBreakerActive": true' "$cb_file" 2>/dev/null; then
-  problems+=("CIRCUIT BREAKER ACTIVO (bot pausado)")
+  cb_active=true
+fi
+prev_cb="$(cat "$cb_state_file" 2>/dev/null || echo unknown)"
+if [ "$cb_active" != "$prev_cb" ]; then
+  if [ "$cb_active" = "true" ]; then
+    rem=$(grep -oE '"timeRemaining": *"[^"]*"' "$cb_file" 2>/dev/null | sed 's/.*: *"//; s/"$//')
+    problems+=("CIRCUIT BREAKER ACTIVADO — bot pausado (queda ${rem:-?})")
+  else
+    problems+=("CIRCUIT BREAKER DESACTIVADO — el bot vuelve a operar")
+  fi
+  printf '%s\n' "$cb_active" > "$cb_state_file"
 fi
 
 if [ ${#problems[@]} -eq 0 ]; then
