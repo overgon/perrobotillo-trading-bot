@@ -207,6 +207,7 @@ jesse.pid
 jesse_config.py
 venv-jesse/
 storage/logs/jesse-*.log
+storage/.auth-secret
 processes.txt
 backtest/jesse_output.json
 backtest/jesse_backtest_*.json
